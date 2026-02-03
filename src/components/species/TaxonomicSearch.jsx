@@ -102,7 +102,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                     Add Token
                   </Button>
                   <a
-                    href="https://apiv3.iucnredlist.org/api/v3/token"
+                    href="https://apiv3.iucnredlist.org/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
