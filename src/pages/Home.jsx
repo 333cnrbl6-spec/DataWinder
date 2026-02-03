@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Leaf, AlertCircle, Info, Database } from 'lucide-react';
+import { Leaf, AlertCircle, Info, Database, Grid3x3, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
 import SpeciesGrid from '@/components/species/SpeciesGrid';
+import MapView from '@/components/species/MapView';
 import SelectionBar from '@/components/species/SelectionBar';
 import DownloadPanel from '@/components/species/DownloadPanel';
 import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
@@ -18,6 +20,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [showDownload, setShowDownload] = useState(false);
   const [searchInfo, setSearchInfo] = useState(null);
+  const [viewMode, setViewMode] = useState('grid');
 
   const handleSearch = async ({ level, terms, iucnToken, inatUsername, inatPassword }) => {
     setIsLoading(true);
@@ -119,7 +122,7 @@ export default function Home() {
             // Fetch recent observations for this taxon
             let observationData = null;
             try {
-              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=10&order=desc&order_by=created_at`;
+              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=20&order=desc&order_by=created_at&photos=true`;
               const obsRes = await fetch(obsUrl);
               if (obsRes.ok) {
                 observationData = await obsRes.json();
@@ -138,6 +141,18 @@ export default function Home() {
               .slice(0, 5);
 
             const uniqueLocations = [...new Set(locations)];
+
+            // Store observations with coordinates for mapping
+            const observationsWithCoords = observations
+              .filter(obs => obs.location)
+              .map(obs => ({
+                latitude: parseFloat(obs.location.split(',')[0]),
+                longitude: parseFloat(obs.location.split(',')[1]),
+                location: obs.place_guess || '',
+                observed_on: obs.observed_on,
+                user: obs.user?.login || 'Unknown',
+                photo_url: obs.photos?.[0]?.url || ''
+              }));
 
             return {
               id: `inat-${taxon.id}`,
@@ -164,7 +179,8 @@ export default function Home() {
               inat_taxon_id: taxon.id,
               inat_wikipedia_url: taxon.wikipedia_url || '',
               recent_observations: observations.length,
-              last_observed: recentObservation?.observed_on || null
+              last_observed: recentObservation?.observed_on || null,
+              observations: observationsWithCoords
             };
           }));
 
@@ -273,12 +289,35 @@ export default function Home() {
         {/* Results */}
         {species.length > 0 && (
           <>
-            {searchInfo && (
-              <div className="text-sm text-slate-500">
-                Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-emerald-600">{searchInfo.terms}</span>
+            <div className="flex items-center justify-between">
+              {searchInfo && (
+                <div className="text-sm text-slate-500">
+                  Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-emerald-600">{searchInfo.terms}</span>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className={viewMode === 'grid' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                >
+                  <Grid3x3 className="w-4 h-4 mr-2" />
+                  Grid
+                </Button>
+                <Button
+                  variant={viewMode === 'map' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('map')}
+                  className={viewMode === 'map' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                >
+                  <Map className="w-4 h-4 mr-2" />
+                  Map
+                </Button>
               </div>
-            )}
-            
+            </div>
+
             <SelectionBar
               totalCount={species.length}
               selectedCount={selectedIds.length}
@@ -286,12 +325,20 @@ export default function Home() {
               onDeselectAll={deselectAll}
               onDownload={() => setShowDownload(true)}
             />
-            
-            <SpeciesGrid
-              species={species}
-              selectedIds={selectedIds}
-              onSelect={handleSelect}
-            />
+
+            {viewMode === 'grid' ? (
+              <SpeciesGrid
+                species={species}
+                selectedIds={selectedIds}
+                onSelect={handleSelect}
+              />
+            ) : (
+              <MapView
+                species={species}
+                selectedIds={selectedIds}
+                onSelect={handleSelect}
+              />
+            )}
           </>
         )}
 
