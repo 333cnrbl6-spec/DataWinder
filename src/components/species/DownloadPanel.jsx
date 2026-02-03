@@ -25,11 +25,14 @@ const dataFields = [
   { key: 'iucn_id', label: 'IUCN ID' }
 ];
 
-export default function DownloadPanel({ selectedSpecies, onClose }) {
+export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
   const [selectedFields, setSelectedFields] = useState(
     dataFields.filter(f => f.required || ['common_name', 'iucn_status', 'population_trend', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
   );
   const [format, setFormat] = useState('csv');
+  const [saveLocation, setSaveLocation] = useState('');
+  const [saveToDatabase, setSaveToDatabase] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const toggleField = (key) => {
     const field = dataFields.find(f => f.key === key);
@@ -44,6 +47,63 @@ export default function DownloadPanel({ selectedSpecies, onClose }) {
 
   const selectAll = () => setSelectedFields(dataFields.map(f => f.key));
   const selectNone = () => setSelectedFields(dataFields.filter(f => f.required).map(f => f.key));
+
+  const saveToDb = async () => {
+    setIsSaving(true);
+    try {
+      // Group by dataset
+      const groupedByDataset = selectedSpecies.reduce((acc, species) => {
+        const dataset = species.dataset_name || 'ungrouped';
+        if (!acc[dataset]) acc[dataset] = [];
+        acc[dataset].push(species);
+        return acc;
+      }, {});
+
+      // Save each dataset
+      for (const [datasetName, speciesInDataset] of Object.entries(groupedByDataset)) {
+        // Save species to database
+        const speciesToSave = speciesInDataset.map(sp => ({
+          scientific_name: sp.scientific_name,
+          common_name: sp.common_name,
+          kingdom: sp.kingdom,
+          phylum: sp.phylum,
+          class_name: sp.class_name,
+          order_name: sp.order_name,
+          family: sp.family,
+          genus: sp.genus,
+          iucn_status: sp.iucn_status,
+          population_trend: sp.population_trend,
+          habitat: sp.habitat,
+          range_description: sp.range_description,
+          threats: sp.threats,
+          conservation_actions: sp.conservation_actions,
+          assessment_date: sp.assessment_date,
+          iucn_id: sp.iucn_id,
+          image_url: sp.image_url
+        }));
+
+        await base44.entities.Species.bulkCreate(speciesToSave);
+
+        // Save search record
+        await base44.entities.SavedSearch.create({
+          name: saveLocation || datasetName,
+          taxonomy_level: 'multiple',
+          search_term: datasetName,
+          species_count: speciesInDataset.length
+        });
+      }
+
+      if (onSaveComplete) {
+        onSaveComplete();
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error saving to database:', error);
+      alert('Failed to save to database. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const downloadData = () => {
     // Group species by their dataset
@@ -176,7 +236,25 @@ export default function DownloadPanel({ selectedSpecies, onClose }) {
 
             <CardContent className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
               <div>
-                <Label className="text-sm font-medium mb-3 block">Export Format</Label>
+                <Label className="text-sm font-medium mb-3 block">Save Location</Label>
+                <Input
+                  value={saveLocation}
+                  onChange={(e) => setSaveLocation(e.target.value)}
+                  placeholder="e.g., Primate Study 2026, Conservation Project..."
+                  className="mb-3"
+                />
+                <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                  <Checkbox
+                    checked={saveToDatabase}
+                    onCheckedChange={setSaveToDatabase}
+                  />
+                  <Database className="w-4 h-4" />
+                  Save to database for later access
+                </label>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Export Format (Download Files)</Label>
                 <div className="flex gap-3">
                   <Button
                     variant={format === 'csv' ? 'default' : 'outline'}
@@ -242,17 +320,25 @@ export default function DownloadPanel({ selectedSpecies, onClose }) {
                 </div>
               </div>
 
-              <Button 
-                onClick={downloadData}
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download {format.toUpperCase()} ({selectedSpecies.length} species
-                {(() => {
-                  const datasets = new Set(selectedSpecies.map(s => s.dataset_name).filter(Boolean));
-                  return datasets.size > 1 ? ` across ${datasets.size} files` : '';
-                })()})
-              </Button>
+              <div className="flex gap-3">
+                {saveToDatabase && (
+                  <Button 
+                    onClick={saveToDb}
+                    disabled={isSaving}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Database className="w-4 h-4 mr-2" />
+                    {isSaving ? 'Saving...' : 'Save to Database'}
+                  </Button>
+                )}
+                <Button 
+                  onClick={downloadData}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download {format.toUpperCase()}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Leaf, AlertCircle, Info } from 'lucide-react';
+import { Leaf, AlertCircle, Info, Database } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from './utils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
@@ -137,10 +139,16 @@ export default function Home() {
             <div className="p-2 bg-emerald-100 rounded-xl">
               <Leaf className="w-6 h-6 text-emerald-600" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold text-slate-900">IUCN Species Explorer</h1>
               <p className="text-sm text-slate-500">Search and download species conservation data</p>
             </div>
+            <Link to={createPageUrl('SavedData')}>
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors">
+                <Database className="w-4 h-4" />
+                <span className="text-sm font-medium">Saved Data</span>
+              </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -235,6 +243,9 @@ export default function Home() {
         <DownloadPanel
           selectedSpecies={selectedSpecies}
           onClose={() => setShowDownload(false)}
+          onSaveComplete={() => {
+            alert('Data saved to database successfully!');
+          }}
         />
       )}
     </div>
