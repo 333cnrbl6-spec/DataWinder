@@ -8,6 +8,9 @@ import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 
 export default function SpeciesCard({ species, selected, onSelect, index = 0 }) {
+  const isIUCN = species.data_source === 'IUCN Red List';
+  const isINat = species.data_source === 'iNaturalist';
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -15,7 +18,9 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
-        selected ? 'ring-2 ring-emerald-500 shadow-emerald-100' : 'hover:shadow-slate-200'
+        selected 
+          ? isIUCN ? 'ring-2 ring-emerald-500 shadow-emerald-100' : 'ring-2 ring-blue-500 shadow-blue-100'
+          : 'hover:shadow-slate-200'
       }`}>
         <div className="absolute top-3 left-3 z-10">
           <Checkbox 
@@ -61,14 +66,32 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 {species.scientific_name}
               </p>
             </div>
-            <StatusBadge status={species.iucn_status} size="sm" />
+            {isIUCN && <StatusBadge status={species.iucn_status} size="sm" />}
           </div>
 
+          {/* iNaturalist-specific observations */}
+          {isINat && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {species.observation_count > 0 && (
+                <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">
+                  {species.observation_count.toLocaleString()} obs
+                </span>
+              )}
+              {species.last_observed && (
+                <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">
+                  Last: {species.last_observed}
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
-            <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5" />
-              <TrendIndicator trend={species.population_trend} />
-            </span>
+            {isIUCN && (
+              <span className="flex items-center gap-1">
+                <Users className="w-3.5 h-3.5" />
+                <TrendIndicator trend={species.population_trend} />
+              </span>
+            )}
             {species.family && (
               <span className="truncate">
                 {species.family}
@@ -83,17 +106,42 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             </div>
           )}
 
-          {species.iucn_id && (
-            <a 
-              href={`https://www.iucnredlist.org/species/${species.iucn_id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View on IUCN <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
+          {/* External Links */}
+          <div className="mt-3 space-y-1">
+            {isIUCN && species.iucn_id && (
+              <a 
+                href={`https://www.iucnredlist.org/species/${species.iucn_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View on IUCN <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            {isINat && species.inat_taxon_id && (
+              <a 
+                href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View on iNaturalist <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            {isINat && species.inat_wikipedia_url && (
+              <a 
+                href={species.inat_wikipedia_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs text-slate-600 hover:text-slate-700 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Wikipedia →
+              </a>
+            )}
+          </div>
         </CardContent>
       </Card>
     </motion.div>
