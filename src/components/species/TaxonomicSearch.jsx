@@ -43,28 +43,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     loadCredentials();
   }, []);
 
-  const autoFetchIucnCredentials = async () => {
-    try {
-      // Attempt to auto-fetch token from IUCN credential system
-      const response = await fetch('https://apiv3.iucnredlist.org/api/v3/token/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.token) {
-          setIucnToken(data.token);
-          await base44.auth.updateMe({ iucn_api_token: data.token });
-          setShowIucnInput(false);
-        }
-      }
-    } catch (err) {
-      console.error('Auto-fetch failed:', err);
-      alert('Could not automatically fetch token. Please add manually.');
-    }
-  };
-
   const saveIucnToken = async () => {
     if (iucnToken.trim()) {
       await base44.auth.updateMe({ iucn_api_token: iucnToken.trim() });
@@ -144,29 +122,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
-                      variant="default"
-                      onClick={autoFetchIucnCredentials}
-                      className="text-xs bg-emerald-600 hover:bg-emerald-700"
-                    >
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      Auto-Fetch Credentials
-                    </Button>
-                    <Button
-                      size="sm"
                       variant="outline"
                       onClick={() => setShowIucnInput(true)}
                       className="text-xs"
                     >
                       <Key className="w-3 h-3 mr-1" />
-                      Add Manually
+                      Add Token
                     </Button>
                     <a
-                      href="https://apiv3.iucnredlist.org/"
+                      href="https://apiv3.iucnredlist.org/token"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
                     >
-                      Get Token <ExternalLink className="w-3 h-3" />
+                      Get Free Token <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 ) : (
