@@ -43,6 +43,28 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     loadCredentials();
   }, []);
 
+  const autoFetchIucnCredentials = async () => {
+    try {
+      // Attempt to auto-fetch token from IUCN credential system
+      const response = await fetch('https://apiv3.iucnredlist.org/api/v3/token/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) {
+          setIucnToken(data.token);
+          await base44.auth.updateMe({ iucn_api_token: data.token });
+          setShowIucnInput(false);
+        }
+      }
+    } catch (err) {
+      console.error('Auto-fetch failed:', err);
+      alert('Could not automatically fetch token. Please add manually.');
+    }
+  };
+
   const saveIucnToken = async () => {
     if (iucnToken.trim()) {
       await base44.auth.updateMe({ iucn_api_token: iucnToken.trim() });
@@ -119,7 +141,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   Get your free API token from the IUCN Red List website.
                 </p>
                 {!showIucnInput ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={autoFetchIucnCredentials}
+                      className="text-xs bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Auto-Fetch Credentials
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -127,7 +158,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                       className="text-xs"
                     >
                       <Key className="w-3 h-3 mr-1" />
-                      Add Token
+                      Add Manually
                     </Button>
                     <a
                       href="https://apiv3.iucnredlist.org/"
