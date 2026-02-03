@@ -46,45 +46,101 @@ export default function DownloadPanel({ selectedSpecies, onClose }) {
   const selectNone = () => setSelectedFields(dataFields.filter(f => f.required).map(f => f.key));
 
   const downloadData = () => {
-    const data = selectedSpecies.map(species => {
-      const row = {};
-      selectedFields.forEach(field => {
-        row[field] = species[field] || '';
+    // Group species by their dataset
+    const groupedByDataset = selectedSpecies.reduce((acc, species) => {
+      const dataset = species.dataset_name || 'ungrouped';
+      if (!acc[dataset]) acc[dataset] = [];
+      acc[dataset].push(species);
+      return acc;
+    }, {});
+
+    const datasets = Object.keys(groupedByDataset);
+
+    // If multiple datasets, create a structured download
+    if (datasets.length > 1) {
+      datasets.forEach(datasetName => {
+        const speciesInDataset = groupedByDataset[datasetName];
+        const data = speciesInDataset.map(species => {
+          const row = {};
+          selectedFields.forEach(field => {
+            row[field] = species[field] || '';
+          });
+          return row;
+        });
+
+        let content, filename, mimeType;
+        const safeName = datasetName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+        if (format === 'json') {
+          content = JSON.stringify(data, null, 2);
+          filename = `iucn_${safeName}.json`;
+          mimeType = 'application/json';
+        } else {
+          const headers = selectedFields.join(',');
+          const rows = data.map(row => 
+            selectedFields.map(field => {
+              const value = String(row[field] || '').replace(/"/g, '""');
+              return value.includes(',') || value.includes('"') || value.includes('\n') 
+                ? `"${value}"` 
+                : value;
+            }).join(',')
+          );
+          content = [headers, ...rows].join('\n');
+          filename = `iucn_${safeName}.csv`;
+          mimeType = 'text/csv';
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       });
-      return row;
-    });
-
-    let content, filename, mimeType;
-
-    if (format === 'json') {
-      content = JSON.stringify(data, null, 2);
-      filename = 'iucn_species_data.json';
-      mimeType = 'application/json';
     } else {
-      // CSV
-      const headers = selectedFields.join(',');
-      const rows = data.map(row => 
-        selectedFields.map(field => {
-          const value = String(row[field] || '').replace(/"/g, '""');
-          return value.includes(',') || value.includes('"') || value.includes('\n') 
-            ? `"${value}"` 
-            : value;
-        }).join(',')
-      );
-      content = [headers, ...rows].join('\n');
-      filename = 'iucn_species_data.csv';
-      mimeType = 'text/csv';
-    }
+      // Single dataset download
+      const data = selectedSpecies.map(species => {
+        const row = {};
+        selectedFields.forEach(field => {
+          row[field] = species[field] || '';
+        });
+        return row;
+      });
 
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      let content, filename, mimeType;
+
+      if (format === 'json') {
+        content = JSON.stringify(data, null, 2);
+        filename = 'iucn_species_data.json';
+        mimeType = 'application/json';
+      } else {
+        const headers = selectedFields.join(',');
+        const rows = data.map(row => 
+          selectedFields.map(field => {
+            const value = String(row[field] || '').replace(/"/g, '""');
+            return value.includes(',') || value.includes('"') || value.includes('\n') 
+              ? `"${value}"` 
+              : value;
+          }).join(',')
+        );
+        content = [headers, ...rows].join('\n');
+        filename = 'iucn_species_data.csv';
+        mimeType = 'text/csv';
+      }
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   return (
@@ -191,7 +247,11 @@ export default function DownloadPanel({ selectedSpecies, onClose }) {
                 className="w-full bg-emerald-600 hover:bg-emerald-700"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download {format.toUpperCase()} ({selectedSpecies.length} species)
+                Download {format.toUpperCase()} ({selectedSpecies.length} species
+                {(() => {
+                  const datasets = new Set(selectedSpecies.map(s => s.dataset_name).filter(Boolean));
+                  return datasets.size > 1 ? ` across ${datasets.size} files` : '';
+                })()})
               </Button>
             </CardContent>
           </Card>

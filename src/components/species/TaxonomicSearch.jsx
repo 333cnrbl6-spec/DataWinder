@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles, Key, ExternalLink } from 'lucide-react';
+import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 
@@ -16,7 +16,7 @@ const taxonomyLevels = [
 
 export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [level, setLevel] = useState('family');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerms, setSearchTerms] = useState(['']);
   const [apiToken, setApiToken] = useState('');
   const [showTokenInput, setShowTokenInput] = useState(false);
 
@@ -42,9 +42,26 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const handleSearch = () => {
-    if (searchTerm.trim()) {
-      onSearch({ level, term: searchTerm.trim(), apiToken });
+    const validTerms = searchTerms.filter(t => t.trim());
+    if (validTerms.length > 0) {
+      onSearch({ level, terms: validTerms, apiToken });
     }
+  };
+
+  const addSearchTerm = () => {
+    setSearchTerms([...searchTerms, '']);
+  };
+
+  const removeSearchTerm = (index) => {
+    if (searchTerms.length > 1) {
+      setSearchTerms(searchTerms.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateSearchTerm = (index, value) => {
+    const newTerms = [...searchTerms];
+    newTerms[index] = value;
+    setSearchTerms(newTerms);
   };
 
   const currentLevel = taxonomyLevels.find(t => t.value === level);
@@ -132,61 +149,98 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Select value={level} onValueChange={setLevel}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {taxonomyLevels.map(t => (
-              <SelectItem key={t.value} value={t.value}>
-                {t.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Select value={level} onValueChange={setLevel}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {taxonomyLevels.map(t => (
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-slate-500">to search for:</span>
+        </div>
 
-        <div className="flex-1 relative">
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={currentLevel?.placeholder}
-            className="pr-10"
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        {searchTerms.map((term, index) => (
+          <div key={index} className="flex gap-2">
+            <div className="flex-1 relative">
+              <Input
+                value={term}
+                onChange={(e) => updateSearchTerm(index, e.target.value)}
+                placeholder={currentLevel?.placeholder}
+                className="pr-10"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            </div>
+            {searchTerms.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeSearchTerm(index)}
+                className="text-slate-400 hover:text-red-600"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+        ))}
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addSearchTerm}
+            className="text-xs"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            Add Another {currentLevel?.label}
+          </Button>
         </div>
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || !searchTerm.trim() || !apiToken}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[120px]"
+          disabled={isLoading || !searchTerms.some(t => t.trim()) || !apiToken}
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Searching...
+              Searching {searchTerms.filter(t => t.trim()).length} {currentLevel?.label}...
             </>
           ) : (
-            'Search'
+            <>
+              Search {searchTerms.filter(t => t.trim()).length} {currentLevel?.label}
+            </>
           )}
         </Button>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="text-xs text-slate-400">Quick examples:</span>
-        {['Callitrichidae', 'Felidae', 'Psittacidae', 'Ursidae'].map(example => (
-          <button
-            key={example}
-            onClick={() => {
-              setLevel('family');
-              setSearchTerm(example);
-            }}
-            className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
-          >
-            {example}
-          </button>
-        ))}
+        <span className="text-xs text-slate-400">Quick load multiple:</span>
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae']);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+        >
+          Primate Families
+        </button>
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Felidae', 'Canidae', 'Ursidae']);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+        >
+          Carnivore Families
+        </button>
       </div>
     </motion.div>
   );

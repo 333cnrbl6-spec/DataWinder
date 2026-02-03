@@ -17,85 +17,95 @@ export default function Home() {
   const [showDownload, setShowDownload] = useState(false);
   const [searchInfo, setSearchInfo] = useState(null);
 
-  const handleSearch = async ({ level, term, apiToken }) => {
+  const handleSearch = async ({ level, terms, apiToken }) => {
     setIsLoading(true);
     setError(null);
     setSpecies([]);
     setSelectedIds([]);
-    setSearchInfo({ level, term });
+    setSearchInfo({ level, terms: terms.join(', ') });
 
     try {
-      // First, search for species by the taxonomic level
-      const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${apiToken}`;
-      const searchResponse = await fetch(searchUrl);
-      
-      if (!searchResponse.ok) {
-        throw new Error(`IUCN API error: ${searchResponse.status}`);
+      let allSpecies = [];
+
+      // Search for each term
+      for (const term of terms) {
+        const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${apiToken}`;
+        const searchResponse = await fetch(searchUrl);
+        
+        if (!searchResponse.ok) {
+          console.error(`IUCN API error for ${term}: ${searchResponse.status}`);
+          continue;
+        }
+
+        const searchData = await searchResponse.json();
+        
+        if (!searchData.result || searchData.result.length === 0) {
+          console.warn(`No species found for ${term}`);
+          continue;
+        }
+
+        // For each species, fetch detailed information
+        const detailedSpecies = await Promise.all(
+          searchData.result.map(async (sp) => {
+            try {
+              const narrativeUrl = `https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${apiToken}`;
+              const narrativeRes = await fetch(narrativeUrl);
+              const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
+              const narrative = narrativeData?.result?.[0] || {};
+
+              return {
+                id: `${sp.taxonid}`,
+                scientific_name: sp.scientific_name,
+                common_name: sp.main_common_name || '',
+                iucn_status: sp.category || 'NE',
+                population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
+                kingdom: sp.kingdom || '',
+                phylum: sp.phylum || '',
+                class_name: sp.class || '',
+                order_name: sp.order || '',
+                family: sp.family || '',
+                genus: sp.genus || '',
+                habitat: narrative.habitat || '',
+                range_description: narrative.range || '',
+                threats: narrative.threats || '',
+                conservation_actions: narrative.conservationmeasures || '',
+                assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
+                iucn_id: sp.taxonid,
+                dataset_name: term
+              };
+            } catch (err) {
+              console.error(`Error fetching details for ${sp.scientific_name}:`, err);
+              return {
+                id: `${sp.taxonid}`,
+                scientific_name: sp.scientific_name,
+                common_name: sp.main_common_name || '',
+                iucn_status: sp.category || 'NE',
+                kingdom: sp.kingdom || '',
+                phylum: sp.phylum || '',
+                class_name: sp.class || '',
+                order_name: sp.order || '',
+                family: sp.family || '',
+                genus: sp.genus || '',
+                iucn_id: sp.taxonid,
+                dataset_name: term
+              };
+            }
+          })
+        );
+
+        allSpecies = [...allSpecies, ...detailedSpecies];
       }
 
-      const searchData = await searchResponse.json();
-      
-      if (!searchData.result || searchData.result.length === 0) {
-        setError('No species found for the given search. Check the spelling and try again.');
+      if (allSpecies.length === 0) {
+        setError('No species found for any of the search terms. Check the spelling and try again.');
         return;
       }
 
-      // For each species, fetch detailed information
-      const detailedSpecies = await Promise.all(
-        searchData.result.map(async (sp) => {
-          try {
-            // Fetch narrative data (habitat, threats, etc.)
-            const narrativeUrl = `https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${apiToken}`;
-            const narrativeRes = await fetch(narrativeUrl);
-            const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
-            const narrative = narrativeData?.result?.[0] || {};
-
-            return {
-              id: `${sp.taxonid}`,
-              scientific_name: sp.scientific_name,
-              common_name: sp.main_common_name || '',
-              iucn_status: sp.category || 'NE',
-              population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
-              kingdom: sp.kingdom || '',
-              phylum: sp.phylum || '',
-              class_name: sp.class || '',
-              order_name: sp.order || '',
-              family: sp.family || '',
-              genus: sp.genus || '',
-              habitat: narrative.habitat || '',
-              range_description: narrative.range || '',
-              threats: narrative.threats || '',
-              conservation_actions: narrative.conservationmeasures || '',
-              assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
-              iucn_id: sp.taxonid
-            };
-          } catch (err) {
-            console.error(`Error fetching details for ${sp.scientific_name}:`, err);
-            // Return basic data if detailed fetch fails
-            return {
-              id: `${sp.taxonid}`,
-              scientific_name: sp.scientific_name,
-              common_name: sp.main_common_name || '',
-              iucn_status: sp.category || 'NE',
-              kingdom: sp.kingdom || '',
-              phylum: sp.phylum || '',
-              class_name: sp.class || '',
-              order_name: sp.order || '',
-              family: sp.family || '',
-              genus: sp.genus || '',
-              iucn_id: sp.taxonid
-            };
-          }
-        })
-      );
-
-      setSpecies(detailedSpecies);
+      setSpecies(allSpecies);
     } catch (err) {
       console.error('Search error:', err);
       if (err.message.includes('401')) {
         setError('Invalid API token. Please check your token and try again.');
-      } else if (err.message.includes('404')) {
-        setError('No data found for this taxonomic group. Try a different search term.');
       } else {
         setError('Failed to fetch data from IUCN API. Please check your connection and try again.');
       }
@@ -185,7 +195,7 @@ export default function Home() {
           <>
             {searchInfo && (
               <div className="text-sm text-slate-500">
-                Showing species in <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-emerald-600">{searchInfo.term}</span>
+                Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-emerald-600">{searchInfo.terms}</span>
               </div>
             )}
             
@@ -214,8 +224,8 @@ export default function Home() {
                 <Leaf className="w-6 h-6 text-emerald-500 animate-bounce" />
               </div>
             </div>
-            <p className="mt-4 text-slate-600">Searching IUCN database...</p>
-            <p className="text-sm text-slate-400">This may take a moment for large taxonomic groups</p>
+            <p className="mt-4 text-slate-600">Downloading species data from IUCN...</p>
+            <p className="text-sm text-slate-400">Fetching data for multiple datasets</p>
           </div>
         )}
       </main>
