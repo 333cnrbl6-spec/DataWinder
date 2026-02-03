@@ -108,88 +108,32 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
   };
 
   const downloadData = () => {
-    // Group species by their dataset
-    const groupedByDataset = selectedSpecies.reduce((acc, species) => {
-      const dataset = species.dataset_name || 'ungrouped';
-      if (!acc[dataset]) acc[dataset] = [];
-      acc[dataset].push(species);
-      return acc;
-    }, {});
-
-    const datasets = Object.keys(groupedByDataset);
-
-    // If multiple datasets, create a structured download
-    if (datasets.length > 1) {
-      datasets.forEach(datasetName => {
-        const speciesInDataset = groupedByDataset[datasetName];
-        const data = speciesInDataset.map(species => {
-          const row = {};
-          selectedFields.forEach(field => {
-            row[field] = species[field] || '';
-          });
-          return row;
-        });
-
-        let content, filename, mimeType;
-        const safeName = datasetName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
-        if (format === 'json') {
-          content = JSON.stringify(data, null, 2);
-          filename = `iucn_${safeName}.json`;
-          mimeType = 'application/json';
-        } else {
-          const headers = selectedFields.join(',');
-          const rows = data.map(row => 
-            selectedFields.map(field => {
-              const value = String(row[field] || '').replace(/"/g, '""');
-              return value.includes(',') || value.includes('"') || value.includes('\n') 
-                ? `"${value}"` 
-                : value;
-            }).join(',')
-          );
-          content = [headers, ...rows].join('\n');
-          filename = `iucn_${safeName}.csv`;
-          mimeType = 'text/csv';
-        }
-
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    // Create individual file for each species, organized by family
+    selectedSpecies.forEach(species => {
+      const row = {};
+      selectedFields.forEach(field => {
+        row[field] = species[field] || '';
       });
-    } else {
-      // Single dataset download
-      const data = selectedSpecies.map(species => {
-        const row = {};
-        selectedFields.forEach(field => {
-          row[field] = species[field] || '';
-        });
-        return row;
-      });
+
+      const familyName = (species.family || 'Unknown_Family').replace(/[^a-z0-9]/gi, '_');
+      const speciesName = species.scientific_name.replace(/[^a-z0-9]/gi, '_');
 
       let content, filename, mimeType;
 
       if (format === 'json') {
-        content = JSON.stringify(data, null, 2);
-        filename = 'iucn_species_data.json';
+        content = JSON.stringify(row, null, 2);
+        filename = `${familyName}/${speciesName}.json`;
         mimeType = 'application/json';
       } else {
         const headers = selectedFields.join(',');
-        const rows = data.map(row => 
-          selectedFields.map(field => {
-            const value = String(row[field] || '').replace(/"/g, '""');
-            return value.includes(',') || value.includes('"') || value.includes('\n') 
-              ? `"${value}"` 
-              : value;
-          }).join(',')
-        );
-        content = [headers, ...rows].join('\n');
-        filename = 'iucn_species_data.csv';
+        const values = selectedFields.map(field => {
+          const value = String(row[field] || '').replace(/"/g, '""');
+          return value.includes(',') || value.includes('"') || value.includes('\n') 
+            ? `"${value}"` 
+            : value;
+        }).join(',');
+        content = [headers, values].join('\n');
+        filename = `${familyName}/${speciesName}.csv`;
         mimeType = 'text/csv';
       }
 
@@ -202,7 +146,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    }
+    });
   };
 
   return (
