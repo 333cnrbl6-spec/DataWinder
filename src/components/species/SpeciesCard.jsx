@@ -5,6 +5,7 @@ import { ExternalLink, MapPin, Users } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import TrendIndicator from './TrendIndicator';
 import { motion } from 'framer-motion';
+import { cn } from "@/lib/utils";
 
 export default function SpeciesCard({ species, selected, onSelect, index = 0 }) {
   return (
@@ -41,9 +42,21 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-slate-900 truncate">
-                {species.common_name || 'No common name'}
-              </h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-slate-900 truncate">
+                  {species.common_name || 'No common name'}
+                </h3>
+                {species.data_source && (
+                  <span className={cn(
+                    "text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0",
+                    species.data_source === 'IUCN Red List' 
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-blue-100 text-blue-700"
+                  )}>
+                    {species.data_source === 'IUCN Red List' ? 'IUCN' : 'iNat'}
+                  </span>
+                )}
+              </div>
               <p className="text-sm italic text-slate-500 truncate">
                 {species.scientific_name}
               </p>
