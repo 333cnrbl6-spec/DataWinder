@@ -7,6 +7,7 @@ import { Download, FileJson, FileSpreadsheet, Check, X, Database } from 'lucide-
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { base44 } from '@/api/base44Client';
+import JSZip from 'jszip';
 
 const dataFields = [
   { key: 'scientific_name', label: 'Scientific Name', required: true },
@@ -107,7 +108,9 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
     }
   };
 
-  const downloadData = () => {
+  const downloadData = async () => {
+    const zip = new JSZip();
+
     // Create individual file for each species, organized by family
     selectedSpecies.forEach(species => {
       const row = {};
@@ -118,12 +121,11 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
       const familyName = (species.family || 'Unknown_Family').replace(/[^a-z0-9]/gi, '_');
       const speciesName = species.scientific_name.replace(/[^a-z0-9]/gi, '_');
 
-      let content, filename, mimeType;
+      let content, filename;
 
       if (format === 'json') {
         content = JSON.stringify(row, null, 2);
         filename = `${familyName}/${speciesName}.json`;
-        mimeType = 'application/json';
       } else {
         const headers = selectedFields.join(',');
         const values = selectedFields.map(field => {
@@ -134,19 +136,21 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
         }).join(',');
         content = [headers, values].join('\n');
         filename = `${familyName}/${speciesName}.csv`;
-        mimeType = 'text/csv';
       }
 
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      zip.file(filename, content);
     });
+
+    // Generate and download the zip file
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `species_data_${format}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
