@@ -111,13 +111,26 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
   const downloadData = async () => {
     const zip = new JSZip();
 
-    // Create individual file for each species, organized by family
+    // Group by data source first, then by family
     selectedSpecies.forEach(species => {
-      const row = {};
-      selectedFields.forEach(field => {
-        row[field] = species[field] || '';
-      });
+      const row = {
+        data_source: species.data_source,
+        ...selectedFields.reduce((acc, field) => {
+          acc[field] = species[field] || '';
+          return acc;
+        }, {})
+      };
 
+      // Add iNaturalist-specific fields if present
+      if (species.data_source === 'iNaturalist') {
+        row.observation_count = species.observation_count || 0;
+        row.recent_observations = species.recent_observations || 0;
+        row.last_observed = species.last_observed || '';
+        row.inat_taxon_id = species.inat_taxon_id || '';
+        row.inat_wikipedia_url = species.inat_wikipedia_url || '';
+      }
+
+      const dataSource = (species.data_source || 'Unknown_Source').replace(/[^a-z0-9]/gi, '_');
       const familyName = (species.family || 'Unknown_Family').replace(/[^a-z0-9]/gi, '_');
       const speciesName = species.scientific_name.replace(/[^a-z0-9]/gi, '_');
 
@@ -125,17 +138,17 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
 
       if (format === 'json') {
         content = JSON.stringify(row, null, 2);
-        filename = `${familyName}/${speciesName}.json`;
+        filename = `${dataSource}/${familyName}/${speciesName}.json`;
       } else {
-        const headers = selectedFields.join(',');
-        const values = selectedFields.map(field => {
-          const value = String(row[field] || '').replace(/"/g, '""');
-          return value.includes(',') || value.includes('"') || value.includes('\n') 
-            ? `"${value}"` 
-            : value;
+        const headers = Object.keys(row).join(',');
+        const values = Object.values(row).map(value => {
+          const val = String(value || '').replace(/"/g, '""');
+          return val.includes(',') || val.includes('"') || val.includes('\n') 
+            ? `"${val}"` 
+            : val;
         }).join(',');
         content = [headers, values].join('\n');
-        filename = `${familyName}/${speciesName}.csv`;
+        filename = `${dataSource}/${familyName}/${speciesName}.csv`;
       }
 
       zip.file(filename, content);

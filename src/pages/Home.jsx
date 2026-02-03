@@ -107,35 +107,65 @@ export default function Home() {
           const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}`;
           const taxonRes = await fetch(taxonUrl);
           if (!taxonRes.ok) continue;
-          
+
           const taxonData = await taxonRes.json();
           if (!taxonData.results || taxonData.results.length === 0) {
             console.warn(`No iNaturalist taxa found for ${term}`);
             continue;
           }
 
-          const inatSpecies = taxonData.results.map((taxon) => ({
-            id: `inat-${taxon.id}`,
-            scientific_name: taxon.name,
-            common_name: taxon.preferred_common_name || '',
-            iucn_status: 'NE',
-            population_trend: 'unknown',
-            kingdom: taxon.ancestor_ids?.length > 0 ? taxon.ancestors?.find(a => a.rank === 'kingdom')?.name || '' : '',
-            phylum: taxon.ancestors?.find(a => a.rank === 'phylum')?.name || '',
-            class_name: taxon.ancestors?.find(a => a.rank === 'class')?.name || '',
-            order_name: taxon.ancestors?.find(a => a.rank === 'order')?.name || '',
-            family: taxon.ancestors?.find(a => a.rank === 'family')?.name || '',
-            genus: taxon.ancestors?.find(a => a.rank === 'genus')?.name || '',
-            habitat: '',
-            range_description: '',
-            threats: '',
-            conservation_actions: '',
-            assessment_date: null,
-            iucn_id: null,
-            dataset_name: term,
-            data_source: 'iNaturalist',
-            observation_count: taxon.observations_count || 0,
-            image_url: taxon.default_photo?.medium_url || ''
+          // Fetch detailed observation data for each taxon
+          const inatSpecies = await Promise.all(taxonData.results.map(async (taxon) => {
+            // Fetch recent observations for this taxon
+            let observationData = null;
+            try {
+              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=10&order=desc&order_by=created_at`;
+              const obsRes = await fetch(obsUrl);
+              if (obsRes.ok) {
+                observationData = await obsRes.json();
+              }
+            } catch (err) {
+              console.error(`Error fetching observations for ${taxon.name}:`, err);
+            }
+
+            const observations = observationData?.results || [];
+            const recentObservation = observations[0];
+
+            // Extract location data from observations
+            const locations = observations
+              .filter(obs => obs.place_guess)
+              .map(obs => obs.place_guess)
+              .slice(0, 5);
+
+            const uniqueLocations = [...new Set(locations)];
+
+            return {
+              id: `inat-${taxon.id}`,
+              scientific_name: taxon.name,
+              common_name: taxon.preferred_common_name || '',
+              iucn_status: 'NE',
+              population_trend: 'unknown',
+              kingdom: taxon.ancestor_ids?.length > 0 ? taxon.ancestors?.find(a => a.rank === 'kingdom')?.name || '' : '',
+              phylum: taxon.ancestors?.find(a => a.rank === 'phylum')?.name || '',
+              class_name: taxon.ancestors?.find(a => a.rank === 'class')?.name || '',
+              order_name: taxon.ancestors?.find(a => a.rank === 'order')?.name || '',
+              family: taxon.ancestors?.find(a => a.rank === 'family')?.name || '',
+              genus: taxon.ancestors?.find(a => a.rank === 'genus')?.name || '',
+              habitat: recentObservation?.description || '',
+              range_description: uniqueLocations.join('; ') || '',
+              threats: '',
+              conservation_actions: '',
+              assessment_date: null,
+              iucn_id: null,
+              dataset_name: term,
+              data_source: 'iNaturalist',
+              observation_count: taxon.observations_count || 0,
+              image_url: taxon.default_photo?.medium_url || recentObservation?.photos?.[0]?.url || '',
+              inat_taxon_id: taxon.id,
+              inat_wikipedia_url: taxon.wikipedia_url || '',
+              recent_observations: observations.length,
+              last_observed: recentObservation?.observed_on || null
+            };
           }));
 
           allSpecies = [...allSpecies, ...inatSpecies];
