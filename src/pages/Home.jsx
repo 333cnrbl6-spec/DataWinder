@@ -17,7 +17,7 @@ export default function Home() {
   const [showDownload, setShowDownload] = useState(false);
   const [searchInfo, setSearchInfo] = useState(null);
 
-  const handleSearch = async ({ level, term }) => {
+  const handleSearch = async ({ level, term, apiToken }) => {
     setIsLoading(true);
     setError(null);
     setSpecies([]);
@@ -25,75 +25,80 @@ export default function Home() {
     setSearchInfo({ level, term });
 
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Search the IUCN Red List for species data. I need information about all species in the ${level}: "${term}".
-
-For EACH individual species in this ${level}, provide the following data:
-- scientific_name (required, e.g., "Callithrix aurita")
-- common_name (if available)
-- iucn_status (one of: LC, NT, VU, EN, CR, EW, EX, DD, NE)
-- population_trend (one of: increasing, stable, decreasing, unknown)
-- kingdom
-- phylum
-- class_name (taxonomic class)
-- order_name (taxonomic order)
-- family
-- genus
-- habitat (brief description)
-- range_description (geographic range)
-- threats (main threats, brief)
-- conservation_actions (current actions, brief)
-- iucn_id (numeric IUCN species ID if known)
-
-IMPORTANT: Return data for EACH species separately - do NOT aggregate or pool the data. Each species should be its own object in the array.
-
-Return a JSON array with data for each species. If searching for a single species, still return an array with one object.
-Include as many species as you can find for the given ${level}.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            species: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  scientific_name: { type: "string" },
-                  common_name: { type: "string" },
-                  iucn_status: { type: "string" },
-                  population_trend: { type: "string" },
-                  kingdom: { type: "string" },
-                  phylum: { type: "string" },
-                  class_name: { type: "string" },
-                  order_name: { type: "string" },
-                  family: { type: "string" },
-                  genus: { type: "string" },
-                  habitat: { type: "string" },
-                  range_description: { type: "string" },
-                  threats: { type: "string" },
-                  conservation_actions: { type: "string" },
-                  iucn_id: { type: "number" }
-                },
-                required: ["scientific_name"]
-              }
-            }
-          }
-        }
-      });
-
-      if (result?.species && result.species.length > 0) {
-        // Add unique IDs to each species
-        const speciesWithIds = result.species.map((sp, idx) => ({
-          ...sp,
-          id: `${sp.scientific_name.replace(/\s+/g, '_')}_${idx}`
-        }));
-        setSpecies(speciesWithIds);
-      } else {
-        setError('No species found for the given search. Try a different taxonomic group.');
+      // First, search for species by the taxonomic level
+      const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${apiToken}`;
+      const searchResponse = await fetch(searchUrl);
+      
+      if (!searchResponse.ok) {
+        throw new Error(`IUCN API error: ${searchResponse.status}`);
       }
+
+      const searchData = await searchResponse.json();
+      
+      if (!searchData.result || searchData.result.length === 0) {
+        setError('No species found for the given search. Check the spelling and try again.');
+        return;
+      }
+
+      // For each species, fetch detailed information
+      const detailedSpecies = await Promise.all(
+        searchData.result.map(async (sp) => {
+          try {
+            // Fetch narrative data (habitat, threats, etc.)
+            const narrativeUrl = `https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${apiToken}`;
+            const narrativeRes = await fetch(narrativeUrl);
+            const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
+            const narrative = narrativeData?.result?.[0] || {};
+
+            return {
+              id: `${sp.taxonid}`,
+              scientific_name: sp.scientific_name,
+              common_name: sp.main_common_name || '',
+              iucn_status: sp.category || 'NE',
+              population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
+              kingdom: sp.kingdom || '',
+              phylum: sp.phylum || '',
+              class_name: sp.class || '',
+              order_name: sp.order || '',
+              family: sp.family || '',
+              genus: sp.genus || '',
+              habitat: narrative.habitat || '',
+              range_description: narrative.range || '',
+              threats: narrative.threats || '',
+              conservation_actions: narrative.conservationmeasures || '',
+              assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
+              iucn_id: sp.taxonid
+            };
+          } catch (err) {
+            console.error(`Error fetching details for ${sp.scientific_name}:`, err);
+            // Return basic data if detailed fetch fails
+            return {
+              id: `${sp.taxonid}`,
+              scientific_name: sp.scientific_name,
+              common_name: sp.main_common_name || '',
+              iucn_status: sp.category || 'NE',
+              kingdom: sp.kingdom || '',
+              phylum: sp.phylum || '',
+              class_name: sp.class || '',
+              order_name: sp.order || '',
+              family: sp.family || '',
+              genus: sp.genus || '',
+              iucn_id: sp.taxonid
+            };
+          }
+        })
+      );
+
+      setSpecies(detailedSpecies);
     } catch (err) {
       console.error('Search error:', err);
-      setError('Failed to fetch species data. Please try again.');
+      if (err.message.includes('401')) {
+        setError('Invalid API token. Please check your token and try again.');
+      } else if (err.message.includes('404')) {
+        setError('No data found for this taxonomic group. Try a different search term.');
+      } else {
+        setError('Failed to fetch data from IUCN API. Please check your connection and try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -145,8 +150,9 @@ Include as many species as you can find for the given ${level}.`,
               <Info className="h-4 w-4 text-emerald-600" />
               <AlertTitle className="text-emerald-800">How it works</AlertTitle>
               <AlertDescription className="text-emerald-700">
-                Search for a taxonomic group (family, genus, order, etc.) to retrieve IUCN Red List data for all species within that group. 
-                Each species is listed separately—you can select specific species to download their data individually.
+                This app connects directly to the IUCN Red List API to download species conservation data. 
+                Search by taxonomic group (family, genus, order, etc.) to retrieve all species data separately. 
+                Select species and download as CSV or JSON files to your computer.
               </AlertDescription>
             </Alert>
 

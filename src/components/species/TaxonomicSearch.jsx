@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles } from 'lucide-react';
+import { Search, Loader2, Sparkles, Key, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
@@ -16,10 +17,33 @@ const taxonomyLevels = [
 export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [level, setLevel] = useState('family');
   const [searchTerm, setSearchTerm] = useState('');
+  const [apiToken, setApiToken] = useState('');
+  const [showTokenInput, setShowTokenInput] = useState(false);
+
+  React.useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const user = await base44.auth.me();
+        if (user.iucn_api_token) {
+          setApiToken(user.iucn_api_token);
+        }
+      } catch (e) {
+        // Not logged in or no token
+      }
+    };
+    loadToken();
+  }, []);
+
+  const saveToken = async () => {
+    if (apiToken.trim()) {
+      await base44.auth.updateMe({ iucn_api_token: apiToken.trim() });
+      setShowTokenInput(false);
+    }
+  };
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
-      onSearch({ level, term: searchTerm.trim() });
+      onSearch({ level, term: searchTerm.trim(), apiToken });
     }
   };
 
@@ -36,9 +60,77 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <h2 className="text-lg font-semibold text-slate-900">Search IUCN Species Data</h2>
       </div>
       
-      <p className="text-sm text-slate-500 mb-6">
-        Search for species by taxonomic group. Data will be fetched individually for each species within the selected group.
+      <p className="text-sm text-slate-500 mb-4">
+        Search for species by taxonomic group. Data will be fetched from the IUCN Red List API and saved individually for each species.
       </p>
+
+      {!apiToken ? (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <Key className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-amber-900 mb-1">IUCN API Token Required</h4>
+              <p className="text-xs text-amber-700 mb-3">
+                Get your free API token from the IUCN Red List website to access species data.
+              </p>
+              {!showTokenInput ? (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowTokenInput(true)}
+                    className="text-xs"
+                  >
+                    <Key className="w-3 h-3 mr-1" />
+                    Add Token
+                  </Button>
+                  <a
+                    href="https://apiv3.iucnredlist.org/api/v3/token"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
+                  >
+                    Get Token <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={apiToken}
+                    onChange={(e) => setApiToken(e.target.value)}
+                    placeholder="Paste your IUCN API token"
+                    className="text-xs h-8"
+                  />
+                  <Button size="sm" onClick={saveToken} className="text-xs h-8">
+                    Save
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setShowTokenInput(false)}
+                    className="text-xs h-8"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Key className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs text-emerald-700">API token configured</span>
+          </div>
+          <button
+            onClick={() => setShowTokenInput(true)}
+            className="text-xs text-emerald-600 hover:underline"
+          >
+            Change
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Select value={level} onValueChange={setLevel}>
@@ -67,7 +159,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || !searchTerm.trim()}
+          disabled={isLoading || !searchTerm.trim() || !apiToken}
           className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[120px]"
         >
           {isLoading ? (
