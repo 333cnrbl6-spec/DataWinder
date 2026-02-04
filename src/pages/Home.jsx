@@ -15,7 +15,7 @@ import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
 import CompareSpecies from '@/components/species/CompareSpecies';
 import SpeciesListManager from '@/components/species/SpeciesListManager';
 import SpeciesNotes from '@/components/species/SpeciesNotes';
-import TermsOfUseModal from '@/components/TermsOfUseModal';
+import OnboardingWizard from '@/components/OnboardingWizard';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -29,34 +29,34 @@ export default function Home() {
   const [showListManager, setShowListManager] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [noteSpecies, setNoteSpecies] = useState(null);
-  const [showTerms, setShowTerms] = useState(false);
-  const [termsChecked, setTermsChecked] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   useEffect(() => {
-    const checkTermsAcceptance = async () => {
+    const checkOnboarding = async () => {
       try {
         const user = await base44.auth.me();
-        if (!user.terms_accepted) {
-          setShowTerms(true);
+        if (!user.onboarding_completed) {
+          setShowOnboarding(true);
         } else {
-          setTermsChecked(true);
+          setOnboardingChecked(true);
         }
       } catch (error) {
         // User not logged in, redirect to login with next URL
         base44.auth.redirectToLogin(window.location.pathname);
       }
     };
-    checkTermsAcceptance();
+    checkOnboarding();
   }, []);
 
-  const handleTermsAccept = () => {
-    setShowTerms(false);
-    setTermsChecked(true);
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    setOnboardingChecked(true);
   };
 
   const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = true }) => {
-    if (!termsChecked) {
-      setShowTerms(true);
+    if (!onboardingChecked) {
+      setShowOnboarding(true);
       return;
     }
 
@@ -647,15 +647,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40">
+      <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-xl">
-              <Leaf className="w-6 h-6 text-emerald-600" />
+            <div className="p-2 bg-bangor-red/10 rounded-xl">
+              <Leaf className="w-6 h-6 text-bangor-red" />
             </div>
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-slate-900">IUCN Species Explorer</h1>
-              <p className="text-sm text-slate-500">Search and download species conservation data</p>
+              <h1 className="text-xl font-bold text-bangor-red">IUCN Species Explorer</h1>
+              <p className="text-sm text-slate-600">Search and download species conservation data</p>
             </div>
             <Link to={createPageUrl('SavedData')}>
               <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors">
@@ -833,10 +833,10 @@ export default function Home() {
         />
       )}
 
-      {/* Terms of Use Modal */}
-      <TermsOfUseModal 
-        open={showTerms}
-        onAccept={handleTermsAccept}
+      {/* Onboarding Wizard */}
+      <OnboardingWizard 
+        open={showOnboarding}
+        onComplete={handleOnboardingComplete}
       />
     </div>
   );
