@@ -648,9 +648,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-bangor-sun/5 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
+      <header className="bg-gradient-to-r from-white via-bangor-sun/5 to-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <div onClick={() => setShowLogoSelector(true)} className="cursor-pointer opacity-90">
@@ -692,15 +692,15 @@ export default function Home() {
               </AlertDescription>
             </Alert>
 
-            <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200 text-xs text-slate-500">
-              <p className="mb-1">Data Sources:</p>
+            <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
+              <p className="mb-1 font-semibold text-slate-700">Data Sources:</p>
               <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
               <p className="italic">• iNaturalist observation data www.inaturalist.org</p>
             </div>
 
             {/* Status Legend */}
-            <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
-              <h3 className="text-sm font-semibold text-slate-700 mb-4">IUCN Red List Categories</h3>
+            <div className="mt-6 bg-gradient-to-br from-white to-bangor-sun/5 rounded-xl border border-bangor-sun/20 p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-bangor-red mb-4">IUCN Red List Categories</h3>
               <div className="flex flex-wrap gap-3">
                 {Object.entries(statusConfig).map(([code, config]) => (
                   <div key={code} className="flex items-center gap-2">

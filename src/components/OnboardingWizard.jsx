@@ -120,16 +120,16 @@ export default function OnboardingWizard({ open, onComplete }) {
                     Access comprehensive species conservation data from two leading biodiversity platforms:
                   </p>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                      <h4 className="font-semibold text-emerald-900 mb-2">IUCN Red List</h4>
-                      <p className="text-sm text-emerald-700">
-                        Authoritative conservation status assessments for thousands of species worldwide
+                    <div className="p-4 bg-bangor-red/10 rounded-lg border-2 border-bangor-red/30 hover:border-bangor-red/50">
+                      <h4 className="font-semibold text-bangor-red mb-2">IUCN Red List</h4>
+                      <p className="text-sm text-slate-700">
+                        Authoritative Conservation Status Assessments For Thousands Of Species Worldwide
                       </p>
                     </div>
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-semibold text-blue-900 mb-2">iNaturalist</h4>
-                      <p className="text-sm text-blue-700">
-                        Community observations with geolocation and images from nature enthusiasts globally
+                    <div className="p-4 bg-bangor-sun/10 rounded-lg border-2 border-bangor-sun/30 hover:border-bangor-sun/50">
+                      <h4 className="font-semibold text-bangor-sun mb-2">iNaturalist</h4>
+                      <p className="text-sm text-slate-700">
+                        Community Observations With Geolocation And Images From Nature Enthusiasts Globally
                       </p>
                     </div>
                   </div>
@@ -194,10 +194,10 @@ export default function OnboardingWizard({ open, onComplete }) {
                   <p className="text-slate-600 text-sm">Get your free API token to access conservation data</p>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Alert className="bg-blue-50 border-blue-200">
-                    <Key className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-blue-900">
-                      <strong>Free Registration Required:</strong> The IUCN API token is free and takes 2 minutes to obtain.
+                  <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
+                    <Key className="h-4 w-4 text-bangor-sun" />
+                    <AlertDescription className="text-slate-700 font-medium">
+                      <strong className="text-bangor-sun">Free Registration Required:</strong> The IUCN API Token Is Free And Takes 2 Minutes To Obtain.
                     </AlertDescription>
                   </Alert>
                   
@@ -254,40 +254,40 @@ export default function OnboardingWizard({ open, onComplete }) {
                 <ScrollArea className="h-[40vh] pr-4">
                   <div className="space-y-6">
                     {/* IUCN Terms */}
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200 space-y-3">
-                      <h4 className="font-semibold text-emerald-900">IUCN Red List Terms</h4>
-                      <ul className="space-y-2 ml-4 list-disc text-sm text-emerald-800">
-                        <li>Non-commercial, educational, and research use only</li>
-                        <li>Must cite: "IUCN 2026. IUCN Red List of Threatened Species. www.iucnredlist.org"</li>
-                        <li>No redistribution as a separate dataset</li>
-                        <li>Respect API rate limits</li>
+                    <div className="bg-bangor-red/10 p-4 rounded-lg border border-bangor-red/30 space-y-3">
+                      <h4 className="font-semibold text-bangor-red">IUCN Red List Terms</h4>
+                      <ul className="space-y-2 ml-4 list-disc text-sm text-slate-700">
+                        <li>Non-commercial, Educational, And Research Use Only</li>
+                        <li>Must Cite: "IUCN 2026. IUCN Red List Of Threatened Species. www.iucnredlist.org"</li>
+                        <li>No Redistribution As A Separate Dataset</li>
+                        <li>Respect API Rate Limits</li>
                       </ul>
                       <a 
                         href="https://www.iucnredlist.org/terms/terms-of-use" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-emerald-700 underline text-sm font-medium"
+                        className="inline-flex items-center gap-1 text-bangor-red underline text-sm font-medium"
                       >
-                        Full terms <ExternalLink className="w-3 h-3" />
+                        Full Terms <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
 
                     {/* iNaturalist Terms */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-3">
-                      <h4 className="font-semibold text-blue-900">iNaturalist Terms</h4>
-                      <ul className="space-y-2 ml-4 list-disc text-sm text-blue-800">
-                        <li>Respect Creative Commons licenses on observations</li>
-                        <li>Acknowledge iNaturalist as the data source</li>
-                        <li>Do not use location data inappropriately</li>
-                        <li>Appropriate and responsible use only</li>
+                    <div className="bg-bangor-sun/10 p-4 rounded-lg border border-bangor-sun/30 space-y-3">
+                      <h4 className="font-semibold text-bangor-sun">iNaturalist Terms</h4>
+                      <ul className="space-y-2 ml-4 list-disc text-sm text-slate-700">
+                        <li>Respect Creative Commons Licenses On Observations</li>
+                        <li>Acknowledge iNaturalist As The Data Source</li>
+                        <li>Do Not Use Location Data Inappropriately</li>
+                        <li>Appropriate And Responsible Use Only</li>
                       </ul>
                       <a 
                         href="https://www.inaturalist.org/pages/terms" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-700 underline text-sm font-medium"
+                        className="inline-flex items-center gap-1 text-bangor-sun underline text-sm font-medium"
                       >
-                        Full terms <ExternalLink className="w-3 h-3" />
+                        Full Terms <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   </div>
