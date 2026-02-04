@@ -29,7 +29,7 @@ export default function Home() {
   const [showNotes, setShowNotes] = useState(false);
   const [noteSpecies, setNoteSpecies] = useState(null);
 
-  const handleSearch = async ({ level, terms, iucnToken }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = true }) => {
     setIsLoading(true);
     setError(null);
     setSpecies([]);
@@ -39,7 +39,7 @@ export default function Home() {
     try {
       let allSpecies = [];
 
-      // Search IUCN for each term - get list of species first
+      // Search IUCN for each term - get comprehensive data
       if (iucnToken) {
         for (const term of terms) {
           try {
@@ -213,6 +213,17 @@ export default function Home() {
             console.error(`Error fetching IUCN data for ${term}:`, err);
           }
         }
+      }
+
+      // Only search iNaturalist if requested
+      if (!includeINaturalist) {
+        if (allSpecies.length === 0) {
+          setError('No species found in IUCN Red List for the search terms.');
+          return;
+        }
+        setSpecies(allSpecies);
+        setIsLoading(false);
+        return;
       }
 
       // Search iNaturalist for each term

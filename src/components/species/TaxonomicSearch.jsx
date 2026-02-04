@@ -23,6 +23,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [familySpecies, setFamilySpecies] = useState([]);
   const [selectedSpecies, setSelectedSpecies] = useState([]);
   const [loadingSpecies, setLoadingSpecies] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [includeINat, setIncludeINat] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -46,12 +48,18 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const handleSearch = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const confirmSearch = () => {
+    setShowConfirmDialog(false);
     // If not species level with selected species, search those specific species
     if (level !== 'species' && selectedSpecies.length > 0) {
       onSearch({ 
         level: 'species', 
         terms: selectedSpecies, 
-        iucnToken
+        iucnToken,
+        includeINaturalist: includeINat
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -59,7 +67,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         onSearch({ 
           level, 
           terms: validTerms, 
-          iucnToken
+          iucnToken,
+          includeINaturalist: includeINat
         });
       }
     }
@@ -353,7 +362,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Searching {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} species...
+              Fetching data...
             </>
           ) : (
             <>
@@ -362,6 +371,63 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           )}
         </Button>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowConfirmDialog(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
+            <p className="text-sm text-slate-600 mb-4">
+              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+            </p>
+            
+            <label className="flex items-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeINat}
+                onChange={(e) => setIncludeINat(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-slate-700">Also include iNaturalist observation data</span>
+            </label>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmSearch}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+              >
+                Fetch Data
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+      </div>
+
+      {showConfirmDialog && (
+        <div className="fixed inset-0" style={{ zIndex: 9999 }} />
+      )}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="text-xs text-slate-400">Quick load multiple:</span>
