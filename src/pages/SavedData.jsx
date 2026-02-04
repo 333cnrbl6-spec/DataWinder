@@ -274,14 +274,42 @@ export default function SavedData() {
                                   setShowDetails(true);
                                 }}
                                 className="h-8 w-8 text-slate-400 hover:text-blue-600"
+                                title="View Details"
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
+                              {(species.range_data_geojson || species.search_summary_json || species.observations) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    const dataPackage = {};
+                                    if (species.search_summary_json) dataPackage.search_summary = species.search_summary_json;
+                                    if (species.range_data_geojson) dataPackage.range_geojson = species.range_data_geojson;
+                                    if (species.observations) dataPackage.observations = species.observations;
+                                    if (species.habitats_detailed) dataPackage.habitats = species.habitats_detailed;
+                                    if (species.threats_detailed) dataPackage.threats = species.threats_detailed;
+
+                                    const blob = new Blob([JSON.stringify(dataPackage, null, 2)], { type: 'application/json' });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `${species.scientific_name.replace(/ /g, '_')}_complete_data.json`;
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                  }}
+                                  className="h-8 w-8 text-slate-400 hover:text-green-600"
+                                  title="Download All Data (JSON)"
+                                >
+                                  <Download className="w-4 h-4" />
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => deleteSpeciesMutation.mutate(species.id)}
                                 className="h-8 w-8 text-slate-400 hover:text-red-600"
+                                title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -419,6 +447,94 @@ export default function SavedData() {
                           <span className="font-medium">{h.year}:</span> {h.status}
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Downloadable Data Files */}
+                {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedSpecies.search_summary_json && (
+                        <button 
+                          className="text-xs px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors flex items-center gap-1"
+                          onClick={() => {
+                            const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
+                          <FileText className="w-3 h-3" />
+                          Search Summary (JSON)
+                        </button>
+                      )}
+                      {selectedSpecies.range_data_geojson && (
+                        <button 
+                          className="text-xs px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-1"
+                          onClick={() => {
+                            const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
+                          <FileText className="w-3 h-3" />
+                          Range Data (GeoJSON)
+                        </button>
+                      )}
+                      {selectedSpecies.observations && selectedSpecies.observations.length > 0 && (
+                        <button 
+                          className="text-xs px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1"
+                          onClick={() => {
+                            const csv = [
+                              'latitude,longitude,location,date,observer,photo_url',
+                              ...selectedSpecies.observations.map(obs => 
+                                `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                              )
+                            ].join('\n');
+                            const blob = new Blob([csv], { type: 'text/csv' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
+                          <FileText className="w-3 h-3" />
+                          Observations (CSV)
+                        </button>
+                      )}
+                      {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) && (
+                        <button 
+                          className="text-xs px-3 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors flex items-center gap-1"
+                          onClick={() => {
+                            const detailedData = {
+                              scientific_name: selectedSpecies.scientific_name,
+                              habitats: selectedSpecies.habitats_detailed || [],
+                              threats: selectedSpecies.threats_detailed || []
+                            };
+                            const blob = new Blob([JSON.stringify(detailedData, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_habitats_threats.json`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
+                          <FileText className="w-3 h-3" />
+                          Habitats & Threats (JSON)
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

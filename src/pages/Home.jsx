@@ -258,19 +258,28 @@ export default function Home() {
                     status_history: species.status_history || existing[0].status_history,
                     geographic_distribution: species.geographic_distribution || existing[0].geographic_distribution,
                     habitat: species.habitat || existing[0].habitat,
+                    habitats_detailed: species.habitats_detailed || existing[0].habitats_detailed,
                     range_description: species.range_description || existing[0].range_description,
                     threats: species.threats || existing[0].threats,
+                    threats_detailed: species.threats_detailed || existing[0].threats_detailed,
                     conservation_actions: species.conservation_actions || existing[0].conservation_actions,
                     assessment_date: species.assessment_date,
                     iucn_id: species.iucn_id,
+                    assessment_id: species.assessment_id,
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
                     range_data_shp_url: species.range_data_shp_url,
                     range_data_csv_url: species.range_data_csv_url,
+                    range_data_geojson: species.range_data_geojson || existing[0].range_data_geojson,
                     search_summary_json: species.search_summary_json,
                     search_results_csv_url: species.search_results_csv_url,
                     all_images_urls: species.all_images_urls || existing[0].all_images_urls,
-                    image_url: species.image_url || existing[0].image_url
+                    image_url: species.image_url || existing[0].image_url,
+                    observation_count: species.observation_count || existing[0].observation_count,
+                    observations: species.observations || existing[0].observations,
+                    last_observed: species.last_observed || existing[0].last_observed,
+                    inat_taxon_id: species.inat_taxon_id || existing[0].inat_taxon_id,
+                    inat_wikipedia_url: species.inat_wikipedia_url || existing[0].inat_wikipedia_url
                     });
                 } else {
                   // Create new species record
@@ -289,19 +298,28 @@ export default function Home() {
                     status_history: species.status_history,
                     geographic_distribution: species.geographic_distribution,
                     habitat: species.habitat,
+                    habitats_detailed: species.habitats_detailed,
                     range_description: species.range_description,
                     threats: species.threats,
+                    threats_detailed: species.threats_detailed,
                     conservation_actions: species.conservation_actions,
                     assessment_date: species.assessment_date,
                     iucn_id: species.iucn_id,
+                    assessment_id: species.assessment_id,
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
                     range_data_shp_url: species.range_data_shp_url,
                     range_data_csv_url: species.range_data_csv_url,
+                    range_data_geojson: species.range_data_geojson,
                     search_summary_json: species.search_summary_json,
                     search_results_csv_url: species.search_results_csv_url,
                     all_images_urls: species.all_images_urls,
-                    image_url: species.image_url
+                    image_url: species.image_url,
+                    observation_count: species.observation_count,
+                    observations: species.observations,
+                    last_observed: species.last_observed,
+                    inat_taxon_id: species.inat_taxon_id,
+                    inat_wikipedia_url: species.inat_wikipedia_url
                     });
                 }
               } catch (err) {
