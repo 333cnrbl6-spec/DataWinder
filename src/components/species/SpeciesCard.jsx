@@ -85,6 +85,29 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             </div>
           )}
 
+          {/* IUCN-specific data */}
+          {isIUCN && (
+            <div className="space-y-1.5 mb-3">
+              {species.assessment_date && (
+                <div className="text-xs text-amber-600 font-medium">
+                  Assessed: {new Date(species.assessment_date).getFullYear()}
+                </div>
+              )}
+              {species.habitat && (
+                <div className="text-xs">
+                  <span className="font-medium text-slate-700">Habitat: </span>
+                  <span className="text-slate-600 line-clamp-2">{species.habitat}</span>
+                </div>
+              )}
+              {species.threats && (
+                <div className="text-xs">
+                  <span className="font-medium text-red-700">Threats: </span>
+                  <span className="text-slate-600 line-clamp-2">{species.threats}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
             {isIUCN && (
               <span className="flex items-center gap-1">
