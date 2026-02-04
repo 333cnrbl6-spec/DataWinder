@@ -44,7 +44,7 @@ export default function Home() {
         for (const term of terms) {
           try {
             // For species level, search directly; for other levels, get all species in that taxonomic group
-            const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
+            const searchUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
             const searchResponse = await fetch(searchUrl);
 
             if (!searchResponse.ok) {
@@ -73,21 +73,22 @@ export default function Home() {
               speciesList.map(async (sp) => {
                 try {
                   // Fetch multiple data endpoints for comprehensive information
-                  const [narrativeRes, habitatRes, threatsRes, historicalRes, countriesRes] = await Promise.all([
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/habitats/species/id/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/threats/species/id/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/history/name/${encodeURIComponent(sp.scientific_name)}?token=${iucnToken}`),
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/countries/name/${encodeURIComponent(sp.scientific_name)}?token=${iucnToken}`)
+                  const [assessmentRes, habitatRes, threatsRes, historicalRes, countriesRes] = await Promise.all([
+                    fetch(`https://apiv4.iucnredlist.org/api/v4/assessment/${sp.assessment_id || sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv4.iucnredlist.org/api/v4/habitats/${sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv4.iucnredlist.org/api/v4/threats/${sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv4.iucnredlist.org/api/v4/taxa/scientific_name?genus_name=${encodeURIComponent(sp.scientific_name.split(' ')[0])}&species_name=${encodeURIComponent(sp.scientific_name.split(' ')[1] || '')}&token=${iucnToken}`),
+                    fetch(`https://apiv4.iucnredlist.org/api/v4/countries/?token=${iucnToken}`)
                   ]);
 
-                  const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
+                  const assessmentData = assessmentRes.ok ? await assessmentRes.json() : null;
                   const habitatData = habitatRes.ok ? await habitatRes.json() : null;
                   const threatsData = threatsRes.ok ? await threatsRes.json() : null;
                   const historicalData = historicalRes.ok ? await historicalRes.json() : null;
                   const countriesData = countriesRes.ok ? await countriesRes.json() : null;
 
-                  const narrative = narrativeData?.result?.[0] || {};
+                  const assessment = assessmentData?.result || {};
+                  const narrative = assessment;
                   const habitats = habitatData?.result || [];
                   const threats = threatsData?.result || [];
                   const history = historicalData?.result || [];
@@ -97,14 +98,14 @@ export default function Home() {
                   const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
                   const rangeMapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
                   const rangeDataShpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
-                  const rangeDataCsvUrl = `https://apiv3.iucnredlist.org/api/v3/species/range/${sp.taxonid}?token=${iucnToken}`;
+                  const rangeDataCsvUrl = `https://apiv4.iucnredlist.org/api/v4/assessment/${sp.taxonid}/range?token=${iucnToken}`;
 
                   // Fetch additional images if available
                   let allImages = [];
                   if (sp.taxonid) {
                     try {
                       // Try to fetch images from IUCN - some species have multiple images
-                      const imagesUrl = `https://apiv3.iucnredlist.org/api/v3/species/image/${sp.taxonid}?token=${iucnToken}`;
+                      const imagesUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/sis/${sp.taxonid}?token=${iucnToken}`;
                       const imagesRes = await fetch(imagesUrl);
                       if (imagesRes.ok) {
                         const imagesData = await imagesRes.json();
