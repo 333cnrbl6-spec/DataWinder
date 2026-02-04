@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -16,6 +17,10 @@ export default function SavedData() {
   const [selectedSearch, setSelectedSearch] = useState(null);
   const [selectedSpecies, setSelectedSpecies] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [countryFilter, setCountryFilter] = useState('all');
+  const [conservationFilter, setConservationFilter] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: savedSearches = [] } = useQuery({
@@ -42,12 +47,38 @@ export default function SavedData() {
     }
   });
 
-  const filteredSpecies = allSpecies.filter(sp => 
-    !searchTerm || 
-    sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.family?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Get unique countries for filter
+  const allCountries = [...new Set(
+    allSpecies.flatMap(sp => sp.geographic_distribution?.countries || [])
+  )].sort();
+
+  const filteredSpecies = allSpecies.filter(sp => {
+    // Search filter
+    const searchMatch = !searchTerm || 
+      sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // IUCN status filter
+    const statusMatch = statusFilter === 'all' || sp.iucn_status === statusFilter;
+    
+    // Data source filter
+    const sourceMatch = sourceFilter === 'all' || 
+      (sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List')) ||
+      (sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist')) ||
+      (sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist');
+    
+    // Country filter
+    const countryMatch = countryFilter === 'all' || 
+      sp.geographic_distribution?.countries?.includes(countryFilter);
+    
+    // Conservation action filter
+    const conservationMatch = conservationFilter === 'all' ||
+      (conservationFilter === 'yes' && sp.conservation_actions) ||
+      (conservationFilter === 'no' && !sp.conservation_actions);
+    
+    return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
+  });
 
   const exportSpecies = (speciesToExport) => {
     const data = speciesToExport.map(sp => ({
@@ -180,14 +211,90 @@ export default function SavedData() {
                     </Button>
                   </div>
                 </div>
-                <div className="mt-4 relative">
-                  <Input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by name, family..."
-                    className="pl-10"
-                  />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <div className="mt-4 space-y-3">
+                  <div className="relative">
+                    <Input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search by name, family..."
+                      className="pl-10"
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  </div>
+
+                  {/* Advanced Filters */}
+                  <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-slate-500" />
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-36 h-8 text-xs">
+                          <SelectValue placeholder="IUCN Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="CR">Critically Endangered</SelectItem>
+                          <SelectItem value="EN">Endangered</SelectItem>
+                          <SelectItem value="VU">Vulnerable</SelectItem>
+                          <SelectItem value="NT">Near Threatened</SelectItem>
+                          <SelectItem value="LC">Least Concern</SelectItem>
+                          <SelectItem value="DD">Data Deficient</SelectItem>
+                          <SelectItem value="NE">Not Evaluated</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                      <SelectTrigger className="w-32 h-8 text-xs">
+                        <SelectValue placeholder="Data Source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Sources</SelectItem>
+                        <SelectItem value="IUCN">IUCN Only</SelectItem>
+                        <SelectItem value="iNaturalist">iNaturalist Only</SelectItem>
+                        <SelectItem value="Combined">Combined Data</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={countryFilter} onValueChange={setCountryFilter}>
+                      <SelectTrigger className="w-40 h-8 text-xs">
+                        <SelectValue placeholder="Country" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        <SelectItem value="all">All Countries</SelectItem>
+                        {allCountries.map(country => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={conservationFilter} onValueChange={setConservationFilter}>
+                      <SelectTrigger className="w-40 h-8 text-xs">
+                        <SelectValue placeholder="Conservation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Species</SelectItem>
+                        <SelectItem value="yes">Has Actions</SelectItem>
+                        <SelectItem value="no">No Actions</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all') && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setStatusFilter('all');
+                          setSourceFilter('all');
+                          setCountryFilter('all');
+                          setConservationFilter('all');
+                        }}
+                        className="h-8 text-xs text-slate-500 hover:text-slate-700"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
