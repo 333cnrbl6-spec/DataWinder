@@ -33,7 +33,9 @@ const dataFields = [
   { key: 'observation_count', label: 'Total Observations' },
   { key: 'observations', label: 'Observation Details (iNat)' },
   { key: 'last_observed', label: 'Last Observed Date' },
-  { key: 'image_url', label: 'Image URL' }
+  { key: 'image_url', label: 'Image URL' },
+  { key: 'assessment_pdf_url', label: 'IUCN Assessment PDF' },
+  { key: 'range_map_jpg_url', label: 'IUCN Range Map (JPG)' }
 ];
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {

@@ -83,6 +83,10 @@ export default function Home() {
                   const habitats = habitatData?.result || [];
                   const threats = threatsData?.result || [];
 
+                  // Construct IUCN file URLs
+                  const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
+                  const rangeMapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
+                  
                   return {
                     id: `iucn-${sp.taxonid}`,
                     scientific_name: sp.scientific_name,
@@ -115,6 +119,8 @@ export default function Home() {
                     conservation_actions: narrative.conservationmeasures || '',
                     assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
                     iucn_id: sp.taxonid,
+                    assessment_pdf_url: assessmentPdfUrl,
+                    range_map_jpg_url: rangeMapUrl,
                     dataset_name: term,
                     data_source: 'IUCN Red List'
                   };
@@ -167,6 +173,8 @@ export default function Home() {
                     conservation_actions: species.conservation_actions || existing[0].conservation_actions,
                     assessment_date: species.assessment_date,
                     iucn_id: species.iucn_id,
+                    assessment_pdf_url: species.assessment_pdf_url,
+                    range_map_jpg_url: species.range_map_jpg_url,
                     image_url: species.image_url || existing[0].image_url
                   });
                 } else {
@@ -188,6 +196,8 @@ export default function Home() {
                     conservation_actions: species.conservation_actions,
                     assessment_date: species.assessment_date,
                     iucn_id: species.iucn_id,
+                    assessment_pdf_url: species.assessment_pdf_url,
+                    range_map_jpg_url: species.range_map_jpg_url,
                     image_url: species.image_url
                   });
                 }

@@ -132,15 +132,41 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
           {/* External Links */}
           <div className="mt-3 space-y-1">
             {isIUCN && species.iucn_id && (
-              <a 
-                href={`https://www.iucnredlist.org/species/${species.iucn_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View on IUCN <ExternalLink className="w-3 h-3" />
-              </a>
+              <>
+                <a 
+                  href={`https://www.iucnredlist.org/species/${species.iucn_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View on IUCN <ExternalLink className="w-3 h-3" />
+                </a>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {species.assessment_pdf_url && (
+                    <a 
+                      href={species.assessment_pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      PDF
+                    </a>
+                  )}
+                  {species.range_map_jpg_url && (
+                    <a 
+                      href={species.range_map_jpg_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Map
+                    </a>
+                  )}
+                </div>
+              </>
             )}
             {isINat && species.inat_taxon_id && (
               <a 
