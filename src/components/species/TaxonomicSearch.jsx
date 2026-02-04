@@ -19,9 +19,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [searchTerms, setSearchTerms] = useState(['']);
   const [iucnToken, setIucnToken] = useState('');
   const [showIucnInput, setShowIucnInput] = useState(false);
-  const [inatUsername, setInatUsername] = useState('');
-  const [inatPassword, setInatPassword] = useState('');
-  const [showInatInput, setShowInatInput] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -29,12 +26,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         const user = await base44.auth.me();
         if (user.iucn_api_token) {
           setIucnToken(user.iucn_api_token);
-        }
-        if (user.inat_username) {
-          setInatUsername(user.inat_username);
-        }
-        if (user.inat_password) {
-          setInatPassword(user.inat_password);
         }
       } catch (e) {
         // Not logged in or no credentials
@@ -50,25 +41,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     }
   };
 
-  const saveInatCredentials = async () => {
-    if (inatUsername.trim()) {
-      await base44.auth.updateMe({ 
-        inat_username: inatUsername.trim(),
-        inat_password: inatPassword.trim()
-      });
-      setShowInatInput(false);
-    }
-  };
-
   const handleSearch = () => {
     const validTerms = searchTerms.filter(t => t.trim());
     if (validTerms.length > 0) {
       onSearch({ 
         level, 
         terms: validTerms, 
-        iucnToken,
-        inatUsername,
-        inatPassword
+        iucnToken
       });
     }
   };
@@ -332,7 +311,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || !searchTerms.some(t => t.trim()) || !iucnToken}
+          disabled={isLoading || !searchTerms.some(t => t.trim())}
           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           {isLoading ? (

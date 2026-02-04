@@ -29,7 +29,7 @@ export default function Home() {
   const [showNotes, setShowNotes] = useState(false);
   const [noteSpecies, setNoteSpecies] = useState(null);
 
-  const handleSearch = async ({ level, terms, iucnToken, inatUsername, inatPassword }) => {
+  const handleSearch = async ({ level, terms, iucnToken }) => {
     setIsLoading(true);
     setError(null);
     setSpecies([]);
@@ -42,20 +42,27 @@ export default function Home() {
       // Search IUCN for each term
       if (iucnToken) {
         for (const term of terms) {
-          const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
-          const searchResponse = await fetch(searchUrl);
-          
-          if (!searchResponse.ok) {
-            console.error(`IUCN API error for ${term}: ${searchResponse.status}`);
-            continue;
-          }
+          try {
+            const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
+            const searchResponse = await fetch(searchUrl);
 
-          const searchData = await searchResponse.json();
-          
-          if (!searchData.result || searchData.result.length === 0) {
-            console.warn(`No IUCN species found for ${term}`);
-            continue;
-          }
+            if (!searchResponse.ok) {
+              const errorText = await searchResponse.text();
+              console.error(`IUCN API error for ${term}:`, searchResponse.status, errorText);
+              if (searchResponse.status === 401) {
+                setError('IUCN API token is invalid. Please check your token and try again.');
+                setIsLoading(false);
+                return;
+              }
+              continue;
+            }
+
+            const searchData = await searchResponse.json();
+
+            if (!searchData.result || searchData.result.length === 0) {
+              console.warn(`No IUCN species found for ${term}`);
+              continue;
+            }
 
           const detailedSpecies = await Promise.all(
             searchData.result.map(async (sp) => {
@@ -108,15 +115,21 @@ export default function Home() {
           );
 
           allSpecies = [...allSpecies, ...detailedSpecies];
-        }
-      }
+          } catch (err) {
+          console.error(`Error fetching IUCN data for ${term}:`, err);
+          }
+          }
+          }
 
       // Search iNaturalist for each term
       for (const term of terms) {
         try {
           const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}`;
           const taxonRes = await fetch(taxonUrl);
-          if (!taxonRes.ok) continue;
+          if (!taxonRes.ok) {
+            console.error(`iNaturalist API error for ${term}:`, taxonRes.status);
+            continue;
+          }
 
           const taxonData = await taxonRes.json();
           if (!taxonData.results || taxonData.results.length === 0) {
