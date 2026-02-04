@@ -176,7 +176,7 @@ export default function SavedData() {
                           e.stopPropagation();
                           deleteSearchMutation.mutate(search.id);
                         }}
-                        className="h-8 w-8 text-slate-400 hover:text-red-600"
+                        className="h-8 w-8 text-red-600"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
