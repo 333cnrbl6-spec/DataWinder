@@ -575,7 +575,7 @@ export default function Home() {
           const existing = mergedSpecies[key];
           mergedSpecies[key] = {
             ...existing,
-            // Keep IUCN conservation data if available
+            // Keep IUCN conservation data if available, otherwise use iNaturalist
             iucn_status: existing.iucn_status !== 'NE' ? existing.iucn_status : sp.iucn_status,
             population_trend: existing.population_trend !== 'unknown' ? existing.population_trend : sp.population_trend,
             population_details: existing.population_details || sp.population_details,
@@ -596,6 +596,13 @@ export default function Home() {
             all_images_urls: existing.all_images_urls || sp.all_images_urls,
             habitats_detailed: existing.habitats_detailed || sp.habitats_detailed,
             threats_detailed: existing.threats_detailed || sp.threats_detailed,
+            // Taxonomy - use IUCN if available, fall back to iNaturalist
+            kingdom: existing.kingdom || sp.kingdom,
+            phylum: existing.phylum || sp.phylum,
+            class_name: existing.class_name || sp.class_name,
+            order_name: existing.order_name || sp.order_name,
+            family: existing.family || sp.family,
+            genus: existing.genus || sp.genus,
             // Keep iNaturalist observation data if available
             observation_count: sp.observation_count || existing.observation_count,
             observations: sp.observations || existing.observations,
