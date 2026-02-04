@@ -168,13 +168,13 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             {isIUCN && species.iucn_id && (
               <>
                 <a 
-                  href={`https://www.iucnredlist.org/species/${species.iucn_id}`}
+                  href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  View on IUCN <ExternalLink className="w-3 h-3" />
+                  View on IUCN Red List <ExternalLink className="w-3 h-3" />
                 </a>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {species.assessment_pdf_url && (
