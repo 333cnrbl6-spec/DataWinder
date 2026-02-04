@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { CheckSquare, Square, Download, X } from 'lucide-react';
+import { CheckSquare, Square, Download, ArrowLeftRight, List, StickyNote } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SelectionBar({ 
@@ -8,7 +8,11 @@ export default function SelectionBar({
   selectedCount, 
   onSelectAll, 
   onDeselectAll, 
-  onDownload 
+  onDownload,
+  onCompare,
+  onManageLists,
+  onAddNote,
+  selectedSpecies = []
 }) {
   return (
     <motion.div 
