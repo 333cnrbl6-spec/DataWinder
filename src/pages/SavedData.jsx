@@ -551,11 +551,11 @@ export default function SavedData() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status</h3>
-                    <StatusBadge status={selectedSpecies.iucn_status} />
+                    {selectedSpecies.iucn_status ? <StatusBadge status={selectedSpecies.iucn_status} /> : <p className="text-sm text-slate-500">N/A</p>}
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Trend</h3>
-                    <TrendIndicator trend={selectedSpecies.population_trend} showLabel />
+                    {selectedSpecies.population_trend ? <TrendIndicator trend={selectedSpecies.population_trend} showLabel /> : <p className="text-sm text-slate-500">N/A</p>}
                   </div>
                 </div>
 
@@ -563,25 +563,30 @@ export default function SavedData() {
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">Taxonomy</h3>
                   <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div><span className="font-medium">Kingdom:</span> {selectedSpecies.kingdom || '—'}</div>
-                    <div><span className="font-medium">Phylum:</span> {selectedSpecies.phylum || '—'}</div>
-                    <div><span className="font-medium">Class:</span> {selectedSpecies.class_name || '—'}</div>
-                    <div><span className="font-medium">Order:</span> {selectedSpecies.order_name || '—'}</div>
-                    <div><span className="font-medium">Family:</span> {selectedSpecies.family || '—'}</div>
-                    <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || '—'}</div>
+                    <div><span className="font-medium">Kingdom:</span> {selectedSpecies.kingdom || 'N/A'}</div>
+                    <div><span className="font-medium">Phylum:</span> {selectedSpecies.phylum || 'N/A'}</div>
+                    <div><span className="font-medium">Class:</span> {selectedSpecies.class_name || 'N/A'}</div>
+                    <div><span className="font-medium">Order:</span> {selectedSpecies.order_name || 'N/A'}</div>
+                    <div><span className="font-medium">Family:</span> {selectedSpecies.family || 'N/A'}</div>
+                    <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || 'N/A'}</div>
                   </div>
                 </div>
 
                 {/* Population */}
-                {selectedSpecies.population_details && (
+                {selectedSpecies.population_details ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.population_details}</p>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Distribution */}
-                {selectedSpecies.geographic_distribution?.countries?.length > 0 && (
+                {selectedSpecies.geographic_distribution?.countries?.length > 0 ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">
                       Geographic Distribution ({selectedSpecies.geographic_distribution.countries.length} countries)
@@ -594,42 +599,67 @@ export default function SavedData() {
                       ))}
                     </div>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Geographic Distribution</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Habitat */}
-                {selectedSpecies.habitat && (
+                {selectedSpecies.habitat ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.habitat}</p>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Range Description */}
-                {selectedSpecies.range_description && (
+                {selectedSpecies.range_description ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.range_description}</p>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Threats */}
-                {selectedSpecies.threats && (
+                {selectedSpecies.threats ? (
                   <div>
                     <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.threats}</p>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Conservation Actions */}
-                {selectedSpecies.conservation_actions && (
+                {selectedSpecies.conservation_actions ? (
                   <div>
                     <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.conservation_actions}</p>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Status History */}
-                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 && (
+                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
                     <div className="flex flex-wrap gap-2">
@@ -640,10 +670,15 @@ export default function SavedData() {
                       ))}
                     </div>
                   </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                  </div>
                 )}
 
                 {/* Downloadable Data Files */}
-                {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) && (
+                {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
                     <div className="flex flex-wrap gap-2">
@@ -734,7 +769,7 @@ export default function SavedData() {
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
                   <div className="space-y-3">
-                    {selectedSpecies.iucn_id && (
+                    {selectedSpecies.iucn_id ? (
                       <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
                           <a 

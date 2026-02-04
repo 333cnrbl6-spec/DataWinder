@@ -197,6 +197,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                     </p>
                     <div className="flex gap-2">
                       <Input
+                        id="iucn-api-token"
+                        name="iucn-api-token"
                         value={iucnToken}
                         onChange={(e) => setIucnToken(e.target.value)}
                         placeholder="Paste your IUCN API token here"
@@ -265,6 +267,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           <div key={index} className="flex gap-2">
             <div className="flex-1 relative">
               <Input
+                id={`search-term-${index}`}
+                name={`search-term-${index}`}
                 value={term}
                 onChange={(e) => updateSearchTerm(index, e.target.value)}
                 placeholder={currentLevel?.placeholder}
@@ -328,6 +332,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   className="flex items-start gap-2 p-2 bg-white rounded cursor-pointer"
                 >
                   <input
+                    id={`species-${sp.taxonid}`}
+                    name={`species-${sp.taxonid}`}
                     type="checkbox"
                     checked={selectedSpecies.includes(sp.scientific_name)}
                     onChange={() => toggleSpecies(sp.scientific_name)}
@@ -396,6 +402,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             
             <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
                <input
+                 id="include-inat"
+                 name="include-inat"
                  type="checkbox"
                  checked={includeINat}
                  onChange={(e) => setIncludeINat(e.target.checked)}
