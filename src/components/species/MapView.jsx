@@ -5,36 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Filter, MapPin } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 
-// Fix Leaflet default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
-// Custom markers for different sources
-const iucnIcon = new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  className: 'marker-iucn'
-});
-
-const inatIcon = new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  className: 'marker-inat'
-});
 
 function MapUpdater({ center }) {
   const map = useMap();
@@ -189,7 +161,6 @@ export default function MapView({ species, selectedIds, onSelect }) {
                 <Marker
                   key={`${obs.species.id}-${idx}`}
                   position={[obs.latitude, obs.longitude]}
-                  icon={obs.species.data_source === 'IUCN Red List' ? iucnIcon : inatIcon}
                 >
                   <Popup>
                     <div className="p-2 min-w-[200px]">
@@ -246,14 +217,7 @@ export default function MapView({ species, selectedIds, onSelect }) {
         </div>
       </Card>
 
-      <style jsx>{`
-        .marker-iucn {
-          filter: hue-rotate(90deg) saturate(1.5);
-        }
-        .marker-inat {
-          filter: hue-rotate(200deg) saturate(1.5);
-        }
-      `}</style>
+
     </div>
   );
 }
