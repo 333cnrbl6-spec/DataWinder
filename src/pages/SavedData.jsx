@@ -762,10 +762,15 @@ export default function SavedData() {
                         </button>
                       )}
                     </div>
-                  </div>
-                )}
+                    </div>
+                    ) : (
+                    <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
+                    </div>
+                    )}
 
-                {/* External Links */}
+                    {/* External Links */}
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
                   <div className="space-y-3">
@@ -844,19 +849,28 @@ export default function SavedData() {
                 </div>
 
                 {/* Observation Data (iNaturalist) */}
-                {selectedSpecies.observation_count > 0 && (
+                {selectedSpecies.observation_count > 0 ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div>
-                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count.toLocaleString()}
+                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count?.toLocaleString() || 'N/A'}
                       </div>
-                      {selectedSpecies.last_observed && (
+                      {selectedSpecies.last_observed ? (
                         <div>
                           <span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}
                         </div>
+                      ) : (
+                        <div>
+                          <span className="font-medium">Last Observed:</span> N/A
+                        </div>
                       )}
                     </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
+                    <p className="text-sm text-slate-500">N/A</p>
                   </div>
                 )}
               </div>
