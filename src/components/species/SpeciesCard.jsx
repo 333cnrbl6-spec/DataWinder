@@ -20,7 +20,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
     >
       <Card className={`group relative overflow-hidden transition-all duration-300 shadow-lg ${
         selected 
-          ? isIUCN ? 'ring-2 ring-emerald-500 shadow-emerald-100' : 'ring-2 ring-blue-500 shadow-blue-100'
+          ? 'ring-2 ring-bangor-red shadow-bangor-red/20'
           : 'shadow-slate-200'
       }`}>
         <div className="absolute top-3 left-3 z-10">
@@ -40,7 +40,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             />
           </div>
         ) : (
-          <div className="h-40 bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center">
+          <div className="h-40 bg-gradient-to-br from-bangor-sun/10 to-bangor-sun/5 flex items-center justify-center">
             <span className="text-6xl opacity-30">🦎</span>
           </div>
         )}
@@ -56,10 +56,10 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   <span className={cn(
                     "text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0",
                     isCombined
-                      ? "bg-gradient-to-r from-emerald-100 to-blue-100 text-slate-700"
+                      ? "bg-gradient-to-r from-bangor-red/20 to-bangor-sun/20 text-slate-700"
                       : species.data_source === 'IUCN Red List' 
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-blue-100 text-blue-700"
+                      ? "bg-bangor-red/10 text-bangor-red"
+                      : "bg-bangor-sun/10 text-bangor-sun"
                   )}>
                     {isCombined ? 'IUCN + iNat' : species.data_source === 'IUCN Red List' ? 'IUCN' : 'iNat'}
                   </span>
@@ -76,14 +76,14 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
           {isINat && (
             <div className="flex flex-wrap gap-2 mb-3">
               {species.observation_count > 0 && (
-                <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">
-                  {species.observation_count.toLocaleString()} obs
-                </span>
-              )}
-              {species.last_observed && (
-                <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">
-                  Last: {species.last_observed}
-                </span>
+                <span className="text-xs px-2 py-0.5 bg-bangor-sun/10 text-bangor-sun rounded-full font-medium">
+                   {species.observation_count.toLocaleString()} obs
+                 </span>
+                )}
+                {species.last_observed && (
+                 <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
+                   Last: {species.last_observed}
+                 </span>
               )}
             </div>
           )}
@@ -167,15 +167,15 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
           <div className="mt-3 space-y-1">
             {isIUCN && species.iucn_id && (
               <>
-                <a 
-                  href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-emerald-700 font-medium"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View on IUCN Red List <ExternalLink className="w-3 h-3" />
-                </a>
+              <a 
+               href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+               target="_blank"
+               rel="noopener noreferrer"
+               className="inline-flex items-center gap-1 text-xs text-bangor-red font-medium"
+               onClick={(e) => e.stopPropagation()}
+              >
+               View on IUCN Red List <ExternalLink className="w-3 h-3" />
+              </a>
                 <p className="text-[10px] text-slate-500 italic mt-1">
                   IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
                 </p>
@@ -185,7 +185,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.assessment_pdf_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded font-medium"
+                      className="text-xs px-2 py-1 bg-bangor-red/20 text-bangor-red rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Download Assessment PDF from IUCN"
                     >
@@ -197,7 +197,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.range_map_jpg_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
+                      className="text-xs px-2 py-1 bg-bangor-sun/20 text-bangor-sun rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="View Range Map on IUCN"
                     >
@@ -209,7 +209,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.range_data_shp_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded font-medium"
+                      className="text-xs px-2 py-1 bg-bangor-red/10 text-bangor-red rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Download Spatial Data from IUCN"
                     >
@@ -218,7 +218,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   )}
                   {species.search_summary_json && (
                     <button 
-                      className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded font-medium"
+                      className="text-xs px-2 py-1 bg-bangor-sun/10 text-bangor-sun rounded font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
@@ -239,7 +239,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.search_results_csv_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded font-medium"
+                      className="text-xs px-2 py-1 bg-bangor-sun/15 text-bangor-sun rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Export Search Results from IUCN"
                     >
@@ -257,20 +257,20 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             {isINat && species.inat_taxon_id && (
               <>
                 <a 
-                  href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-700 font-medium"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View on iNaturalist <ExternalLink className="w-3 h-3" />
-                </a>
+                   href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="inline-flex items-center gap-1 text-xs text-bangor-sun font-medium"
+                   onClick={(e) => e.stopPropagation()}
+                 >
+                   View on iNaturalist <ExternalLink className="w-3 h-3" />
+                 </a>
                 <div className="flex gap-1 mt-1">
                   <a 
                     href={`https://www.inaturalist.org/observations/export?taxon_id=${species.inat_taxon_id}&quality_grade=research`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
+                    className="text-[10px] px-2 py-1 bg-bangor-sun/15 text-bangor-sun rounded font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     📥 CSV
@@ -279,7 +279,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                     href={`https://www.inaturalist.org/observations?taxon_id=${species.inat_taxon_id}&quality_grade=research&verifiable=true`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
+                    className="text-[10px] px-2 py-1 bg-bangor-sun/15 text-bangor-sun rounded font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     📊 JSON
