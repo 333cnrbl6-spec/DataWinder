@@ -653,8 +653,8 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <BangOnLogo size="sm" />
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-bangor-red">IUCN Species Explorer</h1>
-              <p className="text-sm text-slate-600">Search and download species conservation data</p>
+              <h1 className="text-xl font-bold text-bangor-red">The DataWinder</h1>
+              <p className="text-sm text-slate-600">b-Izzy on Data</p>
             </div>
             <Link to={createPageUrl('SavedData')}>
               <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors">
