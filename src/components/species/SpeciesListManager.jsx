@@ -157,8 +157,8 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
                             {list.is_public && list.share_token && (
                               <Button
                                 size="sm"
-                                variant="outline"
                                 onClick={() => copyShareLink(list.share_token)}
+                                className="bg-bangor-sun/20 text-bangor-sun font-medium"
                               >
                                 {copiedToken === list.share_token ? (
                                   <Check className="w-3 h-3" />
@@ -169,9 +169,8 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
                             )}
                             <Button
                               size="sm"
-                              variant="ghost"
                               onClick={() => deleteListMutation.mutate(list.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="bg-red-100 text-red-600 font-medium"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -184,7 +183,7 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
               )}
             </div>
 
-            <Button onClick={onClose} variant="outline" className="w-full">
+            <Button onClick={onClose} className="w-full bg-slate-200 text-slate-700 font-medium">
               Close
             </Button>
           </CardContent>
