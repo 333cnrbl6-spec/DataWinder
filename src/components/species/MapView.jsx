@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Filter, MapPin } from 'lucide-react';
+import { Filter, MapPin, Download } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import ObservationExportPanel from './ObservationExportPanel';
 import 'leaflet/dist/leaflet.css';
 
 
@@ -22,6 +24,7 @@ export default function MapView({ species, selectedIds, onSelect }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [familyFilter, setFamilyFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [showExport, setShowExport] = useState(false);
 
   // Get unique families
   const families = useMemo(() => {
@@ -129,16 +132,28 @@ export default function MapView({ species, selectedIds, onSelect }) {
           </div>
         </div>
         
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-            <span>IUCN</span>
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <span>IUCN</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span>iNaturalist</span>
+            </div>
+            <span>{observations.length} observations</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span>iNaturalist</span>
-          </div>
-          <span className="ml-auto">{observations.length} observations on map</span>
+          {observations.length > 0 && (
+            <Button
+              size="sm"
+              onClick={() => setShowExport(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-xs h-7"
+            >
+              <Download className="w-3 h-3 mr-1" />
+              Export Map Data
+            </Button>
+          )}
         </div>
       </Card>
 

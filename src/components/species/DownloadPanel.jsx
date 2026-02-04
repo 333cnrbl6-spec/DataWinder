@@ -12,6 +12,7 @@ import JSZip from 'jszip';
 const dataFields = [
   { key: 'scientific_name', label: 'Scientific Name', required: true },
   { key: 'common_name', label: 'Common Name' },
+  { key: 'data_source', label: 'Data Source' },
   { key: 'iucn_status', label: 'IUCN Status' },
   { key: 'population_trend', label: 'Population Trend' },
   { key: 'kingdom', label: 'Kingdom' },
@@ -25,12 +26,16 @@ const dataFields = [
   { key: 'threats', label: 'Threats' },
   { key: 'conservation_actions', label: 'Conservation Actions' },
   { key: 'assessment_date', label: 'Assessment Date' },
-  { key: 'iucn_id', label: 'IUCN ID' }
+  { key: 'iucn_id', label: 'IUCN ID' },
+  { key: 'inat_taxon_id', label: 'iNaturalist Taxon ID' },
+  { key: 'observation_count', label: 'Total Observations' },
+  { key: 'last_observed', label: 'Last Observed Date' },
+  { key: 'image_url', label: 'Image URL' }
 ];
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
   const [selectedFields, setSelectedFields] = useState(
-    dataFields.filter(f => f.required || ['common_name', 'iucn_status', 'population_trend', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
+    dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
   );
   const [format, setFormat] = useState('csv');
   const [saveLocation, setSaveLocation] = useState('');
