@@ -55,7 +55,7 @@ export default function SelectionBar({
             exit={{ opacity: 0, scale: 0.9 }}
             className="flex items-center gap-3"
           >
-            <span className="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">
+            <span className="text-sm bg-bangor-sun/20 text-bangor-sun px-3 py-1 rounded-full font-medium">
               {selectedCount} selected
             </span>
             <div className="flex gap-2">
@@ -63,7 +63,7 @@ export default function SelectionBar({
                 onClick={onCompare}
                 variant="outline"
                 disabled={selectedCount < 2}
-                className="border-blue-200 bg-blue-50 text-blue-700"
+                className="border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun font-medium"
               >
                 <ArrowLeftRight className="w-4 h-4 mr-2" />
                 Compare
@@ -71,7 +71,7 @@ export default function SelectionBar({
               <Button
                 onClick={onManageLists}
                 variant="outline"
-                className="border-purple-200 bg-purple-50 text-purple-700"
+                className="border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun font-medium"
               >
                 <List className="w-4 h-4 mr-2" />
                 Save to List
@@ -80,7 +80,7 @@ export default function SelectionBar({
                 <Button
                   onClick={() => onAddNote(selectedSpecies[0])}
                   variant="outline"
-                  className="border-amber-200 bg-amber-50 text-amber-700"
+                  className="border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun font-medium"
                 >
                   <StickyNote className="w-4 h-4 mr-2" />
                   Add Note
@@ -88,7 +88,7 @@ export default function SelectionBar({
               )}
               <Button
                 onClick={onDownload}
-                className="bg-emerald-600 text-white"
+                className="bg-bangor-red text-white font-medium"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download
