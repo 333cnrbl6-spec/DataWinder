@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import DataIntegrityChecker from '@/components/DataIntegrityChecker';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +22,7 @@ export default function SavedData() {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
+  const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -207,6 +209,14 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => setShowIntegrityChecker(true)}
+                      className="bg-bangor-sun/20 text-bangor-sun font-medium"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Check Data
+                    </Button>
                     <Button
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
@@ -489,6 +499,18 @@ export default function SavedData() {
           </div>
         </div>
       </main>
+
+      {/* Data Integrity Checker */}
+      {showIntegrityChecker && (
+        <DataIntegrityChecker
+          open={showIntegrityChecker}
+          onClose={() => setShowIntegrityChecker(false)}
+          onComplete={() => {
+            queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+            queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+          }}
+        />
+      )}
 
       {/* Species Details Modal */}
       <AnimatePresence>
