@@ -176,6 +176,9 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 >
                   View on IUCN Red List <ExternalLink className="w-3 h-3" />
                 </a>
+                <p className="text-[10px] text-slate-500 italic mt-1">
+                  IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
+                </p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {species.assessment_pdf_url && (
                     <a 
@@ -252,15 +255,37 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
               </>
             )}
             {isINat && species.inat_taxon_id && (
-              <a 
-                href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View on iNaturalist <ExternalLink className="w-3 h-3" />
-              </a>
+              <>
+                <a 
+                  href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View on iNaturalist <ExternalLink className="w-3 h-3" />
+                </a>
+                <div className="flex gap-1 mt-1">
+                  <a 
+                    href={`https://www.inaturalist.org/observations/export?taxon_id=${species.inat_taxon_id}&quality_grade=research`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📥 CSV
+                  </a>
+                  <a 
+                    href={`https://www.inaturalist.org/observations?taxon_id=${species.inat_taxon_id}&quality_grade=research&verifiable=true`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📊 JSON
+                  </a>
+                </div>
+              </>
             )}
             {isINat && species.inat_wikipedia_url && (
               <a 

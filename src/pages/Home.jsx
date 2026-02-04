@@ -614,6 +614,12 @@ export default function Home() {
               </AlertDescription>
             </Alert>
 
+            <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200 text-xs text-slate-500">
+              <p className="mb-1">Data Sources:</p>
+              <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
+              <p className="italic">• iNaturalist observation data www.inaturalist.org</p>
+            </div>
+
             {/* Status Legend */}
             <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
               <h3 className="text-sm font-semibold text-slate-700 mb-4">IUCN Red List Categories</h3>

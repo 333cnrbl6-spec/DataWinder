@@ -426,39 +426,77 @@ export default function SavedData() {
                 {/* External Links */}
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-3">
                     {selectedSpecies.iucn_id && (
-                      <a 
-                        href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        View on IUCN Red List
-                      </a>
-                    )}
-                    {selectedSpecies.assessment_pdf_url && (
-                      <a 
-                        href={selectedSpecies.assessment_pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Assessment PDF
-                      </a>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <a 
+                            href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            View on IUCN Red List
+                          </a>
+                          {selectedSpecies.assessment_pdf_url && (
+                            <a 
+                              href={selectedSpecies.assessment_pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Assessment PDF
+                            </a>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 italic">
+                          IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
+                        </p>
+                      </div>
                     )}
                     {selectedSpecies.inat_taxon_id && (
-                      <a 
-                        href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        View on iNaturalist
-                      </a>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <a 
+                            href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            View on iNaturalist
+                          </a>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-slate-600 font-medium">Download Observations:</span>
+                          <a 
+                            href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                          >
+                            📥 CSV
+                          </a>
+                          <a 
+                            href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                          >
+                            📊 JSON
+                          </a>
+                          <a 
+                            href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                          >
+                            🗺️ KML
+                          </a>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
