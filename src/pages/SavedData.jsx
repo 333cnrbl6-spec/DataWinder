@@ -11,7 +11,7 @@ import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import DataIntegrityChecker from '@/components/DataIntegrityChecker';
+import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
