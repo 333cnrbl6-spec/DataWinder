@@ -761,10 +761,10 @@ export default function SavedData() {
                           Habitats & Threats (JSON)
                         </button>
                       )}
-                    </div>
-                    </div>
-                    ) : (
-                    <div>
+                      </div>
+                      </div>
+                      ) : (
+                      <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
                     <p className="text-sm text-slate-500">N/A</p>
                     </div>
