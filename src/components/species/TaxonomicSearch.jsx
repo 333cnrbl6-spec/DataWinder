@@ -116,47 +116,64 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-amber-900 mb-1">API Token Required</h4>
                 <p className="text-xs text-amber-700 mb-3">
-                  Get your free API token from the IUCN Red List website.
+                  To access IUCN data, you need a free API token. Sign up or log in to get yours.
                 </p>
                 {!showIucnInput ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href="https://apiv3.iucnredlist.org/sign-up"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white inline-flex items-center gap-1 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Sign Up (Free)
+                      </a>
+                      <a
+                        href="https://apiv3.iucnredlist.org/login"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Log In & Get Token
+                      </a>
+                    </div>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setShowIucnInput(true)}
-                      className="text-xs"
+                      className="text-xs w-full"
                     >
                       <Key className="w-3 h-3 mr-1" />
-                      Add Token
+                      I Have My Token - Add It Now
                     </Button>
-                    <a
-                      href="https://apiv3.iucnredlist.org/token"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
-                    >
-                      Get Free Token <ExternalLink className="w-3 h-3" />
-                    </a>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
-                    <Input
-                      value={iucnToken}
-                      onChange={(e) => setIucnToken(e.target.value)}
-                      placeholder="Paste your IUCN API token"
-                      className="text-xs h-8"
-                    />
-                    <Button size="sm" onClick={saveIucnToken} className="text-xs h-8">
-                      Save
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      onClick={() => setShowIucnInput(false)}
-                      className="text-xs h-8"
-                    >
-                      Cancel
-                    </Button>
+                  <div className="space-y-2">
+                    <p className="text-xs text-amber-700 mb-2">
+                      After logging in, find your token on your account page and paste it below:
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        value={iucnToken}
+                        onChange={(e) => setIucnToken(e.target.value)}
+                        placeholder="Paste your IUCN API token here"
+                        className="text-xs h-8"
+                      />
+                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700">
+                        Save
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => setShowIucnInput(false)}
+                        className="text-xs h-8"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
