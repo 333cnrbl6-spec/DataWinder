@@ -261,6 +261,7 @@ export default function SavedData() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100"
+                                  title="Assessment PDF"
                                 >
                                   PDF
                                 </a>
@@ -271,6 +272,7 @@ export default function SavedData() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                                  title="Range Map (JPG)"
                                 >
                                   Map
                                 </a>
@@ -281,8 +283,31 @@ export default function SavedData() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100"
+                                  title="Range Polygons (SHP)"
                                 >
                                   SHP
+                                </a>
+                              )}
+                              {species.range_data_csv_url && (
+                                <a 
+                                  href={species.range_data_csv_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100"
+                                  title="Range Points (CSV)"
+                                >
+                                  CSV
+                                </a>
+                              )}
+                              {species.search_results_csv_url && (
+                                <a 
+                                  href={species.search_results_csv_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100"
+                                  title="Search Results"
+                                >
+                                  Results
                                 </a>
                               )}
                             </div>

@@ -93,10 +93,41 @@ export default function Home() {
                   const history = historicalData?.result || [];
                   const countries = countriesData?.result || [];
 
-                  // Construct IUCN file URLs
+                  // Construct IUCN file URLs for all available downloads
                   const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
                   const rangeMapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
                   const rangeDataShpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
+                  const rangeDataCsvUrl = `https://apiv3.iucnredlist.org/api/v3/species/range/${sp.taxonid}?token=${iucnToken}`;
+
+                  // Fetch additional images if available
+                  let allImages = [];
+                  if (sp.taxonid) {
+                    try {
+                      // Try to fetch images from IUCN - some species have multiple images
+                      const imagesUrl = `https://apiv3.iucnredlist.org/api/v3/species/image/${sp.taxonid}?token=${iucnToken}`;
+                      const imagesRes = await fetch(imagesUrl);
+                      if (imagesRes.ok) {
+                        const imagesData = await imagesRes.json();
+                        allImages = imagesData.result?.map(img => img.url) || [];
+                      }
+                    } catch (err) {
+                      console.error('Error fetching images:', err);
+                    }
+                  }
+
+                  // Create search summary JSON
+                  const searchSummary = {
+                    taxon_id: sp.taxonid,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name,
+                    category: sp.category,
+                    population_trend: narrative.populationtrend,
+                    assessment_date: sp.published_year,
+                    countries: countries.map(c => c.country),
+                    habitats: habitats.map(h => h.habitat),
+                    threats: threats.map(t => t.title),
+                    conservation_measures: narrative.conservationmeasures
+                  };
                   
                   return {
                     id: `iucn-${sp.taxonid}`,
@@ -144,6 +175,10 @@ export default function Home() {
                     assessment_pdf_url: assessmentPdfUrl,
                     range_map_jpg_url: rangeMapUrl,
                     range_data_shp_url: rangeDataShpUrl,
+                    range_data_csv_url: rangeDataCsvUrl,
+                    search_summary_json: searchSummary,
+                    search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
+                    all_images_urls: allImages.length > 0 ? allImages : (sp.main_common_name ? [sp.default_photo?.url].filter(Boolean) : []),
                     dataset_name: term,
                     data_source: 'IUCN Red List'
                   };
@@ -202,8 +237,12 @@ export default function Home() {
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
                     range_data_shp_url: species.range_data_shp_url,
+                    range_data_csv_url: species.range_data_csv_url,
+                    search_summary_json: species.search_summary_json,
+                    search_results_csv_url: species.search_results_csv_url,
+                    all_images_urls: species.all_images_urls || existing[0].all_images_urls,
                     image_url: species.image_url || existing[0].image_url
-                  });
+                    });
                 } else {
                   // Create new species record
                   await base44.entities.Species.create({
@@ -229,8 +268,12 @@ export default function Home() {
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
                     range_data_shp_url: species.range_data_shp_url,
+                    range_data_csv_url: species.range_data_csv_url,
+                    search_summary_json: species.search_summary_json,
+                    search_results_csv_url: species.search_results_csv_url,
+                    all_images_urls: species.all_images_urls,
                     image_url: species.image_url
-                  });
+                    });
                 }
               } catch (err) {
                 console.error(`Error saving species ${species.scientific_name}:`, err);
@@ -438,6 +481,10 @@ export default function Home() {
             assessment_pdf_url: existing.assessment_pdf_url || sp.assessment_pdf_url,
             range_map_jpg_url: existing.range_map_jpg_url || sp.range_map_jpg_url,
             range_data_shp_url: existing.range_data_shp_url || sp.range_data_shp_url,
+            range_data_csv_url: existing.range_data_csv_url || sp.range_data_csv_url,
+            search_summary_json: existing.search_summary_json || sp.search_summary_json,
+            search_results_csv_url: existing.search_results_csv_url || sp.search_results_csv_url,
+            all_images_urls: existing.all_images_urls || sp.all_images_urls,
             habitats_detailed: existing.habitats_detailed || sp.habitats_detailed,
             threats_detailed: existing.threats_detailed || sp.threats_detailed,
             // Keep iNaturalist observation data if available

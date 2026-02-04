@@ -39,7 +39,11 @@ const dataFields = [
   { key: 'image_url', label: 'Image URL' },
   { key: 'assessment_pdf_url', label: 'IUCN Assessment PDF' },
   { key: 'range_map_jpg_url', label: 'IUCN Range Map (JPG)' },
-  { key: 'range_data_shp_url', label: 'IUCN Range Data (SHP)' }
+  { key: 'range_data_shp_url', label: 'IUCN Range Polygons (SHP)' },
+  { key: 'range_data_csv_url', label: 'IUCN Range Points (CSV)' },
+  { key: 'search_results_csv_url', label: 'IUCN Search Results (CSV)' },
+  { key: 'search_summary_json', label: 'IUCN Search Summary (JSON)' },
+  { key: 'all_images_urls', label: 'All Species Images' }
 ];
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
