@@ -653,7 +653,7 @@ export default function Home() {
       <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <div onClick={() => setShowLogoSelector(true)} className="cursor-pointer hover:opacity-80 transition-opacity">
+            <div onClick={() => setShowLogoSelector(true)} className="cursor-pointer opacity-90">
               <BangOnLogo size="sm" />
             </div>
             <div className="flex-1">
@@ -661,7 +661,7 @@ export default function Home() {
               <p className="text-sm text-slate-600">b-Izzy on Data</p>
             </div>
             <Link to={createPageUrl('SavedData')}>
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
                 <Database className="w-4 h-4" />
                 <span className="text-sm font-medium">Saved Data</span>
               </button>
@@ -737,16 +737,16 @@ export default function Home() {
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
-                >
+                  className={viewMode === 'grid' ? 'bg-emerald-600 text-white' : ''}
+                  >
                   <Grid3x3 className="w-4 h-4 mr-2" />
                   Grid
-                </Button>
-                <Button
+                  </Button>
+                  <Button
                   variant={viewMode === 'map' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('map')}
-                  className={viewMode === 'map' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                  className={viewMode === 'map' ? 'bg-emerald-600 text-white' : ''}
                 >
                   <Map className="w-4 h-4 mr-2" />
                   Map

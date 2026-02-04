@@ -63,7 +63,7 @@ export default function SelectionBar({
                 onClick={onCompare}
                 variant="outline"
                 disabled={selectedCount < 2}
-                className="border-blue-200 hover:bg-blue-50"
+                className="border-blue-200 bg-blue-50 text-blue-700"
               >
                 <ArrowLeftRight className="w-4 h-4 mr-2" />
                 Compare
@@ -71,7 +71,7 @@ export default function SelectionBar({
               <Button
                 onClick={onManageLists}
                 variant="outline"
-                className="border-purple-200 hover:bg-purple-50"
+                className="border-purple-200 bg-purple-50 text-purple-700"
               >
                 <List className="w-4 h-4 mr-2" />
                 Save to List
@@ -80,7 +80,7 @@ export default function SelectionBar({
                 <Button
                   onClick={() => onAddNote(selectedSpecies[0])}
                   variant="outline"
-                  className="border-amber-200 hover:bg-amber-50"
+                  className="border-amber-200 bg-amber-50 text-amber-700"
                 >
                   <StickyNote className="w-4 h-4 mr-2" />
                   Add Note
@@ -88,7 +88,7 @@ export default function SelectionBar({
               )}
               <Button
                 onClick={onDownload}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 text-white"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download

@@ -281,7 +281,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                   <Button
                     variant={format === 'csv' ? 'default' : 'outline'}
                     onClick={() => setFormat('csv')}
-                    className={format === 'csv' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                    className={format === 'csv' ? 'bg-emerald-600 text-white' : ''}
                   >
                     <FileSpreadsheet className="w-4 h-4 mr-2" />
                     CSV
@@ -289,7 +289,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                   <Button
                     variant={format === 'json' ? 'default' : 'outline'}
                     onClick={() => setFormat('json')}
-                    className={format === 'json' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                    className={format === 'json' ? 'bg-emerald-600 text-white' : ''}
                   >
                     <FileJson className="w-4 h-4 mr-2" />
                     JSON
@@ -303,14 +303,14 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                   <div className="flex gap-2">
                     <button 
                       onClick={selectAll}
-                      className="text-xs text-emerald-600 hover:underline"
+                      className="text-xs text-emerald-600 underline font-medium"
                     >
                       Select all
                     </button>
                     <span className="text-slate-300">|</span>
                     <button 
                       onClick={selectNone}
-                      className="text-xs text-slate-500 hover:underline"
+                      className="text-xs text-slate-500 underline font-medium"
                     >
                       Select none
                     </button>
@@ -324,7 +324,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
                         selectedFields.includes(field.key) 
                           ? 'bg-emerald-50 text-emerald-800' 
-                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                          : 'bg-slate-100 text-slate-600'
                       } ${field.required ? 'opacity-75' : ''}`}
                     >
                       <Checkbox
@@ -347,7 +347,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                   <Button 
                     onClick={saveToDb}
                     disabled={isSaving}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 bg-blue-600 text-white"
                   >
                     <Database className="w-4 h-4 mr-2" />
                     {isSaving ? 'Saving...' : 'Save to Database'}
@@ -355,7 +355,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                 )}
                 <Button 
                   onClick={downloadData}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-emerald-600 text-white"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download {format.toUpperCase()}

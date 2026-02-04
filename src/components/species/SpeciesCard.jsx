@@ -18,10 +18,10 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Card className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+      <Card className={`group relative overflow-hidden transition-all duration-300 shadow-lg ${
         selected 
           ? isIUCN ? 'ring-2 ring-emerald-500 shadow-emerald-100' : 'ring-2 ring-blue-500 shadow-blue-100'
-          : 'hover:shadow-slate-200'
+          : 'shadow-slate-200'
       }`}>
         <div className="absolute top-3 left-3 z-10">
           <Checkbox 
@@ -171,7 +171,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-emerald-700 font-medium"
                   onClick={(e) => e.stopPropagation()}
                 >
                   View on IUCN Red List <ExternalLink className="w-3 h-3" />
@@ -185,7 +185,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.assessment_pdf_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Download Assessment PDF from IUCN"
                     >
@@ -197,7 +197,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.range_map_jpg_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="View Range Map on IUCN"
                     >
@@ -209,7 +209,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.range_data_shp_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Download Spatial Data from IUCN"
                     >
@@ -218,7 +218,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   )}
                   {species.search_summary_json && (
                     <button 
-                      className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
@@ -239,7 +239,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       href={species.search_results_csv_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded font-medium"
                       onClick={(e) => e.stopPropagation()}
                       title="Export Search Results from IUCN"
                     >
@@ -260,7 +260,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-blue-700 font-medium"
                   onClick={(e) => e.stopPropagation()}
                 >
                   View on iNaturalist <ExternalLink className="w-3 h-3" />
@@ -270,7 +270,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                     href={`https://www.inaturalist.org/observations/export?taxon_id=${species.inat_taxon_id}&quality_grade=research`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                    className="text-[10px] px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     📥 CSV
@@ -279,7 +279,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                     href={`https://www.inaturalist.org/observations?taxon_id=${species.inat_taxon_id}&quality_grade=research&verifiable=true`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                    className="text-[10px] px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     📊 JSON
@@ -292,7 +292,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 href={species.inat_wikipedia_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-xs text-slate-600 hover:text-slate-700 transition-colors"
+                className="block text-xs text-slate-700 font-medium"
                 onClick={(e) => e.stopPropagation()}
               >
                 Wikipedia →

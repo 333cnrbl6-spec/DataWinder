@@ -167,14 +167,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         href="https://www.iucnredlist.org/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 text-white inline-flex items-center gap-1 cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Sign Up (Free)
                       </a>
                       <button
                         onClick={() => setShowIucnInput(true)}
-                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 text-amber-900 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-amber-50 text-amber-900 inline-flex items-center gap-1 cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Log In & Get Token
@@ -202,7 +202,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         placeholder="Paste your IUCN API token here"
                         className="text-xs h-8"
                       />
-                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700">
+                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-emerald-600 text-white">
                         Save
                       </Button>
                       <Button 
@@ -227,7 +227,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </div>
             <button
               onClick={() => setShowIucnInput(true)}
-              className="text-xs text-emerald-600 hover:underline"
+              className="text-xs text-emerald-600 underline font-medium"
             >
               Change
             </button>
@@ -278,7 +278,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                 variant="ghost"
                 size="icon"
                 onClick={() => removeSearchTerm(index)}
-                className="text-slate-400 hover:text-red-600"
+                className="text-red-600"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -308,14 +308,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               <div className="flex gap-2">
                 <button 
                   onClick={selectAllSpecies}
-                  className="text-xs text-emerald-600 hover:underline"
+                  className="text-xs text-emerald-600 underline font-medium"
                 >
                   Select all
                 </button>
                 <span className="text-slate-300">|</span>
                 <button 
                   onClick={deselectAllSpecies}
-                  className="text-xs text-slate-500 hover:underline"
+                  className="text-xs text-slate-500 underline font-medium"
                 >
                   Deselect all
                 </button>
@@ -325,7 +325,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               {familySpecies.map((sp) => (
                 <label 
                   key={sp.taxonid}
-                  className="flex items-start gap-2 p-2 hover:bg-white rounded cursor-pointer transition-colors"
+                  className="flex items-start gap-2 p-2 bg-white rounded cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -359,7 +359,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red hover:bg-red-700 text-white"
+          className="w-full bg-bangor-red text-white"
         >
           {isLoading ? (
             <>
@@ -414,7 +414,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               </Button>
               <Button
                 onClick={confirmSearch}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-emerald-600 text-white"
               >
                 Fetch Data
               </Button>
@@ -430,7 +430,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setLevel('family');
             setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae']);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+          className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium"
         >
           Primate Families
         </button>
@@ -439,7 +439,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setLevel('family');
             setSearchTerms(['Felidae', 'Canidae', 'Ursidae']);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+          className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium"
         >
           Carnivore Families
         </button>
