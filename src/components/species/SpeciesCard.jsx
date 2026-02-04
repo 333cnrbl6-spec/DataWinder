@@ -93,6 +93,37 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                   Assessed: {new Date(species.assessment_date).getFullYear()}
                 </div>
               )}
+              
+              {species.status_history && species.status_history.length > 1 && (
+                <div className="text-xs">
+                  <span className="font-medium text-slate-700">Status History: </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {species.status_history.slice(-3).map((h, i) => (
+                      <span key={i} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px]">
+                        {h.year}: {h.status}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {species.population_details && (
+                <div className="text-xs">
+                  <span className="font-medium text-slate-700">Population: </span>
+                  <span className="text-slate-600 line-clamp-2">{species.population_details}</span>
+                </div>
+              )}
+
+              {species.geographic_distribution?.countries?.length > 0 && (
+                <div className="text-xs">
+                  <span className="font-medium text-slate-700">Distribution: </span>
+                  <span className="text-slate-600 line-clamp-1">
+                    {species.geographic_distribution.countries.slice(0, 3).join(', ')}
+                    {species.geographic_distribution.countries.length > 3 && ` +${species.geographic_distribution.countries.length - 3}`}
+                  </span>
+                </div>
+              )}
+              
               {species.habitat && (
                 <div className="text-xs">
                   <span className="font-medium text-slate-700">Habitat: </span>

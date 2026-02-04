@@ -15,6 +15,9 @@ const dataFields = [
   { key: 'data_source', label: 'Data Source' },
   { key: 'iucn_status', label: 'IUCN Status' },
   { key: 'population_trend', label: 'Population Trend' },
+  { key: 'population_details', label: 'Population Details' },
+  { key: 'status_history', label: 'Conservation Status History' },
+  { key: 'geographic_distribution', label: 'Geographic Distribution' },
   { key: 'kingdom', label: 'Kingdom' },
   { key: 'phylum', label: 'Phylum' },
   { key: 'class_name', label: 'Class' },
@@ -41,7 +44,7 @@ const dataFields = [
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
   const [selectedFields, setSelectedFields] = useState(
-    dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
+    dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'population_details', 'status_history', 'geographic_distribution', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
   );
   const [format, setFormat] = useState('csv');
   const [saveLocation, setSaveLocation] = useState('');
@@ -87,13 +90,19 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
           genus: sp.genus,
           iucn_status: sp.iucn_status,
           population_trend: sp.population_trend,
+          population_details: sp.population_details,
+          status_history: sp.status_history,
+          geographic_distribution: sp.geographic_distribution,
           habitat: sp.habitat,
           range_description: sp.range_description,
           threats: sp.threats,
           conservation_actions: sp.conservation_actions,
           assessment_date: sp.assessment_date,
           iucn_id: sp.iucn_id,
-          image_url: sp.image_url
+          image_url: sp.image_url,
+          assessment_pdf_url: sp.assessment_pdf_url,
+          range_map_jpg_url: sp.range_map_jpg_url,
+          range_data_shp_url: sp.range_data_shp_url
         }));
 
         await base44.entities.Species.bulkCreate(speciesToSave);
