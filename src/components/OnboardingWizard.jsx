@@ -211,7 +211,7 @@ export default function OnboardingWizard({ open, onComplete }) {
                             href="https://www.iucnredlist.org/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-bangor-red hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg text-sm font-medium"
                           >
                             <ExternalLink className="w-4 h-4" />
                             Go to IUCN Red List
@@ -266,7 +266,7 @@ export default function OnboardingWizard({ open, onComplete }) {
                         href="https://www.iucnredlist.org/terms/terms-of-use" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-emerald-700 hover:underline text-sm font-medium"
+                        className="inline-flex items-center gap-1 text-emerald-700 underline text-sm font-medium"
                       >
                         Full terms <ExternalLink className="w-3 h-3" />
                       </a>
@@ -285,7 +285,7 @@ export default function OnboardingWizard({ open, onComplete }) {
                         href="https://www.inaturalist.org/pages/terms" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-700 hover:underline text-sm font-medium"
+                        className="inline-flex items-center gap-1 text-blue-700 underline text-sm font-medium"
                       >
                         Full terms <ExternalLink className="w-3 h-3" />
                       </a>
@@ -293,7 +293,7 @@ export default function OnboardingWizard({ open, onComplete }) {
                   </div>
                 </ScrollArea>
 
-                <label className="flex items-start gap-3 cursor-pointer p-4 bg-bangor-sun/10 rounded-lg border-2 border-bangor-sun/30 hover:border-bangor-sun/50 transition-colors">
+                <label className="flex items-start gap-3 cursor-pointer p-4 bg-bangor-sun/10 rounded-lg border-2 border-bangor-sun/50">
                   <Checkbox 
                     checked={formData.terms_accepted} 
                     onCheckedChange={(checked) => setFormData({...formData, terms_accepted: checked})}
@@ -324,7 +324,7 @@ export default function OnboardingWizard({ open, onComplete }) {
             <Button
               onClick={handleNext}
               disabled={!canProceed() || loading}
-              className="bg-bangor-red hover:bg-red-700 text-white font-semibold px-8 py-6 text-lg shadow-lg"
+              className="bg-bangor-red text-white font-semibold px-8 py-6 text-lg shadow-lg"
             >
               Next
               <ChevronRight className="w-5 h-5 ml-2" />
@@ -333,7 +333,7 @@ export default function OnboardingWizard({ open, onComplete }) {
             <Button
               onClick={handleComplete}
               disabled={!canProceed() || loading}
-              className="bg-bangor-red hover:bg-red-700 text-white font-semibold px-8 py-6 text-lg shadow-lg"
+              className="bg-bangor-red text-white font-semibold px-8 py-6 text-lg shadow-lg"
             >
               {loading ? 'Saving...' : 'Complete Setup'}
             </Button>

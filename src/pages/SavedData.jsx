@@ -154,7 +154,7 @@ export default function SavedData() {
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
                       selectedSearch?.id === search.id
                         ? 'bg-blue-50 border-blue-300'
-                        : 'bg-white hover:bg-slate-50 border-slate-200'
+                        : 'bg-white border-slate-200'
                     }`}
                     onClick={() => setSelectedSearch(search)}
                   >
@@ -204,7 +204,7 @@ export default function SavedData() {
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
                       disabled={filteredSpecies.length === 0}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-emerald-600 text-white"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export
@@ -288,7 +288,7 @@ export default function SavedData() {
                           setCountryFilter('all');
                           setConservationFilter('all');
                         }}
-                        className="h-8 text-xs text-slate-500 hover:text-slate-700"
+                        className="h-8 text-xs text-slate-700"
                       >
                         <X className="w-3 h-3 mr-1" />
                         Clear Filters
@@ -320,7 +320,7 @@ export default function SavedData() {
                           key={species.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          className="border-b hover:bg-blue-50/50 transition-colors cursor-pointer"
+                          className="border-b bg-blue-50/30 cursor-pointer"
                           onClick={() => {
                             setSelectedSpecies(species);
                             setShowDetails(true);
@@ -380,7 +380,7 @@ export default function SavedData() {
                                   setSelectedSpecies(species);
                                   setShowDetails(true);
                                 }}
-                                className="h-8 w-8 text-slate-400 hover:text-blue-600"
+                                className="h-8 w-8 text-blue-600"
                                 title="View Details"
                               >
                                 <Eye className="w-4 h-4" />
@@ -405,7 +405,7 @@ export default function SavedData() {
                                     a.click();
                                     URL.revokeObjectURL(url);
                                   }}
-                                  className="h-8 w-8 text-slate-400 hover:text-green-600"
+                                  className="h-8 w-8 text-green-600"
                                   title="Download All Data (JSON)"
                                 >
                                   <Download className="w-4 h-4" />
@@ -415,7 +415,7 @@ export default function SavedData() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                                className="h-8 w-8 text-slate-400 hover:text-red-600"
+                                className="h-8 w-8 text-red-600"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -565,7 +565,7 @@ export default function SavedData() {
                     <div className="flex flex-wrap gap-2">
                       {selectedSpecies.search_summary_json && (
                         <button 
-                          className="text-xs px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors flex items-center gap-1"
+                          className="text-xs px-3 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium flex items-center gap-1"
                           onClick={() => {
                             const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
                             const url = URL.createObjectURL(blob);
@@ -582,7 +582,7 @@ export default function SavedData() {
                       )}
                       {selectedSpecies.range_data_geojson && (
                         <button 
-                          className="text-xs px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-1"
+                          className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium flex items-center gap-1"
                           onClick={() => {
                             const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
                             const url = URL.createObjectURL(blob);
@@ -599,7 +599,7 @@ export default function SavedData() {
                       )}
                       {selectedSpecies.observations && selectedSpecies.observations.length > 0 && (
                         <button 
-                          className="text-xs px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1"
+                          className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
                           onClick={() => {
                             const csv = [
                               'latitude,longitude,location,date,observer,photo_url',
@@ -622,7 +622,7 @@ export default function SavedData() {
                       )}
                       {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) && (
                         <button 
-                          className="text-xs px-3 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors flex items-center gap-1"
+                          className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
                           onClick={() => {
                             const detailedData = {
                               scientific_name: selectedSpecies.scientific_name,
@@ -657,7 +657,7 @@ export default function SavedData() {
                             href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-medium"
                           >
                             <ExternalLink className="w-4 h-4" />
                             View on IUCN Red List
@@ -667,7 +667,7 @@ export default function SavedData() {
                               href={selectedSpecies.assessment_pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium"
                             >
                               <FileText className="w-4 h-4" />
                               Assessment PDF
@@ -686,7 +686,7 @@ export default function SavedData() {
                             href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium"
                           >
                             <ExternalLink className="w-4 h-4" />
                             View on iNaturalist
@@ -698,7 +698,7 @@ export default function SavedData() {
                             href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                           >
                             📥 CSV
                           </a>
@@ -706,7 +706,7 @@ export default function SavedData() {
                             href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                           >
                             📊 JSON
                           </a>
@@ -714,7 +714,7 @@ export default function SavedData() {
                             href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
                           >
                             🗺️ KML
                           </a>

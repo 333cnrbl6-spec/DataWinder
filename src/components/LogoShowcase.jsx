@@ -30,7 +30,7 @@ export default function LogoShowcase({ open, onClose, onSelect }) {
             return (
               <div 
                 key={logo.id}
-                className="p-6 border-2 border-slate-200 rounded-xl hover:border-bangor-red transition-all cursor-pointer hover:shadow-lg"
+                className="p-6 border-2 border-bangor-red rounded-xl shadow-lg cursor-pointer"
                 onClick={() => onSelect(logo.id)}
               >
                 <div className="flex justify-center mb-4 py-6 bg-slate-50 rounded-lg">
