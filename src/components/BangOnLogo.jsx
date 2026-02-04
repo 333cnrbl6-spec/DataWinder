@@ -42,7 +42,7 @@ export default function BangOnLogo({ size = 'md' }) {
           <span className="text-bangor-sun">On</span>
         </div>
         <div className={`font-semibold text-slate-700 tracking-wider uppercase ${s.subtext} -mt-0.5`}>
-          The DataWinder-I.C.
+          The DataWinder
         </div>
       </div>
     </div>
