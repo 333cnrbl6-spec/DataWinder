@@ -23,6 +23,14 @@ export default function SavedData() {
   const [conservationFilter, setConservationFilter] = useState('all');
   const queryClient = useQueryClient();
 
+  // Subscribe to real-time Species updates
+  React.useEffect(() => {
+    const unsubscribe = base44.entities.Species.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   const { data: savedSearches = [] } = useQuery({
     queryKey: ['savedSearches'],
     queryFn: () => base44.entities.SavedSearch.list('-created_date')

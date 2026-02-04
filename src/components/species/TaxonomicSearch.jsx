@@ -429,8 +429,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           onClick={() => {
             setLevel('family');
             setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
           >
           Primate Families
           </button>
@@ -438,8 +441,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           onClick={() => {
             setLevel('family');
             setSearchTerms(['Felidae', 'Canidae', 'Ursidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
           >
           Carnivore Families
         </button>
