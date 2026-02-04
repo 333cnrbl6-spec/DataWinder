@@ -18,6 +18,7 @@ import SpeciesNotes from '@/components/species/SpeciesNotes';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import BangOnLogo from '@/components/BangOnLogo';
 import LogoShowcase from '@/components/LogoShowcase';
+import SaveSearchPanel from '@/components/SaveSearchPanel';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -34,6 +35,7 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [showLogoSelector, setShowLogoSelector] = useState(false);
+  const [showSaveSearch, setShowSaveSearch] = useState(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -763,6 +765,7 @@ export default function Home() {
               onCompare={handleCompare}
               onManageLists={() => setShowListManager(true)}
               onAddNote={handleAddNote}
+              onSaveSearch={() => setShowSaveSearch(true)}
               selectedSpecies={selectedSpecies}
             />
 
@@ -852,6 +855,19 @@ export default function Home() {
           alert(`Logo "${logoId}" selected! To fully implement this, you'd update the BangOnLogo component or create a logo preference system.`);
         }}
       />
+
+      {/* Save Search Panel */}
+      {showSaveSearch && (
+        <SaveSearchPanel
+          open={showSaveSearch}
+          onClose={() => setShowSaveSearch(false)}
+          species={species}
+          searchInfo={searchInfo}
+          onSaveComplete={() => {
+            // Refresh saved data if user navigates to SavedData page
+          }}
+        />
+      )}
       </div>
       );
       }
