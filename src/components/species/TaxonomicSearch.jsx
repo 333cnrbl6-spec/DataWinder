@@ -420,14 +420,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </motion.div>
         </motion.div>
       )}
-    </motion.div>
-  );
-}
-      </div>
-
-      {showConfirmDialog && (
-        <div className="fixed inset-0" style={{ zIndex: 9999 }} />
-      )}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="text-xs text-slate-400">Quick load multiple:</span>
