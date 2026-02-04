@@ -39,10 +39,11 @@ export default function Home() {
     try {
       let allSpecies = [];
 
-      // Search IUCN for each term - get comprehensive data
+      // Search IUCN for each term - always fetch individual species
       if (iucnToken) {
         for (const term of terms) {
           try {
+            // For species level, search directly; for other levels, get all species in that taxonomic group
             const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
             const searchResponse = await fetch(searchUrl);
 
@@ -64,9 +65,12 @@ export default function Home() {
               continue;
             }
 
-            // For each species, fetch comprehensive data
+            // Get the list of species to fetch detailed data for
+            const speciesList = searchData.result;
+
+            // For each species in the result, fetch comprehensive data
             const detailedSpecies = await Promise.all(
-              searchData.result.map(async (sp) => {
+              speciesList.map(async (sp) => {
                 try {
                   // Fetch multiple data endpoints for comprehensive information
                   const [narrativeRes, habitatRes, threatsRes] = await Promise.all([
