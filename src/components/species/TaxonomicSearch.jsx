@@ -46,8 +46,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const handleSearch = () => {
-    // If family level with selected species, search those specific species
-    if (level === 'family' && selectedSpecies.length > 0) {
+    // If not species level with selected species, search those specific species
+    if (level !== 'species' && selectedSpecies.length > 0) {
       onSearch({ 
         level: 'species', 
         terms: selectedSpecies, 
@@ -80,24 +80,25 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     newTerms[index] = value;
     setSearchTerms(newTerms);
 
-    // If family level and term entered, fetch species list
-    if (level === 'family' && value.trim() && iucnToken) {
+    // If not species level and term entered, fetch species list
+    if (level !== 'species' && value.trim() && iucnToken) {
       setLoadingSpecies(true);
+      setFamilySpecies([]);
+      setSelectedSpecies([]);
       try {
-        const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/family/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
+        const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
         const response = await fetch(searchUrl);
         if (response.ok) {
           const data = await response.json();
           if (data.result && data.result.length > 0) {
             setFamilySpecies(data.result);
-            setSelectedSpecies([]);
           }
         }
       } catch (err) {
-        console.error('Error fetching family species:', err);
+        console.error('Error fetching species:', err);
       }
       setLoadingSpecies(false);
-    } else if (level !== 'family') {
+    } else if (level === 'species') {
       setFamilySpecies([]);
       setSelectedSpecies([]);
     }
@@ -286,12 +287,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </Button>
         </div>
 
-        {/* Family Species Selection */}
-        {level === 'family' && familySpecies.length > 0 && (
+        {/* Species Selection for non-species levels */}
+        {level !== 'species' && familySpecies.length > 0 && (
           <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-slate-700">
-                {familySpecies.length} species found in {searchTerms[0]}
+                {familySpecies.length} species found in {currentLevel?.label} "{searchTerms[0]}"
               </h4>
               <div className="flex gap-2">
                 <button 
@@ -346,17 +347,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || (level === 'family' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
+          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Searching {level === 'family' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} species...
+              Searching {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} species...
             </>
           ) : (
             <>
-              Search {level === 'family' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level === 'family' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
+              Search {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
             </>
           )}
         </Button>
