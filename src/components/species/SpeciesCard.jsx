@@ -184,8 +184,9 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       rel="noopener noreferrer"
                       className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
                       onClick={(e) => e.stopPropagation()}
+                      title="Download Assessment PDF from IUCN"
                     >
-                      PDF
+                      📄 PDF
                     </a>
                   )}
                   {species.range_map_jpg_url && (
@@ -195,8 +196,9 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       rel="noopener noreferrer"
                       className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
                       onClick={(e) => e.stopPropagation()}
+                      title="View Range Map on IUCN"
                     >
-                      Map
+                      🗺️ Map
                     </a>
                   )}
                   {species.range_data_shp_url && (
@@ -206,30 +208,39 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       rel="noopener noreferrer"
                       className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
                       onClick={(e) => e.stopPropagation()}
+                      title="Download Spatial Data from IUCN"
                     >
-                      SHP
+                      📍 SHP
                     </a>
                   )}
-                  {species.range_data_csv_url && (
-                    <a 
-                      href={species.range_data_csv_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
+                  {species.search_summary_json && (
+                    <button 
+                      className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${species.scientific_name.replace(/ /g, '_')}_summary.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      title="Download Search Summary (JSON)"
                     >
-                      CSV
-                    </a>
+                      📊 Summary
+                    </button>
                   )}
                   {species.search_results_csv_url && (
                     <a 
                       href={species.search_results_csv_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                      className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 transition-colors"
                       onClick={(e) => e.stopPropagation()}
+                      title="Export Search Results from IUCN"
                     >
-                      Results
+                      📥 Export
                     </a>
                   )}
                 </div>

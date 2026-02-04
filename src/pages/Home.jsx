@@ -94,17 +94,24 @@ export default function Home() {
                   const history = historicalData?.result || [];
                   const countries = countriesData?.result || [];
 
-                  // Construct IUCN file URLs for all available downloads
-                  const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
-                  const rangeMapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
-                  const rangeDataShpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
-                  const rangeDataCsvUrl = `https://apiv4.iucnredlist.org/api/v4/assessment/${sp.taxonid}/range?token=${iucnToken}`;
+                  // Fetch range data from IUCN API v4
+                  let rangeDataGeoJSON = null;
+                  let rangeDataPoints = null;
+                  try {
+                    const rangeUrl = `https://apiv4.iucnredlist.org/api/v4/assessment/${sp.taxonid || sp.assessment_id}/range?token=${iucnToken}`;
+                    const rangeRes = await fetch(rangeUrl);
+                    if (rangeRes.ok) {
+                      rangeDataGeoJSON = await rangeRes.json();
+                      rangeDataPoints = rangeDataGeoJSON.result || [];
+                    }
+                  } catch (err) {
+                    console.error('Error fetching range data:', err);
+                  }
 
                   // Fetch additional images if available
                   let allImages = [];
                   if (sp.taxonid) {
                     try {
-                      // Try to fetch images from IUCN - some species have multiple images
                       const imagesUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/sis/${sp.taxonid}?token=${iucnToken}`;
                       const imagesRes = await fetch(imagesUrl);
                       if (imagesRes.ok) {
@@ -116,18 +123,37 @@ export default function Home() {
                     }
                   }
 
-                  // Create search summary JSON
+                  // Create comprehensive search summary JSON
                   const searchSummary = {
                     taxon_id: sp.taxonid,
                     scientific_name: sp.scientific_name,
                     common_name: sp.main_common_name,
                     category: sp.category,
                     population_trend: narrative.populationtrend,
+                    population: narrative.population,
                     assessment_date: sp.published_year,
                     countries: countries.map(c => c.country),
-                    habitats: habitats.map(h => h.habitat),
-                    threats: threats.map(t => t.title),
-                    conservation_measures: narrative.conservationmeasures
+                    regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
+                    habitats: habitats.map(h => ({
+                      code: h.code,
+                      habitat: h.habitat,
+                      suitability: h.suitability,
+                      season: h.season
+                    })),
+                    threats: threats.map(t => ({
+                      code: t.code,
+                      title: t.title,
+                      timing: t.timing,
+                      scope: t.scope,
+                      severity: t.severity
+                    })),
+                    conservation_measures: narrative.conservationmeasures,
+                    range_description: narrative.range,
+                    habitat_description: narrative.habitat,
+                    threats_description: narrative.threats,
+                    use_and_trade: narrative.usetrade,
+                    range_data_points: rangeDataPoints,
+                    assessment_id: sp.assessment_id
                   };
                   
                   return {
@@ -173,10 +199,12 @@ export default function Home() {
                     conservation_actions: narrative.conservationmeasures || '',
                     assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
                     iucn_id: sp.taxonid,
-                    assessment_pdf_url: assessmentPdfUrl,
-                    range_map_jpg_url: rangeMapUrl,
-                    range_data_shp_url: rangeDataShpUrl,
-                    range_data_csv_url: rangeDataCsvUrl,
+                    assessment_id: sp.assessment_id,
+                    assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`,
+                    range_map_jpg_url: `https://www.iucnredlist.org/species/map/${sp.taxonid}`,
+                    range_data_shp_url: `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`,
+                    range_data_csv_url: rangeDataPoints ? 'available' : null,
+                    range_data_geojson: rangeDataGeoJSON,
                     search_summary_json: searchSummary,
                     search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
                     all_images_urls: allImages.length > 0 ? allImages : (sp.main_common_name ? [sp.default_photo?.url].filter(Boolean) : []),
