@@ -120,28 +120,28 @@ export default function SavedData() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40">
+      <header className="bg-gradient-to-r from-white via-bangor-sun/5 to-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <Database className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-bangor-red/20 rounded-xl">
+              <Database className="w-6 h-6 text-bangor-red" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Saved Species Data</h1>
-              <p className="text-sm text-slate-500">Access and manage your downloaded datasets</p>
+              <h1 className="text-xl font-bold text-bangor-red">Saved Species Data</h1>
+              <p className="text-sm text-slate-600">Access and manage your downloaded datasets</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3 rounded-xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Saved Searches */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <FolderOpen className="w-5 h-5 text-blue-600" />
+            <Card className="shadow-lg border-bangor-sun/20">
+              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+                <CardTitle className="flex items-center gap-2 text-bangor-red">
+                  <FolderOpen className="w-5 h-5" />
                   Saved Searches ({savedSearches.length})
                 </CardTitle>
               </CardHeader>
@@ -153,7 +153,7 @@ export default function SavedData() {
                     animate={{ opacity: 1 }}
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
                       selectedSearch?.id === search.id
-                        ? 'bg-blue-50 border-blue-300'
+                        ? 'bg-bangor-red/10 border-bangor-red/50'
                         : 'bg-white border-slate-200'
                     }`}
                     onClick={() => setSelectedSearch(search)}
@@ -195,16 +195,16 @@ export default function SavedData() {
 
           {/* Species List */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="border-b">
+            <Card className="shadow-lg border-bangor-sun/20">
+              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
                 <div className="flex items-center justify-between gap-4">
-                  <CardTitle>All Species ({filteredSpecies.length})</CardTitle>
+                  <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
                       disabled={filteredSpecies.length === 0}
-                      className="bg-emerald-600 text-white"
+                      className="bg-bangor-red text-white"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export
@@ -320,7 +320,7 @@ export default function SavedData() {
                           key={species.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          className="border-b bg-blue-50/30 cursor-pointer"
+                          className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
                           onClick={() => {
                             setSelectedSpecies(species);
                             setShowDetails(true);
@@ -380,7 +380,7 @@ export default function SavedData() {
                                   setSelectedSpecies(species);
                                   setShowDetails(true);
                                 }}
-                                className="h-8 w-8 text-blue-600"
+                                className="h-8 w-8 text-bangor-red"
                                 title="View Details"
                               >
                                 <Eye className="w-4 h-4" />
