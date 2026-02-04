@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExternalLink, MapPin, Users } from 'lucide-react';
+import { ExternalLink, MapPin, Users, Download, FileText } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import TrendIndicator from './TrendIndicator';
 import { motion } from 'framer-motion';
@@ -210,7 +210,34 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       SHP
                     </a>
                   )}
+                  {species.range_data_csv_url && (
+                    <a 
+                      href={species.range_data_csv_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      CSV
+                    </a>
+                  )}
+                  {species.search_results_csv_url && (
+                    <a 
+                      href={species.search_results_csv_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Results
+                    </a>
+                  )}
                 </div>
+                {species.all_images_urls && species.all_images_urls.length > 1 && (
+                  <div className="text-xs text-slate-500 mt-1">
+                    {species.all_images_urls.length} images available
+                  </div>
+                )}
               </>
             )}
             {isINat && species.inat_taxon_id && (
