@@ -178,13 +178,12 @@ export default function SavedData() {
                         </p>
                       </div>
                       <Button
-                        variant="ghost"
                         size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteSearchMutation.mutate(search.id);
                         }}
-                        className="h-8 w-8 text-red-600"
+                        className="h-8 w-8 bg-red-100 text-red-600 font-medium"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -212,7 +211,7 @@ export default function SavedData() {
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
                       disabled={filteredSpecies.length === 0}
-                      className="bg-bangor-red text-white"
+                      className="bg-bangor-red text-white font-semibold"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export
@@ -382,13 +381,12 @@ export default function SavedData() {
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button
-                                variant="ghost"
                                 size="icon"
                                 onClick={() => {
                                   setSelectedSpecies(species);
                                   setShowDetails(true);
                                 }}
-                                className="h-8 w-8 text-bangor-red"
+                                className="h-8 w-8 bg-bangor-red/10 text-bangor-red font-medium"
                                 title="View Details"
                               >
                                 <Eye className="w-4 h-4" />
@@ -466,10 +464,9 @@ export default function SavedData() {
                                 </Button>
                               )}
                               <Button
-                                variant="ghost"
                                 size="icon"
                                 onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                                className="h-8 w-8 text-red-600"
+                                className="h-8 w-8 bg-red-100 text-red-600 font-medium"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
