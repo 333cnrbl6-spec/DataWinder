@@ -412,7 +412,50 @@ export default function Home() {
         return;
       }
 
-      setSpecies(allSpecies);
+      // Merge duplicate species (same scientific name from different sources)
+      const mergedSpecies = {};
+      allSpecies.forEach(sp => {
+        const key = sp.scientific_name.toLowerCase();
+        if (!mergedSpecies[key]) {
+          mergedSpecies[key] = sp;
+        } else {
+          // Merge data, preferring IUCN data for conservation info, iNat for observations
+          const existing = mergedSpecies[key];
+          mergedSpecies[key] = {
+            ...existing,
+            // Keep IUCN conservation data if available
+            iucn_status: existing.iucn_status !== 'NE' ? existing.iucn_status : sp.iucn_status,
+            population_trend: existing.population_trend !== 'unknown' ? existing.population_trend : sp.population_trend,
+            population_details: existing.population_details || sp.population_details,
+            status_history: existing.status_history || sp.status_history,
+            geographic_distribution: existing.geographic_distribution || sp.geographic_distribution,
+            habitat: existing.habitat || sp.habitat,
+            range_description: existing.range_description || sp.range_description,
+            threats: existing.threats || sp.threats,
+            conservation_actions: existing.conservation_actions || sp.conservation_actions,
+            assessment_date: existing.assessment_date || sp.assessment_date,
+            iucn_id: existing.iucn_id || sp.iucn_id,
+            assessment_pdf_url: existing.assessment_pdf_url || sp.assessment_pdf_url,
+            range_map_jpg_url: existing.range_map_jpg_url || sp.range_map_jpg_url,
+            range_data_shp_url: existing.range_data_shp_url || sp.range_data_shp_url,
+            habitats_detailed: existing.habitats_detailed || sp.habitats_detailed,
+            threats_detailed: existing.threats_detailed || sp.threats_detailed,
+            // Keep iNaturalist observation data if available
+            observation_count: sp.observation_count || existing.observation_count,
+            observations: sp.observations || existing.observations,
+            last_observed: sp.last_observed || existing.last_observed,
+            inat_taxon_id: sp.inat_taxon_id || existing.inat_taxon_id,
+            inat_wikipedia_url: sp.inat_wikipedia_url || existing.inat_wikipedia_url,
+            // Use best available image
+            image_url: existing.image_url || sp.image_url,
+            common_name: existing.common_name || sp.common_name,
+            // Mark as combined source
+            data_source: existing.data_source !== sp.data_source ? 'IUCN + iNaturalist' : existing.data_source
+          };
+        }
+      });
+
+      setSpecies(Object.values(mergedSpecies));
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to fetch data. Please check your connection and try again.');

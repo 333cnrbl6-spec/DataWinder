@@ -8,8 +8,9 @@ import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 
 export default function SpeciesCard({ species, selected, onSelect, index = 0 }) {
-  const isIUCN = species.data_source === 'IUCN Red List';
-  const isINat = species.data_source === 'iNaturalist';
+  const isIUCN = species.data_source === 'IUCN Red List' || species.data_source === 'IUCN + iNaturalist';
+  const isINat = species.data_source === 'iNaturalist' || species.data_source === 'IUCN + iNaturalist';
+  const isCombined = species.data_source === 'IUCN + iNaturalist';
   
   return (
     <motion.div
@@ -54,11 +55,13 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 {species.data_source && (
                   <span className={cn(
                     "text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0",
-                    species.data_source === 'IUCN Red List' 
+                    isCombined
+                      ? "bg-gradient-to-r from-emerald-100 to-blue-100 text-slate-700"
+                      : species.data_source === 'IUCN Red List' 
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-blue-100 text-blue-700"
                   )}>
-                    {species.data_source === 'IUCN Red List' ? 'IUCN' : 'iNat'}
+                    {isCombined ? 'IUCN + iNat' : species.data_source === 'IUCN Red List' ? 'IUCN' : 'iNat'}
                   </span>
                 )}
               </div>
