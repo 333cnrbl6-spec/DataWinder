@@ -254,8 +254,20 @@ export default function SavedData() {
                             <span className="text-sm text-slate-600">{species.family || '—'}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-1">
-                              {species.assessment_pdf_url && (
+                           <div className="space-y-1">
+                             {species.iucn_id && (
+                               <a 
+                                 href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="text-xs text-emerald-600 hover:text-emerald-700 font-medium block"
+                                 title="View on IUCN Red List"
+                               >
+                                 View on IUCN →
+                               </a>
+                             )}
+                             <div className="flex flex-wrap gap-1">
+                               {species.assessment_pdf_url && (
                                 <a 
                                   href={species.assessment_pdf_url}
                                   target="_blank"
@@ -310,6 +322,7 @@ export default function SavedData() {
                                   Results
                                 </a>
                               )}
+                              </div>
                             </div>
                           </td>
                           <td className="px-4 py-3 text-right">
