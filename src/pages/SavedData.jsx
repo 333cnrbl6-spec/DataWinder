@@ -40,7 +40,8 @@ export default function SavedData() {
 
   const { data: allSpecies = [] } = useQuery({
     queryKey: ['allSpecies'],
-    queryFn: () => base44.entities.Species.list('-created_date')
+    queryFn: () => base44.entities.Species.list('-created_date'),
+    refetchInterval: 5000 // Auto-refresh every 5 seconds
   });
 
   const deleteSearchMutation = useMutation({
