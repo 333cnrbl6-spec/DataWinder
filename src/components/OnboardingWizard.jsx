@@ -111,8 +111,9 @@ export default function OnboardingWizard({ open, onComplete }) {
                 </div>
                 <DialogHeader>
                   <DialogTitle className="text-3xl text-bangor-red text-center">
-                    Welcome to IUCN Species Explorer
+                    The DataWinder
                   </DialogTitle>
+                  <p className="text-center text-lg text-slate-600 mt-2">b-Izzy on Data</p>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-slate-700 text-lg">
