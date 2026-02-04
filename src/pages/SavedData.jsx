@@ -320,8 +320,8 @@ export default function SavedData() {
                         Clear Filters
                       </Button>
                     )}
-                  </div>
-                </div>
+                    </div>
+                    </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="max-h-[70vh] overflow-y-auto">
