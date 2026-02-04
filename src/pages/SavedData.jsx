@@ -52,6 +52,10 @@ export default function SavedData() {
       common_name: sp.common_name,
       iucn_status: sp.iucn_status,
       population_trend: sp.population_trend,
+      population_details: sp.population_details,
+      status_history: sp.status_history ? JSON.stringify(sp.status_history) : '',
+      countries: sp.geographic_distribution?.countries?.join('; ') || '',
+      country_count: sp.geographic_distribution?.countries?.length || 0,
       family: sp.family,
       genus: sp.genus,
       habitat: sp.habitat,
@@ -190,7 +194,8 @@ export default function SavedData() {
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Population</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Distribution</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Family</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">IUCN Files</th>
                         <th className="text-right px-4 py-3 text-xs font-medium text-slate-600">Actions</th>
@@ -213,10 +218,37 @@ export default function SavedData() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <StatusBadge status={species.iucn_status} size="sm" />
+                            <div className="space-y-1">
+                              <StatusBadge status={species.iucn_status} size="sm" />
+                              {species.status_history && species.status_history.length > 1 && (
+                                <div className="text-[10px] text-slate-500">
+                                  History: {species.status_history.length} changes
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
-                            <TrendIndicator trend={species.population_trend} />
+                            <div className="space-y-1">
+                              <TrendIndicator trend={species.population_trend} />
+                              {species.population_details && (
+                                <div className="text-xs text-slate-500 max-w-[200px] truncate">
+                                  {species.population_details}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            {species.geographic_distribution?.countries?.length > 0 ? (
+                              <div className="text-xs">
+                                <div className="font-medium text-slate-700">{species.geographic_distribution.countries.length} countries</div>
+                                <div className="text-slate-500 max-w-[150px] truncate">
+                                  {species.geographic_distribution.countries.slice(0, 2).join(', ')}
+                                  {species.geographic_distribution.countries.length > 2 && '...'}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-slate-400">—</span>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <span className="text-sm text-slate-600">{species.family || '—'}</span>
