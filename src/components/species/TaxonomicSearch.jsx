@@ -174,85 +174,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* iNaturalist Credentials */}
+      {/* iNaturalist */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        {!inatUsername ? (
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <Key className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-medium text-blue-900 mb-1">Account Credentials (Optional)</h4>
-                <p className="text-xs text-blue-700 mb-3">
-                  Add your iNaturalist credentials to access observation data.
-                </p>
-                {!showInatInput ? (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowInatInput(true)}
-                      className="text-xs"
-                    >
-                      <Key className="w-3 h-3 mr-1" />
-                      Add Credentials
-                    </Button>
-                    <a
-                      href="https://www.inaturalist.org/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-3 py-1.5 rounded-md border border-blue-300 bg-white hover:bg-blue-50 inline-flex items-center gap-1 transition-colors"
-                    >
-                      Sign Up <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Input
-                      value={inatUsername}
-                      onChange={(e) => setInatUsername(e.target.value)}
-                      placeholder="Username"
-                      className="text-xs h-8"
-                    />
-                    <Input
-                      type="password"
-                      value={inatPassword}
-                      onChange={(e) => setInatPassword(e.target.value)}
-                      placeholder="Password"
-                      className="text-xs h-8"
-                    />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={saveInatCredentials} className="text-xs h-8">
-                        Save
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        onClick={() => setShowInatInput(false)}
-                        className="text-xs h-8"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-blue-600" />
-              <span className="text-xs text-blue-700">iNaturalist: {inatUsername}</span>
-            </div>
-            <button
-              onClick={() => setShowInatInput(true)}
-              className="text-xs text-blue-600 hover:underline"
-            >
-              Change
-            </button>
-          </div>
-        )}
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-blue-600" />
+          <span className="text-xs text-blue-700">Public API - No credentials required</span>
+        </div>
       </div>
 
       <div className="space-y-3">
