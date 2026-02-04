@@ -165,6 +165,17 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                       Map
                     </a>
                   )}
+                  {species.range_data_shp_url && (
+                    <a 
+                      href={species.range_data_shp_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      SHP
+                    </a>
+                  )}
                 </div>
               </>
             )}

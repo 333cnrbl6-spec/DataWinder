@@ -86,6 +86,7 @@ export default function Home() {
                   // Construct IUCN file URLs
                   const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
                   const rangeMapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
+                  const rangeDataShpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
                   
                   return {
                     id: `iucn-${sp.taxonid}`,
@@ -121,6 +122,7 @@ export default function Home() {
                     iucn_id: sp.taxonid,
                     assessment_pdf_url: assessmentPdfUrl,
                     range_map_jpg_url: rangeMapUrl,
+                    range_data_shp_url: rangeDataShpUrl,
                     dataset_name: term,
                     data_source: 'IUCN Red List'
                   };
@@ -175,6 +177,7 @@ export default function Home() {
                     iucn_id: species.iucn_id,
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
+                    range_data_shp_url: species.range_data_shp_url,
                     image_url: species.image_url || existing[0].image_url
                   });
                 } else {
@@ -198,6 +201,7 @@ export default function Home() {
                     iucn_id: species.iucn_id,
                     assessment_pdf_url: species.assessment_pdf_url,
                     range_map_jpg_url: species.range_map_jpg_url,
+                    range_data_shp_url: species.range_data_shp_url,
                     image_url: species.image_url
                   });
                 }

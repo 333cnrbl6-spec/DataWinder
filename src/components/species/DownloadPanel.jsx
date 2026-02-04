@@ -35,7 +35,8 @@ const dataFields = [
   { key: 'last_observed', label: 'Last Observed Date' },
   { key: 'image_url', label: 'Image URL' },
   { key: 'assessment_pdf_url', label: 'IUCN Assessment PDF' },
-  { key: 'range_map_jpg_url', label: 'IUCN Range Map (JPG)' }
+  { key: 'range_map_jpg_url', label: 'IUCN Range Map (JPG)' },
+  { key: 'range_data_shp_url', label: 'IUCN Range Data (SHP)' }
 ];
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
