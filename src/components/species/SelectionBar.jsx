@@ -22,31 +22,31 @@ export default function SelectionBar({
       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-xl border border-slate-200 p-4"
     >
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-600">
-          <span className="font-semibold text-slate-900">{totalCount}</span> species found
-        </span>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSelectAll}
-            className="text-xs"
-          >
-            <CheckSquare className="w-4 h-4 mr-1" />
-            Select all
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onDeselectAll}
-            className="text-xs"
-          >
-            <Square className="w-4 h-4 mr-1" />
-            Deselect all
-          </Button>
-        </div>
-      </div>
+         <span className="text-sm text-slate-600">
+           <span className="font-semibold text-slate-900">{totalCount}</span> species found
+         </span>
+
+         <div className="flex items-center gap-2">
+           <Button
+             variant="ghost"
+             size="sm"
+             onClick={onSelectAll}
+             className="text-xs text-bangor-red font-medium"
+           >
+             <CheckSquare className="w-4 h-4 mr-1" />
+             Select all
+           </Button>
+           <Button
+             variant="ghost"
+             size="sm"
+             onClick={onDeselectAll}
+             className="text-xs text-slate-600 font-medium"
+           >
+             <Square className="w-4 h-4 mr-1" />
+             Deselect all
+           </Button>
+         </div>
+       </div>
 
       <AnimatePresence>
         {selectedCount > 0 && (
