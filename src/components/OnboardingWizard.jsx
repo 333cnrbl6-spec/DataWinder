@@ -45,8 +45,12 @@ export default function OnboardingWizard({ open, onComplete }) {
   const handleComplete = async () => {
     setLoading(true);
     try {
+      const user = await base44.auth.me();
+      const pastedToken = formData.iucn_api_token || user.iucn_api_token;
+      
       await base44.auth.updateMe({
         ...formData,
+        iucn_api_token: pastedToken,
         terms_accepted_date: new Date().toISOString(),
         onboarding_completed: true
       });
