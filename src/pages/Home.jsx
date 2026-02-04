@@ -140,6 +140,61 @@ export default function Home() {
             );
 
             allSpecies = [...allSpecies, ...detailedSpecies];
+
+            // Save IUCN species to database
+            for (const species of detailedSpecies) {
+              try {
+                // Check if species already exists
+                const existing = await base44.entities.Species.filter({
+                  scientific_name: species.scientific_name
+                });
+
+                if (existing.length > 0) {
+                  // Update existing with IUCN data
+                  await base44.entities.Species.update(existing[0].id, {
+                    common_name: species.common_name || existing[0].common_name,
+                    kingdom: species.kingdom || existing[0].kingdom,
+                    phylum: species.phylum || existing[0].phylum,
+                    class_name: species.class_name || existing[0].class_name,
+                    order_name: species.order_name || existing[0].order_name,
+                    family: species.family || existing[0].family,
+                    genus: species.genus || existing[0].genus,
+                    iucn_status: species.iucn_status,
+                    population_trend: species.population_trend,
+                    habitat: species.habitat || existing[0].habitat,
+                    range_description: species.range_description || existing[0].range_description,
+                    threats: species.threats || existing[0].threats,
+                    conservation_actions: species.conservation_actions || existing[0].conservation_actions,
+                    assessment_date: species.assessment_date,
+                    iucn_id: species.iucn_id,
+                    image_url: species.image_url || existing[0].image_url
+                  });
+                } else {
+                  // Create new species record
+                  await base44.entities.Species.create({
+                    scientific_name: species.scientific_name,
+                    common_name: species.common_name,
+                    kingdom: species.kingdom,
+                    phylum: species.phylum,
+                    class_name: species.class_name,
+                    order_name: species.order_name,
+                    family: species.family,
+                    genus: species.genus,
+                    iucn_status: species.iucn_status,
+                    population_trend: species.population_trend,
+                    habitat: species.habitat,
+                    range_description: species.range_description,
+                    threats: species.threats,
+                    conservation_actions: species.conservation_actions,
+                    assessment_date: species.assessment_date,
+                    iucn_id: species.iucn_id,
+                    image_url: species.image_url
+                  });
+                }
+              } catch (err) {
+                console.error(`Error saving species ${species.scientific_name}:`, err);
+              }
+            }
           } catch (err) {
             console.error(`Error fetching IUCN data for ${term}:`, err);
           }
@@ -230,12 +285,57 @@ export default function Home() {
           }));
 
           allSpecies = [...allSpecies, ...inatSpecies];
-        } catch (err) {
-          console.error(`Error fetching iNaturalist data for ${term}:`, err);
-        }
-      }
 
-      if (allSpecies.length === 0) {
+          // Save iNaturalist species to database
+          for (const species of inatSpecies) {
+            try {
+              // Check if species already exists
+              const existing = await base44.entities.Species.filter({
+                scientific_name: species.scientific_name
+              });
+
+              if (existing.length > 0) {
+                // Update existing with iNaturalist data if fields are empty
+                await base44.entities.Species.update(existing[0].id, {
+                  common_name: species.common_name || existing[0].common_name,
+                  kingdom: species.kingdom || existing[0].kingdom,
+                  phylum: species.phylum || existing[0].phylum,
+                  class_name: species.class_name || existing[0].class_name,
+                  order_name: species.order_name || existing[0].order_name,
+                  family: species.family || existing[0].family,
+                  genus: species.genus || existing[0].genus,
+                  habitat: existing[0].habitat || species.habitat,
+                  range_description: existing[0].range_description || species.range_description,
+                  image_url: species.image_url || existing[0].image_url
+                });
+              } else {
+                // Create new species record
+                await base44.entities.Species.create({
+                  scientific_name: species.scientific_name,
+                  common_name: species.common_name,
+                  kingdom: species.kingdom,
+                  phylum: species.phylum,
+                  class_name: species.class_name,
+                  order_name: species.order_name,
+                  family: species.family,
+                  genus: species.genus,
+                  iucn_status: species.iucn_status,
+                  population_trend: species.population_trend,
+                  habitat: species.habitat,
+                  range_description: species.range_description,
+                  image_url: species.image_url
+                });
+              }
+            } catch (err) {
+              console.error(`Error saving species ${species.scientific_name}:`, err);
+            }
+          }
+          } catch (err) {
+          console.error(`Error fetching iNaturalist data for ${term}:`, err);
+          }
+          }
+
+          if (allSpecies.length === 0) {
         setError('No species found for any of the search terms from any source.');
         return;
       }
