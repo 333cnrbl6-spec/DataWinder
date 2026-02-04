@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Leaf, AlertCircle, Info, Database, Grid3x3, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -15,6 +15,7 @@ import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
 import CompareSpecies from '@/components/species/CompareSpecies';
 import SpeciesListManager from '@/components/species/SpeciesListManager';
 import SpeciesNotes from '@/components/species/SpeciesNotes';
+import TermsOfUseModal from '@/components/TermsOfUseModal';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -28,8 +29,37 @@ export default function Home() {
   const [showListManager, setShowListManager] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [noteSpecies, setNoteSpecies] = useState(null);
+  const [showTerms, setShowTerms] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+
+  useEffect(() => {
+    const checkTermsAcceptance = async () => {
+      try {
+        const user = await base44.auth.me();
+        if (!user.terms_accepted) {
+          setShowTerms(true);
+        } else {
+          setTermsChecked(true);
+        }
+      } catch (error) {
+        // User not logged in, redirect to login with next URL
+        base44.auth.redirectToLogin(window.location.pathname);
+      }
+    };
+    checkTermsAcceptance();
+  }, []);
+
+  const handleTermsAccept = () => {
+    setShowTerms(false);
+    setTermsChecked(true);
+  };
 
   const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = true }) => {
+    if (!termsChecked) {
+      setShowTerms(true);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setSpecies([]);
@@ -802,6 +832,12 @@ export default function Home() {
           }}
         />
       )}
+
+      {/* Terms of Use Modal */}
+      <TermsOfUseModal 
+        open={showTerms}
+        onAccept={handleTermsAccept}
+      />
     </div>
   );
 }
