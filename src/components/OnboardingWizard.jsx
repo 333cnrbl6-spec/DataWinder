@@ -323,16 +323,16 @@ export default function OnboardingWizard({ open, onComplete }) {
             <Button
               onClick={handleNext}
               disabled={!canProceed() || loading}
-              className="bg-bangor-red hover:bg-red-700"
+              className="bg-bangor-red hover:bg-red-700 text-white font-semibold px-8 py-6 text-lg shadow-lg"
             >
               Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           ) : (
             <Button
               onClick={handleComplete}
               disabled={!canProceed() || loading}
-              className="bg-bangor-red hover:bg-red-700"
+              className="bg-bangor-red hover:bg-red-700 text-white font-semibold px-8 py-6 text-lg shadow-lg"
             >
               {loading ? 'Saving...' : 'Complete Setup'}
             </Button>
