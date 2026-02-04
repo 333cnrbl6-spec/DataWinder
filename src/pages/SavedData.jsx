@@ -765,10 +765,10 @@ export default function SavedData() {
                       </div>
                       ) : (
                       <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                    </div>
-                    )}
+                        <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
+                        <p className="text-sm text-slate-500">N/A</p>
+                      </div>
+                      )}
 
                     {/* External Links */}
                 <div>
