@@ -43,14 +43,17 @@ export default function Home() {
       if (iucnToken) {
         for (const term of terms) {
           try {
-            // For species level, search directly; for other levels, get all species in that taxonomic group
-            const searchUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
-            const searchResponse = await fetch(searchUrl);
+            // Use backend function to fetch IUCN data
+            const searchResult = await base44.functions.fetchIUCNData({
+              level: level,
+              term: term,
+              endpoint: 'taxa',
+              iucnToken: iucnToken
+            });
 
-            if (!searchResponse.ok) {
-              const errorText = await searchResponse.text();
-              console.error(`IUCN API error for ${term}:`, searchResponse.status, errorText);
-              if (searchResponse.status === 401) {
+            if (searchResult.status === 'error') {
+              console.error(`IUCN API error for ${term}:`, searchResult.message);
+              if (searchResult.statusCode === 401) {
                 setError('IUCN API token is invalid. Please check your token and try again.');
                 setIsLoading(false);
                 return;
@@ -58,7 +61,7 @@ export default function Home() {
               continue;
             }
 
-            const searchData = await searchResponse.json();
+            const searchData = searchResult.data;
 
             if (!searchData.result || searchData.result.length === 0) {
               console.warn(`No IUCN species found for ${term}`);
@@ -72,20 +75,40 @@ export default function Home() {
             const detailedSpecies = await Promise.all(
               speciesList.map(async (sp) => {
                 try {
-                  // Fetch multiple data endpoints for comprehensive information
-                  const [assessmentRes, habitatRes, threatsRes, historicalRes, countriesRes] = await Promise.all([
-                    fetch(`https://apiv4.iucnredlist.org/api/v4/assessment/${sp.assessment_id || sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv4.iucnredlist.org/api/v4/habitats/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv4.iucnredlist.org/api/v4/threats/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv4.iucnredlist.org/api/v4/taxa/scientific_name?genus_name=${encodeURIComponent(sp.scientific_name.split(' ')[0])}&species_name=${encodeURIComponent(sp.scientific_name.split(' ')[1] || '')}&token=${iucnToken}`),
-                    fetch(`https://apiv4.iucnredlist.org/api/v4/countries/?token=${iucnToken}`)
+                  // Fetch multiple data endpoints for comprehensive information using backend function
+                  const [assessmentResult, habitatResult, threatsResult, historicalResult, countriesResult] = await Promise.all([
+                    base44.functions.fetchIUCNData({
+                      endpoint: 'assessment',
+                      term: String(sp.assessment_id || sp.taxonid),
+                      iucnToken: iucnToken
+                    }),
+                    base44.functions.fetchIUCNData({
+                      endpoint: 'habitats',
+                      term: String(sp.taxonid),
+                      iucnToken: iucnToken
+                    }),
+                    base44.functions.fetchIUCNData({
+                      endpoint: 'threats',
+                      term: String(sp.taxonid),
+                      iucnToken: iucnToken
+                    }),
+                    base44.functions.fetchIUCNData({
+                      endpoint: 'scientific_name',
+                      term: sp.scientific_name,
+                      iucnToken: iucnToken
+                    }),
+                    base44.functions.fetchIUCNData({
+                      endpoint: 'countries',
+                      term: '',
+                      iucnToken: iucnToken
+                    })
                   ]);
 
-                  const assessmentData = assessmentRes.ok ? await assessmentRes.json() : null;
-                  const habitatData = habitatRes.ok ? await habitatRes.json() : null;
-                  const threatsData = threatsRes.ok ? await threatsRes.json() : null;
-                  const historicalData = historicalRes.ok ? await historicalRes.json() : null;
-                  const countriesData = countriesRes.ok ? await countriesRes.json() : null;
+                  const assessmentData = assessmentResult.status === 'success' ? assessmentResult.data : null;
+                  const habitatData = habitatResult.status === 'success' ? habitatResult.data : null;
+                  const threatsData = threatsResult.status === 'success' ? threatsResult.data : null;
+                  const historicalData = historicalResult.status === 'success' ? historicalResult.data : null;
+                  const countriesData = countriesResult.status === 'success' ? countriesResult.data : null;
 
                   const assessment = assessmentData?.result || {};
                   const narrative = assessment;
@@ -98,10 +121,14 @@ export default function Home() {
                   let rangeDataGeoJSON = null;
                   let rangeDataPoints = null;
                   try {
-                    const rangeUrl = `https://apiv4.iucnredlist.org/api/v4/assessment/${sp.taxonid || sp.assessment_id}/range?token=${iucnToken}`;
-                    const rangeRes = await fetch(rangeUrl);
-                    if (rangeRes.ok) {
-                      rangeDataGeoJSON = await rangeRes.json();
+                    const rangeResult = await base44.functions.fetchIUCNData({
+                      endpoint: 'range',
+                      term: String(sp.taxonid || sp.assessment_id),
+                      iucnToken: iucnToken
+                    });
+                    
+                    if (rangeResult.status === 'success') {
+                      rangeDataGeoJSON = rangeResult.data;
                       rangeDataPoints = rangeDataGeoJSON.result || [];
                     }
                   } catch (err) {

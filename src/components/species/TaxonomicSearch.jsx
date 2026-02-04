@@ -95,13 +95,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const searchUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${level}/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
-        const response = await fetch(searchUrl);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.result && data.result.length > 0) {
-            setFamilySpecies(data.result);
-          }
+        const result = await base44.functions.fetchIUCNData({
+          level: level,
+          term: value.trim(),
+          endpoint: 'taxa',
+          iucnToken: iucnToken
+        });
+
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
