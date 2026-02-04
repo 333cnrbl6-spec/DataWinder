@@ -122,19 +122,19 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
                       <a
-                        href="https://apiv3.iucnredlist.org/sign-up"
+                        href="https://www.iucnredlist.org/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white inline-flex items-center gap-1 transition-colors"
+                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Sign Up (Free)
                       </a>
                       <a
-                        href="https://apiv3.iucnredlist.org/login"
+                        href="https://apiv3.iucnredlist.org/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 inline-flex items-center gap-1 transition-colors"
+                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 text-amber-900 inline-flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Log In & Get Token
