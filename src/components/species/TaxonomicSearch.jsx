@@ -95,7 +95,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/${level}/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
+        const searchUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${level}/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
         const response = await fetch(searchUrl);
         if (response.ok) {
           const data = await response.json();
