@@ -425,29 +425,117 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="text-xs text-slate-400">Quick load multiple:</span>
+
+        {/* Primates */}
         <button
           onClick={() => {
             setLevel('family');
-            setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae']);
+            setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae', 'Cercopithecidae', 'Hominoidea']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
           className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
-          >
-          Primate Families
-          </button>
-          <button
+        >
+          Primates
+        </button>
+
+        {/* Carnivores */}
+        <button
           onClick={() => {
             setLevel('family');
-            setSearchTerms(['Felidae', 'Canidae', 'Ursidae']);
+            setSearchTerms(['Felidae', 'Canidae', 'Ursidae', 'Mustelidae', 'Phocidae']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
           className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
-          >
-          Carnivore Families
+        >
+          Carnivores
+        </button>
+
+        {/* Marine Mammals */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Cetaceae', 'Sirenia', 'Odobenidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Marine Mammals
+        </button>
+
+        {/* Birds of Prey */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Accipitridae', 'Falconidae', 'Strigidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Birds of Prey
+        </button>
+
+        {/* Reptiles */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Colubridae', 'Pythonidae', 'Boidae', 'Chelonidae', 'Crocodylidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Reptiles
+        </button>
+
+        {/* Amphibians */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Bufonidae', 'Ranidae', 'Salamandridae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Amphibians
+        </button>
+
+        {/* Fish */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Salmonidae', 'Cichlidae', 'Serranidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Fish
+        </button>
+
+        {/* Invertebrates */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Hominidae', 'Drosophilidae', 'Apidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Insects
         </button>
       </div>
     </motion.div>
