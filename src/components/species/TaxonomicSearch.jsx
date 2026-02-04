@@ -202,7 +202,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         placeholder="Paste your IUCN API token here"
                         className="text-xs h-8"
                       />
-                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium">
+                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
                         Save
                       </Button>
                       <Button 
@@ -359,7 +359,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red text-white"
+          className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
             <>
@@ -414,7 +414,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               </Button>
               <Button
                 onClick={confirmSearch}
-                className="flex-1 bg-bangor-red text-white font-medium"
+                className="flex-1 bg-bangor-red text-white font-semibold"
               >
                 Fetch Data
               </Button>

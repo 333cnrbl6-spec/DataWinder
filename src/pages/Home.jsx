@@ -736,23 +736,21 @@ export default function Home() {
 
               <div className="flex gap-2">
                 <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-bangor-red text-white' : ''}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className={viewMode === 'grid' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-700'}
+                    >
+                    <Grid3x3 className="w-4 h-4 mr-2" />
+                    Grid
+                    </Button>
+                    <Button
+                    size="sm"
+                    onClick={() => setViewMode('map')}
+                    className={viewMode === 'map' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-700'}
                   >
-                  <Grid3x3 className="w-4 h-4 mr-2" />
-                  Grid
+                    <Map className="w-4 h-4 mr-2" />
+                    Map
                   </Button>
-                  <Button
-                  variant={viewMode === 'map' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('map')}
-                  className={viewMode === 'map' ? 'bg-bangor-red text-white' : ''}
-                >
-                  <Map className="w-4 h-4 mr-2" />
-                  Map
-                </Button>
               </div>
             </div>
 
