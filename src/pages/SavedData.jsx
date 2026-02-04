@@ -4,15 +4,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSearch, setSelectedSearch] = useState(null);
+  const [selectedSpecies, setSelectedSpecies] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: savedSearches = [] } = useQuery({
@@ -194,10 +197,13 @@ export default function SavedData() {
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Population</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Distribution</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Family</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">IUCN Files</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Order</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Class</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Countries</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Habitat</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Assessment</th>
                         <th className="text-right px-4 py-3 text-xs font-medium text-slate-600">Actions</th>
                       </tr>
                     </thead>
@@ -207,7 +213,11 @@ export default function SavedData() {
                           key={species.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          className="border-b hover:bg-slate-50 transition-colors"
+                          className="border-b hover:bg-blue-50/50 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setSelectedSpecies(species);
+                            setShowDetails(true);
+                          }}
                         >
                           <td className="px-4 py-3">
                             <div>
@@ -218,122 +228,64 @@ export default function SavedData() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="space-y-1">
-                              <StatusBadge status={species.iucn_status} size="sm" />
-                              {species.status_history && species.status_history.length > 1 && (
-                                <div className="text-[10px] text-slate-500">
-                                  History: {species.status_history.length} changes
-                                </div>
-                              )}
+                            <StatusBadge status={species.iucn_status} size="sm" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <TrendIndicator trend={species.population_trend} showLabel />
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-700">{species.family || '—'}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-600">{species.order_name || '—'}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-600">{species.class_name || '—'}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="text-xs">
+                              {species.geographic_distribution?.countries?.length > 0 ? (
+                                <>
+                                  <div className="font-medium text-slate-700">{species.geographic_distribution.countries.length}</div>
+                                  <div className="text-slate-500 max-w-[120px] truncate">
+                                    {species.geographic_distribution.countries.slice(0, 2).join(', ')}
+                                  </div>
+                                </>
+                              ) : '—'}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="space-y-1">
-                              <TrendIndicator trend={species.population_trend} />
-                              {species.population_details && (
-                                <div className="text-xs text-slate-500 max-w-[200px] truncate">
-                                  {species.population_details}
-                                </div>
-                              )}
+                            <div className="text-xs text-slate-600 max-w-[150px] truncate">
+                              {species.habitat || '—'}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            {species.geographic_distribution?.countries?.length > 0 ? (
-                              <div className="text-xs">
-                                <div className="font-medium text-slate-700">{species.geographic_distribution.countries.length} countries</div>
-                                <div className="text-slate-500 max-w-[150px] truncate">
-                                  {species.geographic_distribution.countries.slice(0, 2).join(', ')}
-                                  {species.geographic_distribution.countries.length > 2 && '...'}
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-sm text-slate-400">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-sm text-slate-600">{species.family || '—'}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                           <div className="space-y-1">
-                             {species.iucn_id && (
-                               <a 
-                                 href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
-                                 target="_blank"
-                                 rel="noopener noreferrer"
-                                 className="text-xs text-emerald-600 hover:text-emerald-700 font-medium block"
-                                 title="View on IUCN Red List"
-                               >
-                                 View on IUCN →
-                               </a>
-                             )}
-                             <div className="flex flex-wrap gap-1">
-                               {species.assessment_pdf_url && (
-                                <a 
-                                  href={species.assessment_pdf_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100"
-                                  title="Assessment PDF"
-                                >
-                                  PDF
-                                </a>
-                              )}
-                              {species.range_map_jpg_url && (
-                                <a 
-                                  href={species.range_map_jpg_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
-                                  title="Range Map (JPG)"
-                                >
-                                  Map
-                                </a>
-                              )}
-                              {species.range_data_shp_url && (
-                                <a 
-                                  href={species.range_data_shp_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100"
-                                  title="Range Polygons (SHP)"
-                                >
-                                  SHP
-                                </a>
-                              )}
-                              {species.range_data_csv_url && (
-                                <a 
-                                  href={species.range_data_csv_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100"
-                                  title="Range Points (CSV)"
-                                >
-                                  CSV
-                                </a>
-                              )}
-                              {species.search_results_csv_url && (
-                                <a 
-                                  href={species.search_results_csv_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100"
-                                  title="Search Results"
-                                >
-                                  Results
-                                </a>
-                              )}
-                              </div>
+                            <div className="text-xs text-slate-500">
+                              {species.assessment_date ? new Date(species.assessment_date).getFullYear() : '—'}
                             </div>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                              className="h-8 w-8 text-slate-400 hover:text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setSelectedSpecies(species);
+                                  setShowDetails(true);
+                                }}
+                                className="h-8 w-8 text-slate-400 hover:text-blue-600"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => deleteSpeciesMutation.mutate(species.id)}
+                                className="h-8 w-8 text-slate-400 hover:text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </td>
                         </motion.tr>
                       ))}
@@ -351,6 +303,187 @@ export default function SavedData() {
           </div>
         </div>
       </main>
+
+      {/* Species Details Modal */}
+      <AnimatePresence>
+        {showDetails && selectedSpecies && (
+          <Dialog open={showDetails} onOpenChange={setShowDetails}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl">
+                  {selectedSpecies.common_name || 'Species Details'}
+                </DialogTitle>
+                <p className="text-sm italic text-slate-500">{selectedSpecies.scientific_name}</p>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-4">
+                {/* Image */}
+                {selectedSpecies.image_url && (
+                  <div className="rounded-lg overflow-hidden">
+                    <img 
+                      src={selectedSpecies.image_url} 
+                      alt={selectedSpecies.scientific_name}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Conservation Status */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status</h3>
+                    <StatusBadge status={selectedSpecies.iucn_status} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Trend</h3>
+                    <TrendIndicator trend={selectedSpecies.population_trend} showLabel />
+                  </div>
+                </div>
+
+                {/* Taxonomy */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2">Taxonomy</h3>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div><span className="font-medium">Kingdom:</span> {selectedSpecies.kingdom || '—'}</div>
+                    <div><span className="font-medium">Phylum:</span> {selectedSpecies.phylum || '—'}</div>
+                    <div><span className="font-medium">Class:</span> {selectedSpecies.class_name || '—'}</div>
+                    <div><span className="font-medium">Order:</span> {selectedSpecies.order_name || '—'}</div>
+                    <div><span className="font-medium">Family:</span> {selectedSpecies.family || '—'}</div>
+                    <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || '—'}</div>
+                  </div>
+                </div>
+
+                {/* Population */}
+                {selectedSpecies.population_details && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
+                    <p className="text-sm text-slate-600">{selectedSpecies.population_details}</p>
+                  </div>
+                )}
+
+                {/* Distribution */}
+                {selectedSpecies.geographic_distribution?.countries?.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">
+                      Geographic Distribution ({selectedSpecies.geographic_distribution.countries.length} countries)
+                    </h3>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedSpecies.geographic_distribution.countries.map((country, i) => (
+                        <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded">
+                          {country}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Habitat */}
+                {selectedSpecies.habitat && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
+                    <p className="text-sm text-slate-600">{selectedSpecies.habitat}</p>
+                  </div>
+                )}
+
+                {/* Range Description */}
+                {selectedSpecies.range_description && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
+                    <p className="text-sm text-slate-600">{selectedSpecies.range_description}</p>
+                  </div>
+                )}
+
+                {/* Threats */}
+                {selectedSpecies.threats && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
+                    <p className="text-sm text-slate-600">{selectedSpecies.threats}</p>
+                  </div>
+                )}
+
+                {/* Conservation Actions */}
+                {selectedSpecies.conservation_actions && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
+                    <p className="text-sm text-slate-600">{selectedSpecies.conservation_actions}</p>
+                  </div>
+                )}
+
+                {/* Status History */}
+                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedSpecies.status_history.map((h, i) => (
+                        <div key={i} className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded">
+                          <span className="font-medium">{h.year}:</span> {h.status}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* External Links */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSpecies.iucn_id && (
+                      <a 
+                        href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        View on IUCN Red List
+                      </a>
+                    )}
+                    {selectedSpecies.assessment_pdf_url && (
+                      <a 
+                        href={selectedSpecies.assessment_pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Assessment PDF
+                      </a>
+                    )}
+                    {selectedSpecies.inat_taxon_id && (
+                      <a 
+                        href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        View on iNaturalist
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Observation Data (iNaturalist) */}
+                {selectedSpecies.observation_count > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count.toLocaleString()}
+                      </div>
+                      {selectedSpecies.last_observed && (
+                        <div>
+                          <span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
