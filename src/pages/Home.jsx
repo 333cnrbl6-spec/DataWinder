@@ -17,6 +17,7 @@ import SpeciesListManager from '@/components/species/SpeciesListManager';
 import SpeciesNotes from '@/components/species/SpeciesNotes';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import BangOnLogo from '@/components/BangOnLogo';
+import LogoShowcase from '@/components/LogoShowcase';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -32,6 +33,7 @@ export default function Home() {
   const [noteSpecies, setNoteSpecies] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [showLogoSelector, setShowLogoSelector] = useState(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -651,7 +653,9 @@ export default function Home() {
       <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <BangOnLogo size="sm" />
+            <div onClick={() => setShowLogoSelector(true)} className="cursor-pointer hover:opacity-80 transition-opacity">
+              <BangOnLogo size="sm" />
+            </div>
             <div className="flex-1">
               <h1 className="text-xl font-bold text-bangor-red">The DataWinder</h1>
               <p className="text-sm text-slate-600">b-Izzy on Data</p>
@@ -837,6 +841,17 @@ export default function Home() {
         open={showOnboarding}
         onComplete={handleOnboardingComplete}
       />
-    </div>
-  );
-}
+
+      {/* Logo Selector */}
+      <LogoShowcase 
+        open={showLogoSelector}
+        onClose={() => setShowLogoSelector(false)}
+        onSelect={(logoId) => {
+          console.log('Selected logo:', logoId);
+          setShowLogoSelector(false);
+          alert(`Logo "${logoId}" selected! To fully implement this, you'd update the BangOnLogo component or create a logo preference system.`);
+        }}
+      />
+      </div>
+      );
+      }
