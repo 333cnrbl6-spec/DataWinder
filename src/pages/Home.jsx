@@ -73,19 +73,25 @@ export default function Home() {
               speciesList.map(async (sp) => {
                 try {
                   // Fetch multiple data endpoints for comprehensive information
-                  const [narrativeRes, habitatRes, threatsRes] = await Promise.all([
+                  const [narrativeRes, habitatRes, threatsRes, historicalRes, countriesRes] = await Promise.all([
                     fetch(`https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${iucnToken}`),
                     fetch(`https://apiv3.iucnredlist.org/api/v3/habitats/species/id/${sp.taxonid}?token=${iucnToken}`),
-                    fetch(`https://apiv3.iucnredlist.org/api/v3/threats/species/id/${sp.taxonid}?token=${iucnToken}`)
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/threats/species/id/${sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/history/name/${encodeURIComponent(sp.scientific_name)}?token=${iucnToken}`),
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/countries/name/${encodeURIComponent(sp.scientific_name)}?token=${iucnToken}`)
                   ]);
 
                   const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
                   const habitatData = habitatRes.ok ? await habitatRes.json() : null;
                   const threatsData = threatsRes.ok ? await threatsRes.json() : null;
+                  const historicalData = historicalRes.ok ? await historicalRes.json() : null;
+                  const countriesData = countriesRes.ok ? await countriesRes.json() : null;
 
                   const narrative = narrativeData?.result?.[0] || {};
                   const habitats = habitatData?.result || [];
                   const threats = threatsData?.result || [];
+                  const history = historicalData?.result || [];
+                  const countries = countriesData?.result || [];
 
                   // Construct IUCN file URLs
                   const assessmentPdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
@@ -98,6 +104,17 @@ export default function Home() {
                     common_name: sp.main_common_name || '',
                     iucn_status: sp.category || 'NE',
                     population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
+                    population_details: narrative.population || '',
+                    status_history: history.map(h => ({
+                      year: h.year,
+                      status: h.code,
+                      category: h.category
+                    })),
+                    geographic_distribution: {
+                      countries: countries.map(c => c.country),
+                      regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
+                      area_km2: null
+                    },
                     kingdom: sp.kingdom || '',
                     phylum: sp.phylum || '',
                     class_name: sp.class || '',
@@ -173,6 +190,9 @@ export default function Home() {
                     genus: species.genus || existing[0].genus,
                     iucn_status: species.iucn_status,
                     population_trend: species.population_trend,
+                    population_details: species.population_details || existing[0].population_details,
+                    status_history: species.status_history || existing[0].status_history,
+                    geographic_distribution: species.geographic_distribution || existing[0].geographic_distribution,
                     habitat: species.habitat || existing[0].habitat,
                     range_description: species.range_description || existing[0].range_description,
                     threats: species.threats || existing[0].threats,
@@ -197,6 +217,9 @@ export default function Home() {
                     genus: species.genus,
                     iucn_status: species.iucn_status,
                     population_trend: species.population_trend,
+                    population_details: species.population_details,
+                    status_history: species.status_history,
+                    geographic_distribution: species.geographic_distribution,
                     habitat: species.habitat,
                     range_description: species.range_description,
                     threats: species.threats,
