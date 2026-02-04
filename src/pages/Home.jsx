@@ -791,8 +791,8 @@ export default function Home() {
                 <Leaf className="w-6 h-6 text-emerald-500 animate-bounce" />
               </div>
             </div>
-            <p className="mt-4 text-slate-600">Downloading species data from multiple sources...</p>
-            <p className="text-sm text-slate-400">Fetching from IUCN Red List & iNaturalist</p>
+            <p className="mt-4 text-slate-600">Downloading Species Data From Multiple Sources...</p>
+            <p className="text-sm text-slate-400">Fetching From IUCN Red List & iNaturalist</p>
           </div>
         )}
       </main>
