@@ -278,9 +278,10 @@ export default function Home() {
               <Info className="h-4 w-4 text-emerald-600" />
               <AlertTitle className="text-emerald-800">How it works</AlertTitle>
               <AlertDescription className="text-emerald-700">
-                This app connects directly to the IUCN Red List API to download species conservation data. 
-                Search by taxonomic group (family, genus, order, etc.) to retrieve all species data separately. 
-                Select species and download as CSV or JSON files to your computer.
+                Search species data from multiple sources (IUCN Red List & iNaturalist) by taxonomic group. 
+                View results in grid or interactive map with observation points. 
+                Compare species side-by-side, create custom lists to share, add personal notes with tags, 
+                and export filtered data in CSV or JSON format with customizable fields.
               </AlertDescription>
             </Alert>
 
