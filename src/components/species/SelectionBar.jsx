@@ -54,13 +54,42 @@ export default function SelectionBar({
             <span className="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">
               {selectedCount} selected
             </span>
-            <Button
-              onClick={onDownload}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download Selected
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={onCompare}
+                variant="outline"
+                disabled={selectedCount < 2}
+                className="border-blue-200 hover:bg-blue-50"
+              >
+                <ArrowLeftRight className="w-4 h-4 mr-2" />
+                Compare
+              </Button>
+              <Button
+                onClick={onManageLists}
+                variant="outline"
+                className="border-purple-200 hover:bg-purple-50"
+              >
+                <List className="w-4 h-4 mr-2" />
+                Save to List
+              </Button>
+              {selectedCount === 1 && (
+                <Button
+                  onClick={() => onAddNote(selectedSpecies[0])}
+                  variant="outline"
+                  className="border-amber-200 hover:bg-amber-50"
+                >
+                  <StickyNote className="w-4 h-4 mr-2" />
+                  Add Note
+                </Button>
+              )}
+              <Button
+                onClick={onDownload}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

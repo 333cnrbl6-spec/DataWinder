@@ -12,6 +12,9 @@ import MapView from '@/components/species/MapView';
 import SelectionBar from '@/components/species/SelectionBar';
 import DownloadPanel from '@/components/species/DownloadPanel';
 import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
+import CompareSpecies from '@/components/species/CompareSpecies';
+import SpeciesListManager from '@/components/species/SpeciesListManager';
+import SpeciesNotes from '@/components/species/SpeciesNotes';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -21,6 +24,10 @@ export default function Home() {
   const [showDownload, setShowDownload] = useState(false);
   const [searchInfo, setSearchInfo] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
+  const [showCompare, setShowCompare] = useState(false);
+  const [showListManager, setShowListManager] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [noteSpecies, setNoteSpecies] = useState(null);
 
   const handleSearch = async ({ level, terms, iucnToken, inatUsername, inatPassword }) => {
     setIsLoading(true);
@@ -218,6 +225,21 @@ export default function Home() {
 
   const selectedSpecies = species.filter(sp => selectedIds.includes(sp.id || sp.scientific_name));
 
+  const handleCompare = () => {
+    if (selectedSpecies.length >= 2) {
+      setShowCompare(true);
+    }
+  };
+
+  const handleRemoveFromCompare = (sp) => {
+    setSelectedIds(prev => prev.filter(id => id !== (sp.id || sp.scientific_name)));
+  };
+
+  const handleAddNote = (sp) => {
+    setNoteSpecies(sp);
+    setShowNotes(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20">
       {/* Header */}
@@ -324,6 +346,10 @@ export default function Home() {
               onSelectAll={selectAll}
               onDeselectAll={deselectAll}
               onDownload={() => setShowDownload(true)}
+              onCompare={handleCompare}
+              onManageLists={() => setShowListManager(true)}
+              onAddNote={handleAddNote}
+              selectedSpecies={selectedSpecies}
             />
 
             {viewMode === 'grid' ? (
@@ -364,6 +390,34 @@ export default function Home() {
           onClose={() => setShowDownload(false)}
           onSaveComplete={() => {
             alert('Data saved to database successfully!');
+          }}
+        />
+      )}
+
+      {/* Compare Species */}
+      {showCompare && (
+        <CompareSpecies
+          species={selectedSpecies}
+          onClose={() => setShowCompare(false)}
+          onRemove={handleRemoveFromCompare}
+        />
+      )}
+
+      {/* List Manager */}
+      {showListManager && (
+        <SpeciesListManager
+          selectedSpecies={selectedSpecies}
+          onClose={() => setShowListManager(false)}
+        />
+      )}
+
+      {/* Species Notes */}
+      {showNotes && noteSpecies && (
+        <SpeciesNotes
+          species={noteSpecies}
+          onClose={() => {
+            setShowNotes(false);
+            setNoteSpecies(null);
           }}
         />
       )}
