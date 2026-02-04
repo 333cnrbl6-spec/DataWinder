@@ -648,7 +648,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-bangor-sun/5 to-slate-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -661,7 +661,7 @@ export default function Home() {
               <p className="text-sm text-slate-600">b-Izzy on Data</p>
             </div>
             <Link to={createPageUrl('SavedData')}>
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
+              <button className="flex items-center gap-2 px-4 py-2 bg-bangor-sun/20 text-bangor-sun rounded-lg font-medium">
                 <Database className="w-4 h-4" />
                 <span className="text-sm font-medium">Saved Data</span>
               </button>
@@ -681,10 +681,10 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <Alert className="bg-emerald-50 border-emerald-200">
-              <Info className="h-4 w-4 text-emerald-600" />
-              <AlertTitle className="text-emerald-800">How it works</AlertTitle>
-              <AlertDescription className="text-emerald-700">
+            <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
+              <Info className="h-4 w-4 text-bangor-sun" />
+              <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
+              <AlertDescription className="text-slate-700">
                 Search species data from multiple sources (IUCN Red List & iNaturalist) by taxonomic group. 
                 View results in grid or interactive map with observation points. 
                 Compare species side-by-side, create custom lists to share, add personal notes with tags, 
@@ -728,7 +728,7 @@ export default function Home() {
             <div className="flex items-center justify-between">
               {searchInfo && (
                 <div className="text-sm text-slate-500">
-                  Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-emerald-600">{searchInfo.terms}</span>
+                  Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-bangor-red">{searchInfo.terms}</span>
                 </div>
               )}
 
@@ -737,7 +737,7 @@ export default function Home() {
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-emerald-600 text-white' : ''}
+                  className={viewMode === 'grid' ? 'bg-bangor-red text-white' : ''}
                   >
                   <Grid3x3 className="w-4 h-4 mr-2" />
                   Grid
@@ -746,7 +746,7 @@ export default function Home() {
                   variant={viewMode === 'map' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('map')}
-                  className={viewMode === 'map' ? 'bg-emerald-600 text-white' : ''}
+                  className={viewMode === 'map' ? 'bg-bangor-red text-white' : ''}
                 >
                   <Map className="w-4 h-4 mr-2" />
                   Map
@@ -786,9 +786,9 @@ export default function Home() {
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-emerald-200 rounded-full animate-pulse" />
+              <div className="w-16 h-16 border-4 border-bangor-sun/30 rounded-full animate-pulse" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Leaf className="w-6 h-6 text-emerald-500 animate-bounce" />
+                <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
               </div>
             </div>
             <p className="mt-4 text-slate-600">Downloading Species Data From Multiple Sources...</p>
