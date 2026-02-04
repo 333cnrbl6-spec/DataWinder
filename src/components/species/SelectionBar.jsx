@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { CheckSquare, Square, Download, ArrowLeftRight, List, StickyNote } from 'lucide-react';
+import { CheckSquare, Square, Download, ArrowLeftRight, List, StickyNote, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SelectionBar({ 
@@ -12,6 +12,7 @@ export default function SelectionBar({
   onCompare,
   onManageLists,
   onAddNote,
+  onSaveSearch,
   selectedSpecies = []
 }) {
   return (
@@ -86,6 +87,14 @@ export default function SelectionBar({
                   Add Note
                 </Button>
               )}
+              <Button
+                onClick={onSaveSearch}
+                variant="outline"
+                className="border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun font-medium"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Search
+              </Button>
               <Button
                 onClick={onDownload}
                 className="bg-bangor-red text-white font-medium"
