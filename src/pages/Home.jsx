@@ -16,6 +16,7 @@ import CompareSpecies from '@/components/species/CompareSpecies';
 import SpeciesListManager from '@/components/species/SpeciesListManager';
 import SpeciesNotes from '@/components/species/SpeciesNotes';
 import OnboardingWizard from '@/components/OnboardingWizard';
+import BangOnLogo from '@/components/BangOnLogo';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -649,10 +650,8 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-bangor-red/10 rounded-xl">
-              <Leaf className="w-6 h-6 text-bangor-red" />
-            </div>
+          <div className="flex items-center gap-4">
+            <BangOnLogo size="sm" />
             <div className="flex-1">
               <h1 className="text-xl font-bold text-bangor-red">IUCN Species Explorer</h1>
               <p className="text-sm text-slate-600">Search and download species conservation data</p>

@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronRight, ChevronLeft, ExternalLink, AlertCircle, CheckCircle, Key } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import BangOnLogo from './BangOnLogo';
 
 const steps = [
   { id: 1, title: 'Welcome', subtitle: 'Get started with species data' },
@@ -105,8 +106,11 @@ export default function OnboardingWizard({ open, onComplete }) {
             {/* Step 1: Welcome */}
             {currentStep === 1 && (
               <div className="space-y-6">
+                <div className="flex justify-center mb-4">
+                  <BangOnLogo size="lg" />
+                </div>
                 <DialogHeader>
-                  <DialogTitle className="text-3xl text-bangor-red">
+                  <DialogTitle className="text-3xl text-bangor-red text-center">
                     Welcome to IUCN Species Explorer
                   </DialogTitle>
                 </DialogHeader>
