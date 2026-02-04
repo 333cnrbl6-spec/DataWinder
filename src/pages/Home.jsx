@@ -230,9 +230,10 @@ export default function Home() {
         return;
       }
 
-      // Search iNaturalist for each term
+      // Search iNaturalist - get individual species for each term
       for (const term of terms) {
         try {
+          // First, find the taxon ID for the search term
           const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}`;
           const taxonRes = await fetch(taxonUrl);
           if (!taxonRes.ok) {
@@ -246,8 +247,27 @@ export default function Home() {
             continue;
           }
 
-          // Fetch detailed observation data for each taxon
-          const inatSpecies = await Promise.all(taxonData.results.map(async (taxon) => {
+          // Get the main taxon (genus, family, etc.)
+          const mainTaxon = taxonData.results[0];
+          
+          // Now search for all species within this taxon
+          const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${mainTaxon.id}&rank=species&per_page=200`;
+          const speciesRes = await fetch(speciesUrl);
+          if (!speciesRes.ok) {
+            console.error(`iNaturalist species search error for ${term}:`, speciesRes.status);
+            continue;
+          }
+
+          const speciesData = await speciesRes.json();
+          const speciesToFetch = speciesData.results || [];
+
+          if (speciesToFetch.length === 0) {
+            console.warn(`No iNaturalist species found within ${term}`);
+            continue;
+          }
+
+          // Fetch detailed observation data for each species
+          const inatSpecies = await Promise.all(speciesToFetch.map(async (taxon) => {
             // Fetch recent observations for this taxon
             let observationData = null;
             try {
