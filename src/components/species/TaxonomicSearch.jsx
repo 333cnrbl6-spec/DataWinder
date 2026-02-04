@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import StatusBadge from './StatusBadge';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
@@ -19,6 +20,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [searchTerms, setSearchTerms] = useState(['']);
   const [iucnToken, setIucnToken] = useState('');
   const [showIucnInput, setShowIucnInput] = useState(false);
+  const [familySpecies, setFamilySpecies] = useState([]);
+  const [selectedSpecies, setSelectedSpecies] = useState([]);
+  const [loadingSpecies, setLoadingSpecies] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -42,13 +46,22 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const handleSearch = () => {
-    const validTerms = searchTerms.filter(t => t.trim());
-    if (validTerms.length > 0) {
+    // If family level with selected species, search those specific species
+    if (level === 'family' && selectedSpecies.length > 0) {
       onSearch({ 
-        level, 
-        terms: validTerms, 
+        level: 'species', 
+        terms: selectedSpecies, 
         iucnToken
       });
+    } else {
+      const validTerms = searchTerms.filter(t => t.trim());
+      if (validTerms.length > 0) {
+        onSearch({ 
+          level, 
+          terms: validTerms, 
+          iucnToken
+        });
+      }
     }
   };
 
@@ -62,10 +75,48 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     }
   };
 
-  const updateSearchTerm = (index, value) => {
+  const updateSearchTerm = async (index, value) => {
     const newTerms = [...searchTerms];
     newTerms[index] = value;
     setSearchTerms(newTerms);
+
+    // If family level and term entered, fetch species list
+    if (level === 'family' && value.trim() && iucnToken) {
+      setLoadingSpecies(true);
+      try {
+        const searchUrl = `https://apiv3.iucnredlist.org/api/v3/species/family/${encodeURIComponent(value.trim())}?token=${iucnToken}`;
+        const response = await fetch(searchUrl);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.result && data.result.length > 0) {
+            setFamilySpecies(data.result);
+            setSelectedSpecies([]);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching family species:', err);
+      }
+      setLoadingSpecies(false);
+    } else if (level !== 'family') {
+      setFamilySpecies([]);
+      setSelectedSpecies([]);
+    }
+  };
+
+  const toggleSpecies = (scientificName) => {
+    setSelectedSpecies(prev => 
+      prev.includes(scientificName) 
+        ? prev.filter(s => s !== scientificName)
+        : [...prev, scientificName]
+    );
+  };
+
+  const selectAllSpecies = () => {
+    setSelectedSpecies(familySpecies.map(sp => sp.scientific_name));
+  };
+
+  const deselectAllSpecies = () => {
+    setSelectedSpecies([]);
   };
 
   const currentLevel = taxonomyLevels.find(t => t.value === level);
@@ -109,15 +160,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         <ExternalLink className="w-3 h-3" />
                         Sign Up (Free)
                       </a>
-                      <a
-                        href="https://apiv3.iucnredlist.org/"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => setShowIucnInput(true)}
                         className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-white hover:bg-amber-50 text-amber-900 inline-flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Log In & Get Token
-                      </a>
+                      </button>
                     </div>
                     <Button
                       size="sm"
@@ -237,19 +286,77 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </Button>
         </div>
 
+        {/* Family Species Selection */}
+        {level === 'family' && familySpecies.length > 0 && (
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-medium text-slate-700">
+                {familySpecies.length} species found in {searchTerms[0]}
+              </h4>
+              <div className="flex gap-2">
+                <button 
+                  onClick={selectAllSpecies}
+                  className="text-xs text-emerald-600 hover:underline"
+                >
+                  Select all
+                </button>
+                <span className="text-slate-300">|</span>
+                <button 
+                  onClick={deselectAllSpecies}
+                  className="text-xs text-slate-500 hover:underline"
+                >
+                  Deselect all
+                </button>
+              </div>
+            </div>
+            <div className="max-h-60 overflow-y-auto space-y-2">
+              {familySpecies.map((sp) => (
+                <label 
+                  key={sp.taxonid}
+                  className="flex items-start gap-2 p-2 hover:bg-white rounded cursor-pointer transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSpecies.includes(sp.scientific_name)}
+                    onChange={() => toggleSpecies(sp.scientific_name)}
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-slate-900">{sp.scientific_name}</div>
+                    {sp.main_common_name && (
+                      <div className="text-xs text-slate-500">{sp.main_common_name}</div>
+                    )}
+                  </div>
+                  <StatusBadge status={sp.category} size="sm" />
+                </label>
+              ))}
+            </div>
+            <div className="mt-3 text-xs text-slate-500">
+              {selectedSpecies.length} species selected
+            </div>
+          </div>
+        )}
+
+        {loadingSpecies && (
+          <div className="flex items-center justify-center py-4 text-sm text-slate-500">
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Loading species list...
+          </div>
+        )}
+
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || !searchTerms.some(t => t.trim())}
+          disabled={isLoading || (level === 'family' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Searching {searchTerms.filter(t => t.trim()).length} {currentLevel?.label}...
+              Searching {level === 'family' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} species...
             </>
           ) : (
             <>
-              Search {searchTerms.filter(t => t.trim()).length} {currentLevel?.label}
+              Search {level === 'family' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level === 'family' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
             </>
           )}
         </Button>
