@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -38,7 +38,7 @@ export default function SavedData() {
     queryFn: () => base44.entities.SavedSearch.list('-created_date')
   });
 
-  const { data: allSpecies = [] } = useQuery({
+  const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
     queryKey: ['allSpecies'],
     queryFn: () => base44.entities.Species.list('-created_date'),
     refetchInterval: 5000 // Auto-refresh every 5 seconds
@@ -212,8 +212,16 @@ export default function SavedData() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="sm"
+                      onClick={() => refetchSpecies()}
+                      className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200"
+                    >
+                      <RotateCw className="w-4 h-4 mr-1" />
+                      Refresh
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={() => setShowIntegrityChecker(true)}
-                      className="bg-bangor-sun/20 text-bangor-sun font-medium"
+                      className="bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
                     >
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
@@ -222,7 +230,7 @@ export default function SavedData() {
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
                       disabled={filteredSpecies.length === 0}
-                      className="bg-bangor-red text-white font-semibold"
+                      className="bg-bangor-red text-white font-semibold hover:bg-bangor-red/90"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export
@@ -359,34 +367,36 @@ export default function SavedData() {
                             <TrendIndicator trend={species.population_trend} showLabel />
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-slate-700">{species.family || '—'}</span>
+                            <span className="text-sm text-slate-700 font-medium">{species.family || '—'}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-slate-600">{species.order_name || '—'}</span>
+                            <span className="text-sm text-slate-700 font-medium">{species.order_name || '—'}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-slate-600">{species.class_name || '—'}</span>
+                            <span className="text-sm text-slate-700 font-medium">{species.class_name || '—'}</span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-xs">
                               {species.geographic_distribution?.countries?.length > 0 ? (
                                 <>
-                                  <div className="font-medium text-slate-700">{species.geographic_distribution.countries.length}</div>
-                                  <div className="text-slate-500 max-w-[120px] truncate">
+                                  <div className="font-semibold text-slate-900">{species.geographic_distribution.countries.length}</div>
+                                  <div className="text-slate-600 max-w-[120px] truncate">
                                     {species.geographic_distribution.countries.slice(0, 2).join(', ')}
                                   </div>
                                 </>
-                              ) : '—'}
+                              ) : (
+                                <span className="text-slate-400">—</span>
+                              )}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="text-xs text-slate-600 max-w-[150px] truncate">
-                              {species.habitat || '—'}
+                            <div className="text-xs text-slate-700 max-w-[150px] truncate font-medium">
+                              {species.habitat || <span className="text-slate-400">—</span>}
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="text-xs text-slate-500">
-                              {species.assessment_date ? new Date(species.assessment_date).getFullYear() : '—'}
+                            <div className="text-xs text-slate-700 font-medium">
+                              {species.assessment_date ? new Date(species.assessment_date).getFullYear() : <span className="text-slate-400">—</span>}
                             </div>
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -397,7 +407,7 @@ export default function SavedData() {
                                   setSelectedSpecies(species);
                                   setShowDetails(true);
                                 }}
-                                className="h-8 w-8 bg-bangor-red/10 text-bangor-red font-medium"
+                                className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
                                 title="View Details"
                               >
                                 <Eye className="w-4 h-4" />
@@ -477,7 +487,7 @@ export default function SavedData() {
                               <Button
                                 size="icon"
                                 onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                                className="h-8 w-8 bg-red-100 text-red-600 font-medium"
+                                className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
