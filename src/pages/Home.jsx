@@ -39,7 +39,7 @@ export default function Home() {
     try {
       let allSpecies = [];
 
-      // Search IUCN for each term
+      // Search IUCN for each term - get list of species first
       if (iucnToken) {
         for (const term of terms) {
           try {
@@ -64,62 +64,87 @@ export default function Home() {
               continue;
             }
 
-          const detailedSpecies = await Promise.all(
-            searchData.result.map(async (sp) => {
-              try {
-                const narrativeUrl = `https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${iucnToken}`;
-                const narrativeRes = await fetch(narrativeUrl);
-                const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
-                const narrative = narrativeData?.result?.[0] || {};
+            // For each species, fetch comprehensive data
+            const detailedSpecies = await Promise.all(
+              searchData.result.map(async (sp) => {
+                try {
+                  // Fetch multiple data endpoints for comprehensive information
+                  const [narrativeRes, habitatRes, threatsRes] = await Promise.all([
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/species/narrative/${sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/habitats/species/id/${sp.taxonid}?token=${iucnToken}`),
+                    fetch(`https://apiv3.iucnredlist.org/api/v3/threats/species/id/${sp.taxonid}?token=${iucnToken}`)
+                  ]);
 
-                return {
-                  id: `iucn-${sp.taxonid}`,
-                  scientific_name: sp.scientific_name,
-                  common_name: sp.main_common_name || '',
-                  iucn_status: sp.category || 'NE',
-                  population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
-                  kingdom: sp.kingdom || '',
-                  phylum: sp.phylum || '',
-                  class_name: sp.class || '',
-                  order_name: sp.order || '',
-                  family: sp.family || '',
-                  genus: sp.genus || '',
-                  habitat: narrative.habitat || '',
-                  range_description: narrative.range || '',
-                  threats: narrative.threats || '',
-                  conservation_actions: narrative.conservationmeasures || '',
-                  assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
-                  iucn_id: sp.taxonid,
-                  dataset_name: term,
-                  data_source: 'IUCN Red List'
-                };
-              } catch (err) {
-                console.error(`Error fetching details for ${sp.scientific_name}:`, err);
-                return {
-                  id: `iucn-${sp.taxonid}`,
-                  scientific_name: sp.scientific_name,
-                  common_name: sp.main_common_name || '',
-                  iucn_status: sp.category || 'NE',
-                  kingdom: sp.kingdom || '',
-                  phylum: sp.phylum || '',
-                  class_name: sp.class || '',
-                  order_name: sp.order || '',
-                  family: sp.family || '',
-                  genus: sp.genus || '',
-                  iucn_id: sp.taxonid,
-                  dataset_name: term,
-                  data_source: 'IUCN Red List'
-                };
-              }
-            })
-          );
+                  const narrativeData = narrativeRes.ok ? await narrativeRes.json() : null;
+                  const habitatData = habitatRes.ok ? await habitatRes.json() : null;
+                  const threatsData = threatsRes.ok ? await threatsRes.json() : null;
 
-          allSpecies = [...allSpecies, ...detailedSpecies];
+                  const narrative = narrativeData?.result?.[0] || {};
+                  const habitats = habitatData?.result || [];
+                  const threats = threatsData?.result || [];
+
+                  return {
+                    id: `iucn-${sp.taxonid}`,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name || '',
+                    iucn_status: sp.category || 'NE',
+                    population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
+                    kingdom: sp.kingdom || '',
+                    phylum: sp.phylum || '',
+                    class_name: sp.class || '',
+                    order_name: sp.order || '',
+                    family: sp.family || '',
+                    genus: sp.genus || '',
+                    habitat: narrative.habitat || '',
+                    habitats_detailed: habitats.map(h => ({
+                      code: h.code,
+                      habitat: h.habitat,
+                      suitability: h.suitability,
+                      season: h.season,
+                      major_importance: h.majorimportance
+                    })),
+                    range_description: narrative.range || '',
+                    threats: narrative.threats || '',
+                    threats_detailed: threats.map(t => ({
+                      code: t.code,
+                      title: t.title,
+                      timing: t.timing,
+                      scope: t.scope,
+                      severity: t.severity
+                    })),
+                    conservation_actions: narrative.conservationmeasures || '',
+                    assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
+                    iucn_id: sp.taxonid,
+                    dataset_name: term,
+                    data_source: 'IUCN Red List'
+                  };
+                } catch (err) {
+                  console.error(`Error fetching comprehensive details for ${sp.scientific_name}:`, err);
+                  return {
+                    id: `iucn-${sp.taxonid}`,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name || '',
+                    iucn_status: sp.category || 'NE',
+                    kingdom: sp.kingdom || '',
+                    phylum: sp.phylum || '',
+                    class_name: sp.class || '',
+                    order_name: sp.order || '',
+                    family: sp.family || '',
+                    genus: sp.genus || '',
+                    iucn_id: sp.taxonid,
+                    dataset_name: term,
+                    data_source: 'IUCN Red List'
+                  };
+                }
+              })
+            );
+
+            allSpecies = [...allSpecies, ...detailedSpecies];
           } catch (err) {
-          console.error(`Error fetching IUCN data for ${term}:`, err);
+            console.error(`Error fetching IUCN data for ${term}:`, err);
           }
-          }
-          }
+        }
+      }
 
       // Search iNaturalist for each term
       for (const term of terms) {

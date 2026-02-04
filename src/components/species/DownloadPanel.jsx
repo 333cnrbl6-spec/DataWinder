@@ -22,13 +22,16 @@ const dataFields = [
   { key: 'family', label: 'Family' },
   { key: 'genus', label: 'Genus' },
   { key: 'habitat', label: 'Habitat' },
+  { key: 'habitats_detailed', label: 'Detailed Habitats (IUCN)' },
   { key: 'range_description', label: 'Range Description' },
   { key: 'threats', label: 'Threats' },
+  { key: 'threats_detailed', label: 'Detailed Threats (IUCN)' },
   { key: 'conservation_actions', label: 'Conservation Actions' },
   { key: 'assessment_date', label: 'Assessment Date' },
   { key: 'iucn_id', label: 'IUCN ID' },
   { key: 'inat_taxon_id', label: 'iNaturalist Taxon ID' },
   { key: 'observation_count', label: 'Total Observations' },
+  { key: 'observations', label: 'Observation Details (iNat)' },
   { key: 'last_observed', label: 'Last Observed Date' },
   { key: 'image_url', label: 'Image URL' }
 ];
@@ -116,47 +119,82 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
   const downloadData = async () => {
     const zip = new JSZip();
 
-    // Group by data source first, then by family
+    // Group by species (scientific name) with data from all sources
+    const speciesByName = {};
+    
     selectedSpecies.forEach(species => {
-      const row = {
-        data_source: species.data_source,
-        ...selectedFields.reduce((acc, field) => {
-          acc[field] = species[field] || '';
-          return acc;
-        }, {})
-      };
-
-      // Add iNaturalist-specific fields if present
-      if (species.data_source === 'iNaturalist') {
-        row.observation_count = species.observation_count || 0;
-        row.recent_observations = species.recent_observations || 0;
-        row.last_observed = species.last_observed || '';
-        row.inat_taxon_id = species.inat_taxon_id || '';
-        row.inat_wikipedia_url = species.inat_wikipedia_url || '';
+      const name = species.scientific_name;
+      if (!speciesByName[name]) {
+        speciesByName[name] = [];
       }
+      speciesByName[name].push(species);
+    });
 
-      const dataSource = (species.data_source || 'Unknown_Source').replace(/[^a-z0-9]/gi, '_');
-      const familyName = (species.family || 'Unknown_Family').replace(/[^a-z0-9]/gi, '_');
-      const speciesName = species.scientific_name.replace(/[^a-z0-9]/gi, '_');
+    // Create files organized by species
+    Object.entries(speciesByName).forEach(([scientificName, speciesData]) => {
+      const familyName = (speciesData[0].family || 'Unknown_Family').replace(/[^a-z0-9]/gi, '_');
+      const speciesName = scientificName.replace(/[^a-z0-9]/gi, '_');
 
-      let content, filename;
+      // Create comprehensive data for this species from all sources
+      speciesData.forEach((species, idx) => {
+        const dataSource = (species.data_source || 'Unknown_Source').replace(/[^a-z0-9]/gi, '_');
+        
+        const row = {
+          data_source: species.data_source,
+          ...selectedFields.reduce((acc, field) => {
+            const value = species[field];
+            // Handle arrays and objects for detailed data
+            if (Array.isArray(value) && value.length > 0) {
+              acc[field] = format === 'json' ? value : JSON.stringify(value);
+            } else {
+              acc[field] = value || '';
+            }
+            return acc;
+          }, {})
+        };
 
-      if (format === 'json') {
-        content = JSON.stringify(row, null, 2);
-        filename = `${dataSource}/${familyName}/${speciesName}.json`;
-      } else {
-        const headers = Object.keys(row).join(',');
-        const values = Object.values(row).map(value => {
-          const val = String(value || '').replace(/"/g, '""');
-          return val.includes(',') || val.includes('"') || val.includes('\n') 
-            ? `"${val}"` 
-            : val;
-        }).join(',');
-        content = [headers, values].join('\n');
-        filename = `${dataSource}/${familyName}/${speciesName}.csv`;
-      }
+        // Add iNaturalist-specific fields if present
+        if (species.data_source === 'iNaturalist') {
+          row.observation_count = species.observation_count || 0;
+          row.recent_observations = species.recent_observations || 0;
+          row.last_observed = species.last_observed || '';
+          row.inat_taxon_id = species.inat_taxon_id || '';
+          row.inat_wikipedia_url = species.inat_wikipedia_url || '';
+          if (species.observations) {
+            row.observations = format === 'json' ? species.observations : JSON.stringify(species.observations);
+          }
+        }
 
-      zip.file(filename, content);
+        // Add IUCN-specific detailed fields
+        if (species.data_source === 'IUCN Red List') {
+          if (species.habitats_detailed) {
+            row.habitats_detailed = format === 'json' ? species.habitats_detailed : JSON.stringify(species.habitats_detailed);
+          }
+          if (species.threats_detailed) {
+            row.threats_detailed = format === 'json' ? species.threats_detailed : JSON.stringify(species.threats_detailed);
+          }
+        }
+
+        let content, filename;
+        const sourceSuffix = speciesData.length > 1 ? `_${dataSource}` : '';
+
+        if (format === 'json') {
+          content = JSON.stringify(row, null, 2);
+          filename = `${familyName}/${speciesName}/${speciesName}${sourceSuffix}.json`;
+        } else {
+          const headers = Object.keys(row).join(',');
+          const values = Object.values(row).map(value => {
+            const val = String(value || '').replace(/"/g, '""');
+            return val.includes(',') || val.includes('"') || val.includes('\n') 
+              ? `"${val}"` 
+              : val;
+          }).join(',');
+          content = [headers, values].join('\n');
+          filename = `${familyName}/${speciesName}/${speciesName}${sourceSuffix}.csv`;
+        }
+
+        zip.file(filename, content);
+      });
     });
 
     // Generate and download the zip file
