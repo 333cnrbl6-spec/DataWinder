@@ -771,10 +771,10 @@ export default function SavedData() {
                 )}
 
                 {/* External Links */}
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
-                        <div className="space-y-3">
-                          {selectedSpecies.iucn_id ? (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
+                  <div className="space-y-3">
+                    {selectedSpecies.iucn_id && (
                             <div className="space-y-2">
                               <div className="flex flex-wrap gap-2">
                                 <a 
