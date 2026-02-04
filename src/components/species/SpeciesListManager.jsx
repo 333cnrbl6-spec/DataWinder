@@ -78,17 +78,17 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-2xl max-h-[90vh] overflow-hidden"
       >
-        <Card>
-          <CardHeader className="border-b bg-slate-50">
-            <CardTitle className="flex items-center gap-2">
-              <List className="w-5 h-5 text-emerald-600" />
-              Manage Species Lists
-            </CardTitle>
-          </CardHeader>
+        <Card className="border-bangor-red/20">
+           <CardHeader className="border-b bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+             <CardTitle className="flex items-center gap-2 text-bangor-red">
+               <List className="w-5 h-5" />
+               Manage Species Lists
+             </CardTitle>
+           </CardHeader>
 
           <CardContent className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto space-y-6">
             {/* Create New List */}
-            <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+            <div className="bg-bangor-red/5 rounded-lg p-4 border border-bangor-red/20">
               <h3 className="font-semibold text-slate-900 mb-3">
                 Create New List ({selectedSpecies.length} species selected)
               </h3>
@@ -116,7 +116,7 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
                 <Button
                   onClick={handleCreateList}
                   disabled={!listName.trim() || selectedSpecies.length === 0 || createListMutation.isPending}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-bangor-red text-white hover:bg-red-700"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Create List
@@ -147,8 +147,8 @@ export default function SpeciesListManager({ selectedSpecies, onClose }) {
                                 {list.species_ids?.length || 0} species
                               </span>
                               {list.is_public && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                                  Public
+                                <span className="text-xs bg-bangor-sun/20 text-bangor-sun px-2 py-0.5 rounded font-medium">
+                                  Shareable
                                 </span>
                               )}
                             </div>
