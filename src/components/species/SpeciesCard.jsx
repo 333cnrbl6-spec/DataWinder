@@ -36,7 +36,7 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             <img 
               src={species.image_url} 
               alt={species.common_name || species.scientific_name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover"
             />
           </div>
         ) : (
