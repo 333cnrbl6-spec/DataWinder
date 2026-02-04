@@ -192,6 +192,7 @@ export default function SavedData() {
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Family</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">IUCN Files</th>
                         <th className="text-right px-4 py-3 text-xs font-medium text-slate-600">Actions</th>
                       </tr>
                     </thead>
@@ -219,6 +220,40 @@ export default function SavedData() {
                           </td>
                           <td className="px-4 py-3">
                             <span className="text-sm text-slate-600">{species.family || '—'}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {species.assessment_pdf_url && (
+                                <a 
+                                  href={species.assessment_pdf_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100"
+                                >
+                                  PDF
+                                </a>
+                              )}
+                              {species.range_map_jpg_url && (
+                                <a 
+                                  href={species.range_map_jpg_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100"
+                                >
+                                  Map
+                                </a>
+                              )}
+                              {species.range_data_shp_url && (
+                                <a 
+                                  href={species.range_data_shp_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100"
+                                >
+                                  SHP
+                                </a>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-right">
                             <Button
