@@ -140,7 +140,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
     >
       <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-emerald-500" />
+        <Sparkles className="w-5 h-5 text-bangor-red" />
         <h2 className="text-lg font-semibold text-slate-900">Search Multiple Data Sources</h2>
       </div>
       
@@ -152,12 +152,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">IUCN Red List API</h3>
         {!iucnToken ? (
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
             <div className="flex items-start gap-3">
-              <Key className="w-5 h-5 text-amber-600 mt-0.5" />
+              <Key className="w-5 h-5 text-bangor-sun mt-0.5" />
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-amber-900 mb-1">API Token Required</h4>
-                <p className="text-xs text-amber-700 mb-3">
+                <h4 className="text-sm font-medium text-bangor-sun mb-1">API Token Required</h4>
+                <p className="text-xs text-bangor-sun/80 mb-3">
                   To access IUCN data, you need a free API token. Sign up or log in to get yours.
                 </p>
                 {!showIucnInput ? (
@@ -167,14 +167,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         href="https://www.iucnredlist.org/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 text-white inline-flex items-center gap-1 cursor-pointer"
+                        className="text-xs px-3 py-1.5 rounded-md bg-bangor-red text-white inline-flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Sign Up (Free)
                       </a>
                       <button
                         onClick={() => setShowIucnInput(true)}
-                        className="text-xs px-3 py-1.5 rounded-md border border-amber-300 bg-amber-50 text-amber-900 inline-flex items-center gap-1 cursor-pointer"
+                        className="text-xs px-3 py-1.5 rounded-md border border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun inline-flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Log In & Get Token
@@ -192,8 +192,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-xs text-amber-700 mb-2">
-                      After logging in, find your token on your account page and paste it below:
+                    <p className="text-xs text-bangor-sun/80 mb-2">
+                       After logging in, find your token on your account page and paste it below:
                     </p>
                     <div className="flex gap-2">
                       <Input
@@ -202,7 +202,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         placeholder="Paste your IUCN API token here"
                         className="text-xs h-8"
                       />
-                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-emerald-600 text-white">
+                      <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium">
                         Save
                       </Button>
                       <Button 
@@ -220,14 +220,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs text-emerald-700">IUCN token configured</span>
-            </div>
-            <button
-              onClick={() => setShowIucnInput(true)}
-              className="text-xs text-emerald-600 underline font-medium"
+          <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center justify-between">
+             <div className="flex items-center gap-2">
+               <Key className="w-4 h-4 text-bangor-sun" />
+               <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
+             </div>
+             <button
+               onClick={() => setShowIucnInput(true)}
+               className="text-xs text-bangor-sun underline font-medium"
             >
               Change
             </button>
@@ -238,9 +238,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       {/* iNaturalist */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600" />
-          <span className="text-xs text-blue-700">Public API - No credentials required</span>
+        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-bangor-sun" />
+          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
       </div>
 
@@ -308,16 +308,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               <div className="flex gap-2">
                 <button 
                   onClick={selectAllSpecies}
-                  className="text-xs text-emerald-600 underline font-medium"
-                >
-                  Select all
+                  className="text-xs text-bangor-red underline font-medium"
+                  >
+                   Select All
                 </button>
                 <span className="text-slate-300">|</span>
                 <button 
                   onClick={deselectAllSpecies}
                   className="text-xs text-slate-500 underline font-medium"
-                >
-                  Deselect all
+                  >
+                   Deselect All
                 </button>
               </div>
             </div>
@@ -394,15 +394,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeINat}
-                onChange={(e) => setIncludeINat(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <span className="text-sm text-slate-700">Also include iNaturalist observation data</span>
-            </label>
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button
@@ -414,7 +414,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               </Button>
               <Button
                 onClick={confirmSearch}
-                className="flex-1 bg-emerald-600 text-white"
+                className="flex-1 bg-bangor-red text-white font-medium"
               >
                 Fetch Data
               </Button>
@@ -430,17 +430,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setLevel('family');
             setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae']);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium"
-        >
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium"
+          >
           Primate Families
-        </button>
-        <button
+          </button>
+          <button
           onClick={() => {
             setLevel('family');
             setSearchTerms(['Felidae', 'Canidae', 'Ursidae']);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium"
-        >
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium"
+          >
           Carnivore Families
         </button>
       </div>
