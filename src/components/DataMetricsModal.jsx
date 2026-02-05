@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Search } from 'lucide-react';
+import { X, Search, Trash2 } from 'lucide-react';
 import SpeciesGrid from './species/SpeciesGrid';
 import MapView from './species/MapView';
 import { Input } from "@/components/ui/input";
+import { base44 } from "@/api/base44Client";
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function DataMetricsModal({ 
   isOpen, 
