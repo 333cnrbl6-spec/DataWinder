@@ -94,6 +94,17 @@ export default function DataMetricsModal({
               >
                 Deselect All
               </Button>
+              {selectedIds.length > 0 && (
+                <Button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  size="sm"
+                  variant="destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete ({selectedIds.length})
+                </Button>
+              )}
             </div>
           </div>
         )}
