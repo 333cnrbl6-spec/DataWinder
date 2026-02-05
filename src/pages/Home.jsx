@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Leaf, AlertCircle, Info, Database, Grid3x3, Map, FolderOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Leaf, AlertCircle, Info, Database, Download, Map, FileSpreadsheet, Layers, Grid3x3, FolderOpen, Upload } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
 import SpeciesGrid from '@/components/species/SpeciesGrid';
