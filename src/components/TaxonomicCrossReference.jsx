@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, AlertTriangle, GitMerge, CheckCircle, Loader2, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function TaxonomicCrossReference({ open, onClose, onComplete }) {
+export default function TaxonomicCrossReference({ open, onClose, onComplete, data_env = 'prod' }) {
   const [step, setStep] = useState('idle'); // idle, analyzing, results, merging, complete
   const [analysis, setAnalysis] = useState(null);
   const [selectedMerges, setSelectedMerges] = useState([]);
@@ -19,7 +19,8 @@ export default function TaxonomicCrossReference({ open, onClose, onComplete }) {
 
     try {
       const response = await base44.functions.invoke('taxonomicCrossReference', {
-        action: 'analyze'
+        action: 'analyze',
+        data_env: data_env
       });
 
       if (response.data.status === 'success') {
@@ -45,7 +46,8 @@ export default function TaxonomicCrossReference({ open, onClose, onComplete }) {
     try {
       const response = await base44.functions.invoke('taxonomicCrossReference', {
         action: 'merge',
-        species_ids: selectedMerges
+        species_ids: selectedMerges,
+        data_env: data_env
       });
 
       if (response.data.status === 'success') {

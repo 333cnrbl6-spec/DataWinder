@@ -9,10 +9,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action, species_ids } = await req.json();
+    const { action, species_ids, data_env } = await req.json();
 
     // Fetch all species from database
-    const allSpecies = await base44.asServiceRole.entities.Species.list('-created_date', 10000);
+    const allSpecies = await base44.asServiceRole.entities.Species.list('-created_date', 10000, { data_env: data_env || 'prod' });
 
     if (action === 'analyze') {
       // Use AI to analyze and cross-reference species data
