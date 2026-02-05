@@ -540,6 +540,14 @@ export default function SavedData() {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
+                {/* ArcGIS Map */}
+                <ArcGISMap 
+                  species={selectedSpecies} 
+                  height="500px" 
+                  hasAgreedToTerms={arcgisAgreed}
+                  onRequestTermsAgreement={() => setShowArcGISTerms(true)}
+                />
+
                 {/* Image */}
                 {selectedSpecies.image_url &&
               <div className="rounded-lg overflow-hidden">
