@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
 import ArcGISMap from '@/components/ArcGISMap.jsx';
+import ArcGISTermsModal from '@/components/ArcGISTermsModal.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -537,9 +538,6 @@ export default function SavedData() {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
-                {/* ArcGIS Map */}
-                <ArcGISMap species={selectedSpecies} height="500px" />
-
                 {/* Image */}
                 {selectedSpecies.image_url &&
               <div className="rounded-lg overflow-hidden">
