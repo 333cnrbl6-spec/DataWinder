@@ -12,6 +12,7 @@ import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+import ArcGISMap from '@/components/ArcGISMap.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -682,30 +683,28 @@ export default function SavedData() {
                         </button>
                   }
                       {selectedSpecies.observations && selectedSpecies.observations.length > 0 &&
-                      <button
-                      className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
-                      onClick={async () => {
+                  <button
+                    className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
                       const csv = [
                       'latitude,longitude,location,date,observer,photo_url',
                       ...selectedSpecies.observations.map((obs) =>
                       `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
                       )].
                       join('\n');
-
-                      // Save to app storage
-                      const csvBlob = new Blob([csv], { type: 'text/csv' });
-                      const csvFile = new File([csvBlob], `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`, { type: 'text/csv' });
-                      const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-
-                      // Update species with file URI
-                      await base44.entities.Species.update(selectedSpecies.id, { inat_observations_csv_file_uri: file_uri });
-                      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-                      }}>
+                      const blob = new Blob([csv], { type: 'text/csv' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
 
                           <FileText className="w-3 h-3" />
-                          Save Observations (CSV)
+                          Observations (CSV)
                         </button>
-                      }
+                  }
                       {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) &&
                   <button
                     className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
