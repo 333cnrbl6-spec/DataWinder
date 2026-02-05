@@ -25,6 +25,7 @@ export default function Home() {
   const [savedSpeciesScientificNames, setSavedSpeciesScientificNames] = useState(new Set());
   const [selectedIds, setSelectedIds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [error, setError] = useState(null);
   const [showDownload, setShowDownload] = useState(false);
   const [searchInfo, setSearchInfo] = useState(null);
@@ -37,6 +38,25 @@ export default function Home() {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [showLogoSelector, setShowLogoSelector] = useState(false);
   const [showSaveSearch, setShowSaveSearch] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
+    queryKey: ['allSpecies'],
+    queryFn: () => base44.entities.Species.list('-created_date', 10000)
+  });
+
+  const { data: savedSearches = [] } = useQuery({
+    queryKey: ['savedSearches'],
+    queryFn: () => base44.entities.SavedSearch.list('-created_date')
+  });
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const unsubscribe = base44.entities.Species.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
 
   useEffect(() => {
     const checkOnboarding = async () => {
