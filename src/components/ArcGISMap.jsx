@@ -36,6 +36,30 @@ export default function ArcGISMap({ species, height = '600px', hasAgreedToTerms 
     }
   };
 
+  if (!hasAgreedToTerms) {
+    return (
+      <Card className="shadow-lg border-bangor-sun/20">
+        <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+          <CardTitle className="text-bangor-red flex items-center gap-2">
+            <span>🗺️ Species Distribution Map</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div style={{ height }} className="w-full flex flex-col items-center justify-center bg-slate-50 rounded-b-xl">
+            <Lock className="w-12 h-12 text-slate-400 mb-3" />
+            <p className="text-slate-600 font-medium mb-4">Map access requires terms agreement</p>
+            <Button
+              onClick={onRequestTermsAgreement}
+              className="bg-bangor-red hover:bg-bangor-red/90"
+            >
+              Review & Accept Terms
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="shadow-lg border-bangor-sun/20">
       <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
