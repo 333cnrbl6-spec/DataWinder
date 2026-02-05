@@ -505,89 +505,112 @@ export default function Home() {
       if (includeINaturalist) {
         for (const term of terms) {
           try {
-            const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species`;
-            const taxonRes = await fetch(taxonUrl);
+            let iNatTaxa = [];
+
+            // For higher-order searches, find the parent taxon first
+            if (level !== 'species') {
+              const parentUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}&per_page=1`;
+              const parentRes = await fetch(parentUrl);
+              if (parentRes.ok) {
+                const parentData = await parentRes.json();
+                if (parentData.results?.[0]) {
+                  const parentId = parentData.results[0].id;
+                  // Get species within this taxon
+                  const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${parentId}&rank=species&per_page=20`;
+                  const speciesRes = await fetch(speciesUrl);
+                  if (speciesRes.ok) {
+                    const speciesData = await speciesRes.json();
+                    iNatTaxa = speciesData.results || [];
+                  }
+                }
+              }
+            }
             
-            if (!taxonRes.ok) {
-              console.warn(`iNaturalist API error for ${term}`);
-              continue;
+            // Fallback to text search if no results
+            if (iNatTaxa.length === 0) {
+              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=20`;
+              const taxonRes = await fetch(taxonUrl);
+              if (taxonRes.ok) {
+                const taxonData = await taxonRes.json();
+                iNatTaxa = taxonData.results || [];
+              }
             }
 
-            const taxonData = await taxonRes.json();
-            if (!taxonData.results || taxonData.results.length === 0) {
+            if (iNatTaxa.length === 0) {
               console.warn(`No iNaturalist species found for ${term}`);
               continue;
             }
 
-            const taxon = taxonData.results[0];
+            // Process each species (limit to 10 for responsiveness)
+            for (const taxon of iNatTaxa.slice(0, 10)) {
+              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
+              const obsRes = await fetch(obsUrl);
+              let observationData = null;
+              if (obsRes.ok) {
+                observationData = await obsRes.json();
+              }
 
-            const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
-            const obsRes = await fetch(obsUrl);
-            let observationData = null;
-            if (obsRes.ok) {
-              observationData = await obsRes.json();
-            }
+              const observations = observationData?.results || [];
 
-            const observations = observationData?.results || [];
+              const observationsWithCoords = observations
+                .filter(obs => obs.location)
+                .map(obs => ({
+                  latitude: parseFloat(obs.location.split(',')[0]),
+                  longitude: parseFloat(obs.location.split(',')[1]),
+                  location: obs.place_guess || '',
+                  observed_on: obs.observed_on,
+                  user: obs.user?.login || 'Unknown',
+                  photo_url: obs.photos?.[0]?.url || ''
+                }));
 
-            const observationsWithCoords = observations
-              .filter(obs => obs.location)
-              .map(obs => ({
-                latitude: parseFloat(obs.location.split(',')[0]),
-                longitude: parseFloat(obs.location.split(',')[1]),
-                location: obs.place_guess || '',
-                observed_on: obs.observed_on,
-                user: obs.user?.login || 'Unknown',
-                photo_url: obs.photos?.[0]?.url || ''
-              }));
+              let inatObservationsCsvFileUri = null;
+              if (observationsWithCoords.length > 0) {
+                const csvContent = [
+                  'latitude,longitude,location,date,observer,photo_url',
+                  ...observationsWithCoords.map(obs => 
+                    `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                  )
+                ].join('\n');
+                
+                const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                const csvFile = new File([csvBlob], `${taxon.name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
+                const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                inatObservationsCsvFileUri = csvUri;
+              }
 
-            let inatObservationsCsvFileUri = null;
-            if (observationsWithCoords.length > 0) {
-              const csvContent = [
-                'latitude,longitude,location,date,observer,photo_url',
-                ...observationsWithCoords.map(obs => 
-                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                )
-              ].join('\n');
-              
-              const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-              const csvFile = new File([csvBlob], `${taxon.name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
-              const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-              inatObservationsCsvFileUri = csvUri;
-            }
+              const inatSpeciesData = {
+                id: `inat-${taxon.id}`,
+                scientific_name: taxon.name,
+                common_name: taxon.preferred_common_name || '',
+                iucn_status: 'NE',
+                inat_taxon_id: taxon.id,
+                inat_wikipedia_url: taxon.wikipedia_url || null,
+                observation_count: taxon.observations_count || 0,
+                observations: observationsWithCoords,
+                last_observed: observations[0]?.observed_on || null,
+                inat_observations_csv_file_uri: inatObservationsCsvFileUri,
+                data_source: 'iNaturalist',
+                image_url: taxon.default_photo?.medium_url || null,
+                dataset_name: term
+              };
 
-            const inatSpeciesData = {
-              id: `inat-${taxon.id}`,
-              scientific_name: taxon.name,
-              common_name: taxon.preferred_common_name || '',
-              iucn_status: 'NE',
-              inat_taxon_id: taxon.id,
-              inat_wikipedia_url: taxon.wikipedia_url || null,
-              observation_count: taxon.observations_count || 0,
-              observations: observationsWithCoords,
-              last_observed: observations[0]?.observed_on || null,
-              inat_observations_csv_file_uri: inatObservationsCsvFileUri,
-              data_source: 'iNaturalist',
-              image_url: taxon.default_photo?.medium_url || null,
-              dataset_name: term
-            };
-
-            if (allSpeciesMap[inatSpeciesData.scientific_name]) {
-              const existing = allSpeciesMap[inatSpeciesData.scientific_name];
-              allSpeciesMap[inatSpeciesData.scientific_name] = {
-                ...existing,
-                inat_taxon_id: inatSpeciesData.inat_taxon_id,
-                inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
-                observation_count: inatSpeciesData.observation_count,
-                observations: inatSpeciesData.observations,
-                last_observed: inatSpeciesData.last_observed,
-                inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
-                data_source: 'IUCN + iNaturalist',
-                image_url: existing.image_url || inatSpeciesData.image_url
+              if (allSpeciesMap[inatSpeciesData.scientific_name]) {
+                const existing = allSpeciesMap[inatSpeciesData.scientific_name];
+                allSpeciesMap[inatSpeciesData.scientific_name] = {
+                  ...existing,
+                  inat_taxon_id: inatSpeciesData.inat_taxon_id,
+                  inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
+                  observation_count: inatSpeciesData.observation_count,
+                  observations: inatSpeciesData.observations,
+                  last_observed: inatSpeciesData.last_observed,
+                  inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
+                  data_source: 'IUCN + iNaturalist',
+                  image_url: existing.image_url || inatSpeciesData.image_url
                 };
-                } else {
+              } else {
                 allSpeciesMap[inatSpeciesData.scientific_name] = inatSpeciesData;
-                }
+              }
+            }
           } catch (err) {
             console.error(`Error fetching iNaturalist data for ${term}:`, err);
           }
