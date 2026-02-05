@@ -1228,27 +1228,36 @@ export default function DataManagement() {
                 </div>
 
                 {/* Data Quality */}
-                {allSpecies.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Quality</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with IUCN Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.iucn_id).length} ({Math.round(allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length * 100)}%)
-                        </span>
+                {allSpecies && allSpecies.length > 0 && (
+                  <div className="border-t border-slate-200 pt-4">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Quality Metrics</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs text-slate-600">IUCN Data</span>
+                          <span className="text-xs font-semibold">{Math.round((allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div className="bg-bangor-red h-1.5 rounded-full" style={{ width: `${(allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length) * 100}%` }}></div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with iNaturalist Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.inat_taxon_id).length} ({Math.round(allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length * 100)}%)
-                        </span>
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs text-slate-600">iNaturalist Data</span>
+                          <span className="text-xs font-semibold">{Math.round((allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${(allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length) * 100}%` }}></div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with GBIF Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.gbif_id).length} ({Math.round(allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length * 100)}%)
-                        </span>
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs text-slate-600">GBIF Data</span>
+                          <span className="text-xs font-semibold">{Math.round((allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${(allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length) * 100}%` }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
