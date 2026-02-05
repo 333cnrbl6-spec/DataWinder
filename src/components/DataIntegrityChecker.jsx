@@ -22,30 +22,66 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
   const checkDuplicates = async () => {
     setLoading(true);
     try {
-      const allSpecies = await base44.entities.Species.list('-created_date', 10000);
+      const allSpecies = await base44.entities.Species.list('-created_date', 10000, { data_env: 'dev' });
       
       // Group by scientific name (case-insensitive)
-      const grouped = {};
+      const groupedByScientific = {};
       allSpecies.forEach(sp => {
-        const key = sp.scientific_name?.toLowerCase() || 'unknown';
-        if (!grouped[key]) {
-          grouped[key] = [];
+        const key = sp.scientific_name?.toLowerCase()?.trim() || 'unknown';
+        if (!groupedByScientific[key]) {
+          groupedByScientific[key] = [];
         }
-        grouped[key].push(sp);
+        groupedByScientific[key].push(sp);
       });
 
-      // Find duplicates
-      const dups = Object.entries(grouped)
+      // Group by common name (case-insensitive, skip empty)
+      const groupedByCommon = {};
+      allSpecies.forEach(sp => {
+        const key = sp.common_name?.toLowerCase()?.trim();
+        if (key && key !== 'no common name' && key !== '') {
+          if (!groupedByCommon[key]) {
+            groupedByCommon[key] = [];
+          }
+          groupedByCommon[key].push(sp);
+        }
+      });
+
+      // Find duplicates from both groupings
+      const dupsByScientific = Object.entries(groupedByScientific)
         .filter(([_, species]) => species.length > 1)
         .map(([name, species]) => ({
-          scientificName: name,
+          matchType: 'Scientific Name',
+          matchValue: species[0].scientific_name,
           records: species.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)),
           count: species.length,
-          willMergeInto: species[0].id // Most recent
+          willMergeInto: species[0].id
         }));
 
-      setDuplicates(dups);
-      setStep(dups.length > 0 ? 'results' : 'complete');
+      const dupsByCommon = Object.entries(groupedByCommon)
+        .filter(([_, species]) => species.length > 1)
+        .map(([name, species]) => ({
+          matchType: 'Common Name',
+          matchValue: species[0].common_name,
+          records: species.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)),
+          count: species.length,
+          willMergeInto: species[0].id
+        }));
+
+      // Combine and deduplicate (prefer scientific name matches)
+      const allDups = [...dupsByScientific, ...dupsByCommon];
+      const uniqueDups = [];
+      const processedIds = new Set();
+
+      allDups.forEach(dup => {
+        const allIds = dup.records.map(r => r.id).join(',');
+        if (!processedIds.has(allIds)) {
+          processedIds.add(allIds);
+          uniqueDups.push(dup);
+        }
+      });
+
+      setDuplicates(uniqueDups);
+      setStep(uniqueDups.length > 0 ? 'results' : 'complete');
     } catch (err) {
       console.error('Error checking duplicates:', err);
       setStep('complete');
@@ -84,11 +120,11 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
         });
 
         // Update main record with merged data
-        await base44.entities.Species.update(mainRecord.id, mergedData);
+        await base44.entities.Species.update(mainRecord.id, mergedData, { data_env: 'dev' });
 
         // Delete duplicates
         for (const dup of duplicateRecords) {
-          await base44.entities.Species.delete(dup.id);
+          await base44.entities.Species.delete(dup.id, { data_env: 'dev' });
         }
 
         setProcessed(prev => prev + 1);
@@ -149,15 +185,19 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
                       <CardContent className="p-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
-                            <p className="font-medium text-slate-900">{dup.records[0].common_name || dup.records[0].scientific_name}</p>
-                            <p className="text-xs italic text-slate-500 mt-0.5">{dup.scientificName}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs bg-bangor-sun/20 text-bangor-sun px-2 py-0.5 rounded font-semibold">
+                                {dup.matchType}
+                              </span>
+                              <p className="font-medium text-slate-900">{dup.matchValue}</p>
+                            </div>
                             <div className="mt-2 text-xs text-slate-600 space-y-1">
                               {dup.records.map((rec, i) => (
                                 <div key={rec.id} className="flex items-center gap-2">
                                   {i === 0 && <CheckCircle className="w-3 h-3 text-green-600" />}
                                   {i !== 0 && <Trash2 className="w-3 h-3 text-red-500" />}
                                   <span>
-                                    {rec.common_name || 'No common name'} 
+                                    {rec.common_name || 'No common name'} · <i>{rec.scientific_name}</i>
                                     {rec.iucn_status && ` (${rec.iucn_status})`}
                                   </span>
                                 </div>
