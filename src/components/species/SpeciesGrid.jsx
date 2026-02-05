@@ -2,7 +2,7 @@ import React from 'react';
 import SpeciesCard from './SpeciesCard';
 import { motion } from 'framer-motion';
 
-export default function SpeciesGrid({ species, selectedIds, onSelect }) {
+export default function SpeciesGrid({ species, selectedIds, onSelect, onEnrichWithINaturalist }) {
   if (!species || species.length === 0) {
     return null;
   }
@@ -19,6 +19,7 @@ export default function SpeciesGrid({ species, selectedIds, onSelect }) {
           species={sp}
           selected={selectedIds.includes(sp.id || sp.scientific_name)}
           onSelect={onSelect}
+          onEnrichWithINaturalist={onEnrichWithINaturalist}
           index={index}
         />
       ))}

@@ -1,16 +1,16 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExternalLink, MapPin, Users, Download, FileText } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { ExternalLink, MapPin, Users, Download, FileText, Plus } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import TrendIndicator from './TrendIndicator';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 
-export default function SpeciesCard({ species, selected, onSelect, index = 0 }) {
-  const isIUCN = species.data_source === 'IUCN Red List' || species.data_source === 'IUCN + iNaturalist';
-  const isINat = species.data_source === 'iNaturalist' || species.data_source === 'IUCN + iNaturalist';
-  const isCombined = species.data_source === 'IUCN + iNaturalist';
+export default function SpeciesCard({ species, selected, onSelect, onEnrichWithINaturalist, index = 0 }) {
+  const isIUCN = species.data_source === 'IUCN Red List';
+  const hasINatData = species.inat_taxon_id || species.observation_count > 0;
   
   return (
     <motion.div
@@ -52,16 +52,12 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 <h3 className="font-semibold text-slate-900 truncate">
                   {species.common_name || 'No common name'}
                 </h3>
-                {species.data_source && (
-                  <span className={cn(
-                    "text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0",
-                    isCombined
-                      ? "bg-gradient-to-r from-bangor-red/20 to-bangor-sun/20 text-slate-700"
-                      : species.data_source === 'IUCN Red List' 
-                      ? "bg-bangor-red/10 text-bangor-red"
-                      : "bg-bangor-sun/10 text-bangor-sun"
-                  )}>
-                    {isCombined ? 'IUCN + iNat' : species.data_source === 'IUCN Red List' ? 'IUCN' : 'iNat'}
+                <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 bg-bangor-red/10 text-bangor-red">
+                  IUCN
+                </span>
+                {hasINatData && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 bg-bangor-sun/10 text-bangor-sun">
+                    +iNat
                   </span>
                 )}
               </div>
@@ -69,11 +65,11 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 {species.scientific_name}
               </p>
             </div>
-            {isIUCN && <StatusBadge status={species.iucn_status} size="sm" />}
+            <StatusBadge status={species.iucn_status} size="sm" />
           </div>
 
-          {/* iNaturalist-specific observations */}
-          {isINat && (
+          {/* iNaturalist observations */}
+          {hasINatData && (
             <div className="flex flex-wrap gap-2 mb-3">
               {species.observation_count > 0 && (
                 <span className="text-xs px-2 py-0.5 bg-bangor-sun/10 text-bangor-sun rounded-full font-medium">
@@ -88,9 +84,8 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             </div>
           )}
 
-          {/* IUCN-specific data */}
-          {isIUCN && (
-            <div className="space-y-1.5 mb-3">
+          {/* IUCN data */}
+          <div className="space-y-1.5 mb-3">
               {species.assessment_date && (
                 <div className="text-xs text-amber-600 font-medium">
                   Assessed: {new Date(species.assessment_date).getFullYear()}
@@ -140,15 +135,12 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
                 </div>
               )}
             </div>
-          )}
 
           <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
-            {isIUCN && (
-              <span className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                <TrendIndicator trend={species.population_trend} />
-              </span>
-            )}
+            <span className="flex items-center gap-1">
+              <Users className="w-3.5 h-3.5" />
+              <TrendIndicator trend={species.population_trend} />
+            </span>
             {species.family && (
               <span className="truncate">
                 {species.family}
@@ -163,9 +155,25 @@ export default function SpeciesCard({ species, selected, onSelect, index = 0 }) 
             </div>
           )}
 
+          {/* Enrich with iNaturalist */}
+          {!hasINatData && onEnrichWithINaturalist && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEnrichWithINaturalist(species);
+              }}
+              className="w-full mb-3 text-xs border-bangor-sun/30 text-bangor-sun hover:bg-bangor-sun/10"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add iNaturalist Data
+            </Button>
+          )}
+
           {/* External Links */}
           <div className="mt-3 space-y-1">
-            {isIUCN && species.iucn_id && (
+            {species.iucn_id && (
               <>
               <a 
                href={`https://www.iucnredlist.org/species/${species.iucn_id}/${species.scientific_name.replace(/ /g, '-').toLowerCase()}`}
