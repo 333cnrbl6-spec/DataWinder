@@ -44,16 +44,34 @@ export default function DataMetricsModal({
           <DialogTitle className="text-xl text-bangor-red">{title}</DialogTitle>
         </DialogHeader>
 
-        {/* Search Bar */}
-        {(type === 'species' || type === 'families' || type === 'completeness') && (
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {/* Search Bar and Actions */}
+        {(type === 'species' || type === 'families' || type === 'completeness' || type === 'range' || type === 'occurrences') && (
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setSelectedIds(filteredData.map(sp => sp.id || sp.scientific_name))}
+                size="sm"
+                variant="outline"
+              >
+                Select All
+              </Button>
+              <Button
+                onClick={() => setSelectedIds([])}
+                size="sm"
+                variant="outline"
+              >
+                Deselect All
+              </Button>
+            </div>
           </div>
         )}
 
