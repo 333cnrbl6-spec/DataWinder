@@ -960,16 +960,16 @@ export default function Home() {
             </div>
             <div className="flex gap-2">
               <Link to={createPageUrl('DataManagement')}>
-                <button className="flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg font-semibold hover:bg-bangor-red/90 transition-colors">
+                <Button variant="default" size="default">
                   <Database className="w-4 h-4" />
-                  <span className="text-sm">Data Management</span>
-                </button>
+                  Data Management
+                </Button>
               </Link>
               <Link to={createPageUrl('SavedData')}>
-                <button className="flex items-center gap-2 px-4 py-2 bg-bangor-sun/20 text-bangor-sun rounded-lg font-medium hover:bg-bangor-sun/30 transition-colors">
+                <Button variant="secondary" size="default">
                   <Database className="w-4 h-4" />
-                  <span className="text-sm font-medium">Saved Data</span>
-                </button>
+                  My Data
+                </Button>
               </Link>
             </div>
           </div>
