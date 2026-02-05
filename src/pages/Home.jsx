@@ -22,6 +22,7 @@ import SaveSearchPanel from '@/components/SaveSearchPanel';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
+  const [savedSpeciesScientificNames, setSavedSpeciesScientificNames] = useState(new Set());
   const [selectedIds, setSelectedIds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -52,7 +53,18 @@ export default function Home() {
       }
     };
     checkOnboarding();
-  }, []);
+
+    const fetchSavedSpecies = async () => {
+      try {
+        const savedSpecies = await base44.entities.Species.list();
+        const scientificNames = new Set(savedSpecies.map(sp => sp.scientific_name));
+        setSavedSpeciesScientificNames(scientificNames);
+      } catch (err) {
+        console.error('Error fetching saved species:', err);
+      }
+    };
+    fetchSavedSpecies();
+    }, []);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
@@ -528,7 +540,7 @@ export default function Home() {
             
             // Fallback to text search if no results
             if (iNatTaxa.length === 0) {
-              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=60`;
+              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=300`;
               const taxonRes = await fetch(taxonUrl);
               if (taxonRes.ok) {
                 const taxonData = await taxonRes.json();
@@ -541,8 +553,8 @@ export default function Home() {
               continue;
             }
 
-            // Process each species (up to 60)
-            for (const taxon of iNatTaxa.slice(0, 60)) {
+            // Process each species (up to 300)
+            for (const taxon of iNatTaxa.slice(0, 300)) {
               const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
               const obsRes = await fetch(obsUrl);
               let observationData = null;
@@ -781,7 +793,10 @@ export default function Home() {
         return;
       }
       
-      setSpecies(allSpecies);
+      setSpecies(allSpecies.map(sp => ({
+        ...sp,
+        is_new: !savedSpeciesScientificNames.has(sp.scientific_name)
+      })));
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to fetch data. Please check your connection and try again.');
