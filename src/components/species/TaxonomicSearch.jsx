@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -59,7 +60,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat
+        includeINaturalist: includeINat,
+        includeGBIF: includeGBIF
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -68,7 +70,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF: includeGBIF
         });
       }
     }
@@ -238,11 +241,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-6">
+      <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
+
+      {/* GBIF */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">GBIF (Global Biodiversity Information Facility)</h3>
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-emerald-600" />
+          <span className="text-xs text-emerald-700 font-medium">Public API - Occurrence & Specimen Records</span>
         </div>
       </div>
 
@@ -365,17 +377,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red text-white font-semibold text-base py-6"
+          className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Fetching data...
             </>
           ) : (
             <>
-              <Search className="w-5 h-5 mr-2" />
-              Search Now ({level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label})
+              Search {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
             </>
           )}
         </Button>
@@ -398,20 +409,33 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+              This will download comprehensive data from IUCN Red List{includeINat ? ', iNaturalist' : ''}{includeGBIF ? ', and GBIF' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-inat"
-                 name="include-inat"
-                 type="checkbox"
-                 checked={includeINat}
-                 onChange={(e) => setIncludeINat(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
+            <div className="space-y-2 mb-4">
+              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+                 <input
+                   id="include-inat"
+                   name="include-inat"
+                   type="checkbox"
+                   checked={includeINat}
+                   onChange={(e) => setIncludeINat(e.target.checked)}
+                   className="w-4 h-4"
+                 />
+                 <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observation Data</span>
+               </label>
+               <label className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg cursor-pointer border border-emerald-200">
+                 <input
+                   id="include-gbif"
+                   name="include-gbif"
+                   type="checkbox"
+                   checked={includeGBIF}
+                   onChange={(e) => setIncludeGBIF(e.target.checked)}
+                   className="w-4 h-4"
+                 />
+                 <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrence & Specimen Data</span>
+               </label>
+             </div>
 
             <div className="flex gap-3">
               <Button

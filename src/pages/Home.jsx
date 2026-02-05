@@ -59,7 +59,7 @@ export default function Home() {
     setOnboardingChecked(true);
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist, includeGBIF }) => {
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -805,16 +805,18 @@ export default function Home() {
               <Info className="h-4 w-4 text-bangor-sun" />
               <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
               <AlertDescription className="text-slate-700">
-                Search species data from IUCN Red List by taxonomic group to build your core dataset. 
-                After downloading IUCN data, you can enrich individual species with observation data from iNaturalist. 
+                Search species data from multiple academic sources including IUCN Red List (conservation status), iNaturalist (citizen science observations), and GBIF (occurrence & specimen records). 
+                Build comprehensive datasets with genomic references, distribution data, and specimen information. 
                 Compare species, create custom lists, add personal notes, and export filtered data in CSV or JSON format.
               </AlertDescription>
             </Alert>
 
             <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
-              <p className="mb-1 font-semibold text-slate-700">Primary Data Source:</p>
+              <p className="mb-1 font-semibold text-slate-700">Academic Data Sources:</p>
               <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
-              <p className="text-slate-500 mt-2">Additional observation data can be integrated after initial download.</p>
+              <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
+              <p className="italic">• GBIF. Global Biodiversity Information Facility. www.gbif.org</p>
+              <p className="text-slate-500 mt-2">Integrate conservation status, occurrence records, specimen data, and genomic references.</p>
             </div>
 
             {/* Status Legend */}
