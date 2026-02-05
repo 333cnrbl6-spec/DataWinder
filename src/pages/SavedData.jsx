@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, AlertCircle } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -74,14 +74,26 @@ export default function SavedData() {
 
   const bulkDeleteSearches = async () => {
     if (selectedSearchIds.length === 0) return;
-    await Promise.all(selectedSearchIds.map(id => base44.entities.SavedSearch.delete(id)));
+    for (const id of selectedSearchIds) {
+      try {
+        await base44.entities.SavedSearch.delete(id);
+      } catch (err) {
+        console.error('Error deleting search:', err);
+      }
+    }
     queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
     setSelectedSearchIds([]);
   };
 
   const bulkDeleteSpecies = async () => {
     if (selectedSpeciesIds.length === 0) return;
-    await Promise.all(selectedSpeciesIds.map(id => base44.entities.Species.delete(id)));
+    for (const id of selectedSpeciesIds) {
+      try {
+        await base44.entities.Species.delete(id);
+      } catch (err) {
+        console.error('Error deleting species:', err);
+      }
+    }
     queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
     setSelectedSpeciesIds([]);
   };
@@ -280,7 +292,7 @@ export default function SavedData() {
               <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {filteredSpecies.length > 0 && (
                       <>
                         <Button
@@ -313,7 +325,7 @@ export default function SavedData() {
                       <Button
                         size="sm"
                         onClick={() => setShowPendingReview(true)}
-                        className="bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 relative"
+                        className="bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 relative h-7 text-xs"
                       >
                         <AlertCircle className="w-4 h-4 mr-1" />
                         Review Updates ({pendingUpdates.length})
@@ -322,25 +334,23 @@ export default function SavedData() {
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
-                      className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200">
+                      className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200 h-7 text-xs">
 
                       <RotateCw className="w-4 h-4 mr-1" />
                       Refresh
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => setShowIntegrityChecker(true)} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-bangor-sun/90 h-8">
-
-
+                      onClick={() => setShowIntegrityChecker(true)} 
+                      className="bg-slate-100 text-slate-700 font-semibold hover:bg-bangor-sun/90 h-7 text-xs">
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
-                      disabled={filteredSpecies.length === 0} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-red/90 h-8">
-
-
+                      disabled={filteredSpecies.length === 0} 
+                      className="bg-slate-100 text-slate-700 font-semibold hover:bg-bangor-red/90 h-7 text-xs">
                       <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
@@ -595,78 +605,6 @@ export default function SavedData() {
 
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              {(species.range_data_geojson || species.search_summary_json || species.observations) &&
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                const speciesName = species.scientific_name.replace(/ /g, '_');
-                                const files = [];
-
-                                // Download search summary
-                                if (species.search_summary_json) {
-                                  const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_search_summary.json` });
-                                }
-
-                                // Download range geojson
-                                if (species.range_data_geojson) {
-                                  const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_range_data.geojson` });
-                                }
-
-                                // Download observations as CSV
-                                if (species.observations && species.observations.length > 0) {
-                                  const csv = [
-                                  'latitude,longitude,location,date,observer,photo_url',
-                                  ...species.observations.map((obs) =>
-                                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                                  )].
-                                  join('\n');
-                                  const blob = new Blob([csv], { type: 'text/csv' });
-                                  files.push({ blob, name: `${speciesName}_observations.csv` });
-                                }
-
-                                // Download habitats
-                                if (species.habitats_detailed) {
-                                  const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_habitats.json` });
-                                }
-
-                                // Download threats
-                                if (species.threats_detailed) {
-                                  const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_threats.json` });
-                                }
-
-                                // Download range map JPG if available
-                                if (species.range_map_jpg_url) {
-                                  files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
-                                }
-
-                                // Download assessment PDF if available
-                                if (species.assessment_pdf_url) {
-                                  files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
-                                }
-
-                                // Trigger downloads
-                                files.forEach((file) => {
-                                  const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
-                                  const a = document.createElement('a');
-                                  a.href = url;
-                                  a.download = file.name;
-                                  document.body.appendChild(a);
-                                  a.click();
-                                  document.body.removeChild(a);
-                                  if (file.blob) URL.revokeObjectURL(url);
-                                });
-                              }}
-                              className="h-8 w-8 text-green-600"
-                              title="Download All Data Files">
-
-                                  <Download className="w-4 h-4" />
-                                </Button>
-                            }
                               <Button
                               size="icon"
                               onClick={() => deleteSpeciesMutation.mutate(species.id)}
