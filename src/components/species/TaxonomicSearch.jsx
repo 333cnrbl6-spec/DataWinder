@@ -95,15 +95,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.fetchIUCNData({
-          level: level,
+        const response = await base44.functions.invoke('fetchIUCNData', {
           term: value.trim(),
-          endpoint: 'taxa',
-          iucnToken: iucnToken
+          endpoint: 'taxa'
         });
 
-        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
-          setFamilySpecies(result.data.result);
+        if (response.data.status === 'success' && response.data.data?.result && response.data.data.result.length > 0) {
+          setFamilySpecies(response.data.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -151,16 +149,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       {/* IUCN Credentials */}
       <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">IUCN Red List API</h3>
-        {!iucnToken || showIucnInput ? (
+        {!iucnToken ? (
           <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
             <div className="flex items-start gap-3">
               <Key className="w-5 h-5 text-bangor-sun mt-0.5" />
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-bangor-sun mb-1">{iucnToken ? 'Update API Token' : 'API Token Required'}</h4>
+                <h4 className="text-sm font-medium text-bangor-sun mb-1">API Token Required</h4>
                 <p className="text-xs text-bangor-sun/80 mb-3">
-                  {iucnToken ? 'Enter a new IUCN API token below:' : 'To access IUCN data, you need a free API token. Sign up or log in to get yours.'}
+                  To access IUCN data, you need a free API token. Sign up or log in to get yours.
                 </p>
-                {!iucnToken && !showIucnInput ? (
+                {!showIucnInput ? (
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
                       <a
@@ -193,7 +191,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                 ) : (
                   <div className="space-y-2">
                     <p className="text-xs text-bangor-sun/80 mb-2">
-                       {iucnToken ? 'Enter your new token:' : 'After logging in, find your token on your account page and paste it below:'}
+                       After logging in, find your token on your account page and paste it below:
                     </p>
                     <div className="flex gap-2">
                       <Input
