@@ -1587,6 +1587,17 @@ export default function DataManagement() {
         data={metricsModal.data}
         allSpecies={allSpecies}
       />
+
+      {/* Merge Candidates Modal */}
+      <MergeCandidatesModal
+        isOpen={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        mergeCandidates={mergeCandidates}
+        onMergeComplete={() => {
+          setShowMergeModal(false);
+          refetchSpecies();
+        }}
+      />
     </div>
   );
 }
