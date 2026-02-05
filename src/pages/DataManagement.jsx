@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 
 export default function DataManagement() {
   const [selectedSpecies, setSelectedSpecies] = useState([]);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
@@ -182,10 +183,10 @@ export default function DataManagement() {
               <CardContent className="p-6">
                 <TaxonomicSearch 
                   onSearch={(searchParams) => {
-                    // Search is handled in the Home page, this just triggers a refresh
-                    refetchSpecies();
+                    // This is just for manual searches - does nothing, redirects to Home
+                    window.location.href = '/';
                   }} 
-                  isLoading={false} 
+                  isLoading={isLoadingSearch} 
                 />
               </CardContent>
             </Card>
@@ -300,10 +301,38 @@ export default function DataManagement() {
                           {savedSearches.map((search) => (
                             <Button
                               key={search.id}
-                              onClick={() => window.location.href = '/SavedData'}
+                              onClick={async () => {
+                                setIsLoadingSearch(true);
+                                try {
+                                  // Fetch species matching this search's taxonomy
+                                  const filtered = allSpecies.filter(sp => {
+                                    if (search.taxonomy_level === 'family') {
+                                      return sp.family === search.search_term;
+                                    } else if (search.taxonomy_level === 'genus') {
+                                      return sp.genus === search.search_term;
+                                    } else if (search.taxonomy_level === 'order') {
+                                      return sp.order_name === search.search_term;
+                                    } else if (search.taxonomy_level === 'class') {
+                                      return sp.class_name === search.search_term;
+                                    } else if (search.taxonomy_level === 'species') {
+                                      return sp.scientific_name === search.search_term;
+                                    }
+                                    return false;
+                                  });
+                                  
+                                  setSelectedSpecies(filtered);
+                                  alert(`Loaded ${filtered.length} species from ${search.name}`);
+                                } catch (error) {
+                                  console.error('Error loading search:', error);
+                                  alert('Error loading saved search');
+                                } finally {
+                                  setIsLoadingSearch(false);
+                                }
+                              }}
                               variant="outline"
                               size="sm"
                               className="w-full justify-start text-xs"
+                              disabled={isLoadingSearch}
                             >
                               <FolderOpen className="w-3 h-3 mr-2" />
                               {search.name} ({search.species_count})
@@ -314,7 +343,10 @@ export default function DataManagement() {
                     )}
 
                     <Button
-                      onClick={() => window.location.href = '/SavedData'}
+                      onClick={() => {
+                        setSelectedSpecies(allSpecies);
+                        alert(`Loaded all ${allSpecies.length} species`);
+                      }}
                       variant="outline"
                       className="w-full justify-start"
                     >
