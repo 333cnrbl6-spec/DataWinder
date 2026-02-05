@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       const parentKey = parentData.usageKey;
 
       // Get child species
-      const childrenUrl = `https://api.gbif.org/v1/species/search?higherTaxonKey=${parentKey}&rank=SPECIES&limit=60`;
+      const childrenUrl = `https://api.gbif.org/v1/species/search?higherTaxonKey=${parentKey}&rank=SPECIES&limit=300`;
       const childrenRes = await fetch(childrenUrl);
 
       if (!childrenRes.ok) {
