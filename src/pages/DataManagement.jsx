@@ -1292,6 +1292,31 @@ export default function DataManagement() {
                       </ul>
                     </div>
                   )}
+
+                  {/* Merge Duplicate Records */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Merging</h3>
+                    <Button
+                      onClick={async () => {
+                        setIsLoadingMergeCandidates(true);
+                        try {
+                          const result = await base44.functions.invoke('identifyMergeCandidates', {});
+                          setMergeCandidates(result.data.mergeCandidates || []);
+                          setShowMergeModal(true);
+                        } catch (error) {
+                          console.error('Error identifying merge candidates:', error);
+                          alert('Failed to identify merge candidates');
+                        } finally {
+                          setIsLoadingMergeCandidates(false);
+                        }
+                      }}
+                      disabled={isLoadingMergeCandidates || allSpecies.length === 0}
+                      className="w-full justify-start bg-amber-600 hover:bg-amber-700"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      {isLoadingMergeCandidates ? 'Scanning...' : 'Scan for Duplicate Records'}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Data Quality */}
