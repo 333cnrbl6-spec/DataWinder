@@ -1,35 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon, FolderOpen, Upload } from 'lucide-react';
+import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon, FolderOpen, Upload, Grid3x3, Leaf, AlertCircle, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
+import SpeciesGrid from '@/components/species/SpeciesGrid';
+import MapView from '@/components/species/MapView';
+import SelectionBar from '@/components/species/SelectionBar';
+import DownloadPanel from '@/components/species/DownloadPanel';
+import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
+import CompareSpecies from '@/components/species/CompareSpecies';
+import SpeciesListManager from '@/components/species/SpeciesListManager';
+import SpeciesNotes from '@/components/species/SpeciesNotes';
+import OnboardingWizard from '@/components/OnboardingWizard';
+import BangOnLogo from '@/components/BangOnLogo';
+import LogoShowcase from '@/components/LogoShowcase';
+import SaveSearchPanel from '@/components/SaveSearchPanel';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
 export default function DataManagement() {
-  const [selectedSpecies, setSelectedSpecies] = useState([]);
-  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [species, setSpecies] = useState([]);
+  const [savedSpeciesScientificNames, setSavedSpeciesScientificNames] = useState(new Set());
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showDownload, setShowDownload] = useState(false);
+  const [searchInfo, setSearchInfo] = useState(null);
+  const [viewMode, setViewMode] = useState('grid');
+  const [showCompare, setShowCompare] = useState(false);
+  const [showListManager, setShowListManager] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [noteSpecies, setNoteSpecies] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [showLogoSelector, setShowLogoSelector] = useState(false);
+  const [showSaveSearch, setShowSaveSearch] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
-      queryKey: ['allSpecies', 'dev'],
-      queryFn: () => base44.entities.Species.list('-created_date', 10000, { data_env: 'dev' })
-    });
+    queryKey: ['allSpecies'],
+    queryFn: () => base44.entities.Species.list('-created_date', 10000)
+  });
 
-    const { data: savedSearches = [] } = useQuery({
-      queryKey: ['savedSearches'],
-      queryFn: () => base44.entities.SavedSearch.list('-created_date')
-    });
+  const { data: savedSearches = [] } = useQuery({
+    queryKey: ['savedSearches'],
+    queryFn: () => base44.entities.SavedSearch.list('-created_date')
+  });
 
   // Subscribe to real-time updates
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = base44.entities.Species.subscribe((event) => {
-      queryClient.invalidateQueries({ queryKey: ['allSpecies', 'dev'] });
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
     });
     return unsubscribe;
   }, [queryClient]);
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const user = await base44.auth.me();
+        if (!user.onboarding_completed) {
+          setShowOnboarding(true);
+        } else {
+          setOnboardingChecked(true);
+        }
+      } catch (error) {
+        base44.auth.redirectToLogin(window.location.pathname);
+      }
+    };
+    checkOnboarding();
+
+    const fetchSavedSpecies = async () => {
+      try {
+        const savedSpecies = await base44.entities.Species.list();
+        const scientificNames = new Set(savedSpecies.map(sp => sp.scientific_name));
+        setSavedSpeciesScientificNames(scientificNames);
+      } catch (err) {
+        console.error('Error fetching saved species:', err);
+      }
+    };
+    fetchSavedSpecies();
+  }, []);
 
   const handleExportMAXENT = () => {
     const maxentData = allSpecies
