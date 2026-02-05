@@ -79,16 +79,14 @@ export default function Home() {
         for (const term of terms) {
           try {
             // Use backend function to fetch IUCN data
-            const searchResult = await base44.functions.fetchIUCNData({
-              level: level,
+            const searchResult = await base44.functions.invoke('fetchIUCNData', {
               term: term,
-              endpoint: 'taxa',
-              iucnToken: iucnToken
+              endpoint: 'taxa'
             });
 
-            if (searchResult.status === 'error') {
-              console.error(`IUCN API error for ${term}:`, searchResult.message);
-              if (searchResult.statusCode === 401) {
+            if (searchResult.data.status === 'error') {
+              console.error(`IUCN API error for ${term}:`, searchResult.data.message);
+              if (searchResult.data.statusCode === 401) {
                 setError('IUCN API token is invalid. Please check your token and try again.');
                 setIsLoading(false);
                 return;
@@ -96,7 +94,7 @@ export default function Home() {
               continue;
             }
 
-            const searchData = searchResult.data;
+            const searchData = searchResult.data.data;
 
             if (!searchData.result || searchData.result.length === 0) {
               console.warn(`No IUCN species found for ${term}`);
@@ -112,38 +110,33 @@ export default function Home() {
                 try {
                   // Fetch multiple data endpoints for comprehensive information using backend function
                   const [assessmentResult, habitatResult, threatsResult, historicalResult, countriesResult] = await Promise.all([
-                    base44.functions.fetchIUCNData({
+                    base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'assessment',
-                      term: String(sp.assessment_id || sp.taxonid),
-                      iucnToken: iucnToken
+                      term: String(sp.assessment_id || sp.taxonid)
                     }),
-                    base44.functions.fetchIUCNData({
+                    base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'habitats',
-                      term: String(sp.taxonid),
-                      iucnToken: iucnToken
+                      term: String(sp.taxonid)
                     }),
-                    base44.functions.fetchIUCNData({
+                    base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'threats',
-                      term: String(sp.taxonid),
-                      iucnToken: iucnToken
+                      term: String(sp.taxonid)
                     }),
-                    base44.functions.fetchIUCNData({
+                    base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'scientific_name',
-                      term: sp.scientific_name,
-                      iucnToken: iucnToken
+                      term: sp.scientific_name
                     }),
-                    base44.functions.fetchIUCNData({
+                    base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'countries',
-                      term: '',
-                      iucnToken: iucnToken
+                      term: ''
                     })
                   ]);
 
-                  const assessmentData = assessmentResult.status === 'success' ? assessmentResult.data : null;
-                  const habitatData = habitatResult.status === 'success' ? habitatResult.data : null;
-                  const threatsData = threatsResult.status === 'success' ? threatsResult.data : null;
-                  const historicalData = historicalResult.status === 'success' ? historicalResult.data : null;
-                  const countriesData = countriesResult.status === 'success' ? countriesResult.data : null;
+                  const assessmentData = assessmentResult.data.status === 'success' ? assessmentResult.data.data : null;
+                  const habitatData = habitatResult.data.status === 'success' ? habitatResult.data.data : null;
+                  const threatsData = threatsResult.data.status === 'success' ? threatsResult.data.data : null;
+                  const historicalData = historicalResult.data.status === 'success' ? historicalResult.data.data : null;
+                  const countriesData = countriesResult.data.status === 'success' ? countriesResult.data.data : null;
 
                   const assessment = assessmentData?.result || {};
                   const narrative = assessment;
@@ -164,14 +157,13 @@ export default function Home() {
                   let rangeDataGeoJSON = null;
                   let rangeDataPoints = null;
                   try {
-                    const rangeResult = await base44.functions.fetchIUCNData({
+                    const rangeResult = await base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'range',
-                      term: String(sp.taxonid || sp.assessment_id),
-                      iucnToken: iucnToken
+                      term: String(sp.taxonid || sp.assessment_id)
                     });
                     
-                    if (rangeResult.status === 'success') {
-                      rangeDataGeoJSON = rangeResult.data;
+                    if (rangeResult.data.status === 'success') {
+                      rangeDataGeoJSON = rangeResult.data.data;
                       rangeDataPoints = rangeDataGeoJSON.result || [];
                     }
                   } catch (err) {
