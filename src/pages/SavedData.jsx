@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -23,6 +23,7 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [enrichingSpecies, setEnrichingSpecies] = useState(null);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -57,6 +58,76 @@ export default function SavedData() {
       queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
     }
   });
+
+  const enrichWithGBIF = async (species) => {
+    setEnrichingSpecies(species.id);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Fetch GBIF data for species: ${species.scientific_name}. Return JSON with 'gbif_id' (number), 'gbif_occurrence_count' (number), 'gbif_occurrences' (array with latitude, longitude, year), 'gbif_basis_of_record' (object), 'gbif_last_occurrence' (string date).`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            gbif_id: { type: "number" },
+            gbif_occurrence_count: { type: "number" },
+            gbif_occurrences: { type: "array", items: { type: "object" } },
+            gbif_basis_of_record: { type: "object" },
+            gbif_last_occurrence: { type: "string" }
+          }
+        },
+        add_context_from_internet: true
+      });
+
+      if (response && response.gbif_id) {
+        await base44.entities.Species.update(species.id, {
+          gbif_id: response.gbif_id,
+          gbif_occurrence_count: response.gbif_occurrence_count,
+          gbif_occurrences: response.gbif_occurrences,
+          gbif_basis_of_record: response.gbif_basis_of_record,
+          gbif_last_occurrence: response.gbif_last_occurrence,
+        }, { data_env: "dev" });
+        queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+      }
+    } catch (error) {
+      console.error("Error enriching with GBIF:", error);
+    } finally {
+      setEnrichingSpecies(null);
+    }
+  };
+
+  const enrichWithINaturalist = async (species) => {
+    setEnrichingSpecies(species.id);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Fetch iNaturalist data for species: ${species.scientific_name}. Return JSON with 'inat_taxon_id' (number), 'inat_wikipedia_url' (string), 'observation_count' (number), 'observations' (array with latitude, longitude, observed_on, user, photo_url), 'last_observed' (string date).`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            inat_taxon_id: { type: "number" },
+            inat_wikipedia_url: { type: "string" },
+            observation_count: { type: "number" },
+            observations: { type: "array", items: { type: "object" } },
+            last_observed: { type: "string" }
+          }
+        },
+        add_context_from_internet: true
+      });
+
+      if (response && response.inat_taxon_id) {
+        await base44.entities.Species.update(species.id, {
+          inat_taxon_id: response.inat_taxon_id,
+          inat_wikipedia_url: response.inat_wikipedia_url,
+          observation_count: response.observation_count,
+          observations: response.observations,
+          last_observed: response.last_observed,
+        }, { data_env: "dev" });
+        queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+      }
+    } catch (error) {
+      console.error("Error enriching with iNaturalist:", error);
+    } finally {
+      setEnrichingSpecies(null);
+    }
+  };
 
   // Get unique countries for filter
   const allCountries = [...new Set(
@@ -401,6 +472,34 @@ export default function SavedData() {
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                              {!species.gbif_id && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => enrichWithGBIF(species)}
+                                  disabled={enrichingSpecies === species.id}
+                                  className="bg-slate-700 text-white font-bold hover:bg-slate-800 text-xs px-3 h-8">
+                                  {enrichingSpecies === species.id ? (
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  ) : (
+                                    <Database className="w-3 h-3 mr-1" />
+                                  )}
+                                  GBIF
+                                </Button>
+                              )}
+                              {!species.inat_taxon_id && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => enrichWithINaturalist(species)}
+                                  disabled={enrichingSpecies === species.id}
+                                  className="bg-bangor-sun text-slate-900 font-bold hover:bg-bangor-sun/90 text-xs px-3 h-8">
+                                  {enrichingSpecies === species.id ? (
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  ) : (
+                                    <span className="mr-1">🌿</span>
+                                  )}
+                                  iNat
+                                </Button>
+                              )}
                               <Button
                               size="sm"
                               onClick={() => {
@@ -408,7 +507,6 @@ export default function SavedData() {
                                 setShowDetails(true);
                               }}
                               className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
-
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
@@ -477,19 +575,15 @@ export default function SavedData() {
                                   if (file.blob) URL.revokeObjectURL(url);
                                 });
                               }}
-                              className="bg-emerald-600 text-white font-bold hover:bg-emerald-700 text-xs px-3 h-8"
-                              title="Download All Data Files">
-
-                                  <Download className="w-3 h-3 mr-1" />
-                                  Data
-                                </Button>
+                              className="bg-emerald-600 text-white font-bold hover:bg-emerald-700 text-xs px-3 h-8">
+                                <Download className="w-3 h-3 mr-1" />
+                                Data
+                              </Button>
                             }
                               <Button
                               size="sm"
                               onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                              className="bg-red-600 text-white font-bold hover:bg-red-700 text-xs px-3 h-8"
-                              title="Delete">
-
+                              className="bg-red-600 text-white font-bold hover:bg-red-700 text-xs px-3 h-8">
                                 <Trash2 className="w-3 h-3 mr-1" />
                                 Delete
                               </Button>
