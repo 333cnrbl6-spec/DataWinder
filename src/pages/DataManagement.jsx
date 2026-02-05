@@ -1154,16 +1154,17 @@ export default function DataManagement() {
                 {/* Database Stats */}
                 <div className="grid grid-cols-2 gap-4">
                   <button
-                    onClick={() => setMetricsModal({
-                      isOpen: true,
-                      type: 'species',
-                      title: `All Species (${allSpecies.length})`,
-                      data: allSpecies
-                    })}
+                    onClick={() => {
+                      if (selectedIds.length === species.length && species.length > 0) {
+                        setSelectedIds([]);
+                      } else {
+                        setSelectedIds(species.map(sp => sp.id || sp.scientific_name));
+                      }
+                    }}
                     className="bg-gradient-to-br from-bangor-red/10 to-bangor-sun/10 rounded-lg p-4 hover:shadow-lg transition-all text-left"
                   >
                     <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
-                    <div className="text-sm text-slate-600 mt-1">Total Species</div>
+                    <div className="text-sm text-slate-600 mt-1">Total Species {selectedIds.length === species.length && species.length > 0 ? '(All Selected)' : ''}</div>
                   </button>
                   <button
                     onClick={() => setMetricsModal({
