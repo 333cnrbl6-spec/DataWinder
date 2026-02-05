@@ -619,8 +619,10 @@ export default function Home() {
 
       // Search GBIF if enabled
       if (includeGBIF) {
-        // Get all scientific names to query
-        const scientificNames = Object.keys(allSpeciesMap);
+        // Get all scientific names to query (from both IUCN/iNat results, or direct terms if no results yet)
+        const scientificNames = Object.keys(allSpeciesMap).length > 0 
+          ? Object.keys(allSpeciesMap)
+          : terms.filter(t => t.trim());
         
         for (const scientificName of scientificNames) {
           try {
@@ -647,7 +649,7 @@ export default function Home() {
                 gbifOccurrencesCsvFileUri = csvUri;
               }
 
-              // Merge GBIF data with existing species
+              // Merge GBIF data with existing species or create new entry
               if (allSpeciesMap[scientificName]) {
                 allSpeciesMap[scientificName] = {
                   ...allSpeciesMap[scientificName],
@@ -662,6 +664,28 @@ export default function Home() {
                     allSpeciesMap[scientificName].data_source ? 
                       `${allSpeciesMap[scientificName].data_source} + GBIF` : 
                       'GBIF'
+                };
+              } else {
+                // Create new species entry from GBIF data
+                allSpeciesMap[scientificName] = {
+                  id: `gbif-${gbifData.gbif_id}`,
+                  scientific_name: gbifData.scientific_name,
+                  common_name: gbifData.common_name || '',
+                  kingdom: gbifData.kingdom,
+                  phylum: gbifData.phylum,
+                  class_name: gbifData.class_name,
+                  order_name: gbifData.order_name,
+                  family: gbifData.family,
+                  genus: gbifData.genus,
+                  iucn_status: 'NE',
+                  gbif_id: gbifData.gbif_id,
+                  gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                  gbif_occurrences: gbifData.gbif_occurrences,
+                  gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                  gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                  gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                  data_source: 'GBIF',
+                  dataset_name: terms.join(', ')
                 };
               }
             }
