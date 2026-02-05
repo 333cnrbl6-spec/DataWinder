@@ -5,20 +5,20 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-2 border-black",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-2 border-black text-black",
   {
     variants: {
       variant: {
         default:
-          "bg-bangor-red text-slate-900 shadow font-bold hover:bg-bangor-red/90",
+          "bg-bangor-red shadow font-bold hover:bg-bangor-red/90",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive shadow-sm hover:bg-destructive/90",
         outline:
-          "border-2 border-black bg-white text-slate-900 shadow-sm hover:bg-slate-50",
+          "border-2 border-black bg-white shadow-sm hover:bg-slate-50",
         secondary:
-          "bg-bangor-sun text-slate-900 shadow-sm font-bold hover:bg-bangor-sun/90",
-        ghost: "border-transparent bg-accent text-accent-foreground hover:bg-accent/80",
-        link: "border-transparent text-primary underline-offset-4 underline hover:text-primary/80",
+          "bg-bangor-sun shadow-sm font-bold hover:bg-bangor-sun/90",
+        ghost: "border-transparent bg-accent hover:bg-accent/80",
+        link: "border-transparent underline-offset-4 underline hover:opacity-80",
       },
       size: {
         default: "h-9 px-4 py-2",
