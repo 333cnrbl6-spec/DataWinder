@@ -88,7 +88,19 @@ Return ONLY valid JSON:
                 reason: { type: 'string' },
                 confidence: { type: 'number' },
                 suggested_canonical_id: { type: 'string' },
+                taxonomic_issues: { type: 'array', items: { type: 'string' } },
                 merge_recommendations: { type: 'object' }
+              }
+            }
+          },
+          data_quality_issues: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                species_id: { type: 'string' },
+                issues: { type: 'array', items: { type: 'string' } },
+                recommendations: { type: 'array', items: { type: 'string' } }
               }
             }
           }
