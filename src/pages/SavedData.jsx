@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+import PendingUpdatesReview from '@/components/PendingUpdatesReview';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +25,16 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [showPendingReview, setShowPendingReview] = useState(false);
+  const [selectedSearchIds, setSelectedSearchIds] = useState([]);
+  const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
   const queryClient = useQueryClient();
+
+  // Query pending updates count
+  const { data: pendingUpdates = [] } = useQuery({
+    queryKey: ['pendingUpdates'],
+    queryFn: () => base44.entities.PendingSpeciesUpdate.filter({ status: 'pending' })
+  });
 
   // Subscribe to real-time Species updates
   React.useEffect(() => {
@@ -270,6 +280,44 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
+                    {filteredSpecies.length > 0 && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (selectedSpeciesIds.length === filteredSpecies.length) {
+                              setSelectedSpeciesIds([]);
+                            } else {
+                              setSelectedSpeciesIds(filteredSpecies.map(s => s.id));
+                            }
+                          }}
+                          className="h-7 text-xs"
+                        >
+                          {selectedSpeciesIds.length === filteredSpecies.length ? 'Deselect All' : 'Select All'}
+                        </Button>
+                        {selectedSpeciesIds.length > 0 && (
+                          <Button
+                            size="sm"
+                            onClick={bulkDeleteSpecies}
+                            className="h-7 text-xs bg-red-600 text-white hover:bg-red-700"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete ({selectedSpeciesIds.length})
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {pendingUpdates.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => setShowPendingReview(true)}
+                        className="bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 relative"
+                      >
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        Review Updates ({pendingUpdates.length})
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
@@ -656,6 +704,12 @@ export default function SavedData() {
         }} />
 
       }
+
+      {/* Pending Updates Review */}
+      <PendingUpdatesReview
+        open={showPendingReview}
+        onClose={() => setShowPendingReview(false)}
+      />
 
       {/* Species Details Modal */}
       <AnimatePresence>
