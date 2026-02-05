@@ -800,59 +800,25 @@ export default function DataManagement() {
         </div>
       </header>
 
-      <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Search Interface */}
-        <TaxonomicSearch onSearch={handleSearch} isLoading={isLoading} />
+      <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Split Screen Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left: Search Panel */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+            <Card className="shadow-lg border-bangor-sun/20">
+              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+                <CardTitle className="flex items-center gap-2 text-bangor-red">
+                  <SearchIcon className="w-5 h-5" />
+                  Species Search
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <TaxonomicSearch onSearch={handleSearch} isLoading={isLoading} />
+              </CardContent>
+            </Card>
 
-        {/* Info Banner when no results */}
-        {!species.length && !isLoading && !error && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-            <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
-              <Info className="h-4 w-4 text-bangor-sun" />
-              <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
-              <AlertDescription className="text-slate-700">
-                Search species data from multiple academic sources including IUCN Red List (conservation status), iNaturalist (citizen science observations), and GBIF (occurrence & specimen records). 
-                Build comprehensive datasets with genomic references, distribution data, and specimen information. 
-                Compare species, create custom lists, add personal notes, and export filtered data in CSV or JSON format.
-              </AlertDescription>
-            </Alert>
-
-            <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
-              <p className="mb-1 font-semibold text-slate-700">Academic Data Sources:</p>
-              <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
-              <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
-              <p className="italic">• GBIF. Global Biodiversity Information Facility. www.gbif.org</p>
-              <p className="text-slate-500 mt-2">Integrate conservation status, occurrence records, specimen data, and genomic references.</p>
-            </div>
-
-            <div className="mt-6 bg-gradient-to-br from-white to-bangor-sun/5 rounded-xl border border-bangor-sun/20 p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-bangor-red mb-4">IUCN Red List Categories</h3>
-              <div className="flex flex-wrap gap-3">
-                {Object.entries(statusConfig).map(([code, config]) => (
-                  <div key={code} className="flex items-center gap-2">
-                    <StatusBadge status={code} size="sm" />
-                    <span className="text-xs text-slate-500">{config.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Split Screen: Search Results + Database Management */}
-        {species.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Search Results */}
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+            {/* Search Results */}
+            {species.length > 0 && (
               <Card className="shadow-lg border-bangor-sun/20">
                 <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
                   <div className="flex items-center justify-between">
@@ -912,10 +878,73 @@ export default function DataManagement() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            )}
 
-            {/* Right: Database Management Panel */}
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+            {/* Info Banner when no results */}
+            {!species.length && !isLoading && !error && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
+              <Info className="h-4 w-4 text-bangor-sun" />
+              <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
+              <AlertDescription className="text-slate-700">
+                Search species data from multiple academic sources including IUCN Red List (conservation status), iNaturalist (citizen science observations), and GBIF (occurrence & specimen records). 
+                Build comprehensive datasets with genomic references, distribution data, and specimen information. 
+                Compare species, create custom lists, add personal notes, and export filtered data in CSV or JSON format.
+              </AlertDescription>
+            </Alert>
+
+            <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
+              <p className="mb-1 font-semibold text-slate-700">Academic Data Sources:</p>
+              <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
+              <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
+              <p className="italic">• GBIF. Global Biodiversity Information Facility. www.gbif.org</p>
+              <p className="text-slate-500 mt-2">Integrate conservation status, occurrence records, specimen data, and genomic references.</p>
+            </div>
+
+            <div className="mt-6 bg-gradient-to-br from-white to-bangor-sun/5 rounded-xl border border-bangor-sun/20 p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-bangor-red mb-4">IUCN Red List Categories</h3>
+              <div className="flex flex-wrap gap-3">
+                {Object.entries(statusConfig).map(([code, config]) => (
+                  <div key={code} className="flex items-center gap-2">
+                    <StatusBadge status={code} size="sm" />
+                    <span className="text-xs text-slate-500">{config.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+              </motion.div>
+            )}
+
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-bangor-sun/30 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
+                  </div>
+                </div>
+                <p className="mt-4 text-slate-600 font-semibold">Downloading Species Data...</p>
+                <div className="mt-2 text-sm text-slate-500 space-y-1">
+                  {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
+                  {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
+                  {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Right: Database Management Panel - Always Visible */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <Card className="shadow-lg border-bangor-sun/20">
               <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
                 <CardTitle className="flex items-center gap-2 text-bangor-red">
@@ -1097,25 +1126,6 @@ export default function DataManagement() {
             </Card>
           </motion.div>
         </div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-bangor-sun/30 rounded-full animate-pulse" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
-              </div>
-            </div>
-            <p className="mt-4 text-slate-600 font-semibold">Downloading Species Data...</p>
-            <div className="mt-2 text-sm text-slate-500 space-y-1">
-              {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
-              {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
-              {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Download Panel */}
