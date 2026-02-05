@@ -38,6 +38,7 @@ export default function DataManagement() {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [showLogoSelector, setShowLogoSelector] = useState(false);
   const [showSaveSearch, setShowSaveSearch] = useState(false);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
