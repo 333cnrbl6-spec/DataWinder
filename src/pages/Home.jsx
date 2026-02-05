@@ -619,79 +619,157 @@ export default function Home() {
 
       // Search GBIF if enabled
       if (includeGBIF) {
-        // Get all scientific names to query (from both IUCN/iNat results, or direct terms if no results yet)
-        const scientificNames = Object.keys(allSpeciesMap).length > 0 
-          ? Object.keys(allSpeciesMap)
-          : terms.filter(t => t.trim());
+        // For higher taxonomic searches, search once per term
+        if (level && level !== 'species') {
+          for (const term of terms) {
+            try {
+              const gbifResult = await base44.functions.invoke('fetchGBIFData', {
+                scientificName: term.trim(),
+                level: level
+              });
 
-        for (const scientificName of scientificNames) {
-          try {
-            const gbifResult = await base44.functions.invoke('fetchGBIFData', {
-              scientificName: scientificName,
-              level: level
-            });
+              if (gbifResult.data.status === 'success') {
+                const gbifSpeciesList = Array.isArray(gbifResult.data.data) 
+                  ? gbifResult.data.data 
+                  : [gbifResult.data.data];
 
-            if (gbifResult.data.status === 'success') {
-              const gbifData = gbifResult.data.data;
+                for (const gbifData of gbifSpeciesList) {
+                  // Create CSV of GBIF occurrences
+                  let gbifOccurrencesCsvFileUri = null;
+                  if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
+                    const csvContent = [
+                      'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
+                      ...gbifData.gbif_occurrences.map(occ => 
+                        `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
+                      )
+                    ].join('\n');
 
-              // Create CSV of GBIF occurrences
-              let gbifOccurrencesCsvFileUri = null;
-              if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
-                const csvContent = [
-                  'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
-                  ...gbifData.gbif_occurrences.map(occ => 
-                    `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
-                  )
-                ].join('\n');
-                
-                const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-                const csvFile = new File([csvBlob], `${scientificName.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
-                const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-                gbifOccurrencesCsvFileUri = csvUri;
+                    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                    const csvFile = new File([csvBlob], `${gbifData.scientific_name.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
+                    const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                    gbifOccurrencesCsvFileUri = csvUri;
+                  }
+
+                  // Merge GBIF data with existing species or create new entry
+                  if (allSpeciesMap[gbifData.scientific_name]) {
+                    allSpeciesMap[gbifData.scientific_name] = {
+                      ...allSpeciesMap[gbifData.scientific_name],
+                      gbif_id: gbifData.gbif_id,
+                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                      gbif_occurrences: gbifData.gbif_occurrences,
+                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                      data_source: allSpeciesMap[gbifData.scientific_name].data_source === 'IUCN + iNaturalist' ? 
+                        'IUCN + iNaturalist + GBIF' : 
+                        allSpeciesMap[gbifData.scientific_name].data_source ? 
+                          `${allSpeciesMap[gbifData.scientific_name].data_source} + GBIF` : 
+                          'GBIF'
+                    };
+                  } else {
+                    // Create new species entry from GBIF data
+                    allSpeciesMap[gbifData.scientific_name] = {
+                      id: `gbif-${gbifData.gbif_id}`,
+                      scientific_name: gbifData.scientific_name,
+                      common_name: gbifData.common_name || '',
+                      kingdom: gbifData.kingdom,
+                      phylum: gbifData.phylum,
+                      class_name: gbifData.class_name,
+                      order_name: gbifData.order_name,
+                      family: gbifData.family,
+                      genus: gbifData.genus,
+                      iucn_status: 'NE',
+                      gbif_id: gbifData.gbif_id,
+                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                      gbif_occurrences: gbifData.gbif_occurrences,
+                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                      data_source: 'GBIF',
+                      dataset_name: terms.join(', ')
+                    };
+                  }
+                }
               }
-
-              // Merge GBIF data with existing species or create new entry
-              if (allSpeciesMap[scientificName]) {
-                allSpeciesMap[scientificName] = {
-                  ...allSpeciesMap[scientificName],
-                  gbif_id: gbifData.gbif_id,
-                  gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                  gbif_occurrences: gbifData.gbif_occurrences,
-                  gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                  gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                  gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                  data_source: allSpeciesMap[scientificName].data_source === 'IUCN + iNaturalist' ? 
-                    'IUCN + iNaturalist + GBIF' : 
-                    allSpeciesMap[scientificName].data_source ? 
-                      `${allSpeciesMap[scientificName].data_source} + GBIF` : 
-                      'GBIF'
-                };
-              } else {
-                // Create new species entry from GBIF data
-                allSpeciesMap[scientificName] = {
-                  id: `gbif-${gbifData.gbif_id}`,
-                  scientific_name: gbifData.scientific_name,
-                  common_name: gbifData.common_name || '',
-                  kingdom: gbifData.kingdom,
-                  phylum: gbifData.phylum,
-                  class_name: gbifData.class_name,
-                  order_name: gbifData.order_name,
-                  family: gbifData.family,
-                  genus: gbifData.genus,
-                  iucn_status: 'NE',
-                  gbif_id: gbifData.gbif_id,
-                  gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                  gbif_occurrences: gbifData.gbif_occurrences,
-                  gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                  gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                  gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                  data_source: 'GBIF',
-                  dataset_name: terms.join(', ')
-                };
-              }
+            } catch (err) {
+              console.error(`Error fetching GBIF data for ${term}:`, err);
             }
-          } catch (err) {
-            console.error(`Error fetching GBIF data for ${scientificName}:`, err);
+          }
+        } else {
+          // For species-level searches, query each scientific name
+          const scientificNames = Object.keys(allSpeciesMap).length > 0 
+            ? Object.keys(allSpeciesMap)
+            : terms.filter(t => t.trim());
+
+          for (const scientificName of scientificNames) {
+            try {
+              const gbifResult = await base44.functions.invoke('fetchGBIFData', {
+                scientificName: scientificName,
+                level: 'species'
+              });
+
+              if (gbifResult.data.status === 'success') {
+                const gbifData = gbifResult.data.data;
+
+                // Create CSV of GBIF occurrences
+                let gbifOccurrencesCsvFileUri = null;
+                if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
+                  const csvContent = [
+                    'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
+                    ...gbifData.gbif_occurrences.map(occ => 
+                      `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
+                    )
+                  ].join('\n');
+
+                  const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                  const csvFile = new File([csvBlob], `${scientificName.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
+                  const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                  gbifOccurrencesCsvFileUri = csvUri;
+                }
+
+                // Merge GBIF data with existing species or create new entry
+                if (allSpeciesMap[scientificName]) {
+                  allSpeciesMap[scientificName] = {
+                    ...allSpeciesMap[scientificName],
+                    gbif_id: gbifData.gbif_id,
+                    gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                    gbif_occurrences: gbifData.gbif_occurrences,
+                    gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                    gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                    gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                    data_source: allSpeciesMap[scientificName].data_source === 'IUCN + iNaturalist' ? 
+                      'IUCN + iNaturalist + GBIF' : 
+                      allSpeciesMap[scientificName].data_source ? 
+                        `${allSpeciesMap[scientificName].data_source} + GBIF` : 
+                        'GBIF'
+                  };
+                } else {
+                  // Create new species entry from GBIF data
+                  allSpeciesMap[scientificName] = {
+                    id: `gbif-${gbifData.gbif_id}`,
+                    scientific_name: gbifData.scientific_name,
+                    common_name: gbifData.common_name || '',
+                    kingdom: gbifData.kingdom,
+                    phylum: gbifData.phylum,
+                    class_name: gbifData.class_name,
+                    order_name: gbifData.order_name,
+                    family: gbifData.family,
+                    genus: gbifData.genus,
+                    iucn_status: 'NE',
+                    gbif_id: gbifData.gbif_id,
+                    gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                    gbif_occurrences: gbifData.gbif_occurrences,
+                    gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                    gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                    gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                    data_source: 'GBIF',
+                    dataset_name: terms.join(', ')
+                  };
+                }
+              }
+            } catch (err) {
+              console.error(`Error fetching GBIF data for ${scientificName}:`, err);
+            }
           }
         }
       }
