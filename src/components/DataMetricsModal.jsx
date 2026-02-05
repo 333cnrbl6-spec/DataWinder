@@ -35,6 +35,7 @@ export default function DataMetricsModal({
     try {
       for (const id of selectedIds) {
         await base44.entities.Species.delete(id);
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
       setSelectedIds([]);
