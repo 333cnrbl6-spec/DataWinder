@@ -174,7 +174,13 @@ export default function DataManagement() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <TaxonomicSearch onSearchComplete={refetchSpecies} />
+                <TaxonomicSearch 
+                  onSearch={(searchParams) => {
+                    // Search is handled in the Home page, this just triggers a refresh
+                    refetchSpecies();
+                  }} 
+                  isLoading={false} 
+                />
               </CardContent>
             </Card>
           </motion.div>
