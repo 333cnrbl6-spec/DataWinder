@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Plus, Loader2 } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -22,9 +22,7 @@ export default function SavedData() {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
-  const [familyFilter, setFamilyFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [enrichingSpecies, setEnrichingSpecies] = useState(null);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -65,11 +63,6 @@ export default function SavedData() {
     allSpecies.flatMap((sp) => sp.geographic_distribution?.countries || [])
   )].sort();
 
-  // Get unique families for filter
-  const allFamilies = [...new Set(
-    allSpecies.map((sp) => sp.family).filter(Boolean)
-  )].sort();
-
   const filteredSpecies = allSpecies.filter((sp) => {
     // Search filter
     const searchMatch = !searchTerm ||
@@ -95,141 +88,8 @@ export default function SavedData() {
     conservationFilter === 'yes' && sp.conservation_actions ||
     conservationFilter === 'no' && !sp.conservation_actions;
 
-    // Family filter
-    const familyMatch = familyFilter === 'all' || sp.family === familyFilter;
-
-    return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch && familyMatch;
+    return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
-
-  const enrichWithGBIF = async (species) => {
-    setEnrichingSpecies(species.id);
-    try {
-      const gbifResult = await base44.functions.invoke('fetchGBIFData', {
-        scientificName: species.scientific_name,
-        level: 'species'
-      });
-
-      if (gbifResult.data.status === 'success') {
-        const gbifData = gbifResult.data.data;
-
-        let gbifOccurrencesCsvFileUri = null;
-        if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
-          const csvContent = [
-            'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
-            ...gbifData.gbif_occurrences.map(occ => 
-              `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
-            )
-          ].join('\n');
-
-          const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-          const csvFile = new File([csvBlob], `${species.scientific_name.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
-          const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-          gbifOccurrencesCsvFileUri = csvUri;
-        }
-
-        await base44.entities.Species.update(species.id, {
-          gbif_id: gbifData.gbif_id,
-          gbif_occurrence_count: gbifData.gbif_occurrence_count,
-          gbif_occurrences: gbifData.gbif_occurrences,
-          gbif_basis_of_record: gbifData.gbif_basis_of_record,
-          gbif_last_occurrence: gbifData.gbif_last_occurrence,
-          gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-          kingdom: gbifData.kingdom || species.kingdom,
-          phylum: gbifData.phylum || species.phylum,
-          class_name: gbifData.class_name || species.class_name,
-          order_name: gbifData.order_name || species.order_name,
-          family: gbifData.family || species.family,
-          genus: gbifData.genus || species.genus
-        });
-
-        queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-      }
-    } catch (err) {
-      console.error('Error enriching with GBIF:', err);
-      alert(`Failed to enrich ${species.scientific_name} with GBIF data.`);
-    } finally {
-      setEnrichingSpecies(null);
-    }
-  };
-
-  const enrichWithINaturalist = async (species) => {
-    setEnrichingSpecies(species.id);
-    try {
-      const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(species.scientific_name)}&rank=species`;
-      const taxonRes = await fetch(taxonUrl);
-      
-      if (!taxonRes.ok) {
-        throw new Error('Failed to fetch iNaturalist data');
-      }
-
-      const taxonData = await taxonRes.json();
-      if (!taxonData.results || taxonData.results.length === 0) {
-        alert(`No iNaturalist data found for ${species.scientific_name}`);
-        setEnrichingSpecies(null);
-        return;
-      }
-
-      const taxon = taxonData.results[0];
-      const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
-      const obsRes = await fetch(obsUrl);
-      let observationData = null;
-      if (obsRes.ok) {
-        observationData = await obsRes.json();
-      }
-
-      const observations = observationData?.results || [];
-      const observationsWithCoords = observations
-        .filter(obs => obs.location)
-        .map(obs => ({
-          latitude: parseFloat(obs.location.split(',')[0]),
-          longitude: parseFloat(obs.location.split(',')[1]),
-          location: obs.place_guess || '',
-          observed_on: obs.observed_on,
-          user: obs.user?.login || 'Unknown',
-          photo_url: obs.photos?.[0]?.url || ''
-        }));
-
-      let inatObservationsCsvFileUri = null;
-      if (observationsWithCoords.length > 0) {
-        const csvContent = [
-          'latitude,longitude,location,date,observer,photo_url',
-          ...observationsWithCoords.map(obs => 
-            `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-          )
-        ].join('\n');
-        
-        const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-        const csvFile = new File([csvBlob], `${species.scientific_name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
-        const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-        inatObservationsCsvFileUri = csvUri;
-      }
-
-      const updateData = {
-        inat_taxon_id: taxon.id,
-        inat_wikipedia_url: taxon.wikipedia_url || null,
-        observation_count: taxon.observations_count || 0,
-        observations: observationsWithCoords,
-        last_observed: observations[0]?.observed_on || null,
-        inat_observations_csv_file_uri: inatObservationsCsvFileUri
-      };
-
-      if (!species.common_name && taxon.preferred_common_name) {
-        updateData.common_name = taxon.preferred_common_name;
-      }
-
-      if (!species.image_url && taxon.default_photo?.medium_url) {
-        updateData.image_url = taxon.default_photo.medium_url;
-      }
-
-      await base44.entities.Species.update(species.id, updateData);
-      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-    } catch (err) {
-      console.error('Error enriching with iNaturalist:', err);
-      alert(`Failed to enrich ${species.scientific_name} with iNaturalist data.`);
-    } finally {
-      setEnrichingSpecies(null);
-    }
-  };
 
   const exportSpecies = (speciesToExport) => {
     const data = speciesToExport.map((sp) => ({
@@ -444,19 +304,7 @@ export default function SavedData() {
                       </SelectContent>
                     </Select>
 
-                    <Select value={familyFilter} onValueChange={setFamilyFilter}>
-                      <SelectTrigger className="w-40 h-8 text-xs">
-                        <SelectValue placeholder="Family" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        <SelectItem value="all">All Families</SelectItem>
-                        {allFamilies.map((family) =>
-                        <SelectItem key={family} value={family}>{family}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-
-                    {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all' || familyFilter !== 'all') &&
+                    {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all') &&
                     <Button
                       size="sm"
                       variant="ghost"
@@ -465,7 +313,6 @@ export default function SavedData() {
                         setSourceFilter('all');
                         setCountryFilter('all');
                         setConservationFilter('all');
-                        setFamilyFilter('all');
                       }}
                       className="h-8 text-xs text-slate-700">
 
@@ -553,35 +400,7 @@ export default function SavedData() {
                             </div>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                              {!species.gbif_id && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => enrichWithGBIF(species)}
-                                  disabled={enrichingSpecies === species.id}
-                                  className="bg-slate-700 text-white font-bold hover:bg-slate-800 text-xs px-3 h-8">
-                                  {enrichingSpecies === species.id ? (
-                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  ) : (
-                                    <Database className="w-3 h-3 mr-1" />
-                                  )}
-                                  GBIF
-                                </Button>
-                              )}
-                              {!species.inat_taxon_id && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => enrichWithINaturalist(species)}
-                                  disabled={enrichingSpecies === species.id}
-                                  className="bg-bangor-sun text-slate-900 font-bold hover:bg-bangor-sun/90 text-xs px-3 h-8">
-                                  {enrichingSpecies === species.id ? (
-                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  ) : (
-                                    <span className="mr-1">🌿</span>
-                                  )}
-                                  iNat
-                                </Button>
-                              )}
+                            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button
                               size="sm"
                               onClick={() => {
@@ -589,13 +408,13 @@ export default function SavedData() {
                                 setShowDetails(true);
                               }}
                               className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
+
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
                             <Button
-                              variant="ghost"
-                              size="icon"
+                              size="sm"
                               onClick={() => {
                                 const speciesName = species.scientific_name.replace(/ /g, '_');
                                 const files = [];
@@ -658,19 +477,21 @@ export default function SavedData() {
                                   if (file.blob) URL.revokeObjectURL(url);
                                 });
                               }}
-                              className="h-8 w-8 text-green-600"
+                              className="bg-emerald-600 text-white font-bold hover:bg-emerald-700 text-xs px-3 h-8"
                               title="Download All Data Files">
 
-                                  <Download className="w-4 h-4" />
+                                  <Download className="w-3 h-3 mr-1" />
+                                  Data
                                 </Button>
                             }
                               <Button
-                              size="icon"
+                              size="sm"
                               onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                              className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
+                              className="bg-red-600 text-white font-bold hover:bg-red-700 text-xs px-3 h-8"
                               title="Delete">
 
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Delete
                               </Button>
                             </div>
                           </td>
