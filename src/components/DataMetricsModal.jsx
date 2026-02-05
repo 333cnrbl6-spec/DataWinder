@@ -28,6 +28,25 @@ export default function DataMetricsModal({
     );
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete ${selectedIds.length} species? This cannot be undone.`)) return;
+    
+    setIsDeleting(true);
+    try {
+      for (const id of selectedIds) {
+        await base44.entities.Species.delete(id);
+      }
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+      setSelectedIds([]);
+      alert('Species deleted successfully');
+    } catch (error) {
+      console.error('Error deleting species:', error);
+      alert('Failed to delete species');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getFilteredData = () => {
     if (!data) return [];
     return data.filter(item => {
