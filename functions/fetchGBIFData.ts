@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { scientificName } = await req.json();
+    const { scientificName, level } = await req.json();
 
     if (!scientificName) {
       return Response.json({ 
@@ -19,7 +19,10 @@ Deno.serve(async (req) => {
     }
 
     // Search for species in GBIF
-    const searchUrl = `https://api.gbif.org/v1/species/match?name=${encodeURIComponent(scientificName)}&strict=true`;
+    let searchUrl = `https://api.gbif.org/v1/species/match?name=${encodeURIComponent(scientificName)}&strict=false`;
+    if (level) {
+      searchUrl = `https://api.gbif.org/v1/species/match?name=${encodeURIComponent(scientificName)}&rank=${level}&strict=false`;
+    }
     const searchRes = await fetch(searchUrl);
     
     if (!searchRes.ok) {

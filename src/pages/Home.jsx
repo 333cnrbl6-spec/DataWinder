@@ -623,11 +623,12 @@ export default function Home() {
         const scientificNames = Object.keys(allSpeciesMap).length > 0 
           ? Object.keys(allSpeciesMap)
           : terms.filter(t => t.trim());
-        
+
         for (const scientificName of scientificNames) {
           try {
             const gbifResult = await base44.functions.invoke('fetchGBIFData', {
-              scientificName: scientificName
+              scientificName: scientificName,
+              level: level
             });
 
             if (gbifResult.data.status === 'success') {
