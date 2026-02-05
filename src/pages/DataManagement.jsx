@@ -1207,25 +1207,52 @@ export default function DataManagement() {
                 {/* AI Data Quality Tools */}
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-3">AI Data Quality</h3>
-                  <Button
-                    onClick={async () => {
-                      setIsRunningTaxonomyCheck(true);
-                      try {
-                        await base44.functions.invoke('runTaxonomyCheck', {});
-                        window.location.href = createPageUrl('ReviewDuplicates');
-                      } catch (error) {
-                        console.error('Taxonomy check error:', error);
-                        alert('Failed to run taxonomy check');
-                      } finally {
-                        setIsRunningTaxonomyCheck(false);
-                      }
-                    }}
-                    disabled={isRunningTaxonomyCheck || allSpecies.length === 0}
-                    className="w-full justify-start bg-bangor-red hover:bg-bangor-red/90"
-                  >
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check for Duplicates'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={async () => {
+                        setIsRunningTaxonomyCheck(true);
+                        try {
+                          await base44.functions.invoke('runTaxonomyCheck', {});
+                          window.location.href = createPageUrl('ReviewDuplicates');
+                        } catch (error) {
+                          console.error('Taxonomy check error:', error);
+                          alert('Failed to run taxonomy check');
+                        } finally {
+                          setIsRunningTaxonomyCheck(false);
+                        }
+                      }}
+                      disabled={isRunningTaxonomyCheck || allSpecies.length === 0}
+                      className="flex-1 justify-start bg-bangor-red hover:bg-bangor-red/90"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check for Duplicates'}
+                    </Button>
+                    <Button
+                      onClick={() => setShowTaxonomyInfo(!showTaxonomyInfo)}
+                      variant="outline"
+                      size="icon"
+                      className="h-10"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {showTaxonomyInfo && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-slate-700">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="font-semibold text-blue-900">Taxonomy Sources</p>
+                        <button onClick={() => setShowTaxonomyInfo(false)} className="text-blue-600 hover:text-blue-800">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <ul className="space-y-1 text-xs text-slate-600">
+                        <li>• <span className="font-semibold">WoRMS</span> - World Register of Marine Species</li>
+                        <li>• <span className="font-semibold">ITIS</span> - Integrated Taxonomic Information System</li>
+                        <li>• <span className="font-semibold">IOC World Bird List</span> - Reference standard for taxonomy</li>
+                        <li>• <span className="font-semibold">Current taxonomic revisions</span> - Latest published updates</li>
+                        <li>• <span className="font-semibold">Callitrichidae specialist knowledge</span> - Expert taxonomic references</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {/* Data Quality */}
