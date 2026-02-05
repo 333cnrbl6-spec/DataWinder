@@ -47,15 +47,15 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import DataManagement from './pages/DataManagement';
 import Home from './pages/Home';
 import SavedData from './pages/SavedData';
-import DataManagement from './pages/DataManagement';
 
 
 export const PAGES = {
+    "DataManagement": DataManagement,
     "Home": Home,
     "SavedData": SavedData,
-    "DataManagement": DataManagement,
 }
 
 export const pagesConfig = {

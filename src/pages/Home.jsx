@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Leaf, AlertCircle, Info, Database, Grid3x3, Map } from 'lucide-react';
+import { Leaf, AlertCircle, Info, Database, Grid3x3, Map, FolderOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -967,7 +967,7 @@ export default function Home() {
               </Link>
               <Link to={createPageUrl('SavedData')}>
                 <Button variant="secondary" size="default">
-                  <Database className="w-4 h-4" />
+                  <FolderOpen className="w-4 h-4" />
                   My Data
                 </Button>
               </Link>
