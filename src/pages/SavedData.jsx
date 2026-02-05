@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -25,7 +26,8 @@ export default function SavedData() {
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
   const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
   const [enrichingSpecies, setEnrichingSpecies] = useState(null);
-  const [isBulkEnriching, setIsBulkEnriching] = useState(false);
+  const [isBulkEnrichingGBIF, setIsBulkEnrichingGBIF] = useState(false);
+  const [isBulkEnrichingINat, setIsBulkEnrichingINat] = useState(false);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -43,7 +45,7 @@ export default function SavedData() {
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
     queryKey: ['allSpecies'],
-    queryFn: () => base44.entities.Species.list('-created_date'),
+    queryFn: () => base44.entities.Species.list('-created_date', undefined, { data_env: 'dev' }),
     refetchInterval: 5000 // Auto-refresh every 5 seconds
   });
 
@@ -132,26 +134,26 @@ export default function SavedData() {
   };
 
   const bulkEnrichWithGBIF = async () => {
-    setIsBulkEnriching(true);
+    setIsBulkEnrichingGBIF(true);
     const selectedSpecies = allSpecies.filter(sp => selectedSpeciesIds.includes(sp.id) && !sp.gbif_id);
     
     for (const species of selectedSpecies) {
       await enrichWithGBIF(species);
     }
     
-    setIsBulkEnriching(false);
+    setIsBulkEnrichingGBIF(false);
     setSelectedSpeciesIds([]);
   };
 
   const bulkEnrichWithINaturalist = async () => {
-    setIsBulkEnriching(true);
+    setIsBulkEnrichingINat(true);
     const selectedSpecies = allSpecies.filter(sp => selectedSpeciesIds.includes(sp.id) && !sp.inat_taxon_id);
     
     for (const species of selectedSpecies) {
       await enrichWithINaturalist(species);
     }
     
-    setIsBulkEnriching(false);
+    setIsBulkEnrichingINat(false);
     setSelectedSpeciesIds([]);
   };
 
@@ -321,7 +323,7 @@ export default function SavedData() {
             <Card className="shadow-lg border-bangor-sun/20">
               <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
                 <div className="flex items-center justify-between gap-4">
-                  <CardTitle className="text-bangor-red">
+                  <CardTitle className="text-bangor-red flex items-center">
                     All Species ({filteredSpecies.length})
                     {selectedSpeciesIds.length > 0 && (
                       <span className="ml-2 text-sm font-normal text-slate-600">
@@ -335,18 +337,18 @@ export default function SavedData() {
                         <Button
                           size="sm"
                           onClick={bulkEnrichWithGBIF}
-                          disabled={isBulkEnriching}
+                          disabled={isBulkEnrichingGBIF}
                           className="bg-slate-700 text-white font-bold hover:bg-slate-800">
-                          {isBulkEnriching ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Database className="w-4 h-4 mr-1" />}
-                          Enrich GBIF ({selectedSpeciesIds.filter(id => !allSpecies.find(sp => sp.id === id)?.gbif_id).length})
+                          {isBulkEnrichingGBIF ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Database className="w-4 h-4 mr-1" />}
+                          GBIF ({selectedSpeciesIds.filter(id => !allSpecies.find(sp => sp.id === id)?.gbif_id).length})
                         </Button>
                         <Button
                           size="sm"
                           onClick={bulkEnrichWithINaturalist}
-                          disabled={isBulkEnriching}
+                          disabled={isBulkEnrichingINat}
                           className="bg-bangor-sun text-slate-900 font-bold hover:bg-bangor-sun/90">
-                          {isBulkEnriching ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <span className="mr-1">🌿</span>}
-                          Enrich iNat ({selectedSpeciesIds.filter(id => !allSpecies.find(sp => sp.id === id)?.inat_taxon_id).length})
+                          {isBulkEnrichingINat ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <span className="mr-1">🌿</span>}
+                          iNat ({selectedSpeciesIds.filter(id => !allSpecies.find(sp => sp.id === id)?.inat_taxon_id).length})
                         </Button>
                         <Button
                           size="sm"
@@ -494,6 +496,7 @@ export default function SavedData() {
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Countries</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Habitat</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Assessment</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Data</th>
                         <th className="text-right px-4 py-3 text-xs font-medium text-slate-600">Actions</th>
                       </tr>
                     </thead>
@@ -569,18 +572,52 @@ export default function SavedData() {
                               {species.assessment_date ? new Date(species.assessment_date).getFullYear() : <span className="text-slate-400">—</span>}
                             </div>
                           </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              {species.iucn_id && <span className="text-emerald-600" title="IUCN Data">●</span>}
+                              {species.inat_taxon_id && <span className="text-blue-600" title="iNaturalist Data">●</span>}
+                              {species.gbif_id && <span className="text-purple-600" title="GBIF Data">●</span>}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                              {!species.gbif_id && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => enrichWithGBIF(species)}
+                                  disabled={enrichingSpecies === species.id}
+                                  className="bg-slate-700 text-white font-bold hover:bg-slate-800 text-xs px-3 h-8">
+                                  {enrichingSpecies === species.id ? (
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  ) : (
+                                    <Database className="w-3 h-3 mr-1" />
+                                  )}
+                                  GBIF
+                                </Button>
+                              )}
+                              {!species.inat_taxon_id && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => enrichWithINaturalist(species)}
+                                  disabled={enrichingSpecies === species.id}
+                                  className="bg-bangor-sun text-slate-900 font-bold hover:bg-bangor-sun/90 text-xs px-3 h-8">
+                                  {enrichingSpecies === species.id ? (
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  ) : (
+                                    <span className="mr-1">🌿</span>
+                                  )}
+                                  iNat
+                                </Button>
+                              )}
                               <Button
-                              size="icon"
-                              onClick={() => {
-                                setSelectedSpecies(species);
-                                setShowDetails(true);
-                              }}
-                              className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
-                              title="View Details">
-
-                                <Eye className="w-4 h-4" />
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedSpecies(species);
+                                  setShowDetails(true);
+                                }}
+                                className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
                               </Button>
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
                             <Button
@@ -989,6 +1026,22 @@ export default function SavedData() {
                       {selectedSpecies.last_observed &&
                   <div>
                           <span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}
+                        </div>
+                  }
+                    </div>
+                  </div>
+              }
+                {/* GBIF Data */}
+                {selectedSpecies.gbif_occurrence_count > 0 &&
+              <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">GBIF Data</h3>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="font-medium">Total Occurrences:</span> {selectedSpecies.gbif_occurrence_count.toLocaleString()}
+                      </div>
+                      {selectedSpecies.gbif_last_occurrence &&
+                  <div>
+                          <span className="font-medium">Last Occurrence:</span> {selectedSpecies.gbif_last_occurrence}
                         </div>
                   }
                     </div>
