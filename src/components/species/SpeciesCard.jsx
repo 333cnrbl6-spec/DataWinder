@@ -80,16 +80,41 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
           {/* iNaturalist observations */}
           {hasINatData && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {species.observation_count > 0 && (
-                <span className="text-xs px-2 py-0.5 bg-bangor-sun/10 text-bangor-sun rounded-full font-medium">
-                   {species.observation_count.toLocaleString()} obs
-                 </span>
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2 mb-2">
+                {species.observation_count > 0 && (
+                  <span className="text-xs px-2 py-0.5 bg-bangor-sun/10 text-bangor-sun rounded-full font-medium">
+                     {species.observation_count.toLocaleString()} obs
+                   </span>
+                  )}
+                  {species.last_observed && (
+                   <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
+                     Last: {species.last_observed}
+                   </span>
                 )}
-                {species.last_observed && (
-                 <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
-                   Last: {species.last_observed}
-                 </span>
+              </div>
+              {species.inat_observations_csv_file_uri && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    (async () => {
+                      const { base44 } = await import('@/api/base44Client');
+                      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({
+                        file_uri: species.inat_observations_csv_file_uri
+                      });
+                      const a = document.createElement('a');
+                      a.href = signed_url;
+                      a.download = `${species.scientific_name.replace(/ /g, '_')}_inat_occurrences.csv`;
+                      a.click();
+                    })();
+                  }}
+                  className="w-full text-xs border-bangor-sun/30 text-bangor-sun hover:bg-bangor-sun/10"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Download iNat CSV
+                </Button>
               )}
             </div>
           )}
