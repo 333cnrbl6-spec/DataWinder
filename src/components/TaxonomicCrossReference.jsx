@@ -176,10 +176,10 @@ export default function TaxonomicCrossReference({ open, onClose, onComplete }) {
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm text-slate-600">Issues Detected</CardTitle>
+                    <CardTitle className="text-sm text-slate-600">Family Anomalies</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-yellow-600">{analysis.statistics?.taxonomic_issues || 0}</p>
+                    <p className="text-2xl font-bold text-orange-600">{analysis.family_anomalies?.length || 0}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -218,6 +218,33 @@ export default function TaxonomicCrossReference({ open, onClose, onComplete }) {
                           </div>
                         </CardContent>
                       </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Family Anomalies */}
+              {analysis.family_anomalies && analysis.family_anomalies.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <Database className="w-5 h-5 text-orange-600" />
+                    Family Count Anomalies ({analysis.family_anomalies.length})
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {analysis.family_anomalies.map((anomaly, idx) => (
+                      <div key={idx} className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <p className="font-semibold text-slate-900 text-sm">{anomaly.family}</p>
+                            <p className="text-xs text-slate-600 mt-1">
+                              <span className="font-medium">Database:</span> {anomaly.species_in_database} species | 
+                              <span className="font-medium ml-2">Expected:</span> {anomaly.expected_global_count}
+                            </p>
+                            <p className="text-xs text-slate-600 mt-1">{anomaly.deviation}</p>
+                            <p className="text-xs text-orange-700 font-medium mt-1">Likely: {anomaly.likely_cause}</p>
+                          </div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

@@ -16,10 +16,14 @@ Deno.serve(async (req) => {
 
     if (action === 'analyze') {
       // Use AI to analyze and cross-reference species data
-      const analysisPrompt = `You are a taxonomic expert. Analyze this species dataset and identify:
+      const analysisPrompt = `You are a taxonomic expert with access to authoritative databases. Analyze this species dataset and:
+
 1. Duplicate entries (same species with different IDs) based on scientific names, common names, and taxonomy
 2. Taxonomic inconsistencies (same species name but different family/order/class)
 3. Potential merge candidates (similar but not identical names that might refer to the same species)
+4. **CRITICAL**: Cross-reference each family's species count against established taxonomic databases (Catalogue of Life, GBIF, IUCN Red List, Mammal Species of the World)
+5. Flag any family with significantly more species than expected in authoritative sources
+6. **Specifically for Callitrichidae**: This family has approximately 42-60 recognized species globally (marmosets and tamarins). If you find significantly more, these are likely duplicates or misclassifications.
 
 Species dataset:
 ${JSON.stringify(allSpecies.map(sp => ({
@@ -37,6 +41,8 @@ ${JSON.stringify(allSpecies.map(sp => ({
   inat_taxon_id: sp.inat_taxon_id,
   gbif_id: sp.gbif_id
 })), null, 2)}
+
+Use your internet access to verify species counts and taxonomic classifications against current databases.
 
 Return your analysis as a JSON object with this structure:
 {
@@ -64,10 +70,21 @@ Return your analysis as a JSON object with this structure:
       "confidence": "high/medium/low"
     }
   ],
+  "family_anomalies": [
+    {
+      "family": "family name",
+      "species_in_database": number,
+      "expected_global_count": "range or number from authoritative sources",
+      "deviation": "description of the issue",
+      "likely_cause": "duplicates/misclassification/incomplete data",
+      "affected_species": ["scientific names"]
+    }
+  ],
   "statistics": {
     "total_species": number,
     "potential_duplicates": number,
-    "taxonomic_issues": number
+    "taxonomic_issues": number,
+    "families_analyzed": number
   }
 }`;
 
@@ -113,12 +130,27 @@ Return your analysis as a JSON object with this structure:
                 }
               }
             },
+            family_anomalies: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  family: { type: "string" },
+                  species_in_database: { type: "number" },
+                  expected_global_count: { type: "string" },
+                  deviation: { type: "string" },
+                  likely_cause: { type: "string" },
+                  affected_species: { type: "array", items: { type: "string" } }
+                }
+              }
+            },
             statistics: {
               type: "object",
               properties: {
                 total_species: { type: "number" },
                 potential_duplicates: { type: "number" },
-                taxonomic_issues: { type: "number" }
+                taxonomic_issues: { type: "number" },
+                families_analyzed: { type: "number" }
               }
             }
           }
