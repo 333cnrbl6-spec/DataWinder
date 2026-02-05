@@ -3,18 +3,24 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon } from 'lucide-react';
+import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon, FolderOpen, Upload } from 'lucide-react';
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
 import { motion } from 'framer-motion';
+import { format } from 'date-fns';
 
 export default function DataManagement() {
   const [selectedSpecies, setSelectedSpecies] = useState([]);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
-    queryKey: ['allSpecies', 'dev'],
-    queryFn: () => base44.entities.Species.list('-created_date', 10000, { data_env: 'dev' })
-  });
+      queryKey: ['allSpecies', 'dev'],
+      queryFn: () => base44.entities.Species.list('-created_date', 10000, { data_env: 'dev' })
+    });
+
+    const { data: savedSearches = [] } = useQuery({
+      queryKey: ['savedSearches'],
+      queryFn: () => base44.entities.SavedSearch.list('-created_date')
+    });
 
   // Subscribe to real-time updates
   React.useEffect(() => {
@@ -283,17 +289,57 @@ export default function DataManagement() {
                   </div>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Load Data Options */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Quick Actions</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Load Data</h3>
                   <div className="space-y-2">
+                    {savedSearches.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs text-slate-500 mb-2">Load from Saved Searches:</p>
+                        <div className="space-y-1 max-h-40 overflow-y-auto">
+                          {savedSearches.map((search) => (
+                            <Button
+                              key={search.id}
+                              onClick={() => window.location.href = '/SavedData'}
+                              variant="outline"
+                              size="sm"
+                              className="w-full justify-start text-xs"
+                            >
+                              <FolderOpen className="w-3 h-3 mr-2" />
+                              {search.name} ({search.species_count})
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <Button
                       onClick={() => window.location.href = '/SavedData'}
                       variant="outline"
                       className="w-full justify-start"
                     >
                       <Database className="w-4 h-4 mr-2" />
-                      View Full Database Table
+                      Load All Species ({allSpecies.length})
+                    </Button>
+
+                    <Button
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.csv,.json';
+                        input.onchange = async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            alert('Import functionality coming soon!');
+                          }
+                        };
+                        input.click();
+                      }}
+                      variant="outline"
+                      className="w-full justify-start"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import Data File
                     </Button>
                   </div>
                 </div>
