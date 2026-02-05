@@ -112,7 +112,6 @@ export default function SavedData() {
       if (gbifResult.data.status === 'success') {
         const gbifData = gbifResult.data.data;
 
-        // Create CSV of GBIF occurrences
         let gbifOccurrencesCsvFileUri = null;
         if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
           const csvContent = [
@@ -128,7 +127,6 @@ export default function SavedData() {
           gbifOccurrencesCsvFileUri = csvUri;
         }
 
-        // Update species with GBIF data
         await base44.entities.Species.update(species.id, {
           gbif_id: gbifData.gbif_id,
           gbif_occurrence_count: gbifData.gbif_occurrence_count,
@@ -172,8 +170,6 @@ export default function SavedData() {
       }
 
       const taxon = taxonData.results[0];
-
-      // Fetch observations
       const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
       const obsRes = await fetch(obsUrl);
       let observationData = null;
@@ -182,7 +178,6 @@ export default function SavedData() {
       }
 
       const observations = observationData?.results || [];
-
       const observationsWithCoords = observations
         .filter(obs => obs.location)
         .map(obs => ({
@@ -194,7 +189,6 @@ export default function SavedData() {
           photo_url: obs.photos?.[0]?.url || ''
         }));
 
-      // Create CSV of observations
       let inatObservationsCsvFileUri = null;
       if (observationsWithCoords.length > 0) {
         const csvContent = [
@@ -210,7 +204,6 @@ export default function SavedData() {
         inatObservationsCsvFileUri = csvUri;
       }
 
-      // Update species with iNaturalist data
       const updateData = {
         inat_taxon_id: taxon.id,
         inat_wikipedia_url: taxon.wikipedia_url || null,
@@ -560,45 +553,44 @@ export default function SavedData() {
                             </div>
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                               {!species.gbif_id && (
                                 <Button
-                                  size="icon"
+                                  size="sm"
                                   onClick={() => enrichWithGBIF(species)}
                                   disabled={enrichingSpecies === species.id}
-                                  className="h-8 w-8 bg-slate-500 text-white font-semibold hover:bg-slate-600"
-                                  title="Enrich with GBIF Data">
+                                  className="bg-slate-700 text-white font-bold hover:bg-slate-800 text-xs px-3 h-8">
                                   {enrichingSpecies === species.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                                   ) : (
-                                    <Plus className="w-4 h-4" />
+                                    <Database className="w-3 h-3 mr-1" />
                                   )}
+                                  GBIF
                                 </Button>
                               )}
                               {!species.inat_taxon_id && (
                                 <Button
-                                  size="icon"
+                                  size="sm"
                                   onClick={() => enrichWithINaturalist(species)}
                                   disabled={enrichingSpecies === species.id}
-                                  className="h-8 w-8 bg-bangor-sun/80 text-white font-semibold hover:bg-bangor-sun"
-                                  title="Enrich with iNaturalist Data">
+                                  className="bg-bangor-sun text-slate-900 font-bold hover:bg-bangor-sun/90 text-xs px-3 h-8">
                                   {enrichingSpecies === species.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                                   ) : (
-                                    <Plus className="w-4 h-4" />
+                                    <span className="mr-1">🌿</span>
                                   )}
+                                  iNat
                                 </Button>
                               )}
                               <Button
-                              size="icon"
+                              size="sm"
                               onClick={() => {
                                 setSelectedSpecies(species);
                                 setShowDetails(true);
                               }}
-                              className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
-                              title="View Details">
-
-                                <Eye className="w-4 h-4" />
+                              className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
                               </Button>
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
                             <Button
