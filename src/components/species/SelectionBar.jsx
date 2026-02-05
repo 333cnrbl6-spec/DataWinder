@@ -33,7 +33,7 @@ export default function SelectionBar({
             onClick={onSelectAll}
             className="text-xs text-bangor-red font-medium">
 
-             <Square className="w-4 h-4 mr-1" />
+             <CheckSquare className="w-4 h-4 mr-1" />
              Select all
            </Button>
            <Button
@@ -42,24 +42,24 @@ export default function SelectionBar({
             onClick={onDeselectAll}
             className="text-xs text-slate-600 font-medium">
 
-             <CheckSquare className="w-4 h-4 mr-1" />
+             <Square className="w-4 h-4 mr-1" />
              Deselect all
            </Button>
          </div>
        </div>
 
       <AnimatePresence>
-        {selectedCount > 0 &&
+        {selectedCount > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="flex items-center gap-3">
+          className="flex items-center gap-3 flex-wrap">
 
             <span className="text-sm bg-bangor-sun/20 text-bangor-sun px-3 py-1 rounded-full font-medium">
               {selectedCount} selected
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
               onClick={onCompare}
               variant="outline"
@@ -90,21 +90,21 @@ export default function SelectionBar({
               <Button
               onClick={onSaveSearch}
               variant="outline"
+              size="sm"
               className="border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun font-medium">
-
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-4 h-4 mr-1" />
                 Save Search
               </Button>
               <Button
-              onClick={onDownload} className="bg-bangor-red text-slate-950 px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-red/90 h-9">
-
-
-                <Download className="w-4 h-4 mr-2" />
+              onClick={onDownload}
+              size="sm"
+              className="bg-bangor-red text-white font-medium hover:bg-bangor-red/90">
+                <Download className="w-4 h-4 mr-1" />
                 Download
               </Button>
             </div>
           </motion.div>
-        }
+        )}
       </AnimatePresence>
     </motion.div>);
 
