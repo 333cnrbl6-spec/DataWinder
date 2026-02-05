@@ -81,7 +81,13 @@ export default function Home() {
     setError(null);
     setSpecies([]);
     setSelectedIds([]);
-    setSearchInfo({ level, terms: terms.join(', ') });
+    setSearchInfo({ 
+      level, 
+      terms: terms.join(', '),
+      includeINaturalist,
+      includeGBIF,
+      iucnToken: !!iucnToken
+    });
 
     try {
       const allSpeciesMap = {};
@@ -1084,8 +1090,12 @@ export default function Home() {
                 <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
               </div>
             </div>
-            <p className="mt-4 text-slate-600">Downloading IUCN Species Data...</p>
-            <p className="text-sm text-slate-400">Fetching comprehensive data from IUCN Red List</p>
+            <p className="mt-4 text-slate-600 font-semibold">Downloading Species Data...</p>
+            <div className="mt-2 text-sm text-slate-500 space-y-1">
+              {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
+              {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
+              {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
+            </div>
           </div>
         )}
       </main>
