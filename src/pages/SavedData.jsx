@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Sparkles } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -23,6 +23,8 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -90,6 +92,30 @@ export default function SavedData() {
 
     return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
+
+  const handleMultiDelete = async () => {
+    if (!window.confirm(`Delete ${selectedSpeciesIds.length} species? This cannot be undone.`)) return;
+    
+    setIsDeletingMultiple(true);
+    try {
+      for (const id of selectedSpeciesIds) {
+        await base44.entities.Species.delete(id);
+      }
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+      setSelectedSpeciesIds([]);
+    } catch (error) {
+      console.error('Error deleting species:', error);
+      alert('Failed to delete species');
+    } finally {
+      setIsDeletingMultiple(false);
+    }
+  };
+
+  const toggleSelectSpecies = (id) => {
+    setSelectedSpeciesIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   const exportSpecies = (speciesToExport) => {
     const data = speciesToExport.map((sp) => ({
@@ -320,6 +346,18 @@ export default function SavedData() {
                         Clear Filters
                       </Button>
                     }
+
+                    {selectedSpeciesIds.length > 0 && (
+                      <Button
+                        onClick={handleMultiDelete}
+                        disabled={isDeletingMultiple}
+                        size="sm"
+                        variant="destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete ({selectedSpeciesIds.length})
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -328,6 +366,20 @@ export default function SavedData() {
                   <table className="w-full">
                     <thead className="bg-slate-50 sticky top-0 border-b">
                       <tr>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600 w-8">
+                          <input
+                            type="checkbox"
+                            checked={selectedSpeciesIds.length === filteredSpecies.length && filteredSpecies.length > 0}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedSpeciesIds(filteredSpecies.map(sp => sp.id));
+                              } else {
+                                setSelectedSpeciesIds([]);
+                              }
+                            }}
+                            className="rounded"
+                          />
+                        </th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
@@ -352,6 +404,14 @@ export default function SavedData() {
                           setShowDetails(true);
                         }}>
 
+                          <td className="px-4 py-3 w-8" onClick={(e) => { e.stopPropagation(); }}>
+                            <input
+                              type="checkbox"
+                              checked={selectedSpeciesIds.includes(species.id)}
+                              onChange={() => toggleSelectSpecies(species.id)}
+                              className="rounded"
+                            />
+                          </td>
                           <td className="px-4 py-3">
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
