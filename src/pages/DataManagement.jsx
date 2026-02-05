@@ -42,6 +42,7 @@ export default function DataManagement() {
   const [showSaveSearch, setShowSaveSearch] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isRunningTaxonomyCheck, setIsRunningTaxonomyCheck] = useState(false);
+  const [showTaxonomyInfo, setShowTaxonomyInfo] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
