@@ -31,31 +31,45 @@ Deno.serve(async (req) => {
     }));
 
     // Call LLM to identify duplicates
-    const analysisPrompt = `You are an expert taxonomist. Analyze the following ${allSpecies.length} species records and identify potential duplicates or records that likely refer to the same species.
+    const analysisPrompt = `You are an expert taxonomist specializing in primate taxonomy, particularly Callitrichidae. Deeply analyze each of these ${allSpecies.length} species records for potential duplicates, taxonomic conflicts, and data inconsistencies.
 
-Species to analyze:
+For each species, examine:
+- Scientific name validity against accepted taxonomy (WoRMS, ITIS, IOC World Bird List for comparative standards)
+- Taxonomic hierarchy consistency (kingdom→phylum→class→order→family→genus→species)
+- Common name variations that might indicate duplicates
+- Geographic distribution conflicts
+- IUCN status history for inconsistencies
+
+Species data to analyze:
 ${JSON.stringify(speciesSummary, null, 2)}
 
-For each group of potential duplicates found, provide:
-1. Which species IDs are duplicates
-2. Why they are likely duplicates (taxonomic reasoning)
-3. Confidence score (0-100)
-4. Which one should be the canonical/master record
-5. Field recommendations for merge (which record has the best data for each field)
+Provide detailed taxonomic reasoning referencing:
+1. Current accepted taxonomic standards
+2. Known synonymies in Callitrichidae
+3. Taxonomic revisions or subspecies issues
+4. Data quality issues within each record
 
-Return ONLY valid JSON with this structure:
+Return ONLY valid JSON:
 {
   "duplicate_groups": [
     {
       "species_ids": ["id1", "id2"],
-      "reason": "explanation",
+      "reason": "detailed taxonomic explanation with reference to standards",
       "confidence": 85,
       "suggested_canonical_id": "id1",
+      "taxonomic_issues": ["issue1", "issue2"],
       "merge_recommendations": {
         "scientific_name": "id1",
         "common_name": "id2",
-        "iucn_status": "id1"
+        "family": "id1"
       }
+    }
+  ],
+  "data_quality_issues": [
+    {
+      "species_id": "id",
+      "issues": ["missing_genus", "inconsistent_order"],
+      "recommendations": ["add_genus", "verify_against_WoRMS"]
     }
   ]
 }`;
