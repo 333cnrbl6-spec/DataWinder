@@ -1223,9 +1223,10 @@ export default function DataManagement() {
                       }}
                       disabled={isRunningTaxonomyCheck || allSpecies.length === 0}
                       className="flex-1 justify-start bg-bangor-red hover:bg-bangor-red/90"
-                    >
+                      title="Uses WoRMS, ITIS, IOC, and taxonomic revisions to identify duplicates"
+                      >
                       <Wand2 className="w-4 h-4 mr-2" />
-                      {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check for Duplicates'}
+                      {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check Duplicates (WoRMS/ITIS)'}
                     </Button>
                     <Button
                       onClick={() => setShowTaxonomyInfo(!showTaxonomyInfo)}
