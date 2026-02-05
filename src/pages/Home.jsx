@@ -996,9 +996,19 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Search */}
-        <TaxonomicSearch onSearch={handleSearch} isLoading={isLoading} />
+      <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Split Screen Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left: Search Panel */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+            <Card className="shadow-lg border-bangor-sun/20">
+              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+                <CardTitle className="text-bangor-red">Species Search</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <TaxonomicSearch onSearch={handleSearch} isLoading={isLoading} />
+              </CardContent>
+            </Card>
 
         {/* Info Banner */}
         {!species.length && !isLoading && !error && (
