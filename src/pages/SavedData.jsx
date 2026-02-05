@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Sparkles } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -231,7 +231,7 @@ export default function SavedData() {
                     <Button
                       size="sm"
                       onClick={() => setShowTaxonomicCrossRef(true)}
-                      className="bg-bangor-sun text-slate-900 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-sun/90 h-8">
+                      className="bg-bangor-sun text-slate-900 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors shadow hover:bg-bangor-sun/90 h-8">
                       <Sparkles className="w-4 h-4 mr-1" />
                       AI Cross-Reference
                     </Button>
@@ -537,6 +537,7 @@ export default function SavedData() {
       <TaxonomicCrossReference
         open={showTaxonomicCrossRef}
         onClose={() => setShowTaxonomicCrossRef(false)}
+        data_env="prod"
         onComplete={() => {
           queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
           queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
