@@ -516,7 +516,7 @@ export default function Home() {
                 if (parentData.results?.[0]) {
                   const parentId = parentData.results[0].id;
                   // Get species within this taxon
-                  const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${parentId}&rank=species&per_page=20`;
+                  const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${parentId}&rank=species&per_page=60`;
                   const speciesRes = await fetch(speciesUrl);
                   if (speciesRes.ok) {
                     const speciesData = await speciesRes.json();
@@ -528,7 +528,7 @@ export default function Home() {
             
             // Fallback to text search if no results
             if (iNatTaxa.length === 0) {
-              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=20`;
+              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=60`;
               const taxonRes = await fetch(taxonUrl);
               if (taxonRes.ok) {
                 const taxonData = await taxonRes.json();
@@ -541,8 +541,8 @@ export default function Home() {
               continue;
             }
 
-            // Process each species (limit to 10 for responsiveness)
-            for (const taxon of iNatTaxa.slice(0, 10)) {
+            // Process each species (up to 60)
+            for (const taxon of iNatTaxa.slice(0, 60)) {
               const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
               const obsRes = await fetch(obsUrl);
               let observationData = null;
