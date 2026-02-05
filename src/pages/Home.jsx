@@ -72,7 +72,7 @@ export default function Home() {
     setSearchInfo({ level, terms: terms.join(', ') });
 
     try {
-      let allSpeciesMap = new Map();
+      const allSpeciesMap = {};
 
       // Search IUCN for each term if token available
       if (iucnToken) {
@@ -379,7 +379,9 @@ export default function Home() {
                     })
                     );
 
-                    detailedSpecies.forEach(sp => allSpeciesMap.set(sp.scientific_name, sp));
+                    detailedSpecies.forEach(sp => {
+                    allSpeciesMap[sp.scientific_name] = sp;
+                  });
 
             // Save IUCN species to database
             for (const species of detailedSpecies) {
@@ -570,9 +572,9 @@ export default function Home() {
               dataset_name: term
             };
 
-            if (allSpeciesMap.has(inatSpeciesData.scientific_name)) {
-              const existing = allSpeciesMap.get(inatSpeciesData.scientific_name);
-              allSpeciesMap.set(inatSpeciesData.scientific_name, {
+            if (allSpeciesMap[inatSpeciesData.scientific_name]) {
+              const existing = allSpeciesMap[inatSpeciesData.scientific_name];
+              allSpeciesMap[inatSpeciesData.scientific_name] = {
                 ...existing,
                 inat_taxon_id: inatSpeciesData.inat_taxon_id,
                 inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
@@ -582,17 +584,17 @@ export default function Home() {
                 inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
                 data_source: 'IUCN + iNaturalist',
                 image_url: existing.image_url || inatSpeciesData.image_url
-              });
-            } else {
-              allSpeciesMap.set(inatSpeciesData.scientific_name, inatSpeciesData);
-            }
+                };
+                } else {
+                allSpeciesMap[inatSpeciesData.scientific_name] = inatSpeciesData;
+                }
           } catch (err) {
             console.error(`Error fetching iNaturalist data for ${term}:`, err);
           }
         }
       }
 
-      const allSpecies = Array.from(allSpeciesMap.values());
+      const allSpecies = Object.values(allSpeciesMap);
 
       if (allSpecies.length === 0) {
         setError('No species found for the search terms.');
