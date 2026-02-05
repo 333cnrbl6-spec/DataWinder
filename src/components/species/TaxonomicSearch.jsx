@@ -95,13 +95,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.fetchIUCNData({
+          level: level,
           term: value.trim(),
-          endpoint: 'taxa'
+          endpoint: 'taxa',
+          iucnToken: iucnToken
         });
 
-        if (result.data.status === 'success' && result.data.data?.result && result.data.data.result.length > 0) {
-          setFamilySpecies(result.data.data.result);
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -363,16 +365,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red text-white font-semibold"
+          className="w-full bg-bangor-red text-white font-semibold text-base py-6"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Fetching data...
             </>
           ) : (
             <>
-              Search {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
+              <Search className="w-5 h-5 mr-2" />
+              Search Now ({level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label})
             </>
           )}
         </Button>
