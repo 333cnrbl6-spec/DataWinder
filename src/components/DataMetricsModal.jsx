@@ -18,6 +18,8 @@ export default function DataMetricsModal({
 }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleSelect = (sp) => {
     const id = sp.id || sp.scientific_name;
