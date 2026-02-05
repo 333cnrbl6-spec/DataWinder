@@ -59,7 +59,7 @@ export default function Home() {
     setOnboardingChecked(true);
   };
 
-  const handleSearch = async ({ level, terms, iucnToken }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist }) => {
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -72,13 +72,12 @@ export default function Home() {
     setSearchInfo({ level, terms: terms.join(', ') });
 
     try {
-      let allSpecies = [];
+      let allSpeciesMap = new Map();
 
-      // Search IUCN for each term - always fetch individual species
+      // Search IUCN for each term if token available
       if (iucnToken) {
         for (const term of terms) {
           try {
-            // Use backend function to fetch IUCN data
             const searchResult = await base44.functions.invoke('fetchIUCNData', {
               term: term,
               endpoint: 'taxa'
@@ -88,8 +87,6 @@ export default function Home() {
               console.error(`IUCN API error for ${term}:`, searchResult.data.message);
               if (searchResult.data.statusCode === 401) {
                 setError('IUCN API token is invalid. Please check your token and try again.');
-                setIsLoading(false);
-                return;
               }
               continue;
             }
@@ -377,12 +374,12 @@ export default function Home() {
                     iucn_id: sp.taxonid,
                     dataset_name: term,
                     data_source: 'IUCN Red List'
-                  };
-                }
-              })
-            );
+                    };
+                    }
+                    })
+                    );
 
-            allSpecies = [...allSpecies, ...detailedSpecies];
+                    detailedSpecies.forEach(sp => allSpeciesMap.set(sp.scientific_name, sp));
 
             // Save IUCN species to database
             for (const species of detailedSpecies) {
@@ -502,8 +499,103 @@ export default function Home() {
         }
       }
 
+      // Search iNaturalist if enabled
+      if (includeINaturalist) {
+        for (const term of terms) {
+          try {
+            const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species`;
+            const taxonRes = await fetch(taxonUrl);
+            
+            if (!taxonRes.ok) {
+              console.warn(`iNaturalist API error for ${term}`);
+              continue;
+            }
+
+            const taxonData = await taxonRes.json();
+            if (!taxonData.results || taxonData.results.length === 0) {
+              console.warn(`No iNaturalist species found for ${term}`);
+              continue;
+            }
+
+            const taxon = taxonData.results[0];
+
+            const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
+            const obsRes = await fetch(obsUrl);
+            let observationData = null;
+            if (obsRes.ok) {
+              observationData = await obsRes.json();
+            }
+
+            const observations = observationData?.results || [];
+
+            const observationsWithCoords = observations
+              .filter(obs => obs.location)
+              .map(obs => ({
+                latitude: parseFloat(obs.location.split(',')[0]),
+                longitude: parseFloat(obs.location.split(',')[1]),
+                location: obs.place_guess || '',
+                observed_on: obs.observed_on,
+                user: obs.user?.login || 'Unknown',
+                photo_url: obs.photos?.[0]?.url || ''
+              }));
+
+            let inatObservationsCsvFileUri = null;
+            if (observationsWithCoords.length > 0) {
+              const csvContent = [
+                'latitude,longitude,location,date,observer,photo_url',
+                ...observationsWithCoords.map(obs => 
+                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                )
+              ].join('\n');
+              
+              const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+              const csvFile = new File([csvBlob], `${taxon.name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
+              const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+              inatObservationsCsvFileUri = csvUri;
+            }
+
+            const inatSpeciesData = {
+              id: `inat-${taxon.id}`,
+              scientific_name: taxon.name,
+              common_name: taxon.preferred_common_name || '',
+              iucn_status: 'NE',
+              inat_taxon_id: taxon.id,
+              inat_wikipedia_url: taxon.wikipedia_url || null,
+              observation_count: taxon.observations_count || 0,
+              observations: observationsWithCoords,
+              last_observed: observations[0]?.observed_on || null,
+              inat_observations_csv_file_uri: inatObservationsCsvFileUri,
+              data_source: 'iNaturalist',
+              image_url: taxon.default_photo?.medium_url || null,
+              dataset_name: term
+            };
+
+            if (allSpeciesMap.has(inatSpeciesData.scientific_name)) {
+              const existing = allSpeciesMap.get(inatSpeciesData.scientific_name);
+              allSpeciesMap.set(inatSpeciesData.scientific_name, {
+                ...existing,
+                inat_taxon_id: inatSpeciesData.inat_taxon_id,
+                inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
+                observation_count: inatSpeciesData.observation_count,
+                observations: inatSpeciesData.observations,
+                last_observed: inatSpeciesData.last_observed,
+                inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
+                data_source: 'IUCN + iNaturalist',
+                image_url: existing.image_url || inatSpeciesData.image_url
+              });
+            } else {
+              allSpeciesMap.set(inatSpeciesData.scientific_name, inatSpeciesData);
+            }
+          } catch (err) {
+            console.error(`Error fetching iNaturalist data for ${term}:`, err);
+          }
+        }
+      }
+
+      const allSpecies = Array.from(allSpeciesMap.values());
+
       if (allSpecies.length === 0) {
-        setError('No species found in IUCN Red List for the search terms.');
+        setError('No species found for the search terms.');
         return;
       }
       
