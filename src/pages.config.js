@@ -49,11 +49,13 @@
  */
 import Home from './pages/Home';
 import SavedData from './pages/SavedData';
+import DataManagement from './pages/DataManagement';
 
 
 export const PAGES = {
     "Home": Home,
     "SavedData": SavedData,
+    "DataManagement": DataManagement,
 }
 
 export const pagesConfig = {
