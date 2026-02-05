@@ -524,8 +524,17 @@ export default function SavedData() {
           queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
           queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
         }} />
-
       }
+
+      {/* ArcGIS Terms Modal */}
+      <ArcGISTermsModal 
+        open={showArcGISTerms}
+        onClose={() => setShowArcGISTerms(false)}
+        onAgree={() => {
+          setArcgisAgreed(true);
+          setShowArcGISTerms(false);
+        }}
+      />
 
       {/* Species Details Modal */}
       <AnimatePresence>
