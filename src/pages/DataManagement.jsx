@@ -1203,6 +1203,30 @@ export default function DataManagement() {
                   </div>
                 </div>
 
+                {/* AI Data Quality Tools */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">AI Data Quality</h3>
+                  <Button
+                    onClick={async () => {
+                      setIsRunningTaxonomyCheck(true);
+                      try {
+                        await base44.functions.invoke('runTaxonomyCheck', {});
+                        window.location.href = createPageUrl('ReviewDuplicates');
+                      } catch (error) {
+                        console.error('Taxonomy check error:', error);
+                        alert('Failed to run taxonomy check');
+                      } finally {
+                        setIsRunningTaxonomyCheck(false);
+                      }
+                    }}
+                    disabled={isRunningTaxonomyCheck || allSpecies.length === 0}
+                    className="w-full justify-start bg-bangor-red hover:bg-bangor-red/90"
+                  >
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check for Duplicates'}
+                  </Button>
+                </div>
+
                 {/* Data Quality */}
                 {allSpecies.length > 0 && (
                   <div>
