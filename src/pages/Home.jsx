@@ -958,12 +958,20 @@ export default function Home() {
               <h1 className="text-xl font-bold text-bangor-red">The DataWinder</h1>
               <p className="text-sm text-slate-600">b-Izzy on Data</p>
             </div>
-            <Link to={createPageUrl('SavedData')}>
-              <button className="flex items-center gap-2 px-4 py-2 bg-bangor-sun/20 text-bangor-sun rounded-lg font-medium">
-                <Database className="w-4 h-4" />
-                <span className="text-sm font-medium">Saved Data</span>
-              </button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to={createPageUrl('DataManagement')}>
+                <button className="flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg font-semibold hover:bg-bangor-red/90 transition-colors">
+                  <Database className="w-4 h-4" />
+                  <span className="text-sm">Data Management</span>
+                </button>
+              </Link>
+              <Link to={createPageUrl('SavedData')}>
+                <button className="flex items-center gap-2 px-4 py-2 bg-bangor-sun/20 text-bangor-sun rounded-lg font-medium hover:bg-bangor-sun/30 transition-colors">
+                  <Database className="w-4 h-4" />
+                  <span className="text-sm font-medium">Saved Data</span>
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
