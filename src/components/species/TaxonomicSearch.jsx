@@ -24,7 +24,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [selectedSpecies, setSelectedSpecies] = useState([]);
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [includeINat, setIncludeINat] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -58,8 +57,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       onSearch({ 
         level: 'species', 
         terms: selectedSpecies, 
-        iucnToken,
-        includeINaturalist: includeINat
+        iucnToken
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -67,8 +65,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         onSearch({ 
           level, 
           terms: validTerms, 
-          iucnToken,
-          includeINaturalist: includeINat
+          iucnToken
         });
       }
     }
@@ -141,11 +138,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     >
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5 text-bangor-red" />
-        <h2 className="text-lg font-semibold text-slate-900">Search Multiple Data Sources</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Search IUCN Red List</h2>
       </div>
       
       <p className="text-sm text-slate-500 mb-4">
-        Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
+        Search for species by taxonomic group. IUCN data forms the core dataset structure. After saving, you can enrich individual species with observation data from additional sources.
       </p>
 
       {/* IUCN Credentials */}
@@ -237,14 +234,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* iNaturalist */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-bangor-sun" />
-          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
-        </div>
-      </div>
+
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -394,23 +384,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">Download IUCN Data?</h3>
             <p className="text-sm text-slate-600 mb-4">
-              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+              You're about to fetch comprehensive data from IUCN Red List for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-inat"
-                 name="include-inat"
-                 type="checkbox"
-                 checked={includeINat}
-                 onChange={(e) => setIncludeINat(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+              <p className="text-xs text-blue-800">
+                <strong>Next Step:</strong> After downloading IUCN data, you can optionally enrich individual species with observation data from iNaturalist and other sources.
+              </p>
+            </div>
 
             <div className="flex gap-3">
               <Button

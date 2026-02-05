@@ -59,7 +59,7 @@ export default function Home() {
     setOnboardingChecked(true);
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = true }) => {
+  const handleSearch = async ({ level, terms, iucnToken }) => {
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -510,247 +510,12 @@ export default function Home() {
         }
       }
 
-      // Only search iNaturalist if requested
-      if (!includeINaturalist) {
-        if (allSpecies.length === 0) {
-          setError('No species found in IUCN Red List for the search terms.');
-          return;
-        }
-        setSpecies(allSpecies);
-        setIsLoading(false);
+      if (allSpecies.length === 0) {
+        setError('No species found in IUCN Red List for the search terms.');
         return;
       }
-
-      // Search iNaturalist - get individual species for each term
-      for (const term of terms) {
-        try {
-          // First, find the taxon ID for the search term
-          const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}`;
-          const taxonRes = await fetch(taxonUrl);
-          if (!taxonRes.ok) {
-            console.error(`iNaturalist API error for ${term}:`, taxonRes.status);
-            continue;
-          }
-
-          const taxonData = await taxonRes.json();
-          if (!taxonData.results || taxonData.results.length === 0) {
-            console.warn(`No iNaturalist taxa found for ${term}`);
-            continue;
-          }
-
-          // Get the main taxon (genus, family, etc.)
-          const mainTaxon = taxonData.results[0];
-          
-          // Now search for all species within this taxon
-          const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${mainTaxon.id}&rank=species&per_page=200`;
-          const speciesRes = await fetch(speciesUrl);
-          if (!speciesRes.ok) {
-            console.error(`iNaturalist species search error for ${term}:`, speciesRes.status);
-            continue;
-          }
-
-          const speciesData = await speciesRes.json();
-          const speciesToFetch = speciesData.results || [];
-
-          if (speciesToFetch.length === 0) {
-            console.warn(`No iNaturalist species found within ${term}`);
-            continue;
-          }
-
-          // Fetch detailed observation data for each species
-          const inatSpecies = await Promise.all(speciesToFetch.map(async (taxon) => {
-            // Fetch recent observations for this taxon
-            let observationData = null;
-            try {
-              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=20&order=desc&order_by=created_at&photos=true`;
-              const obsRes = await fetch(obsUrl);
-              if (obsRes.ok) {
-                observationData = await obsRes.json();
-              }
-            } catch (err) {
-              console.error(`Error fetching observations for ${taxon.name}:`, err);
-            }
-
-            const observations = observationData?.results || [];
-            const recentObservation = observations[0];
-
-            // Extract location data from observations
-            const locations = observations
-              .filter(obs => obs.place_guess)
-              .map(obs => obs.place_guess)
-              .slice(0, 5);
-
-            const uniqueLocations = [...new Set(locations)];
-
-            // Store observations with coordinates for mapping
-            const observationsWithCoords = observations
-              .filter(obs => obs.location)
-              .map(obs => ({
-                latitude: parseFloat(obs.location.split(',')[0]),
-                longitude: parseFloat(obs.location.split(',')[1]),
-                location: obs.place_guess || '',
-                observed_on: obs.observed_on,
-                user: obs.user?.login || 'Unknown',
-                photo_url: obs.photos?.[0]?.url || ''
-              }));
-
-            return {
-              id: `inat-${taxon.id}`,
-              scientific_name: taxon.name,
-              common_name: taxon.preferred_common_name || '',
-              iucn_status: 'NE',
-              population_trend: 'unknown',
-              kingdom: taxon.ancestor_ids?.length > 0 ? taxon.ancestors?.find(a => a.rank === 'kingdom')?.name || '' : '',
-              phylum: taxon.ancestors?.find(a => a.rank === 'phylum')?.name || '',
-              class_name: taxon.ancestors?.find(a => a.rank === 'class')?.name || '',
-              order_name: taxon.ancestors?.find(a => a.rank === 'order')?.name || '',
-              family: taxon.ancestors?.find(a => a.rank === 'family')?.name || '',
-              genus: taxon.ancestors?.find(a => a.rank === 'genus')?.name || '',
-              habitat: recentObservation?.description || '',
-              range_description: uniqueLocations.join('; ') || '',
-              threats: '',
-              conservation_actions: '',
-              assessment_date: null,
-              iucn_id: null,
-              dataset_name: term,
-              data_source: 'iNaturalist',
-              observation_count: taxon.observations_count || 0,
-              image_url: taxon.default_photo?.medium_url || recentObservation?.photos?.[0]?.url || '',
-              inat_taxon_id: taxon.id,
-              inat_wikipedia_url: taxon.wikipedia_url || '',
-              recent_observations: observations.length,
-              last_observed: recentObservation?.observed_on || null,
-              observations: observationsWithCoords
-            };
-          }));
-
-          allSpecies = [...allSpecies, ...inatSpecies];
-
-          // Save iNaturalist species to database
-          for (const species of inatSpecies) {
-            try {
-              // Check if species already exists
-              const existing = await base44.entities.Species.filter({
-                scientific_name: species.scientific_name
-              });
-
-              if (existing.length > 0) {
-                // Create pending update for iNaturalist data
-                const newDataFields = {};
-                
-                if (species.common_name && species.common_name !== existing[0].common_name) newDataFields.common_name = species.common_name;
-                if (species.kingdom && species.kingdom !== existing[0].kingdom) newDataFields.kingdom = species.kingdom;
-                if (species.phylum && species.phylum !== existing[0].phylum) newDataFields.phylum = species.phylum;
-                if (species.class_name && species.class_name !== existing[0].class_name) newDataFields.class_name = species.class_name;
-                if (species.order_name && species.order_name !== existing[0].order_name) newDataFields.order_name = species.order_name;
-                if (species.family && species.family !== existing[0].family) newDataFields.family = species.family;
-                if (species.genus && species.genus !== existing[0].genus) newDataFields.genus = species.genus;
-                if (species.habitat && !existing[0].habitat) newDataFields.habitat = species.habitat;
-                if (species.range_description && !existing[0].range_description) newDataFields.range_description = species.range_description;
-                if (species.image_url && species.image_url !== existing[0].image_url) newDataFields.image_url = species.image_url;
-                if (species.observation_count && species.observation_count !== existing[0].observation_count) newDataFields.observation_count = species.observation_count;
-                if (species.observations && JSON.stringify(species.observations) !== JSON.stringify(existing[0].observations)) newDataFields.observations = species.observations;
-                if (species.last_observed && species.last_observed !== existing[0].last_observed) newDataFields.last_observed = species.last_observed;
-                if (species.inat_taxon_id && species.inat_taxon_id !== existing[0].inat_taxon_id) newDataFields.inat_taxon_id = species.inat_taxon_id;
-                if (species.inat_wikipedia_url && species.inat_wikipedia_url !== existing[0].inat_wikipedia_url) newDataFields.inat_wikipedia_url = species.inat_wikipedia_url;
-
-                if (Object.keys(newDataFields).length > 0) {
-                  await base44.entities.PendingSpeciesUpdate.create({
-                    species_id: existing[0].id,
-                    scientific_name: species.scientific_name,
-                    current_data: existing[0],
-                    new_data: newDataFields,
-                    data_source: 'iNaturalist',
-                    status: 'pending'
-                  });
-                }
-              } else {
-                // Create new species record
-                await base44.entities.Species.create({
-                  scientific_name: species.scientific_name,
-                  common_name: species.common_name,
-                  kingdom: species.kingdom,
-                  phylum: species.phylum,
-                  class_name: species.class_name,
-                  order_name: species.order_name,
-                  family: species.family,
-                  genus: species.genus,
-                  iucn_status: species.iucn_status,
-                  population_trend: species.population_trend,
-                  habitat: species.habitat,
-                  range_description: species.range_description,
-                  image_url: species.image_url
-                });
-              }
-            } catch (err) {
-              console.error(`Error saving species ${species.scientific_name}:`, err);
-            }
-          }
-          } catch (err) {
-          console.error(`Error fetching iNaturalist data for ${term}:`, err);
-          }
-          }
-
-          if (allSpecies.length === 0) {
-        setError('No species found for any of the search terms from any source.');
-        return;
-      }
-
-      // Merge duplicate species (same scientific name from different sources)
-      const mergedSpecies = {};
-      allSpecies.forEach(sp => {
-        const key = sp.scientific_name.toLowerCase();
-        if (!mergedSpecies[key]) {
-          mergedSpecies[key] = sp;
-        } else {
-          // Merge data, preferring IUCN data for conservation info, iNat for observations
-          const existing = mergedSpecies[key];
-          mergedSpecies[key] = {
-            ...existing,
-            // Keep IUCN conservation data if available, otherwise use iNaturalist
-            iucn_status: existing.iucn_status !== 'NE' ? existing.iucn_status : sp.iucn_status,
-            population_trend: existing.population_trend !== 'unknown' ? existing.population_trend : sp.population_trend,
-            population_details: existing.population_details || sp.population_details,
-            status_history: existing.status_history || sp.status_history,
-            geographic_distribution: existing.geographic_distribution || sp.geographic_distribution,
-            habitat: existing.habitat || sp.habitat,
-            range_description: existing.range_description || sp.range_description,
-            threats: existing.threats || sp.threats,
-            conservation_actions: existing.conservation_actions || sp.conservation_actions,
-            assessment_date: existing.assessment_date || sp.assessment_date,
-            iucn_id: existing.iucn_id || sp.iucn_id,
-            assessment_pdf_url: existing.assessment_pdf_url || sp.assessment_pdf_url,
-            range_map_jpg_url: existing.range_map_jpg_url || sp.range_map_jpg_url,
-            range_data_shp_url: existing.range_data_shp_url || sp.range_data_shp_url,
-            range_data_csv_url: existing.range_data_csv_url || sp.range_data_csv_url,
-            search_summary_json: existing.search_summary_json || sp.search_summary_json,
-            search_results_csv_url: existing.search_results_csv_url || sp.search_results_csv_url,
-            all_images_urls: existing.all_images_urls || sp.all_images_urls,
-            habitats_detailed: existing.habitats_detailed || sp.habitats_detailed,
-            threats_detailed: existing.threats_detailed || sp.threats_detailed,
-            // Taxonomy - use IUCN if available, fall back to iNaturalist
-            kingdom: existing.kingdom || sp.kingdom,
-            phylum: existing.phylum || sp.phylum,
-            class_name: existing.class_name || sp.class_name,
-            order_name: existing.order_name || sp.order_name,
-            family: existing.family || sp.family,
-            genus: existing.genus || sp.genus,
-            // Keep iNaturalist observation data if available
-            observation_count: sp.observation_count || existing.observation_count,
-            observations: sp.observations || existing.observations,
-            last_observed: sp.last_observed || existing.last_observed,
-            inat_taxon_id: sp.inat_taxon_id || existing.inat_taxon_id,
-            inat_wikipedia_url: sp.inat_wikipedia_url || existing.inat_wikipedia_url,
-            // Use best available image
-            image_url: existing.image_url || sp.image_url,
-            common_name: existing.common_name || sp.common_name,
-            // Mark as combined source
-            data_source: existing.data_source !== sp.data_source ? 'IUCN + iNaturalist' : existing.data_source
-          };
-        }
-      });
-
-      setSpecies(Object.values(mergedSpecies));
+      
+      setSpecies(allSpecies);
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to fetch data. Please check your connection and try again.');
@@ -786,6 +551,111 @@ export default function Home() {
   const handleAddNote = (sp) => {
     setNoteSpecies(sp);
     setShowNotes(true);
+  };
+
+  const enrichWithINaturalist = async (species) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch iNaturalist data for this specific species
+      const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(species.scientific_name)}&rank=species`;
+      const taxonRes = await fetch(taxonUrl);
+      
+      if (!taxonRes.ok) {
+        throw new Error('Failed to fetch iNaturalist data');
+      }
+
+      const taxonData = await taxonRes.json();
+      if (!taxonData.results || taxonData.results.length === 0) {
+        setError(`No iNaturalist data found for ${species.scientific_name}`);
+        setIsLoading(false);
+        return;
+      }
+
+      const taxon = taxonData.results[0];
+
+      // Fetch observations
+      const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
+      const obsRes = await fetch(obsUrl);
+      let observationData = null;
+      if (obsRes.ok) {
+        observationData = await obsRes.json();
+      }
+
+      const observations = observationData?.results || [];
+
+      // Store observations with coordinates
+      const observationsWithCoords = observations
+        .filter(obs => obs.location)
+        .map(obs => ({
+          latitude: parseFloat(obs.location.split(',')[0]),
+          longitude: parseFloat(obs.location.split(',')[1]),
+          location: obs.place_guess || '',
+          observed_on: obs.observed_on,
+          user: obs.user?.login || 'Unknown',
+          photo_url: obs.photos?.[0]?.url || ''
+        }));
+
+      // Create CSV of observations
+      let inatObservationsCsvFileUri = null;
+      if (observationsWithCoords.length > 0) {
+        const csvContent = [
+          'latitude,longitude,location,date,observer,photo_url',
+          ...observationsWithCoords.map(obs => 
+            `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+          )
+        ].join('\n');
+        
+        const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+        const csvFile = new File([csvBlob], `${species.scientific_name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
+        const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+        inatObservationsCsvFileUri = csvUri;
+      }
+
+      // Prepare update data
+      const updateData = {
+        inat_taxon_id: taxon.id,
+        inat_wikipedia_url: taxon.wikipedia_url || null,
+        observation_count: taxon.observations_count || 0,
+        observations: observationsWithCoords,
+        last_observed: observations[0]?.observed_on || null,
+        inat_observations_csv_file_uri: inatObservationsCsvFileUri
+      };
+
+      // Add common name if missing
+      if (!species.common_name && taxon.preferred_common_name) {
+        updateData.common_name = taxon.preferred_common_name;
+      }
+
+      // Add image if missing
+      if (!species.image_url && taxon.default_photo?.medium_url) {
+        updateData.image_url = taxon.default_photo.medium_url;
+      }
+
+      // Check if this is a saved species (has database ID) or temporary search result
+      if (species.id && !species.id.startsWith('iucn-')) {
+        // Update existing database record
+        await base44.entities.Species.update(species.id, updateData);
+        
+        // Update local state
+        setSpecies(prev => prev.map(sp => 
+          sp.id === species.id ? { ...sp, ...updateData } : sp
+        ));
+      } else {
+        // This is a temporary search result - update local state only
+        setSpecies(prev => prev.map(sp => 
+          sp.scientific_name === species.scientific_name ? { ...sp, ...updateData } : sp
+        ));
+      }
+
+      setError(null);
+    } catch (err) {
+      console.error('Error enriching with iNaturalist:', err);
+      setError(`Failed to enrich ${species.scientific_name} with iNaturalist data.`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -826,17 +696,16 @@ export default function Home() {
               <Info className="h-4 w-4 text-bangor-sun" />
               <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
               <AlertDescription className="text-slate-700">
-                Search species data from multiple sources (IUCN Red List & iNaturalist) by taxonomic group. 
-                View results in grid or interactive map with observation points. 
-                Compare species side-by-side, create custom lists to share, add personal notes with tags, 
-                and export filtered data in CSV or JSON format with customizable fields.
+                Search species data from IUCN Red List by taxonomic group to build your core dataset. 
+                After downloading IUCN data, you can enrich individual species with observation data from iNaturalist. 
+                Compare species, create custom lists, add personal notes, and export filtered data in CSV or JSON format.
               </AlertDescription>
             </Alert>
 
             <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
-              <p className="mb-1 font-semibold text-slate-700">Data Sources:</p>
+              <p className="mb-1 font-semibold text-slate-700">Primary Data Source:</p>
               <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
-              <p className="italic">• iNaturalist observation data www.inaturalist.org</p>
+              <p className="text-slate-500 mt-2">Additional observation data can be integrated after initial download.</p>
             </div>
 
             {/* Status Legend */}
@@ -911,6 +780,7 @@ export default function Home() {
                 species={species}
                 selectedIds={selectedIds}
                 onSelect={handleSelect}
+                onEnrichWithINaturalist={enrichWithINaturalist}
               />
             ) : (
               <MapView
@@ -931,8 +801,8 @@ export default function Home() {
                 <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
               </div>
             </div>
-            <p className="mt-4 text-slate-600">Downloading Species Data From Multiple Sources...</p>
-            <p className="text-sm text-slate-400">Fetching From IUCN Red List & iNaturalist</p>
+            <p className="mt-4 text-slate-600">Downloading IUCN Species Data...</p>
+            <p className="text-sm text-slate-400">Fetching comprehensive data from IUCN Red List</p>
           </div>
         )}
       </main>
