@@ -1096,7 +1096,95 @@ export default function DataManagement() {
             </Card>
           </motion.div>
         </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-bangor-sun/30 rounded-full animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
+              </div>
+            </div>
+            <p className="mt-4 text-slate-600 font-semibold">Downloading Species Data...</p>
+            <div className="mt-2 text-sm text-slate-500 space-y-1">
+              {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
+              {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
+              {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Download Panel */}
+      {showDownload && selectedSpecies.length > 0 && (
+        <DownloadPanel
+          selectedSpecies={selectedSpecies}
+          onClose={() => setShowDownload(false)}
+          onSaveComplete={() => {
+            alert('Data saved to database successfully!');
+          }}
+        />
+      )}
+
+      {/* Compare Species */}
+      {showCompare && (
+        <CompareSpecies
+          species={selectedSpecies}
+          onClose={() => setShowCompare(false)}
+          onRemove={handleRemoveFromCompare}
+        />
+      )}
+
+      {/* List Manager */}
+      {showListManager && (
+        <SpeciesListManager
+          selectedSpecies={selectedSpecies}
+          onClose={() => setShowListManager(false)}
+        />
+      )}
+
+      {/* Species Notes */}
+      {showNotes && noteSpecies && (
+        <SpeciesNotes
+          species={noteSpecies}
+          onClose={() => {
+            setShowNotes(false);
+            setNoteSpecies(null);
+          }}
+        />
+      )}
+
+      {/* Onboarding Wizard */}
+      <OnboardingWizard 
+        open={showOnboarding}
+        onComplete={handleOnboardingComplete}
+      />
+
+      {/* Logo Selector */}
+      <LogoShowcase 
+        open={showLogoSelector}
+        onClose={() => setShowLogoSelector(false)}
+        onSelect={(logoId) => {
+          console.log('Selected logo:', logoId);
+          setShowLogoSelector(false);
+          alert(`Logo "${logoId}" selected! To fully implement this, you'd update the BangOnLogo component or create a logo preference system.`);
+        }}
+      />
+
+      {/* Save Search Panel */}
+      {showSaveSearch && (
+        <SaveSearchPanel
+          open={showSaveSearch}
+          onClose={() => setShowSaveSearch(false)}
+          species={species}
+          searchInfo={searchInfo}
+          onSaveComplete={() => {
+            // Refresh saved data
+          }}
+        />
+      )}
     </div>
   );
 }
