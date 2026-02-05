@@ -49,15 +49,15 @@
  */
 import DataManagement from './pages/DataManagement';
 import Home from './pages/Home';
-import SavedData from './pages/SavedData';
 import ReviewDuplicates from './pages/ReviewDuplicates';
+import SavedData from './pages/SavedData';
 
 
 export const PAGES = {
     "DataManagement": DataManagement,
     "Home": Home,
-    "SavedData": SavedData,
     "ReviewDuplicates": ReviewDuplicates,
+    "SavedData": SavedData,
 }
 
 export const pagesConfig = {
