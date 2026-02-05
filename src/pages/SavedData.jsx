@@ -501,89 +501,81 @@ export default function SavedData() {
                                 </Button>
                               )}
                               <Button
-                              size="sm"
-                              onClick={() => {
-                                setSelectedSpecies(species);
-                                setShowDetails(true);
-                              }}
-                              className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedSpecies(species);
+                                  setShowDetails(true);
+                                }}
+                                className="bg-bangor-red text-white font-bold hover:bg-bangor-red/90 text-xs px-3 h-8">
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                const speciesName = species.scientific_name.replace(/ /g, '_');
-                                const files = [];
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const speciesName = species.scientific_name.replace(/ /g, '_');
+                                    const files = [];
 
-                                // Download search summary
-                                if (species.search_summary_json) {
-                                  const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_search_summary.json` });
-                                }
+                                    if (species.search_summary_json) {
+                                      const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
+                                      files.push({ blob, name: `${speciesName}_search_summary.json` });
+                                    }
 
-                                // Download range geojson
-                                if (species.range_data_geojson) {
-                                  const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_range_data.geojson` });
-                                }
+                                    if (species.range_data_geojson) {
+                                      const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
+                                      files.push({ blob, name: `${speciesName}_range_data.geojson` });
+                                    }
 
-                                // Download observations as CSV
-                                if (species.observations && species.observations.length > 0) {
-                                  const csv = [
-                                  'latitude,longitude,location,date,observer,photo_url',
-                                  ...species.observations.map((obs) =>
-                                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                                  )].
-                                  join('\n');
-                                  const blob = new Blob([csv], { type: 'text/csv' });
-                                  files.push({ blob, name: `${speciesName}_observations.csv` });
-                                }
+                                    if (species.observations && species.observations.length > 0) {
+                                      const csv = [
+                                        'latitude,longitude,location,date,observer,photo_url',
+                                        ...species.observations.map((obs) =>
+                                          `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                                        )
+                                      ].join('\n');
+                                      const blob = new Blob([csv], { type: 'text/csv' });
+                                      files.push({ blob, name: `${speciesName}_observations.csv` });
+                                    }
 
-                                // Download habitats
-                                if (species.habitats_detailed) {
-                                  const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_habitats.json` });
-                                }
+                                    if (species.habitats_detailed) {
+                                      const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
+                                      files.push({ blob, name: `${speciesName}_habitats.json` });
+                                    }
 
-                                // Download threats
-                                if (species.threats_detailed) {
-                                  const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
-                                  files.push({ blob, name: `${speciesName}_threats.json` });
-                                }
+                                    if (species.threats_detailed) {
+                                      const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
+                                      files.push({ blob, name: `${speciesName}_threats.json` });
+                                    }
 
-                                // Download range map JPG if available
-                                if (species.range_map_jpg_url) {
-                                  files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
-                                }
+                                    if (species.range_map_jpg_url) {
+                                      files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
+                                    }
 
-                                // Download assessment PDF if available
-                                if (species.assessment_pdf_url) {
-                                  files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
-                                }
+                                    if (species.assessment_pdf_url) {
+                                      files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
+                                    }
 
-                                // Trigger downloads
-                                files.forEach((file) => {
-                                  const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
-                                  const a = document.createElement('a');
-                                  a.href = url;
-                                  a.download = file.name;
-                                  document.body.appendChild(a);
-                                  a.click();
-                                  document.body.removeChild(a);
-                                  if (file.blob) URL.revokeObjectURL(url);
-                                });
-                              }}
-                              className="bg-emerald-600 text-white font-bold hover:bg-emerald-700 text-xs px-3 h-8">
-                                <Download className="w-3 h-3 mr-1" />
-                                Data
-                              </Button>
-                            }
+                                    files.forEach((file) => {
+                                      const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
+                                      const a = document.createElement('a');
+                                      a.href = url;
+                                      a.download = file.name;
+                                      document.body.appendChild(a);
+                                      a.click();
+                                      document.body.removeChild(a);
+                                      if (file.blob) URL.revokeObjectURL(url);
+                                    });
+                                  }}
+                                  className="bg-emerald-600 text-white font-bold hover:bg-emerald-700 text-xs px-3 h-8">
+                                  <Download className="w-3 h-3 mr-1" />
+                                  Data
+                                </Button>
+                              }
                               <Button
-                              size="sm"
-                              onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                              className="bg-red-600 text-white font-bold hover:bg-red-700 text-xs px-3 h-8">
+                                size="sm"
+                                onClick={() => deleteSpeciesMutation.mutate(species.id)}
+                                className="bg-red-600 text-white font-bold hover:bg-red-700 text-xs px-3 h-8">
                                 <Trash2 className="w-3 h-3 mr-1" />
                                 Delete
                               </Button>
