@@ -46,6 +46,9 @@ export default function DataManagement() {
   const [isRunningTaxonomyCheck, setIsRunningTaxonomyCheck] = useState(false);
   const [showTaxonomyInfo, setShowTaxonomyInfo] = useState(false);
   const [metricsModal, setMetricsModal] = useState({ isOpen: false, type: null, title: null, data: null });
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [mergeCandidates, setMergeCandidates] = useState([]);
+  const [isLoadingMergeCandidates, setIsLoadingMergeCandidates] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
