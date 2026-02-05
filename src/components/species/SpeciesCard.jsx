@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export default function SpeciesCard({ species, selected, onSelect, onEnrichWithINaturalist, index = 0 }) {
   const isIUCN = species.data_source === 'IUCN Red List';
+  const isINat = species.data_source === 'iNaturalist';
   const hasINatData = species.inat_taxon_id || species.observation_count > 0;
   
   return (
