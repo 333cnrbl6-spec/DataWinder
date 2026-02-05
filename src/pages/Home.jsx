@@ -152,6 +152,14 @@ export default function Home() {
                   const history = historicalData?.result || [];
                   const countries = countriesData?.result || [];
 
+                  // Download and upload files to backend storage
+                  let searchSummaryFileUri = null;
+                  let rangeGeoJsonFileUri = null;
+                  let assessmentPdfFileUri = null;
+                  let rangeShpFileUri = null;
+                  let rangeCsvFileUri = null;
+                  let rangeMapJpgFileUri = null;
+
                   // Fetch range data from IUCN API v4
                   let rangeDataGeoJSON = null;
                   let rangeDataPoints = null;
@@ -217,6 +225,88 @@ export default function Home() {
                     range_data_points: rangeDataPoints,
                     assessment_id: sp.assessment_id
                   };
+
+                  // Upload search summary JSON to backend storage
+                  try {
+                    const searchSummaryBlob = new Blob([JSON.stringify(searchSummary, null, 2)], { type: 'application/json' });
+                    const searchSummaryFile = new File([searchSummaryBlob], `${sp.scientific_name.replace(/ /g, '_')}_search_summary.json`, { type: 'application/json' });
+                    const { file_uri: summaryUri } = await base44.integrations.Core.UploadPrivateFile({ file: searchSummaryFile });
+                    searchSummaryFileUri = summaryUri;
+                  } catch (err) {
+                    console.error('Error uploading search summary:', err);
+                  }
+
+                  // Upload range GeoJSON to backend storage
+                  if (rangeDataGeoJSON) {
+                    try {
+                      const rangeGeoJsonBlob = new Blob([JSON.stringify(rangeDataGeoJSON, null, 2)], { type: 'application/json' });
+                      const rangeGeoJsonFile = new File([rangeGeoJsonBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_data.geojson`, { type: 'application/json' });
+                      const { file_uri: geoJsonUri } = await base44.integrations.Core.UploadPrivateFile({ file: rangeGeoJsonFile });
+                      rangeGeoJsonFileUri = geoJsonUri;
+                    } catch (err) {
+                      console.error('Error uploading range GeoJSON:', err);
+                    }
+                  }
+
+                  // Download and upload assessment PDF
+                  try {
+                    const pdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
+                    const pdfRes = await fetch(pdfUrl);
+                    if (pdfRes.ok) {
+                      const pdfBlob = await pdfRes.blob();
+                      const pdfFile = new File([pdfBlob], `${sp.scientific_name.replace(/ /g, '_')}_assessment.pdf`, { type: 'application/pdf' });
+                      const { file_uri: pdfUri } = await base44.integrations.Core.UploadPrivateFile({ file: pdfFile });
+                      assessmentPdfFileUri = pdfUri;
+                    }
+                  } catch (err) {
+                    console.error('Error downloading/uploading assessment PDF:', err);
+                  }
+
+                  // Download and upload range map JPG
+                  try {
+                    const mapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
+                    const mapRes = await fetch(mapUrl);
+                    if (mapRes.ok) {
+                      const mapBlob = await mapRes.blob();
+                      const mapFile = new File([mapBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_map.jpg`, { type: 'image/jpeg' });
+                      const { file_uri: mapUri } = await base44.integrations.Core.UploadPrivateFile({ file: mapFile });
+                      rangeMapJpgFileUri = mapUri;
+                    }
+                  } catch (err) {
+                    console.error('Error downloading/uploading range map JPG:', err);
+                  }
+
+                  // Download and upload range SHP file
+                  try {
+                    const shpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
+                    const shpRes = await fetch(shpUrl);
+                    if (shpRes.ok) {
+                      const shpBlob = await shpRes.blob();
+                      const shpFile = new File([shpBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_data.shp.zip`, { type: 'application/zip' });
+                      const { file_uri: shpUri } = await base44.integrations.Core.UploadPrivateFile({ file: shpFile });
+                      rangeShpFileUri = shpUri;
+                    }
+                  } catch (err) {
+                    console.error('Error downloading/uploading range SHP:', err);
+                  }
+
+                  // Download and upload range CSV if available
+                  if (rangeDataPoints && rangeDataPoints.length > 0) {
+                    try {
+                      const csvContent = [
+                        'latitude,longitude,season,origin,presence',
+                        ...rangeDataPoints.map(point => 
+                          `${point.latitude || ''},${point.longitude || ''},${point.season || ''},${point.origin || ''},${point.presence || ''}`
+                        )
+                      ].join('\n');
+                      const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                      const csvFile = new File([csvBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_points.csv`, { type: 'text/csv' });
+                      const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                      rangeCsvFileUri = csvUri;
+                    } catch (err) {
+                      console.error('Error uploading range CSV:', err);
+                    }
+                  }
                   
                   return {
                     id: `iucn-${sp.taxonid}`,
@@ -271,7 +361,13 @@ export default function Home() {
                     search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
                     all_images_urls: allImages.length > 0 ? allImages : (sp.main_common_name ? [sp.default_photo?.url].filter(Boolean) : []),
                     dataset_name: term,
-                    data_source: 'IUCN Red List'
+                    data_source: 'IUCN Red List',
+                    search_summary_file_uri: searchSummaryFileUri,
+                    range_geojson_file_uri: rangeGeoJsonFileUri,
+                    assessment_pdf_file_uri: assessmentPdfFileUri,
+                    range_shp_file_uri: rangeShpFileUri,
+                    range_csv_file_uri: rangeCsvFileUri,
+                    range_map_jpg_file_uri: rangeMapJpgFileUri
                   };
                 } catch (err) {
                   console.error(`Error fetching comprehensive details for ${sp.scientific_name}:`, err);
@@ -341,7 +437,13 @@ export default function Home() {
                     observations: species.observations || existing[0].observations,
                     last_observed: species.last_observed || existing[0].last_observed,
                     inat_taxon_id: species.inat_taxon_id || existing[0].inat_taxon_id,
-                    inat_wikipedia_url: species.inat_wikipedia_url || existing[0].inat_wikipedia_url
+                    inat_wikipedia_url: species.inat_wikipedia_url || existing[0].inat_wikipedia_url,
+                    search_summary_file_uri: species.search_summary_file_uri || existing[0].search_summary_file_uri,
+                    range_geojson_file_uri: species.range_geojson_file_uri || existing[0].range_geojson_file_uri,
+                    assessment_pdf_file_uri: species.assessment_pdf_file_uri || existing[0].assessment_pdf_file_uri,
+                    range_shp_file_uri: species.range_shp_file_uri || existing[0].range_shp_file_uri,
+                    range_csv_file_uri: species.range_csv_file_uri || existing[0].range_csv_file_uri,
+                    range_map_jpg_file_uri: species.range_map_jpg_file_uri || existing[0].range_map_jpg_file_uri
                     });
                 } else {
                   // Create new species record
@@ -381,7 +483,13 @@ export default function Home() {
                     observations: species.observations,
                     last_observed: species.last_observed,
                     inat_taxon_id: species.inat_taxon_id,
-                    inat_wikipedia_url: species.inat_wikipedia_url
+                    inat_wikipedia_url: species.inat_wikipedia_url,
+                    search_summary_file_uri: species.search_summary_file_uri,
+                    range_geojson_file_uri: species.range_geojson_file_uri,
+                    assessment_pdf_file_uri: species.assessment_pdf_file_uri,
+                    range_shp_file_uri: species.range_shp_file_uri,
+                    range_csv_file_uri: species.range_csv_file_uri,
+                    range_map_jpg_file_uri: species.range_map_jpg_file_uri
                     });
                 }
               } catch (err) {

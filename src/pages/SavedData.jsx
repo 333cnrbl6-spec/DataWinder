@@ -5,13 +5,55 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+
+// Download Button Component
+function DownloadButton({ fileUri, fileName, label, bgColor, textColor }) {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
+  const handleDownload = async () => {
+    if (!fileUri) return;
+    
+    setIsDownloading(true);
+    try {
+      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: fileUri });
+      const a = document.createElement('a');
+      a.href = signed_url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Error downloading file:', err);
+      alert('Failed to download file');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <button
+      className={`text-xs px-3 py-2 rounded-lg font-medium flex items-center justify-center gap-1 ${
+        fileUri ? `${bgColor} ${textColor} hover:opacity-80` : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+      }`}
+      onClick={handleDownload}
+      disabled={!fileUri || isDownloading}
+    >
+      {isDownloading ? (
+        <Loader2 className="w-3 h-3 animate-spin" />
+      ) : (
+        <FileText className="w-3 h-3" />
+      )}
+      {fileUri ? label : 'UNAVAILABLE'}
+    </button>
+  );
+}
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,39 +102,39 @@ export default function SavedData() {
 
   // Get unique countries for filter
   const allCountries = [...new Set(
-    allSpecies.flatMap(sp => sp.geographic_distribution?.countries || [])
+    allSpecies.flatMap((sp) => sp.geographic_distribution?.countries || [])
   )].sort();
 
-  const filteredSpecies = allSpecies.filter(sp => {
+  const filteredSpecies = allSpecies.filter((sp) => {
     // Search filter
-    const searchMatch = !searchTerm || 
-      sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const searchMatch = !searchTerm ||
+    sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
+
     // IUCN status filter
     const statusMatch = statusFilter === 'all' || sp.iucn_status === statusFilter;
-    
+
     // Data source filter
-    const sourceMatch = sourceFilter === 'all' || 
-      (sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List')) ||
-      (sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist')) ||
-      (sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist');
-    
+    const sourceMatch = sourceFilter === 'all' ||
+    sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List') ||
+    sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist') ||
+    sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist';
+
     // Country filter
-    const countryMatch = countryFilter === 'all' || 
-      sp.geographic_distribution?.countries?.includes(countryFilter);
-    
+    const countryMatch = countryFilter === 'all' ||
+    sp.geographic_distribution?.countries?.includes(countryFilter);
+
     // Conservation action filter
     const conservationMatch = conservationFilter === 'all' ||
-      (conservationFilter === 'yes' && sp.conservation_actions) ||
-      (conservationFilter === 'no' && !sp.conservation_actions);
-    
+    conservationFilter === 'yes' && sp.conservation_actions ||
+    conservationFilter === 'no' && !sp.conservation_actions;
+
     return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
 
   const exportSpecies = (speciesToExport) => {
-    const data = speciesToExport.map(sp => ({
+    const data = speciesToExport.map((sp) => ({
       scientific_name: sp.scientific_name,
       common_name: sp.common_name,
       iucn_status: sp.iucn_status,
@@ -110,11 +152,11 @@ export default function SavedData() {
     }));
 
     const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => 
-      Object.values(row).map(val => {
-        const value = String(val || '').replace(/"/g, '""');
-        return value.includes(',') || value.includes('"') ? `"${value}"` : value;
-      }).join(',')
+    const rows = data.map((row) =>
+    Object.values(row).map((val) => {
+      const value = String(val || '').replace(/"/g, '""');
+      return value.includes(',') || value.includes('"') ? `"${value}"` : value;
+    }).join(',')
     );
     const csv = [headers, ...rows].join('\n');
 
@@ -157,18 +199,18 @@ export default function SavedData() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-2 max-h-[70vh] overflow-y-auto">
-                {savedSearches.map((search) => (
-                  <motion.div
-                    key={search.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      selectedSearch?.id === search.id
-                        ? 'bg-bangor-red/10 border-bangor-red/50'
-                        : 'bg-white border-slate-200'
-                    }`}
-                    onClick={() => setSelectedSearch(search)}
-                  >
+                {savedSearches.map((search) =>
+                <motion.div
+                  key={search.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  selectedSearch?.id === search.id ?
+                  'bg-bangor-red/10 border-bangor-red/50' :
+                  'bg-white border-slate-200'}`
+                  }
+                  onClick={() => setSelectedSearch(search)}>
+
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-slate-900 truncate">{search.name}</h4>
@@ -181,24 +223,24 @@ export default function SavedData() {
                         </p>
                       </div>
                       <Button
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteSearchMutation.mutate(search.id);
-                        }}
-                        className="h-8 w-8 bg-red-100 text-red-600 font-medium"
-                      >
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSearchMutation.mutate(search.id);
+                      }}
+                      className="h-8 w-8 bg-red-100 text-red-600 font-medium">
+
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </motion.div>
-                ))}
-                {savedSearches.length === 0 && (
-                  <div className="text-center py-8 text-slate-400">
+                )}
+                {savedSearches.length === 0 &&
+                <div className="text-center py-8 text-slate-400">
                     <Database className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No saved searches yet</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </div>
@@ -213,25 +255,25 @@ export default function SavedData() {
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
-                      className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200"
-                    >
+                      className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200">
+
                       <RotateCw className="w-4 h-4 mr-1" />
                       Refresh
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => setShowIntegrityChecker(true)}
-                      variant="secondary"
-                    >
+                      onClick={() => setShowIntegrityChecker(true)} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-bangor-sun/90 h-8">
+
+
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
-                      disabled={filteredSpecies.length === 0}
-                      variant="default"
-                    >
+                      disabled={filteredSpecies.length === 0} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-red/90 h-8">
+
+
                       <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
@@ -243,8 +285,8 @@ export default function SavedData() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search by name, family..."
-                      className="pl-10"
-                    />
+                      className="pl-10" />
+
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   </div>
 
@@ -287,9 +329,9 @@ export default function SavedData() {
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
                         <SelectItem value="all">All Countries</SelectItem>
-                        {allCountries.map(country => (
-                          <SelectItem key={country} value={country}>{country}</SelectItem>
-                        ))}
+                        {allCountries.map((country) =>
+                        <SelectItem key={country} value={country}>{country}</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
 
@@ -304,24 +346,24 @@ export default function SavedData() {
                       </SelectContent>
                     </Select>
 
-                    {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all') && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setStatusFilter('all');
-                          setSourceFilter('all');
-                          setCountryFilter('all');
-                          setConservationFilter('all');
-                        }}
-                        className="h-8 text-xs text-slate-700"
-                      >
+                    {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all') &&
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSourceFilter('all');
+                        setCountryFilter('all');
+                        setConservationFilter('all');
+                      }}
+                      className="h-8 text-xs text-slate-700">
+
                         <X className="w-3 h-3 mr-1" />
                         Clear Filters
                       </Button>
-                    )}
-                    </div>
-                    </div>
+                    }
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="max-h-[70vh] overflow-y-auto">
@@ -341,17 +383,17 @@ export default function SavedData() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredSpecies.map((species) => (
-                        <motion.tr
-                          key={species.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
-                          onClick={() => {
-                            setSelectedSpecies(species);
-                            setShowDetails(true);
-                          }}
-                        >
+                      {filteredSpecies.map((species) =>
+                      <motion.tr
+                        key={species.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setSelectedSpecies(species);
+                          setShowDetails(true);
+                        }}>
+
                           <td className="px-4 py-3">
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
@@ -377,16 +419,16 @@ export default function SavedData() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-xs">
-                              {species.geographic_distribution?.countries?.length > 0 ? (
-                                <>
+                              {species.geographic_distribution?.countries?.length > 0 ?
+                            <>
                                   <div className="font-semibold text-slate-900">{species.geographic_distribution.countries.length}</div>
                                   <div className="text-slate-600 max-w-[120px] truncate">
                                     {species.geographic_distribution.countries.slice(0, 2).join(', ')}
                                   </div>
-                                </>
-                              ) : (
-                                <span className="text-slate-400">—</span>
-                              )}
+                                </> :
+
+                            <span className="text-slate-400">—</span>
+                            }
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -402,108 +444,108 @@ export default function SavedData() {
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button
-                                size="icon"
-                                onClick={() => {
-                                  setSelectedSpecies(species);
-                                  setShowDetails(true);
-                                }}
-                                className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
-                                title="View Details"
-                              >
+                              size="icon"
+                              onClick={() => {
+                                setSelectedSpecies(species);
+                                setShowDetails(true);
+                              }}
+                              className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
+                              title="View Details">
+
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              {(species.range_data_geojson || species.search_summary_json || species.observations) && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    const speciesName = species.scientific_name.replace(/ /g, '_');
-                                    const files = [];
+                              {(species.range_data_geojson || species.search_summary_json || species.observations) &&
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const speciesName = species.scientific_name.replace(/ /g, '_');
+                                const files = [];
 
-                                    // Download search summary
-                                    if (species.search_summary_json) {
-                                      const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
-                                      files.push({ blob, name: `${speciesName}_search_summary.json` });
-                                    }
+                                // Download search summary
+                                if (species.search_summary_json) {
+                                  const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_search_summary.json` });
+                                }
 
-                                    // Download range geojson
-                                    if (species.range_data_geojson) {
-                                      const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
-                                      files.push({ blob, name: `${speciesName}_range_data.geojson` });
-                                    }
+                                // Download range geojson
+                                if (species.range_data_geojson) {
+                                  const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_range_data.geojson` });
+                                }
 
-                                    // Download observations as CSV
-                                    if (species.observations && species.observations.length > 0) {
-                                      const csv = [
-                                        'latitude,longitude,location,date,observer,photo_url',
-                                        ...species.observations.map(obs => 
-                                          `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                                        )
-                                      ].join('\n');
-                                      const blob = new Blob([csv], { type: 'text/csv' });
-                                      files.push({ blob, name: `${speciesName}_observations.csv` });
-                                    }
+                                // Download observations as CSV
+                                if (species.observations && species.observations.length > 0) {
+                                  const csv = [
+                                  'latitude,longitude,location,date,observer,photo_url',
+                                  ...species.observations.map((obs) =>
+                                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                                  )].
+                                  join('\n');
+                                  const blob = new Blob([csv], { type: 'text/csv' });
+                                  files.push({ blob, name: `${speciesName}_observations.csv` });
+                                }
 
-                                    // Download habitats
-                                    if (species.habitats_detailed) {
-                                      const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
-                                      files.push({ blob, name: `${speciesName}_habitats.json` });
-                                    }
+                                // Download habitats
+                                if (species.habitats_detailed) {
+                                  const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_habitats.json` });
+                                }
 
-                                    // Download threats
-                                    if (species.threats_detailed) {
-                                      const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
-                                      files.push({ blob, name: `${speciesName}_threats.json` });
-                                    }
+                                // Download threats
+                                if (species.threats_detailed) {
+                                  const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_threats.json` });
+                                }
 
-                                    // Download range map JPG if available
-                                    if (species.range_map_jpg_url) {
-                                      files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
-                                    }
+                                // Download range map JPG if available
+                                if (species.range_map_jpg_url) {
+                                  files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
+                                }
 
-                                    // Download assessment PDF if available
-                                    if (species.assessment_pdf_url) {
-                                      files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
-                                    }
+                                // Download assessment PDF if available
+                                if (species.assessment_pdf_url) {
+                                  files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
+                                }
 
-                                    // Trigger downloads
-                                    files.forEach(file => {
-                                      const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
-                                      const a = document.createElement('a');
-                                      a.href = url;
-                                      a.download = file.name;
-                                      document.body.appendChild(a);
-                                      a.click();
-                                      document.body.removeChild(a);
-                                      if (file.blob) URL.revokeObjectURL(url);
-                                    });
-                                  }}
-                                  className="h-8 w-8 text-green-600"
-                                  title="Download All Data Files"
-                                >
+                                // Trigger downloads
+                                files.forEach((file) => {
+                                  const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = file.name;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                  if (file.blob) URL.revokeObjectURL(url);
+                                });
+                              }}
+                              className="h-8 w-8 text-green-600"
+                              title="Download All Data Files">
+
                                   <Download className="w-4 h-4" />
                                 </Button>
-                              )}
+                            }
                               <Button
-                                size="icon"
-                                onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                                className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
-                                title="Delete"
-                              >
+                              size="icon"
+                              onClick={() => deleteSpeciesMutation.mutate(species.id)}
+                              className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
+                              title="Delete">
+
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </td>
                         </motion.tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
-                  {filteredSpecies.length === 0 && (
-                    <div className="text-center py-12 text-slate-400">
+                  {filteredSpecies.length === 0 &&
+                  <div className="text-center py-12 text-slate-400">
                       <Database className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No species found</p>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -512,21 +554,21 @@ export default function SavedData() {
       </main>
 
       {/* Data Integrity Checker */}
-      {showIntegrityChecker && (
-        <DataIntegrityChecker
-          open={showIntegrityChecker}
-          onClose={() => setShowIntegrityChecker(false)}
-          onComplete={() => {
-            queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-            queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
-          }}
-        />
-      )}
+      {showIntegrityChecker &&
+      <DataIntegrityChecker
+        open={showIntegrityChecker}
+        onClose={() => setShowIntegrityChecker(false)}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+          queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+        }} />
+
+      }
 
       {/* Species Details Modal */}
       <AnimatePresence>
-        {showDetails && selectedSpecies && (
-          <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        {showDetails && selectedSpecies &&
+        <Dialog open={showDetails} onOpenChange={setShowDetails}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
@@ -537,25 +579,25 @@ export default function SavedData() {
 
               <div className="space-y-6 mt-4">
                 {/* Image */}
-                {selectedSpecies.image_url && (
-                  <div className="rounded-lg overflow-hidden">
-                    <img 
-                      src={selectedSpecies.image_url} 
-                      alt={selectedSpecies.scientific_name}
-                      className="w-full h-64 object-cover"
-                    />
+                {selectedSpecies.image_url &&
+              <div className="rounded-lg overflow-hidden">
+                    <img
+                  src={selectedSpecies.image_url}
+                  alt={selectedSpecies.scientific_name}
+                  className="w-full h-64 object-cover" />
+
                   </div>
-                )}
+              }
 
                 {/* Conservation Status */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status</h3>
-                    {selectedSpecies.iucn_status ? <StatusBadge status={selectedSpecies.iucn_status} /> : <p className="text-sm text-slate-500">N/A</p>}
+                    <StatusBadge status={selectedSpecies.iucn_status} />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Trend</h3>
-                    {selectedSpecies.population_trend ? <TrendIndicator trend={selectedSpecies.population_trend} showLabel /> : <p className="text-sm text-slate-500">N/A</p>}
+                    <TrendIndicator trend={selectedSpecies.population_trend} showLabel />
                   </div>
                 </div>
 
@@ -563,328 +605,244 @@ export default function SavedData() {
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">Taxonomy</h3>
                   <div className="grid grid-cols-3 gap-3 text-sm">
-                    <div><span className="font-medium">Kingdom:</span> {selectedSpecies.kingdom || 'N/A'}</div>
-                    <div><span className="font-medium">Phylum:</span> {selectedSpecies.phylum || 'N/A'}</div>
-                    <div><span className="font-medium">Class:</span> {selectedSpecies.class_name || 'N/A'}</div>
-                    <div><span className="font-medium">Order:</span> {selectedSpecies.order_name || 'N/A'}</div>
-                    <div><span className="font-medium">Family:</span> {selectedSpecies.family || 'N/A'}</div>
-                    <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || 'N/A'}</div>
+                    <div><span className="font-medium">Kingdom:</span> {selectedSpecies.kingdom || '—'}</div>
+                    <div><span className="font-medium">Phylum:</span> {selectedSpecies.phylum || '—'}</div>
+                    <div><span className="font-medium">Class:</span> {selectedSpecies.class_name || '—'}</div>
+                    <div><span className="font-medium">Order:</span> {selectedSpecies.order_name || '—'}</div>
+                    <div><span className="font-medium">Family:</span> {selectedSpecies.family || '—'}</div>
+                    <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || '—'}</div>
                   </div>
                 </div>
 
                 {/* Population */}
-                {selectedSpecies.population_details ? (
-                  <div>
+                {selectedSpecies.population_details &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.population_details}</p>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Distribution */}
-                {selectedSpecies.geographic_distribution?.countries?.length > 0 ? (
-                  <div>
+                {selectedSpecies.geographic_distribution?.countries?.length > 0 &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">
                       Geographic Distribution ({selectedSpecies.geographic_distribution.countries.length} countries)
                     </h3>
                     <div className="flex flex-wrap gap-1">
-                      {selectedSpecies.geographic_distribution.countries.map((country, i) => (
-                        <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded">
+                      {selectedSpecies.geographic_distribution.countries.map((country, i) =>
+                  <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded">
                           {country}
                         </span>
-                      ))}
+                  )}
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Geographic Distribution</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Habitat */}
-                {selectedSpecies.habitat ? (
-                  <div>
+                {selectedSpecies.habitat &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.habitat}</p>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Range Description */}
-                {selectedSpecies.range_description ? (
-                  <div>
+                {selectedSpecies.range_description &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.range_description}</p>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Threats */}
-                {selectedSpecies.threats ? (
-                  <div>
+                {selectedSpecies.threats &&
+              <div>
                     <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.threats}</p>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Conservation Actions */}
-                {selectedSpecies.conservation_actions ? (
-                  <div>
+                {selectedSpecies.conservation_actions &&
+              <div>
                     <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.conservation_actions}</p>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Status History */}
-                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 ? (
-                  <div>
+                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
                     <div className="flex flex-wrap gap-2">
-                      {selectedSpecies.status_history.map((h, i) => (
-                        <div key={i} className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded">
+                      {selectedSpecies.status_history.map((h, i) =>
+                  <div key={i} className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded">
                           <span className="font-medium">{h.year}:</span> {h.status}
                         </div>
-                      ))}
+                  )}
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
 
                 {/* Downloadable Data Files */}
-                {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) ? (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedSpecies.search_summary_json && (
-                        <button 
-                          className="text-xs px-3 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                        >
-                          <FileText className="w-3 h-3" />
-                          Search Summary (JSON)
-                        </button>
-                      )}
-                      {selectedSpecies.range_data_geojson && (
-                        <button 
-                          className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                        >
-                          <FileText className="w-3 h-3" />
-                          Range Data (GeoJSON)
-                        </button>
-                      )}
-                      {selectedSpecies.observations && selectedSpecies.observations.length > 0 && (
-                        <button 
-                          className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const csv = [
-                              'latitude,longitude,location,date,observer,photo_url',
-                              ...selectedSpecies.observations.map(obs => 
-                                `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                              )
-                            ].join('\n');
-                            const blob = new Blob([csv], { type: 'text/csv' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                        >
-                          <FileText className="w-3 h-3" />
-                          Observations (CSV)
-                        </button>
-                      )}
-                      {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) && (
-                        <button 
-                          className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const detailedData = {
-                              scientific_name: selectedSpecies.scientific_name,
-                              habitats: selectedSpecies.habitats_detailed || [],
-                              threats: selectedSpecies.threats_detailed || []
-                            };
-                            const blob = new Blob([JSON.stringify(detailedData, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_habitats_threats.json`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                        >
-                          <FileText className="w-3 h-3" />
-                          Habitats & Threats (JSON)
-                        </button>
-                      )}
-                    </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Download IUCN Data Files</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Search Summary JSON */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.search_summary_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`}
+                      label="Search Summary (JSON)"
+                      bgColor="bg-purple-100"
+                      textColor="text-purple-700"
+                    />
+
+                    {/* Range GeoJSON */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.range_geojson_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`}
+                      label="Range Data (GeoJSON)"
+                      bgColor="bg-green-100"
+                      textColor="text-green-700"
+                    />
+
+                    {/* Assessment PDF */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.assessment_pdf_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_assessment.pdf`}
+                      label="Assessment (PDF)"
+                      bgColor="bg-red-100"
+                      textColor="text-red-700"
+                    />
+
+                    {/* Range SHP */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.range_shp_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.shp.zip`}
+                      label="Range Polygons (SHP)"
+                      bgColor="bg-indigo-100"
+                      textColor="text-indigo-700"
+                    />
+
+                    {/* Range CSV */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.range_csv_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_points.csv`}
+                      label="Range Points (CSV)"
+                      bgColor="bg-teal-100"
+                      textColor="text-teal-700"
+                    />
+
+                    {/* Range Map JPG */}
+                    <DownloadButton
+                      fileUri={selectedSpecies.range_map_jpg_file_uri}
+                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_map.jpg`}
+                      label="Range Map (JPG)"
+                      bgColor="bg-orange-100"
+                      textColor="text-orange-700"
+                    />
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+                </div>
 
                 {/* External Links */}
-                {(selectedSpecies.iucn_id || selectedSpecies.inat_taxon_id) ? (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
-                    <div className="space-y-3">
-                      {selectedSpecies.iucn_id && (
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap gap-2">
-                            <a 
-                              href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-medium"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                              View on IUCN Red List
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
+                  <div className="space-y-3">
+                    {selectedSpecies.iucn_id &&
+                  <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                        href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-medium">
+
+                            <ExternalLink className="w-4 h-4" />
+                            View on IUCN Red List
+                          </a>
+                          {selectedSpecies.assessment_pdf_url &&
+                      <a
+                        href={selectedSpecies.assessment_pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
+
+                              <FileText className="w-4 h-4" />
+                              Assessment PDF
                             </a>
-                            {selectedSpecies.assessment_pdf_url && (
-                              <a 
-                                href={selectedSpecies.assessment_pdf_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium"
-                              >
-                                <FileText className="w-4 h-4" />
-                                Assessment PDF
-                              </a>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-500 italic">
-                            IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
-                          </p>
+                      }
                         </div>
-                      )}
-                      {selectedSpecies.inat_taxon_id && (
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap gap-2">
-                            <a 
-                              href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                              View on iNaturalist
-                            </a>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="text-xs text-slate-600 font-medium">Download Observations:</span>
-                            <a 
-                              href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
-                            >
-                              📥 CSV
-                            </a>
-                            <a 
-                              href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
-                            >
-                              📊 JSON
-                            </a>
-                            <a 
-                              href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium"
-                            >
-                              🗺️ KML
-                            </a>
-                          </div>
+                        <p className="text-xs text-slate-500 italic">
+                          IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
+                        </p>
+                      </div>
+                  }
+                    {selectedSpecies.inat_taxon_id &&
+                  <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                        href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium">
+
+                            <ExternalLink className="w-4 h-4" />
+                            View on iNaturalist
+                          </a>
                         </div>
-                      )}
-                    </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-slate-600 font-medium">Download Observations:</span>
+                          <a
+                        href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            📥 CSV
+                          </a>
+                          <a
+                        href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            📊 JSON
+                          </a>
+                          <a
+                        href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            🗺️ KML
+                          </a>
+                        </div>
+                      </div>
+                  }
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+                </div>
 
                 {/* Observation Data (iNaturalist) */}
-                {selectedSpecies.observation_count > 0 ? (
-                  <div>
+                {selectedSpecies.observation_count > 0 &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div>
-                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count?.toLocaleString() || 'N/A'}
+                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count.toLocaleString()}
                       </div>
-                      {selectedSpecies.last_observed ? (
-                        <div>
+                      {selectedSpecies.last_observed &&
+                  <div>
                           <span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}
                         </div>
-                      ) : (
-                        <div>
-                          <span className="font-medium">Last Observed:</span> N/A
-                        </div>
-                      )}
+                  }
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
-                    <p className="text-sm text-slate-500">N/A</p>
-                  </div>
-                )}
+              }
               </div>
             </DialogContent>
           </Dialog>
-        )}
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
