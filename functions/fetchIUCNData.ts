@@ -1,81 +1,73 @@
-export default async function fetchIUCNData({ level, term, endpoint, iucnToken }) {
-  // Validate inputs
-  if (!iucnToken) {
-    return { 
-      status: 'error', 
-      message: 'IUCN API token is required' 
-    };
-  }
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-  try {
-    // Build the appropriate IUCN API URL based on endpoint type
-    let url;
-    
-    if (endpoint === 'taxa') {
-      // For taxonomic searches
-      url = `https://apiv4.iucnredlist.org/api/v4/taxa/${level}/${encodeURIComponent(term)}?token=${iucnToken}`;
-    } else if (endpoint === 'assessment') {
-      // For assessment details
-      url = `https://apiv4.iucnredlist.org/api/v4/assessment/${term}?token=${iucnToken}`;
-    } else if (endpoint === 'habitats') {
-      // For habitats
-      url = `https://apiv4.iucnredlist.org/api/v4/habitats/${term}?token=${iucnToken}`;
-    } else if (endpoint === 'threats') {
-      // For threats
-      url = `https://apiv4.iucnredlist.org/api/v4/threats/${term}?token=${iucnToken}`;
-    } else if (endpoint === 'range') {
-      // For range data
-      url = `https://apiv4.iucnredlist.org/api/v4/assessment/${term}/range?token=${iucnToken}`;
-    } else if (endpoint === 'countries') {
-      // For countries list
-      url = `https://apiv4.iucnredlist.org/api/v4/countries/?token=${iucnToken}`;
-    } else if (endpoint === 'scientific_name') {
-      // For scientific name search
-      const parts = term.split(' ');
-      const genus = parts[0];
-      const species = parts[1] || '';
-      url = `https://apiv4.iucnredlist.org/api/v4/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${iucnToken}`;
-    } else {
-      return {
-        status: 'error',
-        message: 'Invalid endpoint type'
-      };
+Deno.serve(async (req) => {
+    try {
+        const base44 = createClientFromRequest(req);
+
+        const user = await base44.auth.me();
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { endpoint, term } = await req.json();
+
+        if (!user.iucn_api_token) {
+            return Response.json({ error: 'IUCN API token not configured for user.' }, { status: 400 });
+        }
+
+        let apiUrl = '';
+        switch (endpoint) {
+            case 'taxa':
+                // For initial taxonomic search by name (e.g., family name)
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/species/name/${term}?token=${user.iucn_api_token}`;
+                break;
+            case 'assessment':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/assessments/${term}?token=${user.iucn_api_token}`;
+                break;
+            case 'habitats':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${term}/habitats?token=${user.iucn_api_token}`;
+                break;
+            case 'threats':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${term}/threats?token=${user.iucn_api_token}`;
+                break;
+            case 'history':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/${term}/history?token=${user.iucn_api_token}`;
+                break;
+            case 'countries':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/regions/countries?token=${user.iucn_api_token}`;
+                break;
+            case 'range':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/species/range/${term}?token=${user.iucn_api_token}`;
+                break;
+            case 'images':
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/sis/${term}?token=${user.iucn_api_token}`;
+                break;
+            case 'scientific_name':
+                const parts = term.split(' ');
+                const genus = parts[0];
+                const species = parts[1] || '';
+                apiUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${user.iucn_api_token}`;
+                break;
+            default:
+                return Response.json({ error: 'Invalid IUCN API endpoint specified.' }, { status: 400 });
+        }
+
+        const iucnResponse = await fetch(apiUrl);
+        
+        if (!iucnResponse.ok) {
+            const errorText = await iucnResponse.text();
+            console.error(`IUCN API Error for ${endpoint} with term ${term}: ${iucnResponse.status} - ${errorText}`);
+            if (iucnResponse.status === 401 || errorText.includes('Invalid API token')) {
+                return Response.json({ status: 'error', message: 'Invalid IUCN API token.', statusCode: 401 }, { status: 401 });
+            }
+            return Response.json({ status: 'error', message: `IUCN API error: ${errorText}`, statusCode: iucnResponse.status }, { status: iucnResponse.status });
+        }
+
+        const data = await iucnResponse.json();
+        return Response.json({ status: 'success', data });
+
+    } catch (error) {
+        console.error('Error in fetchIUCNData backend function:', error);
+        return Response.json({ status: 'error', message: error.message }, { status: 500 });
     }
-
-    // Make the request to IUCN API
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`IUCN API error:`, response.status, errorText);
-      
-      if (response.status === 401) {
-        return {
-          status: 'error',
-          message: 'IUCN API token is invalid or expired',
-          statusCode: 401
-        };
-      }
-      
-      return {
-        status: 'error',
-        message: `IUCN API returned status ${response.status}`,
-        statusCode: response.status
-      };
-    }
-
-    const data = await response.json();
-    
-    return {
-      status: 'success',
-      data: data
-    };
-
-  } catch (error) {
-    console.error('Error fetching IUCN data:', error);
-    return {
-      status: 'error',
-      message: error.message || 'Failed to fetch IUCN data'
-    };
-  }
-}
+});
