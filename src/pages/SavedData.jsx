@@ -5,55 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Loader2 } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
-
-// Download Button Component
-function DownloadButton({ fileUri, fileName, label, bgColor, textColor }) {
-  const [isDownloading, setIsDownloading] = React.useState(false);
-
-  const handleDownload = async () => {
-    if (!fileUri) return;
-    
-    setIsDownloading(true);
-    try {
-      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: fileUri });
-      const a = document.createElement('a');
-      a.href = signed_url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('Error downloading file:', err);
-      alert('Failed to download file');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  return (
-    <button
-      className={`text-xs px-3 py-2 rounded-lg font-medium flex items-center justify-center gap-1 ${
-        fileUri ? `${bgColor} ${textColor} hover:opacity-80` : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-      }`}
-      onClick={handleDownload}
-      disabled={!fileUri || isDownloading}
-    >
-      {isDownloading ? (
-        <Loader2 className="w-3 h-3 animate-spin" />
-      ) : (
-        <FileText className="w-3 h-3" />
-      )}
-      {fileUri ? label : 'UNAVAILABLE'}
-    </button>
-  );
-}
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,7 +23,14 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [showPendingReview, setShowPendingReview] = useState(false);
   const queryClient = useQueryClient();
+
+  // Query pending updates count
+  const { data: pendingUpdates = [] } = useQuery({
+    queryKey: ['pendingUpdates'],
+    queryFn: () => base44.entities.PendingSpeciesUpdate.filter({ status: 'pending' })
+  });
 
   // Subscribe to real-time Species updates
   React.useEffect(() => {
@@ -252,6 +217,16 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
+                    {pendingUpdates.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => setShowPendingReview(true)}
+                        className="bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 relative"
+                      >
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        Review Updates ({pendingUpdates.length})
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
@@ -565,6 +540,12 @@ export default function SavedData() {
 
       }
 
+      {/* Pending Updates Review */}
+      <PendingUpdatesReview
+        open={showPendingReview}
+        onClose={() => setShowPendingReview(false)}
+      />
+
       {/* Species Details Modal */}
       <AnimatePresence>
         {showDetails && selectedSpecies &&
@@ -685,64 +666,92 @@ export default function SavedData() {
               }
 
                 {/* Downloadable Data Files */}
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Download IUCN Data Files</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {/* Search Summary JSON */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.search_summary_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`}
-                      label="Search Summary (JSON)"
-                      bgColor="bg-purple-100"
-                      textColor="text-purple-700"
-                    />
+                {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) &&
+              <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedSpecies.search_summary_json &&
+                  <button
+                    className="text-xs px-3 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
 
-                    {/* Range GeoJSON */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.range_geojson_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`}
-                      label="Range Data (GeoJSON)"
-                      bgColor="bg-green-100"
-                      textColor="text-green-700"
-                    />
+                          <FileText className="w-3 h-3" />
+                          Search Summary (JSON)
+                        </button>
+                  }
+                      {selectedSpecies.range_data_geojson &&
+                  <button
+                    className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
 
-                    {/* Assessment PDF */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.assessment_pdf_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_assessment.pdf`}
-                      label="Assessment (PDF)"
-                      bgColor="bg-red-100"
-                      textColor="text-red-700"
-                    />
+                          <FileText className="w-3 h-3" />
+                          Range Data (GeoJSON)
+                        </button>
+                  }
+                      {selectedSpecies.observations && selectedSpecies.observations.length > 0 &&
+                  <button
+                    className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const csv = [
+                      'latitude,longitude,location,date,observer,photo_url',
+                      ...selectedSpecies.observations.map((obs) =>
+                      `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                      )].
+                      join('\n');
+                      const blob = new Blob([csv], { type: 'text/csv' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
 
-                    {/* Range SHP */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.range_shp_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.shp.zip`}
-                      label="Range Polygons (SHP)"
-                      bgColor="bg-indigo-100"
-                      textColor="text-indigo-700"
-                    />
+                          <FileText className="w-3 h-3" />
+                          Observations (CSV)
+                        </button>
+                  }
+                      {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) &&
+                  <button
+                    className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const detailedData = {
+                        scientific_name: selectedSpecies.scientific_name,
+                        habitats: selectedSpecies.habitats_detailed || [],
+                        threats: selectedSpecies.threats_detailed || []
+                      };
+                      const blob = new Blob([JSON.stringify(detailedData, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_habitats_threats.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
 
-                    {/* Range CSV */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.range_csv_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_points.csv`}
-                      label="Range Points (CSV)"
-                      bgColor="bg-teal-100"
-                      textColor="text-teal-700"
-                    />
-
-                    {/* Range Map JPG */}
-                    <DownloadButton
-                      fileUri={selectedSpecies.range_map_jpg_file_uri}
-                      fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_map.jpg`}
-                      label="Range Map (JPG)"
-                      bgColor="bg-orange-100"
-                      textColor="text-orange-700"
-                    />
+                          <FileText className="w-3 h-3" />
+                          Habitats & Threats (JSON)
+                        </button>
+                  }
+                    </div>
                   </div>
-                </div>
+              }
 
                 {/* External Links */}
                 <div>

@@ -401,50 +401,58 @@ export default function Home() {
                 });
 
                 if (existing.length > 0) {
-                  // Update existing with IUCN data
-                  await base44.entities.Species.update(existing[0].id, {
-                    common_name: species.common_name || existing[0].common_name,
-                    kingdom: species.kingdom || existing[0].kingdom,
-                    phylum: species.phylum || existing[0].phylum,
-                    class_name: species.class_name || existing[0].class_name,
-                    order_name: species.order_name || existing[0].order_name,
-                    family: species.family || existing[0].family,
-                    genus: species.genus || existing[0].genus,
-                    iucn_status: species.iucn_status,
-                    population_trend: species.population_trend,
-                    population_details: species.population_details || existing[0].population_details,
-                    status_history: species.status_history || existing[0].status_history,
-                    geographic_distribution: species.geographic_distribution || existing[0].geographic_distribution,
-                    habitat: species.habitat || existing[0].habitat,
-                    habitats_detailed: species.habitats_detailed || existing[0].habitats_detailed,
-                    range_description: species.range_description || existing[0].range_description,
-                    threats: species.threats || existing[0].threats,
-                    threats_detailed: species.threats_detailed || existing[0].threats_detailed,
-                    conservation_actions: species.conservation_actions || existing[0].conservation_actions,
-                    assessment_date: species.assessment_date,
-                    iucn_id: species.iucn_id,
-                    assessment_id: species.assessment_id,
-                    assessment_pdf_url: species.assessment_pdf_url,
-                    range_map_jpg_url: species.range_map_jpg_url,
-                    range_data_shp_url: species.range_data_shp_url,
-                    range_data_csv_url: species.range_data_csv_url,
-                    range_data_geojson: species.range_data_geojson || existing[0].range_data_geojson,
-                    search_summary_json: species.search_summary_json,
-                    search_results_csv_url: species.search_results_csv_url,
-                    all_images_urls: species.all_images_urls || existing[0].all_images_urls,
-                    image_url: species.image_url || existing[0].image_url,
-                    observation_count: species.observation_count || existing[0].observation_count,
-                    observations: species.observations || existing[0].observations,
-                    last_observed: species.last_observed || existing[0].last_observed,
-                    inat_taxon_id: species.inat_taxon_id || existing[0].inat_taxon_id,
-                    inat_wikipedia_url: species.inat_wikipedia_url || existing[0].inat_wikipedia_url,
-                    search_summary_file_uri: species.search_summary_file_uri || existing[0].search_summary_file_uri,
-                    range_geojson_file_uri: species.range_geojson_file_uri || existing[0].range_geojson_file_uri,
-                    assessment_pdf_file_uri: species.assessment_pdf_file_uri || existing[0].assessment_pdf_file_uri,
-                    range_shp_file_uri: species.range_shp_file_uri || existing[0].range_shp_file_uri,
-                    range_csv_file_uri: species.range_csv_file_uri || existing[0].range_csv_file_uri,
-                    range_map_jpg_file_uri: species.range_map_jpg_file_uri || existing[0].range_map_jpg_file_uri
+                  // Create pending update for review instead of direct update
+                  const newDataFields = {};
+                  
+                  // Only include fields that are new or different
+                  if (species.common_name && species.common_name !== existing[0].common_name) newDataFields.common_name = species.common_name;
+                  if (species.kingdom && species.kingdom !== existing[0].kingdom) newDataFields.kingdom = species.kingdom;
+                  if (species.phylum && species.phylum !== existing[0].phylum) newDataFields.phylum = species.phylum;
+                  if (species.class_name && species.class_name !== existing[0].class_name) newDataFields.class_name = species.class_name;
+                  if (species.order_name && species.order_name !== existing[0].order_name) newDataFields.order_name = species.order_name;
+                  if (species.family && species.family !== existing[0].family) newDataFields.family = species.family;
+                  if (species.genus && species.genus !== existing[0].genus) newDataFields.genus = species.genus;
+                  if (species.iucn_status && species.iucn_status !== existing[0].iucn_status) newDataFields.iucn_status = species.iucn_status;
+                  if (species.population_trend && species.population_trend !== existing[0].population_trend) newDataFields.population_trend = species.population_trend;
+                  if (species.population_details && species.population_details !== existing[0].population_details) newDataFields.population_details = species.population_details;
+                  if (species.status_history && JSON.stringify(species.status_history) !== JSON.stringify(existing[0].status_history)) newDataFields.status_history = species.status_history;
+                  if (species.geographic_distribution && JSON.stringify(species.geographic_distribution) !== JSON.stringify(existing[0].geographic_distribution)) newDataFields.geographic_distribution = species.geographic_distribution;
+                  if (species.habitat && species.habitat !== existing[0].habitat) newDataFields.habitat = species.habitat;
+                  if (species.habitats_detailed && JSON.stringify(species.habitats_detailed) !== JSON.stringify(existing[0].habitats_detailed)) newDataFields.habitats_detailed = species.habitats_detailed;
+                  if (species.range_description && species.range_description !== existing[0].range_description) newDataFields.range_description = species.range_description;
+                  if (species.threats && species.threats !== existing[0].threats) newDataFields.threats = species.threats;
+                  if (species.threats_detailed && JSON.stringify(species.threats_detailed) !== JSON.stringify(existing[0].threats_detailed)) newDataFields.threats_detailed = species.threats_detailed;
+                  if (species.conservation_actions && species.conservation_actions !== existing[0].conservation_actions) newDataFields.conservation_actions = species.conservation_actions;
+                  if (species.assessment_date && species.assessment_date !== existing[0].assessment_date) newDataFields.assessment_date = species.assessment_date;
+                  if (species.iucn_id && species.iucn_id !== existing[0].iucn_id) newDataFields.iucn_id = species.iucn_id;
+                  if (species.assessment_id && species.assessment_id !== existing[0].assessment_id) newDataFields.assessment_id = species.assessment_id;
+                  if (species.assessment_pdf_url && species.assessment_pdf_url !== existing[0].assessment_pdf_url) newDataFields.assessment_pdf_url = species.assessment_pdf_url;
+                  if (species.range_map_jpg_url && species.range_map_jpg_url !== existing[0].range_map_jpg_url) newDataFields.range_map_jpg_url = species.range_map_jpg_url;
+                  if (species.range_data_shp_url && species.range_data_shp_url !== existing[0].range_data_shp_url) newDataFields.range_data_shp_url = species.range_data_shp_url;
+                  if (species.range_data_csv_url && species.range_data_csv_url !== existing[0].range_data_csv_url) newDataFields.range_data_csv_url = species.range_data_csv_url;
+                  if (species.range_data_geojson && JSON.stringify(species.range_data_geojson) !== JSON.stringify(existing[0].range_data_geojson)) newDataFields.range_data_geojson = species.range_data_geojson;
+                  if (species.search_summary_json && JSON.stringify(species.search_summary_json) !== JSON.stringify(existing[0].search_summary_json)) newDataFields.search_summary_json = species.search_summary_json;
+                  if (species.search_results_csv_url && species.search_results_csv_url !== existing[0].search_results_csv_url) newDataFields.search_results_csv_url = species.search_results_csv_url;
+                  if (species.all_images_urls && JSON.stringify(species.all_images_urls) !== JSON.stringify(existing[0].all_images_urls)) newDataFields.all_images_urls = species.all_images_urls;
+                  if (species.image_url && species.image_url !== existing[0].image_url) newDataFields.image_url = species.image_url;
+                  if (species.search_summary_file_uri && species.search_summary_file_uri !== existing[0].search_summary_file_uri) newDataFields.search_summary_file_uri = species.search_summary_file_uri;
+                  if (species.range_geojson_file_uri && species.range_geojson_file_uri !== existing[0].range_geojson_file_uri) newDataFields.range_geojson_file_uri = species.range_geojson_file_uri;
+                  if (species.assessment_pdf_file_uri && species.assessment_pdf_file_uri !== existing[0].assessment_pdf_file_uri) newDataFields.assessment_pdf_file_uri = species.assessment_pdf_file_uri;
+                  if (species.range_shp_file_uri && species.range_shp_file_uri !== existing[0].range_shp_file_uri) newDataFields.range_shp_file_uri = species.range_shp_file_uri;
+                  if (species.range_csv_file_uri && species.range_csv_file_uri !== existing[0].range_csv_file_uri) newDataFields.range_csv_file_uri = species.range_csv_file_uri;
+                  if (species.range_map_jpg_file_uri && species.range_map_jpg_file_uri !== existing[0].range_map_jpg_file_uri) newDataFields.range_map_jpg_file_uri = species.range_map_jpg_file_uri;
+
+                  // Only create pending update if there are actual changes
+                  if (Object.keys(newDataFields).length > 0) {
+                    await base44.entities.PendingSpeciesUpdate.create({
+                      species_id: existing[0].id,
+                      scientific_name: species.scientific_name,
+                      current_data: existing[0],
+                      new_data: newDataFields,
+                      data_source: 'IUCN Red List',
+                      status: 'pending'
                     });
+                  }
                 } else {
                   // Create new species record
                   await base44.entities.Species.create({
@@ -627,19 +635,35 @@ export default function Home() {
               });
 
               if (existing.length > 0) {
-                // Update existing with iNaturalist data if fields are empty
-                await base44.entities.Species.update(existing[0].id, {
-                  common_name: species.common_name || existing[0].common_name,
-                  kingdom: species.kingdom || existing[0].kingdom,
-                  phylum: species.phylum || existing[0].phylum,
-                  class_name: species.class_name || existing[0].class_name,
-                  order_name: species.order_name || existing[0].order_name,
-                  family: species.family || existing[0].family,
-                  genus: species.genus || existing[0].genus,
-                  habitat: existing[0].habitat || species.habitat,
-                  range_description: existing[0].range_description || species.range_description,
-                  image_url: species.image_url || existing[0].image_url
-                });
+                // Create pending update for iNaturalist data
+                const newDataFields = {};
+                
+                if (species.common_name && species.common_name !== existing[0].common_name) newDataFields.common_name = species.common_name;
+                if (species.kingdom && species.kingdom !== existing[0].kingdom) newDataFields.kingdom = species.kingdom;
+                if (species.phylum && species.phylum !== existing[0].phylum) newDataFields.phylum = species.phylum;
+                if (species.class_name && species.class_name !== existing[0].class_name) newDataFields.class_name = species.class_name;
+                if (species.order_name && species.order_name !== existing[0].order_name) newDataFields.order_name = species.order_name;
+                if (species.family && species.family !== existing[0].family) newDataFields.family = species.family;
+                if (species.genus && species.genus !== existing[0].genus) newDataFields.genus = species.genus;
+                if (species.habitat && !existing[0].habitat) newDataFields.habitat = species.habitat;
+                if (species.range_description && !existing[0].range_description) newDataFields.range_description = species.range_description;
+                if (species.image_url && species.image_url !== existing[0].image_url) newDataFields.image_url = species.image_url;
+                if (species.observation_count && species.observation_count !== existing[0].observation_count) newDataFields.observation_count = species.observation_count;
+                if (species.observations && JSON.stringify(species.observations) !== JSON.stringify(existing[0].observations)) newDataFields.observations = species.observations;
+                if (species.last_observed && species.last_observed !== existing[0].last_observed) newDataFields.last_observed = species.last_observed;
+                if (species.inat_taxon_id && species.inat_taxon_id !== existing[0].inat_taxon_id) newDataFields.inat_taxon_id = species.inat_taxon_id;
+                if (species.inat_wikipedia_url && species.inat_wikipedia_url !== existing[0].inat_wikipedia_url) newDataFields.inat_wikipedia_url = species.inat_wikipedia_url;
+
+                if (Object.keys(newDataFields).length > 0) {
+                  await base44.entities.PendingSpeciesUpdate.create({
+                    species_id: existing[0].id,
+                    scientific_name: species.scientific_name,
+                    current_data: existing[0],
+                    new_data: newDataFields,
+                    data_source: 'iNaturalist',
+                    status: 'pending'
+                  });
+                }
               } else {
                 // Create new species record
                 await base44.entities.Species.create({
