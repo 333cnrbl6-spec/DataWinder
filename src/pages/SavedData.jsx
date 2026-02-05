@@ -5,13 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, AlertCircle } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+import PendingUpdatesReview from '@/components/PendingUpdatesReview';
+import DownloadButton from '@/components/DownloadButton';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,7 +26,16 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [showPendingReview, setShowPendingReview] = useState(false);
+  const [selectedSearchIds, setSelectedSearchIds] = useState([]);
+  const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
   const queryClient = useQueryClient();
+
+  // Query pending updates count
+  const { data: pendingUpdates = [] } = useQuery({
+    queryKey: ['pendingUpdates'],
+    queryFn: () => base44.entities.PendingSpeciesUpdate.filter({ status: 'pending' })
+  });
 
   // Subscribe to real-time Species updates
   React.useEffect(() => {
@@ -48,6 +60,7 @@ export default function SavedData() {
     mutationFn: (id) => base44.entities.SavedSearch.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+      setSelectedSearchIds([]);
     }
   });
 
@@ -55,8 +68,23 @@ export default function SavedData() {
     mutationFn: (id) => base44.entities.Species.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+      setSelectedSpeciesIds([]);
     }
   });
+
+  const bulkDeleteSearches = async () => {
+    if (selectedSearchIds.length === 0) return;
+    await Promise.all(selectedSearchIds.map(id => base44.entities.SavedSearch.delete(id)));
+    queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+    setSelectedSearchIds([]);
+  };
+
+  const bulkDeleteSpecies = async () => {
+    if (selectedSpeciesIds.length === 0) return;
+    await Promise.all(selectedSpeciesIds.map(id => base44.entities.Species.delete(id)));
+    queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+    setSelectedSpeciesIds([]);
+  };
 
   // Get unique countries for filter
   const allCountries = [...new Set(
@@ -151,9 +179,39 @@ export default function SavedData() {
           <div className="lg:col-span-1">
             <Card className="shadow-lg border-bangor-sun/20">
               <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
-                <CardTitle className="flex items-center gap-2 text-bangor-red">
-                  <FolderOpen className="w-5 h-5" />
-                  Saved Searches ({savedSearches.length})
+                <CardTitle className="flex items-center justify-between gap-2 text-bangor-red">
+                  <div className="flex items-center gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    Saved Searches ({savedSearches.length})
+                  </div>
+                  {savedSearches.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (selectedSearchIds.length === savedSearches.length) {
+                            setSelectedSearchIds([]);
+                          } else {
+                            setSelectedSearchIds(savedSearches.map(s => s.id));
+                          }
+                        }}
+                        className="h-7 text-xs"
+                      >
+                        {selectedSearchIds.length === savedSearches.length ? 'Deselect All' : 'Select All'}
+                      </Button>
+                      {selectedSearchIds.length > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={bulkDeleteSearches}
+                          className="h-7 text-xs bg-red-600 text-white hover:bg-red-700"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete ({selectedSearchIds.length})
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-2 max-h-[70vh] overflow-y-auto">
@@ -162,15 +220,28 @@ export default function SavedData() {
                   key={search.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  className={`p-3 rounded-lg border transition-all ${
                   selectedSearch?.id === search.id ?
                   'bg-bangor-red/10 border-bangor-red/50' :
                   'bg-white border-slate-200'}`
-                  }
-                  onClick={() => setSelectedSearch(search)}>
+                  }>
 
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2">
+                      <Checkbox
+                        checked={selectedSearchIds.includes(search.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedSearchIds([...selectedSearchIds, search.id]);
+                          } else {
+                            setSelectedSearchIds(selectedSearchIds.filter(id => id !== search.id));
+                          }
+                        }}
+                        className="mt-1"
+                      />
+                      <div 
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => setSelectedSearch(search)}
+                      >
                         <h4 className="font-medium text-slate-900 truncate">{search.name}</h4>
                         <p className="text-xs text-slate-500 mt-1">
                           {search.species_count} species · {search.search_term}
@@ -210,6 +281,44 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
+                    {filteredSpecies.length > 0 && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (selectedSpeciesIds.length === filteredSpecies.length) {
+                              setSelectedSpeciesIds([]);
+                            } else {
+                              setSelectedSpeciesIds(filteredSpecies.map(s => s.id));
+                            }
+                          }}
+                          className="h-7 text-xs"
+                        >
+                          {selectedSpeciesIds.length === filteredSpecies.length ? 'Deselect All' : 'Select All'}
+                        </Button>
+                        {selectedSpeciesIds.length > 0 && (
+                          <Button
+                            size="sm"
+                            onClick={bulkDeleteSpecies}
+                            className="h-7 text-xs bg-red-600 text-white hover:bg-red-700"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete ({selectedSpeciesIds.length})
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {pendingUpdates.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => setShowPendingReview(true)}
+                        className="bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 relative"
+                      >
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        Review Updates ({pendingUpdates.length})
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
@@ -328,6 +437,18 @@ export default function SavedData() {
                   <table className="w-full">
                     <thead className="bg-slate-50 sticky top-0 border-b">
                       <tr>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-600 w-10">
+                          <Checkbox
+                            checked={filteredSpecies.length > 0 && selectedSpeciesIds.length === filteredSpecies.length}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedSpeciesIds(filteredSpecies.map(s => s.id));
+                              } else {
+                                setSelectedSpeciesIds([]);
+                              }
+                            }}
+                          />
+                        </th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
@@ -346,13 +467,27 @@ export default function SavedData() {
                         key={species.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
-                        onClick={() => {
-                          setSelectedSpecies(species);
-                          setShowDetails(true);
-                        }}>
+                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 transition-colors">
 
                           <td className="px-4 py-3">
+                            <Checkbox
+                              checked={selectedSpeciesIds.includes(species.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedSpeciesIds([...selectedSpeciesIds, species.id]);
+                                } else {
+                                  setSelectedSpeciesIds(selectedSpeciesIds.filter(id => id !== species.id));
+                                }
+                              }}
+                            />
+                          </td>
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
                                 {species.common_name || 'No common name'}
@@ -360,22 +495,58 @@ export default function SavedData() {
                               <p className="text-xs italic text-slate-500">{species.scientific_name}</p>
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <StatusBadge status={species.iucn_status} size="sm" />
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <TrendIndicator trend={species.population_trend} showLabel />
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <span className="text-sm text-slate-700 font-medium">{species.family || '—'}</span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <span className="text-sm text-slate-700 font-medium">{species.order_name || '—'}</span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <span className="text-sm text-slate-700 font-medium">{species.class_name || '—'}</span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <div className="text-xs">
                               {species.geographic_distribution?.countries?.length > 0 ?
                             <>
@@ -389,12 +560,24 @@ export default function SavedData() {
                             }
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <div className="text-xs text-slate-700 max-w-[150px] truncate font-medium">
                               {species.habitat || <span className="text-slate-400">—</span>}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td 
+                            className="px-4 py-3 cursor-pointer"
+                            onClick={() => {
+                              setSelectedSpecies(species);
+                              setShowDetails(true);
+                            }}
+                          >
                             <div className="text-xs text-slate-700 font-medium">
                               {species.assessment_date ? new Date(species.assessment_date).getFullYear() : <span className="text-slate-400">—</span>}
                             </div>
@@ -523,6 +706,12 @@ export default function SavedData() {
 
       }
 
+      {/* Pending Updates Review */}
+      <PendingUpdatesReview
+        open={showPendingReview}
+        onClose={() => setShowPendingReview(false)}
+      />
+
       {/* Species Details Modal */}
       <AnimatePresence>
         {showDetails && selectedSpecies &&
@@ -646,7 +835,6 @@ export default function SavedData() {
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
                   <div className="flex flex-wrap gap-2">
-                    {/* Search Summary JSON */}
                     <DownloadButton
                       fileUri={selectedSpecies.search_summary_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`}
@@ -654,8 +842,6 @@ export default function SavedData() {
                       bgColor="bg-purple-100"
                       textColor="text-purple-700"
                     />
-                    
-                    {/* Range GeoJSON */}
                     <DownloadButton
                       fileUri={selectedSpecies.range_geojson_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`}
@@ -663,8 +849,6 @@ export default function SavedData() {
                       bgColor="bg-green-100"
                       textColor="text-green-700"
                     />
-                    
-                    {/* Assessment PDF */}
                     <DownloadButton
                       fileUri={selectedSpecies.assessment_pdf_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_assessment.pdf`}
@@ -672,8 +856,6 @@ export default function SavedData() {
                       bgColor="bg-red-100"
                       textColor="text-red-700"
                     />
-                    
-                    {/* Range SHP */}
                     <DownloadButton
                       fileUri={selectedSpecies.range_shp_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.shp.zip`}
@@ -681,8 +863,6 @@ export default function SavedData() {
                       bgColor="bg-indigo-100"
                       textColor="text-indigo-700"
                     />
-                    
-                    {/* Range CSV */}
                     <DownloadButton
                       fileUri={selectedSpecies.range_csv_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_points.csv`}
@@ -690,8 +870,6 @@ export default function SavedData() {
                       bgColor="bg-teal-100"
                       textColor="text-teal-700"
                     />
-                    
-                    {/* Range Map JPG */}
                     <DownloadButton
                       fileUri={selectedSpecies.range_map_jpg_file_uri}
                       fileName={`${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_map.jpg`}
@@ -699,8 +877,6 @@ export default function SavedData() {
                       bgColor="bg-cyan-100"
                       textColor="text-cyan-700"
                     />
-                    
-                    {/* iNaturalist Observations CSV - fallback to client-side generation */}
                     {selectedSpecies.observations && selectedSpecies.observations.length > 0 &&
                       <button
                         className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
