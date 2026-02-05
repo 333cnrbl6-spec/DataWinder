@@ -522,8 +522,196 @@ export default function DataManagement() {
         }
       }
 
-      // Continue with iNaturalist and GBIF... (truncated for brevity - will continue in next message)
-      
+      // Search iNaturalist if enabled
+      if (includeINaturalist) {
+        for (const term of terms) {
+          try {
+            let iNatTaxa = [];
+
+            // For higher-order searches, find the parent taxon first
+            if (level !== 'species') {
+              const parentUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}&per_page=1`;
+              const parentRes = await fetch(parentUrl);
+              if (parentRes.ok) {
+                const parentData = await parentRes.json();
+                if (parentData.results?.[0]) {
+                  const parentId = parentData.results[0].id;
+                  const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${parentId}&rank=species&per_page=60`;
+                  const speciesRes = await fetch(speciesUrl);
+                  if (speciesRes.ok) {
+                    const speciesData = await speciesRes.json();
+                    iNatTaxa = speciesData.results || [];
+                  }
+                }
+              }
+            }
+            
+            if (iNatTaxa.length === 0) {
+              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=300`;
+              const taxonRes = await fetch(taxonUrl);
+              if (taxonRes.ok) {
+                const taxonData = await taxonRes.json();
+                iNatTaxa = taxonData.results || [];
+              }
+            }
+
+            if (iNatTaxa.length === 0) {
+              console.warn(`No iNaturalist species found for ${term}`);
+              continue;
+            }
+
+            for (const taxon of iNatTaxa.slice(0, 300)) {
+              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
+              const obsRes = await fetch(obsUrl);
+              let observationData = null;
+              if (obsRes.ok) {
+                observationData = await obsRes.json();
+              }
+
+              const observations = observationData?.results || [];
+
+              const observationsWithCoords = observations
+                .filter(obs => obs.location)
+                .map(obs => ({
+                  latitude: parseFloat(obs.location.split(',')[0]),
+                  longitude: parseFloat(obs.location.split(',')[1]),
+                  location: obs.place_guess || '',
+                  observed_on: obs.observed_on,
+                  user: obs.user?.login || 'Unknown',
+                  photo_url: obs.photos?.[0]?.url || ''
+                }));
+
+              let inatObservationsCsvFileUri = null;
+              if (observationsWithCoords.length > 0) {
+                const csvContent = [
+                  'latitude,longitude,location,date,observer,photo_url',
+                  ...observationsWithCoords.map(obs => 
+                    `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                  )
+                ].join('\n');
+                
+                const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                const csvFile = new File([csvBlob], `${taxon.name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
+                const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                inatObservationsCsvFileUri = csvUri;
+              }
+
+              const inatSpeciesData = {
+                id: `inat-${taxon.id}`,
+                scientific_name: taxon.name,
+                common_name: taxon.preferred_common_name || '',
+                iucn_status: 'NE',
+                inat_taxon_id: taxon.id,
+                inat_wikipedia_url: taxon.wikipedia_url || null,
+                observation_count: taxon.observations_count || 0,
+                observations: observationsWithCoords,
+                last_observed: observations[0]?.observed_on || null,
+                inat_observations_csv_file_uri: inatObservationsCsvFileUri,
+                data_source: 'iNaturalist',
+                image_url: taxon.default_photo?.medium_url || null,
+                dataset_name: term
+              };
+
+              if (allSpeciesMap[inatSpeciesData.scientific_name]) {
+                const existing = allSpeciesMap[inatSpeciesData.scientific_name];
+                allSpeciesMap[inatSpeciesData.scientific_name] = {
+                  ...existing,
+                  inat_taxon_id: inatSpeciesData.inat_taxon_id,
+                  inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
+                  observation_count: inatSpeciesData.observation_count,
+                  observations: inatSpeciesData.observations,
+                  last_observed: inatSpeciesData.last_observed,
+                  inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
+                  data_source: 'IUCN + iNaturalist',
+                  image_url: existing.image_url || inatSpeciesData.image_url
+                };
+              } else {
+                allSpeciesMap[inatSpeciesData.scientific_name] = inatSpeciesData;
+              }
+            }
+          } catch (err) {
+            console.error(`Error fetching iNaturalist data for ${term}:`, err);
+          }
+        }
+      }
+
+      // Search GBIF if enabled
+      if (includeGBIF) {
+        if (level && level !== 'species') {
+          for (const term of terms) {
+            try {
+              const gbifResult = await base44.functions.invoke('fetchGBIFData', {
+                scientificName: term.trim(),
+                level: level
+              });
+
+              if (gbifResult.data.status === 'success') {
+                const gbifSpeciesList = Array.isArray(gbifResult.data.data) 
+                  ? gbifResult.data.data 
+                  : [gbifResult.data.data];
+
+                for (const gbifData of gbifSpeciesList) {
+                  let gbifOccurrencesCsvFileUri = null;
+                  if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
+                    const csvContent = [
+                      'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
+                      ...gbifData.gbif_occurrences.map(occ => 
+                        `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
+                      )
+                    ].join('\n');
+
+                    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                    const csvFile = new File([csvBlob], `${gbifData.scientific_name.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
+                    const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                    gbifOccurrencesCsvFileUri = csvUri;
+                  }
+
+                  if (allSpeciesMap[gbifData.scientific_name]) {
+                    allSpeciesMap[gbifData.scientific_name] = {
+                      ...allSpeciesMap[gbifData.scientific_name],
+                      gbif_id: gbifData.gbif_id,
+                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                      gbif_occurrences: gbifData.gbif_occurrences,
+                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                      data_source: allSpeciesMap[gbifData.scientific_name].data_source === 'IUCN + iNaturalist' ? 
+                        'IUCN + iNaturalist + GBIF' : 
+                        allSpeciesMap[gbifData.scientific_name].data_source ? 
+                          `${allSpeciesMap[gbifData.scientific_name].data_source} + GBIF` : 
+                          'GBIF'
+                    };
+                  } else {
+                    allSpeciesMap[gbifData.scientific_name] = {
+                      id: `gbif-${gbifData.gbif_id}`,
+                      scientific_name: gbifData.scientific_name,
+                      common_name: gbifData.common_name || '',
+                      kingdom: gbifData.kingdom,
+                      phylum: gbifData.phylum,
+                      class_name: gbifData.class_name,
+                      order_name: gbifData.order_name,
+                      family: gbifData.family,
+                      genus: gbifData.genus,
+                      iucn_status: 'NE',
+                      gbif_id: gbifData.gbif_id,
+                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
+                      gbif_occurrences: gbifData.gbif_occurrences,
+                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
+                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
+                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
+                      data_source: 'GBIF',
+                      dataset_name: terms.join(', ')
+                    };
+                  }
+                }
+              }
+            } catch (err) {
+              console.error(`Error fetching GBIF data for ${term}:`, err);
+            }
+          }
+        }
+      }
+
       const allSpeciesFinal = Object.values(allSpeciesMap);
 
       if (allSpeciesFinal.length === 0) {
