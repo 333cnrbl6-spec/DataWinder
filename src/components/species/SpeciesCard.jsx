@@ -7,8 +7,9 @@ import StatusBadge from './StatusBadge';
 import TrendIndicator from './TrendIndicator';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
+import { Badge } from '@/components/ui/badge';
 
-export default function SpeciesCard({ species, selected, onSelect, onEnrichWithINaturalist, index = 0 }) {
+export default function SpeciesCard({ species, selected, onSelect, onEnrichWithINaturalist, index = 0, isNew }) {
   const isIUCN = species.data_source === 'IUCN Red List';
   const isINat = species.data_source === 'iNaturalist';
   const hasINatData = species.inat_taxon_id || species.observation_count > 0;
@@ -24,6 +25,11 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
           ? 'ring-2 ring-bangor-red shadow-bangor-red/20'
           : 'shadow-slate-200'
       }`}>
+        {isNew && (
+          <Badge className="absolute top-3 right-3 z-10 bg-bangor-red text-white font-bold text-xs px-3 py-1 rounded-full shadow-md border-2 border-white">
+            NEW SPECIES
+          </Badge>
+        )}
         <div className="absolute top-3 left-3 z-10">
           <Checkbox 
             checked={selected}
