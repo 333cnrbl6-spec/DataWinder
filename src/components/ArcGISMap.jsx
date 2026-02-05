@@ -3,8 +3,10 @@ import { MapContainer, TileLayer, CircleMarker, Popup, GeoJSON } from 'react-lea
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Lock } from 'lucide-react';
 
-export default function ArcGISMap({ species, height = '600px' }) {
+export default function ArcGISMap({ species, height = '600px', hasAgreedToTerms = false, onRequestTermsAgreement }) {
   const [mapCenter, setMapCenter] = useState([20, 0]);
   const [zoom, setZoom] = useState(2);
 
