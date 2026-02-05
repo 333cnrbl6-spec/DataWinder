@@ -1201,29 +1201,31 @@ export default function DataManagement() {
                 </div>
 
                 {/* Data Quality */}
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Quality</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Species with IUCN Data:</span>
-                      <span className="font-semibold text-slate-900">
-                        {allSpecies.filter(sp => sp.iucn_id).length} ({Math.round(allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length * 100)}%)
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Species with iNaturalist Data:</span>
-                      <span className="font-semibold text-slate-900">
-                        {allSpecies.filter(sp => sp.inat_taxon_id).length} ({Math.round(allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length * 100)}%)
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Species with GBIF Data:</span>
-                      <span className="font-semibold text-slate-900">
-                        {allSpecies.filter(sp => sp.gbif_id).length} ({Math.round(allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length * 100)}%)
-                      </span>
+                {allSpecies.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Quality</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Species with IUCN Data:</span>
+                        <span className="font-semibold text-slate-900">
+                          {allSpecies.filter(sp => sp.iucn_id).length} ({Math.round(allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length * 100)}%)
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Species with iNaturalist Data:</span>
+                        <span className="font-semibold text-slate-900">
+                          {allSpecies.filter(sp => sp.inat_taxon_id).length} ({Math.round(allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length * 100)}%)
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Species with GBIF Data:</span>
+                        <span className="font-semibold text-slate-900">
+                          {allSpecies.filter(sp => sp.gbif_id).length} ({Math.round(allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length * 100)}%)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Load Data Options */}
                 <div>
@@ -1255,8 +1257,8 @@ export default function DataManagement() {
                                     return false;
                                   });
                                   
-                                  setSelectedSpecies(filtered);
-                                  alert(`Loaded ${filtered.length} species from ${search.name}`);
+                                  setSpecies(filtered);
+                                  setSelectedIds(filtered.map(sp => sp.id || sp.scientific_name));
                                 } catch (error) {
                                   console.error('Error loading search:', error);
                                   alert('Error loading saved search');
@@ -1279,8 +1281,8 @@ export default function DataManagement() {
 
                     <Button
                       onClick={() => {
-                        setSelectedSpecies(allSpecies);
-                        alert(`Loaded all ${allSpecies.length} species`);
+                        setSpecies(allSpecies);
+                        setSelectedIds(allSpecies.map(sp => sp.id || sp.scientific_name));
                       }}
                       variant="outline"
                       className="w-full justify-start"
