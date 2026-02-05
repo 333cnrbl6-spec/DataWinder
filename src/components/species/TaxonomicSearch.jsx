@@ -95,13 +95,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const response = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.invoke('fetchIUCNData', {
           term: value.trim(),
           endpoint: 'taxa'
         });
 
-        if (response.data.status === 'success' && response.data.data?.result && response.data.data.result.length > 0) {
-          setFamilySpecies(response.data.data.result);
+        if (result.data.status === 'success' && result.data.data?.result && result.data.data.result.length > 0) {
+          setFamilySpecies(result.data.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
