@@ -17,6 +17,7 @@ import CompareSpecies from '@/components/species/CompareSpecies';
 import SpeciesListManager from '@/components/species/SpeciesListManager';
 import SpeciesNotes from '@/components/species/SpeciesNotes';
 import DataMetricsModal from '@/components/DataMetricsModal';
+import MergeCandidatesModal from '@/components/MergeCandidatesModal';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import BangOnLogo from '@/components/BangOnLogo';
 import LogoShowcase from '@/components/LogoShowcase';
