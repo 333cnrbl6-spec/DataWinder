@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, MapPin, Users, Download, FileText, Plus } from 'lucide-react';
+import { ExternalLink, MapPin, Users, Download, FileText, Plus, Database } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import TrendIndicator from './TrendIndicator';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function SpeciesCard({ species, selected, onSelect, onEnrichWithINaturalist, index = 0, isNew }) {
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const isIUCN = species.data_source === 'IUCN Red List';
   const isINat = species.data_source === 'iNaturalist';
   const hasINatData = species.inat_taxon_id || species.observation_count > 0;
+  const hasGBIFData = species.gbif_id || species.gbif_occurrence_count > 0;
   
   return (
     <motion.div
@@ -88,6 +91,59 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                    Last: {species.last_observed}
                  </span>
               )}
+            </div>
+          )}
+
+          {/* GBIF Summary */}
+          {hasGBIFData && (
+            <div className="mb-3 p-3 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Database className="w-4 h-4 text-slate-600" />
+                <span className="text-xs font-semibold text-slate-700">GBIF Research Data</span>
+              </div>
+              
+              {species.gbif_occurrence_count > 0 && (
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-slate-600">📊</span>
+                  <span className="text-xs font-medium text-slate-700">
+                    {species.gbif_occurrence_count.toLocaleString()} Total Occurrences
+                  </span>
+                </div>
+              )}
+
+              {species.gbif_basis_of_record && Object.keys(species.gbif_basis_of_record).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  <span className="text-xs text-slate-600">🔬</span>
+                  {Object.entries(species.gbif_basis_of_record)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(([type, count]) => (
+                      <span key={type} className="text-[10px] px-2 py-0.5 bg-white text-slate-600 rounded-full font-medium border border-slate-200">
+                        {type}: {count}
+                      </span>
+                    ))}
+                </div>
+              )}
+
+              {species.dataset_name && (
+                <div className="flex items-start gap-2 mb-2">
+                  <span className="text-xs text-slate-600">📂</span>
+                  <span className="text-[10px] text-slate-600 line-clamp-1 flex-1">
+                    {species.dataset_name}
+                  </span>
+                </div>
+              )}
+
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDetailsModal(true);
+                }}
+                className="w-full mt-2 text-xs bg-bangor-red hover:bg-bangor-red/90"
+              >
+                View Research Details
+              </Button>
             </div>
           )}
 
@@ -316,6 +372,121 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
           </div>
         </CardContent>
       </Card>
+
+      {/* GBIF Details Modal */}
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-bangor-red">
+              GBIF Research Data: {species.scientific_name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Occurrence Summary */}
+            <div className="bg-slate-50 rounded-lg p-4">
+              <h3 className="font-semibold text-slate-900 mb-3">Occurrence Summary</h3>
+              {species.gbif_occurrence_count > 0 && (
+                <div className="mb-2">
+                  <span className="text-sm font-medium text-slate-700">Total Occurrences: </span>
+                  <span className="text-sm text-slate-600">{species.gbif_occurrence_count.toLocaleString()}</span>
+                </div>
+              )}
+              {species.gbif_last_occurrence && (
+                <div className="mb-2">
+                  <span className="text-sm font-medium text-slate-700">Most Recent: </span>
+                  <span className="text-sm text-slate-600">{species.gbif_last_occurrence}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Basis of Record */}
+            {species.gbif_basis_of_record && Object.keys(species.gbif_basis_of_record).length > 0 && (
+              <div className="bg-slate-50 rounded-lg p-4">
+                <h3 className="font-semibold text-slate-900 mb-3">Data Quality & Types</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(species.gbif_basis_of_record)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([type, count]) => (
+                      <div key={type} className="flex justify-between items-center p-2 bg-white rounded border border-slate-200">
+                        <span className="text-sm font-medium text-slate-700">{type}</span>
+                        <span className="text-sm text-slate-600">{count.toLocaleString()}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Dataset Information */}
+            {species.dataset_name && (
+              <div className="bg-slate-50 rounded-lg p-4">
+                <h3 className="font-semibold text-slate-900 mb-3">Primary Dataset</h3>
+                <p className="text-sm text-slate-600">{species.dataset_name}</p>
+              </div>
+            )}
+
+            {/* Occurrence Records */}
+            {species.gbif_occurrences && species.gbif_occurrences.length > 0 && (
+              <div className="bg-slate-50 rounded-lg p-4">
+                <h3 className="font-semibold text-slate-900 mb-3">Sample Occurrence Records</h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {species.gbif_occurrences.slice(0, 10).map((occ, idx) => (
+                    <div key={idx} className="p-3 bg-white rounded border border-slate-200 text-xs">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="font-medium text-slate-700">Location: </span>
+                          <span className="text-slate-600">{occ.location || 'Unknown'}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-700">Date: </span>
+                          <span className="text-slate-600">{occ.date || 'Unknown'}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-700">Type: </span>
+                          <span className="text-slate-600">{occ.basis_of_record || 'Unknown'}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-700">Institution: </span>
+                          <span className="text-slate-600">{occ.institution || 'Unknown'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* External Links */}
+            <div className="flex gap-2">
+              {species.gbif_id && (
+                <a 
+                  href={`https://www.gbif.org/species/${species.gbif_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-2 bg-bangor-red text-white rounded-lg text-center text-sm font-medium hover:bg-bangor-red/90"
+                >
+                  View on GBIF <ExternalLink className="w-3 h-3 inline ml-1" />
+                </a>
+              )}
+              {species.gbif_occurrences_csv_file_uri && (
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={async () => {
+                    const { base44 } = await import('@/api/base44Client');
+                    const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({
+                      file_uri: species.gbif_occurrences_csv_file_uri
+                    });
+                    window.open(signed_url, '_blank');
+                  }}
+                >
+                  Download CSV <Download className="w-3 h-3 ml-1" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
