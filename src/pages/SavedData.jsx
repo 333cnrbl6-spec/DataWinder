@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+import TaxonomicCrossReference from '@/components/TaxonomicCrossReference.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,6 +24,7 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [showTaxonomicCrossRef, setShowTaxonomicCrossRef] = useState(false);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -167,11 +169,7 @@ export default function SavedData() {
                   'bg-bangor-red/10 border-bangor-red/50' :
                   'bg-white border-slate-200'}`
                   }
-                  onClick={() => {
-                    setSelectedSearch(search);
-                    // Filter table by this search's term
-                    setSearchTerm(search.search_term);
-                  }}>
+                  onClick={() => setSelectedSearch(search)}>
 
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
@@ -229,6 +227,13 @@ export default function SavedData() {
 
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowTaxonomicCrossRef(true)}
+                      className="bg-bangor-sun text-slate-900 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-sun/90 h-8">
+                      <Sparkles className="w-4 h-4 mr-1" />
+                      AI Cross-Reference
                     </Button>
                     <Button
                       size="sm"
@@ -520,6 +525,18 @@ export default function SavedData() {
       <DataIntegrityChecker
         open={showIntegrityChecker}
         onClose={() => setShowIntegrityChecker(false)}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+          queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+        }} />
+
+      }
+
+      {/* AI Taxonomic Cross-Reference */}
+      {showTaxonomicCrossRef &&
+      <TaxonomicCrossReference
+        open={showTaxonomicCrossRef}
+        onClose={() => setShowTaxonomicCrossRef(false)}
         onComplete={() => {
           queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
           queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
