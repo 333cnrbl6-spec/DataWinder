@@ -84,7 +84,7 @@ export default function SavedData() {
           gbif_occurrences: response.gbif_occurrences,
           gbif_basis_of_record: response.gbif_basis_of_record,
           gbif_last_occurrence: response.gbif_last_occurrence,
-        }, { data_env: "dev" });
+        });
         queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
       }
     } catch (error) {
@@ -119,7 +119,7 @@ export default function SavedData() {
           observation_count: response.observation_count,
           observations: response.observations,
           last_observed: response.last_observed,
-        }, { data_env: "dev" });
+        });
         queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
       }
     } catch (error) {
@@ -510,7 +510,7 @@ export default function SavedData() {
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
-                              {(species.range_data_geojson || species.search_summary_json || species.observations) &&
+                              {(species.range_data_geojson || species.search_summary_json || species.observations) && (
                                 <Button
                                   size="sm"
                                   onClick={() => {
@@ -571,7 +571,7 @@ export default function SavedData() {
                                   <Download className="w-3 h-3 mr-1" />
                                   Data
                                 </Button>
-                              }
+                              )}
                               <Button
                                 size="sm"
                                 onClick={() => deleteSpeciesMutation.mutate(species.id)}
