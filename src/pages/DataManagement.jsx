@@ -1548,6 +1548,16 @@ export default function DataManagement() {
           }}
         />
       )}
+
+      {/* Metrics Modal */}
+      <DataMetricsModal
+        isOpen={metricsModal.isOpen}
+        onClose={() => setMetricsModal({ isOpen: false, type: null, title: null, data: null })}
+        title={metricsModal.title}
+        type={metricsModal.type}
+        data={metricsModal.data}
+        allSpecies={allSpecies}
+      />
     </div>
   );
 }
