@@ -1149,28 +1149,60 @@ export default function DataManagement() {
               <CardContent className="p-6 space-y-6">
                 {/* Database Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-sun/10 rounded-lg p-4">
+                  <button
+                    onClick={() => setMetricsModal({
+                      isOpen: true,
+                      type: 'species',
+                      title: `All Species (${allSpecies.length})`,
+                      data: allSpecies
+                    })}
+                    className="bg-gradient-to-br from-bangor-red/10 to-bangor-sun/10 rounded-lg p-4 hover:shadow-lg transition-all text-left"
+                  >
                     <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
                     <div className="text-sm text-slate-600 mt-1">Total Species</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
+                  </button>
+                  <button
+                    onClick={() => setMetricsModal({
+                      isOpen: true,
+                      type: 'map',
+                      title: `Species With Range Data (${allSpecies.filter(sp => sp.range_data_geojson).length})`,
+                      data: allSpecies.filter(sp => sp.range_data_geojson)
+                    })}
+                    className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 hover:shadow-lg transition-all text-left"
+                  >
                     <div className="text-3xl font-bold text-blue-600">
                       {allSpecies.filter(sp => sp.range_data_geojson).length}
                     </div>
                     <div className="text-sm text-slate-600 mt-1">With Range Data</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
+                  </button>
+                  <button
+                    onClick={() => setMetricsModal({
+                      isOpen: true,
+                      type: 'map',
+                      title: `Species With Occurrences (${allSpecies.filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0).length})`,
+                      data: allSpecies.filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)
+                    })}
+                    className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 hover:shadow-lg transition-all text-left"
+                  >
                     <div className="text-3xl font-bold text-green-600">
                       {allSpecies.filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0).length}
                     </div>
                     <div className="text-sm text-slate-600 mt-1">With Occurrences</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
+                  </button>
+                  <button
+                    onClick={() => setMetricsModal({
+                      isOpen: true,
+                      type: 'families',
+                      title: `Families (${[...new Set(allSpecies.map(sp => sp.family))].filter(Boolean).length})`,
+                      data: [...new Set(allSpecies.map(sp => sp.family))].filter(Boolean)
+                    })}
+                    className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 hover:shadow-lg transition-all text-left"
+                  >
                     <div className="text-3xl font-bold text-purple-600">
                       {[...new Set(allSpecies.map(sp => sp.family))].filter(Boolean).length}
                     </div>
                     <div className="text-sm text-slate-600 mt-1">Families</div>
-                  </div>
+                  </button>
                 </div>
 
                 {/* Export Tools */}
