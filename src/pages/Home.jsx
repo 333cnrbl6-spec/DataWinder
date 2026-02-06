@@ -993,6 +993,12 @@ export default function Home() {
                   My Data
                 </Button>
               </Link>
+              <Link to={createPageUrl('ArcGISTools')}>
+                <Button variant="outline" size="default">
+                  <Map className="w-4 h-4" />
+                  ArcGIS Tools
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -1174,6 +1180,19 @@ export default function Home() {
                     </div>
                     <div className="text-sm text-slate-600 mt-1">Families</div>
                   </div>
+                </div>
+
+                {/* ArcGIS Tools */}
+                <div className="mb-4">
+                  <Link to={createPageUrl('ArcGISTools')}>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-blue-200 hover:bg-blue-50"
+                    >
+                      <Map className="w-4 h-4 mr-2 text-blue-600" />
+                      <span className="text-blue-700 font-semibold">ArcGIS Tools & API</span>
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Export Tools */}

@@ -51,6 +51,7 @@ import DataManagement from './pages/DataManagement';
 import Home from './pages/Home';
 import ReviewDuplicates from './pages/ReviewDuplicates';
 import SavedData from './pages/SavedData';
+import ArcGISTools from './pages/ArcGISTools';
 
 
 export const PAGES = {
@@ -58,6 +59,7 @@ export const PAGES = {
     "Home": Home,
     "ReviewDuplicates": ReviewDuplicates,
     "SavedData": SavedData,
+    "ArcGISTools": ArcGISTools,
 }
 
 export const pagesConfig = {
