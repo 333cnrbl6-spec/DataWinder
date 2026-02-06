@@ -47,19 +47,19 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ArcGISTools from './pages/ArcGISTools';
 import DataManagement from './pages/DataManagement';
 import Home from './pages/Home';
 import ReviewDuplicates from './pages/ReviewDuplicates';
 import SavedData from './pages/SavedData';
-import ArcGISTools from './pages/ArcGISTools';
 
 
 export const PAGES = {
+    "ArcGISTools": ArcGISTools,
     "DataManagement": DataManagement,
     "Home": Home,
     "ReviewDuplicates": ReviewDuplicates,
     "SavedData": SavedData,
-    "ArcGISTools": ArcGISTools,
 }
 
 export const pagesConfig = {

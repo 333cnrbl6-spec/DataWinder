@@ -315,11 +315,14 @@ export default function ArcGISTools() {
             <CardContent className="p-6 space-y-3">
               <Button
                 onClick={() => {
+                  if (!arcgisAgreed) {
+                    setShowArcGISTerms(true);
+                    return;
+                  }
                   if (speciesWithRangeData.length > 0) {
                     setSelectedSpecies(speciesWithRangeData[0]);
-                    if (!arcgisAgreed) {
-                      setShowArcGISTerms(true);
-                    }
+                    // Scroll to map
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
                 className="w-full justify-start bg-indigo-600 hover:bg-indigo-700"
@@ -331,13 +334,16 @@ export default function ArcGISTools() {
 
               <Button
                 onClick={() => {
+                  if (!arcgisAgreed) {
+                    setShowArcGISTerms(true);
+                    return;
+                  }
                   const randomSpecies = speciesWithRangeData[
                     Math.floor(Math.random() * speciesWithRangeData.length)
                   ];
                   setSelectedSpecies(randomSpecies);
-                  if (!arcgisAgreed) {
-                    setShowArcGISTerms(true);
-                  }
+                  // Scroll to map
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="w-full justify-start bg-purple-600 hover:bg-purple-700"
                 disabled={speciesWithRangeData.length === 0}
@@ -348,14 +354,17 @@ export default function ArcGISTools() {
 
               <Button
                 onClick={() => {
+                  if (!arcgisAgreed) {
+                    setShowArcGISTerms(true);
+                    return;
+                  }
                   const endangered = speciesWithRangeData.filter(sp => 
                     ['CR', 'EN', 'VU'].includes(sp.iucn_status)
                   );
                   if (endangered.length > 0) {
                     setSelectedSpecies(endangered[0]);
-                    if (!arcgisAgreed) {
-                      setShowArcGISTerms(true);
-                    }
+                    // Scroll to map
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
                 className="w-full justify-start bg-red-600 hover:bg-red-700"
@@ -363,6 +372,52 @@ export default function ArcGISTools() {
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 View Threatened Species
+              </Button>
+
+              <Button
+                onClick={() => {
+                  // Export all threatened species for ArcGIS
+                  const threatened = speciesWithRangeData.filter(sp => 
+                    ['CR', 'EN', 'VU'].includes(sp.iucn_status)
+                  );
+                  
+                  if (threatened.length === 0) return;
+
+                  const features = threatened.map(sp => ({
+                    type: 'Feature',
+                    properties: {
+                      scientific_name: sp.scientific_name,
+                      common_name: sp.common_name,
+                      iucn_status: sp.iucn_status,
+                      population_trend: sp.population_trend,
+                      family: sp.family,
+                      threats: sp.threats
+                    },
+                    geometry: sp.range_data_geojson.type === 'FeatureCollection' 
+                      ? sp.range_data_geojson.features[0]?.geometry 
+                      : sp.range_data_geojson.geometry
+                  })).filter(f => f.geometry);
+
+                  const geojson = {
+                    type: 'FeatureCollection',
+                    features
+                  };
+
+                  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `threatened_species_${Date.now()}.geojson`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+                className="w-full justify-start bg-orange-600 hover:bg-orange-700"
+                disabled={!speciesWithRangeData.some(sp => ['CR', 'EN', 'VU'].includes(sp.iucn_status))}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export Threatened Species Only
               </Button>
             </CardContent>
           </Card>
