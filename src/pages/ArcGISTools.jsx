@@ -4,15 +4,22 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Map, Layers, Globe, ZoomIn, Download, ExternalLink, Code, FileJson, Database, Share2, Info } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Map, Layers, Globe, ZoomIn, Download, ExternalLink, Code, FileJson, Database, Share2, Info, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import ArcGISMap from '@/components/ArcGISMap';
 import ArcGISTermsModal from '@/components/ArcGISTermsModal';
+import BufferAnalysis from '@/components/arcgis/BufferAnalysis';
+import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
+import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
+import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
 
 export default function ArcGISTools() {
   const [showArcGISTerms, setShowArcGISTerms] = useState(false);
   const [arcgisAgreed, setArcgisAgreed] = useState(false);
   const [selectedSpecies, setSelectedSpecies] = useState(null);
+  const [analysisResults, setAnalysisResults] = useState([]);
 
   const { data: allSpecies = [] } = useQuery({
     queryKey: ['allSpecies'],
@@ -132,6 +139,86 @@ export default function ArcGISTools() {
             </CardContent>
           </Card>
         </div>
+
+        {/* GIS Analysis Tools */}
+        <div className="mb-6">
+          <Card className="shadow-lg border-orange-200">
+            <CardHeader className="border-b border-orange-100 bg-gradient-to-r from-orange-50 to-amber-50">
+              <CardTitle className="text-orange-700 flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                GIS Analysis Tools
+              </CardTitle>
+              <CardDescription>
+                Perform spatial analysis on species data
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <Tabs defaultValue="buffer" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="buffer">Buffer Analysis</TabsTrigger>
+                  <TabsTrigger value="overlay">Range Overlay</TabsTrigger>
+                  <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="buffer" className="mt-4">
+                  <BufferAnalysis 
+                    species={allSpecies}
+                    onResultReady={(result) => {
+                      setAnalysisResults(prev => [...prev, {
+                        name: `Buffer Analysis (${result.features.length} zones)`,
+                        type: 'buffer',
+                        data: result,
+                        features: result.features
+                      }]);
+                    }}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="overlay" className="mt-4">
+                  <RangeOverlayAnalysis 
+                    species={allSpecies}
+                    onResultReady={(result) => {
+                      setAnalysisResults(prev => [...prev, {
+                        name: `Range Overlay (${result.features.length} overlaps)`,
+                        type: 'overlay',
+                        data: result,
+                        features: result.features
+                      }]);
+                    }}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="spatial-join" className="mt-4">
+                  <SpatialJoinAnalysis 
+                    species={allSpecies}
+                    onResultReady={(result) => {
+                      setAnalysisResults(prev => [...prev, {
+                        name: `Spatial Join (${result.features.length} associations)`,
+                        type: 'spatial_join',
+                        data: result,
+                        features: result.features
+                      }]);
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Analysis Results */}
+        {analysisResults.length > 0 && (
+          <div className="mb-6">
+            <AnalysisResultsViewer 
+              results={analysisResults}
+              onVisualize={(result) => {
+                toast.success(`Visualizing ${result.name}`);
+                // Could integrate with map viewer here
+              }}
+              onClear={() => setAnalysisResults([])}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* ArcGIS Export Tools */}
