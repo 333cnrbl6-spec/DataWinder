@@ -15,42 +15,47 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'IUCN API token not configured for user.' }, { status: 400 });
         }
 
+        const BASE = 'https://api.iucnredlist.org/api/v4';
+        const token = user.iucn_api_token;
+
         let apiUrl = '';
         switch (endpoint) {
             case 'taxa':
-                // For initial taxonomic search by name (e.g., family name)
-                apiUrl = `https://api.iucnredlist.org/api/v4/species/name/${term}?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/species/name/${term}?token=${token}`;
                 break;
             case 'assessment':
-                apiUrl = `https://api.iucnredlist.org/api/v4/assessments/${term}?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/assessments/${term}?token=${token}`;
                 break;
             case 'habitats':
-                apiUrl = `https://api.iucnredlist.org/api/v4/taxa/${term}/habitats?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/taxa/${term}/habitats?token=${token}`;
                 break;
             case 'threats':
-                apiUrl = `https://api.iucnredlist.org/api/v4/taxa/${term}/threats?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/taxa/${term}/threats?token=${token}`;
                 break;
             case 'history':
-                apiUrl = `https://api.iucnredlist.org/api/v4/taxa/${term}/history?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/taxa/${term}/history?token=${token}`;
                 break;
             case 'countries':
-                apiUrl = `https://api.iucnredlist.org/api/v4/regions/countries?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/regions/countries?token=${token}`;
                 break;
             case 'range':
-                apiUrl = `https://api.iucnredlist.org/api/v4/species/range/${term}?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/species/range/${term}?token=${token}`;
                 break;
             case 'images':
-                apiUrl = `https://api.iucnredlist.org/api/v4/taxa/sis/${term}?token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/taxa/sis/${term}?token=${token}`;
                 break;
-            case 'scientific_name':
+            case 'scientific_name': {
                 const parts = term.split(' ');
                 const genus = parts[0];
                 const species = parts[1] || '';
-                apiUrl = `https://api.iucnredlist.org/api/v4/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${user.iucn_api_token}`;
+                apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}&token=${token}`;
                 break;
+            }
             default:
                 return Response.json({ error: 'Invalid IUCN API endpoint specified.' }, { status: 400 });
         }
+
+        console.log(`Calling IUCN API: ${apiUrl.replace(token, '***')}`);
 
         const iucnResponse = await fetch(apiUrl);
         
