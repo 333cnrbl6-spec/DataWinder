@@ -389,6 +389,9 @@ export default function SavedData() {
                           setShowDetails(true);
                         }}>
 
+                          <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                            <input type="checkbox" checked={selectedIds.has(species.id)} onChange={() => toggleSelectOne(species.id)} className="cursor-pointer" />
+                          </td>
                           <td className="px-4 py-3">
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
