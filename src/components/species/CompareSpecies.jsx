@@ -8,8 +8,9 @@ import StatusBadge from './StatusBadge';
 const ComparisonRow = ({ label, values, highlight = false }) => {
   const allSame = values.every(v => v === values[0]);
   
+  const colClass = values.length === 1 ? 'grid-cols-2' : values.length === 2 ? 'grid-cols-3' : values.length === 3 ? 'grid-cols-4' : 'grid-cols-5';
   return (
-    <div className={`grid grid-cols-${values.length + 1} gap-4 py-3 border-b border-slate-100`}>
+    <div className={`grid ${colClass} gap-4 py-3 border-b border-slate-100`}>
       <div className="font-medium text-slate-700">{label}</div>
       {values.map((value, idx) => (
         <div 
@@ -85,7 +86,7 @@ export default function CompareSpecies({ species, onClose, onRemove }) {
 
             <CardContent className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto">
               {/* Species Headers */}
-              <div className={`grid grid-cols-${species.length + 1} gap-4 mb-6`}>
+              <div className={`grid ${species.length === 1 ? 'grid-cols-2' : species.length === 2 ? 'grid-cols-3' : species.length === 3 ? 'grid-cols-4' : 'grid-cols-5'} gap-4 mb-6`}>
                 <div></div>
                 {species.map((sp, idx) => (
                   <Card key={idx} className="relative">

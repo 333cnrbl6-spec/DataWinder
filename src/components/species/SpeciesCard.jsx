@@ -62,9 +62,11 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                 <h3 className="font-semibold text-slate-900 truncate">
                   {species.common_name || 'No common name'}
                 </h3>
-                <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 bg-bangor-red/10 text-bangor-red">
-                  IUCN
-                </span>
+                {species.iucn_id && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 bg-bangor-red/10 text-bangor-red">
+                    IUCN
+                  </span>
+                )}
                 {hasINatData && (
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 bg-bangor-sun/10 text-bangor-sun">
                     +iNat

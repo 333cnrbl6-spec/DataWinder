@@ -138,6 +138,7 @@ Return ONLY valid JSON:
     return Response.json({
       status: 'success',
       message: `Found ${duplicateGroups.length} potential duplicate groups`,
+      duplicatesFound: duplicateGroups.length,
       groups_count: duplicateGroups.length,
       total_species: allSpecies.length
     });

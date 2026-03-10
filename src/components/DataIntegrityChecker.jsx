@@ -22,7 +22,7 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
   const checkDuplicates = async () => {
     setLoading(true);
     try {
-      const allSpecies = await base44.entities.Species.list('-created_date', 10000, { data_env: 'dev' });
+      const allSpecies = await base44.entities.Species.list('-created_date', 10000);
       
       // Group by scientific name (case-insensitive)
       const groupedByScientific = {};
@@ -120,11 +120,11 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
         });
 
         // Update main record with merged data
-        await base44.entities.Species.update(mainRecord.id, mergedData, { data_env: 'dev' });
+        await base44.entities.Species.update(mainRecord.id, mergedData);
 
         // Delete duplicates
         for (const dup of duplicateRecords) {
-          await base44.entities.Species.delete(dup.id, { data_env: 'dev' });
+          await base44.entities.Species.delete(dup.id);
         }
 
         setProcessed(prev => prev + 1);

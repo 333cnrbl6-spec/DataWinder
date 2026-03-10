@@ -91,6 +91,7 @@ Return your analysis as a JSON object with this structure:
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
         prompt: analysisPrompt,
         add_context_from_internet: true,
+        model: 'gemini_3_flash',
         response_json_schema: {
           type: "object",
           properties: {

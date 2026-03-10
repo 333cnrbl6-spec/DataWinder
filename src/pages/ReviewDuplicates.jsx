@@ -23,14 +23,32 @@ export default function ReviewDuplicates() {
 
   const currentReview = reviews.find(r => r.id === reviewingId);
 
-  const handleMerge = (reviewId, recordsToDelete) => {
+  const handleMerge = async (reviewId, recordsToDelete) => {
+    try {
+      const review = reviews.find(r => r.id === reviewId);
+      if (review) {
+        const canonicalId = review.ai_analysis?.suggested_canonical_id || review.duplicate_species_ids[0];
+        const duplicateIds = review.duplicate_species_ids.filter(id => id !== canonicalId);
+        if (duplicateIds.length > 0) {
+          await base44.functions.invoke('mergeSpeciesRecords', {
+            masterId: canonicalId,
+            duplicateIds,
+            mergedData: review.duplicate_species_data?.find(sp => sp.id === canonicalId) || {}
+          });
+        }
+        await base44.entities.PendingSpeciesReview.update(reviewId, { status: 'merged' });
+      }
+    } catch (err) {
+      alert('Merge failed: ' + err.message);
+      return;
+    }
     setProcessedGroups(prev => new Set([...prev, reviewId]));
     queryClient.invalidateQueries({ queryKey: ['pendingReviews'] });
     setReviewingId(null);
-    // In production, you'd trigger the actual merge function here
   };
 
-  const handleDismiss = (reviewId) => {
+  const handleDismiss = async (reviewId) => {
+    await base44.entities.PendingSpeciesReview.update(reviewId, { status: 'dismissed' });
     setProcessedGroups(prev => new Set([...prev, reviewId]));
     queryClient.invalidateQueries({ queryKey: ['pendingReviews'] });
     setReviewingId(null);
