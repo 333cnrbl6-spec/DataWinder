@@ -23,7 +23,31 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const queryClient = useQueryClient();
+
+  const toggleSelectSpecies = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredSpecies.length && filteredSpecies.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredSpecies.map(sp => sp.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Delete ${selectedIds.size} selected species?`)) return;
+    await Promise.allSettled([...selectedIds].map(id => base44.entities.Species.delete(id)));
+    setSelectedIds(new Set());
+    queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+  };
 
   // Subscribe to real-time Species updates
   React.useEffect(() => {
