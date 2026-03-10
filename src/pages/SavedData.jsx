@@ -12,8 +12,6 @@ import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
-import ArcGISMap from '@/components/ArcGISMap.jsx';
-import ArcGISTermsModal from '@/components/ArcGISTermsModal.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,8 +23,6 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [showArcGISTerms, setShowArcGISTerms] = useState(false);
-  const [arcgisAgreed, setArcgisAgreed] = useState(false);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -224,18 +220,16 @@ export default function SavedData() {
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => setShowIntegrityChecker(true)} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-bangor-sun/90 h-8">
-
-
+                      variant="outline"
+                      onClick={() => setShowIntegrityChecker(true)}>
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
                     </Button>
                     <Button
                       size="sm"
+                      variant="outline"
                       onClick={() => exportSpecies(filteredSpecies)}
-                      disabled={filteredSpecies.length === 0} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-red/90 h-8">
-
-
+                      disabled={filteredSpecies.length === 0}>
                       <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
@@ -524,17 +518,8 @@ export default function SavedData() {
           queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
           queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
         }} />
-      }
 
-      {/* ArcGIS Terms Modal */}
-      <ArcGISTermsModal 
-        open={showArcGISTerms}
-        onClose={() => setShowArcGISTerms(false)}
-        onAgree={() => {
-          setArcgisAgreed(true);
-          setShowArcGISTerms(false);
-        }}
-      />
+      }
 
       {/* Species Details Modal */}
       <AnimatePresence>
@@ -549,14 +534,6 @@ export default function SavedData() {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
-                {/* ArcGIS Map */}
-                <ArcGISMap 
-                  species={selectedSpecies} 
-                  height="500px" 
-                  hasAgreedToTerms={arcgisAgreed}
-                  onRequestTermsAgreement={() => setShowArcGISTerms(true)}
-                />
-
                 {/* Image */}
                 {selectedSpecies.image_url &&
               <div className="rounded-lg overflow-hidden">

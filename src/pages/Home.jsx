@@ -115,7 +115,7 @@ export default function Home() {
       const allSpeciesMap = {};
 
       // Search IUCN for each term if token available
-      if (iucnToken && includeINaturalist !== false) {
+      if (iucnToken) {
         for (const term of terms) {
           try {
             const searchResult = await base44.functions.invoke('fetchIUCNData', {
