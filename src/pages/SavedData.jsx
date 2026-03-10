@@ -362,6 +362,9 @@ export default function SavedData() {
                   <table className="w-full">
                     <thead className="bg-slate-50 sticky top-0 border-b">
                       <tr>
+                        <th className="px-4 py-3">
+                          <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="cursor-pointer" />
+                        </th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
