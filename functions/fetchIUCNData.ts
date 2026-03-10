@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { endpoint, term } = await req.json();
+        const { endpoint, term, level } = await req.json();
 
         if (!user.iucn_api_token) {
             return Response.json({ error: 'IUCN API token not configured for user.' }, { status: 400 });
