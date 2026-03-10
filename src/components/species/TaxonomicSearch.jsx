@@ -24,9 +24,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [selectedSpecies, setSelectedSpecies] = useState([]);
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [includeIUCN, setIncludeIUCN] = useState(true);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -61,8 +59,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF: includeGBIF
+        includeINaturalist: includeINat
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -71,8 +68,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF: includeGBIF
+          includeINaturalist: includeINat
         });
       }
     }
@@ -155,16 +151,16 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       {/* IUCN Credentials */}
       <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">IUCN Red List API</h3>
-        {!iucnToken ? (
+        {(!iucnToken || showIucnInput) ? (
           <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
             <div className="flex items-start gap-3">
               <Key className="w-5 h-5 text-bangor-sun mt-0.5" />
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-bangor-sun mb-1">API Token Required</h4>
+                <h4 className="text-sm font-medium text-bangor-sun mb-1">{iucnToken ? 'Change API Token' : 'API Token Required'}</h4>
                 <p className="text-xs text-bangor-sun/80 mb-3">
-                  To access IUCN data, you need a free API token. Sign up or log in to get yours.
+                  {iucnToken ? 'Enter your new IUCN API token below:' : 'To access IUCN data, you need a free API token. Sign up or log in to get yours.'}
                 </p>
-                {!showIucnInput ? (
+                {!iucnToken && !showIucnInput ? (
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
                       <a
@@ -196,9 +192,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-xs text-bangor-sun/80 mb-2">
-                       After logging in, find your token on your account page and paste it below:
-                    </p>
                     <div className="flex gap-2">
                       <Input
                         id="iucn-api-token"
@@ -241,64 +234,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* Data Source Selection */}
+      {/* iNaturalist */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">Select Data Sources to Search</h3>
-        <div className="space-y-2">
-          <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-bangor-red/30">
-            <input
-              id="source-iucn"
-              name="source-iucn"
-              type="checkbox"
-              checked={includeIUCN}
-              onChange={(e) => setIncludeIUCN(e.target.checked)}
-              disabled={!iucnToken}
-              className="w-4 h-4"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-700">IUCN Red List</span>
-                {!iucnToken && <span className="text-xs text-red-600">(Token Required)</span>}
-              </div>
-              <p className="text-xs text-slate-500">Conservation status, threats, distribution</p>
-            </div>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-bangor-red/30">
-            <input
-              id="source-inat"
-              name="source-inat"
-              type="checkbox"
-              checked={includeINat}
-              onChange={(e) => setIncludeINat(e.target.checked)}
-              className="w-4 h-4"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-700">iNaturalist</span>
-                <span className="text-xs text-green-600">(Public API)</span>
-              </div>
-              <p className="text-xs text-slate-500">Citizen science observations, photos</p>
-            </div>
-          </label>
-
-          <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-bangor-red/30">
-            <input
-              id="source-gbif"
-              name="source-gbif"
-              type="checkbox"
-              checked={includeGBIF}
-              onChange={(e) => setIncludeGBIF(e.target.checked)}
-              className="w-4 h-4"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-700">GBIF</span>
-                <span className="text-xs text-green-600">(Public API)</span>
-              </div>
-              <p className="text-xs text-slate-500">Occurrence records, specimen data</p>
-            </div>
-          </label>
+        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
+        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-bangor-sun" />
+          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
       </div>
 
@@ -420,7 +361,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0) || (!includeIUCN && !includeINat && !includeGBIF)}
+          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
           className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
@@ -452,16 +393,21 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           >
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
-              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label} from:
+              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
-
-            <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <div className="space-y-1 text-sm">
-                {includeIUCN && iucnToken && <div className="flex items-center gap-2"><span className="text-green-600">✓</span> IUCN Red List</div>}
-                {includeINat && <div className="flex items-center gap-2"><span className="text-green-600">✓</span> iNaturalist</div>}
-                {includeGBIF && <div className="flex items-center gap-2"><span className="text-green-600">✓</span> GBIF</div>}
-              </div>
-            </div>
+            
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button
