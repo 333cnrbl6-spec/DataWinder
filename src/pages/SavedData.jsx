@@ -23,11 +23,11 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [selectedIds, setSelectedIds] = useState(new Set());
   const queryClient = useQueryClient();
 
+  // Subscribe to real-time Species updates
   React.useEffect(() => {
-    const unsubscribe = base44.entities.Species.subscribe(() => {
+    const unsubscribe = base44.entities.Species.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
     });
     return unsubscribe;
@@ -41,67 +41,58 @@ export default function SavedData() {
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
     queryKey: ['allSpecies'],
     queryFn: () => base44.entities.Species.list('-created_date'),
-    refetchInterval: 5000
+    refetchInterval: 5000 // Auto-refresh every 5 seconds
   });
 
   const deleteSearchMutation = useMutation({
     mutationFn: (id) => base44.entities.SavedSearch.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['savedSearches'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+    }
   });
 
   const deleteSpeciesMutation = useMutation({
     mutationFn: (id) => base44.entities.Species.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['allSpecies'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+    }
   });
 
+  // Get unique countries for filter
   const allCountries = [...new Set(
     allSpecies.flatMap((sp) => sp.geographic_distribution?.countries || [])
   )].sort();
 
   const filteredSpecies = allSpecies.filter((sp) => {
+    // Search filter
     const searchMatch = !searchTerm ||
-      sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
+    sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    // IUCN status filter
     const statusMatch = statusFilter === 'all' || sp.iucn_status === statusFilter;
 
+    // Data source filter
     const sourceMatch = sourceFilter === 'all' ||
-      (sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List')) ||
-      (sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist')) ||
-      (sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist');
+    sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List') ||
+    sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist') ||
+    sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist';
 
+    // Country filter
     const countryMatch = countryFilter === 'all' ||
-      sp.geographic_distribution?.countries?.includes(countryFilter);
+    sp.geographic_distribution?.countries?.includes(countryFilter);
 
+    // Conservation action filter
     const conservationMatch = conservationFilter === 'all' ||
-      (conservationFilter === 'yes' && !!sp.conservation_actions) ||
-      (conservationFilter === 'no' && !sp.conservation_actions);
+    conservationFilter === 'yes' && sp.conservation_actions ||
+    conservationFilter === 'no' && !sp.conservation_actions;
 
     return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
 
-  // Selection helpers — must be AFTER filteredSpecies
-  const allFilteredSelected = filteredSpecies.length > 0 && filteredSpecies.every(sp => selectedIds.has(sp.id));
-
-  const toggleSelectAll = () => {
-    if (allFilteredSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredSpecies.map(sp => sp.id)));
-    }
-  };
-
-  const toggleSelectOne = (id) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    setSelectedIds(next);
-  };
-
   const deleteSelectedSpecies = async () => {
-    for (const id of selectedIds) {
-      await base44.entities.Species.delete(id);
-    }
+    await Promise.allSettled([...selectedIds].map(id => base44.entities.Species.delete(id)));
     setSelectedIds(new Set());
     queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
   };
@@ -126,12 +117,13 @@ export default function SavedData() {
 
     const headers = Object.keys(data[0]).join(',');
     const rows = data.map((row) =>
-      Object.values(row).map((val) => {
-        const value = String(val || '').replace(/"/g, '""');
-        return value.includes(',') || value.includes('"') ? `"${value}"` : value;
-      }).join(',')
+    Object.values(row).map((val) => {
+      const value = String(val || '').replace(/"/g, '""');
+      return value.includes(',') || value.includes('"') ? `"${value}"` : value;
+    }).join(',')
     );
     const csv = [headers, ...rows].join('\n');
+
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -172,16 +164,17 @@ export default function SavedData() {
               </CardHeader>
               <CardContent className="p-4 space-y-2 max-h-[70vh] overflow-y-auto">
                 {savedSearches.map((search) =>
-                  <motion.div
-                    key={search.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      selectedSearch?.id === search.id
-                        ? 'bg-bangor-red/10 border-bangor-red/50'
-                        : 'bg-white border-slate-200'
-                    }`}
-                    onClick={() => setSelectedSearch(search)}>
+                <motion.div
+                  key={search.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  selectedSearch?.id === search.id ?
+                  'bg-bangor-red/10 border-bangor-red/50' :
+                  'bg-white border-slate-200'}`
+                  }
+                  onClick={() => setSelectedSearch(search)}>
+
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-slate-900 truncate">{search.name}</h4>
@@ -194,16 +187,20 @@ export default function SavedData() {
                         </p>
                       </div>
                       <Button
-                        size="icon"
-                        onClick={(e) => { e.stopPropagation(); deleteSearchMutation.mutate(search.id); }}
-                        className="h-8 w-8 bg-red-100 text-red-600 font-medium">
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSearchMutation.mutate(search.id);
+                      }}
+                      className="h-8 w-8 bg-red-100 text-red-600 font-medium">
+
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </motion.div>
                 )}
                 {savedSearches.length === 0 &&
-                  <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-slate-400">
                     <Database className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No saved searches yet</p>
                   </div>
@@ -219,34 +216,28 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
-                    {selectedIds.size > 0 && (
-                      <Button
-                        size="sm"
-                        onClick={deleteSelectedSpecies}
-                        className="bg-red-600 text-white hover:bg-red-700">
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Delete Selected ({selectedIds.size})
-                      </Button>
-                    )}
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
                       className="bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200">
+
                       <RotateCw className="w-4 h-4 mr-1" />
                       Refresh
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => setShowIntegrityChecker(true)}
-                      className="bg-slate-100 text-slate-700 h-8 text-xs font-semibold">
+                      onClick={() => setShowIntegrityChecker(true)} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-bangor-sun/90 h-8">
+
+
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Check Data
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => exportSpecies(filteredSpecies)}
-                      disabled={filteredSpecies.length === 0}
-                      className="bg-slate-100 text-slate-700 h-8 text-xs font-semibold">
+                      disabled={filteredSpecies.length === 0} className="bg-slate-100 text-slate-700 px-3 text-xs font-semibold rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-bangor-red/90 h-8">
+
+
                       <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
@@ -259,8 +250,11 @@ export default function SavedData() {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search by name, family..."
                       className="pl-10" />
+
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   </div>
+
+                  {/* Advanced Filters */}
                   <div className="flex flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       <Filter className="w-4 h-4 text-slate-500" />
@@ -280,6 +274,7 @@ export default function SavedData() {
                         </SelectContent>
                       </Select>
                     </div>
+
                     <Select value={sourceFilter} onValueChange={setSourceFilter}>
                       <SelectTrigger className="w-32 h-8 text-xs">
                         <SelectValue placeholder="Data Source" />
@@ -291,6 +286,7 @@ export default function SavedData() {
                         <SelectItem value="Combined">Combined Data</SelectItem>
                       </SelectContent>
                     </Select>
+
                     <Select value={countryFilter} onValueChange={setCountryFilter}>
                       <SelectTrigger className="w-40 h-8 text-xs">
                         <SelectValue placeholder="Country" />
@@ -298,10 +294,11 @@ export default function SavedData() {
                       <SelectContent className="max-h-60">
                         <SelectItem value="all">All Countries</SelectItem>
                         {allCountries.map((country) =>
-                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        <SelectItem key={country} value={country}>{country}</SelectItem>
                         )}
                       </SelectContent>
                     </Select>
+
                     <Select value={conservationFilter} onValueChange={setConservationFilter}>
                       <SelectTrigger className="w-40 h-8 text-xs">
                         <SelectValue placeholder="Conservation" />
@@ -312,12 +309,19 @@ export default function SavedData() {
                         <SelectItem value="no">No Actions</SelectItem>
                       </SelectContent>
                     </Select>
+
                     {(statusFilter !== 'all' || sourceFilter !== 'all' || countryFilter !== 'all' || conservationFilter !== 'all') &&
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => { setStatusFilter('all'); setSourceFilter('all'); setCountryFilter('all'); setConservationFilter('all'); }}
-                        className="h-8 text-xs text-slate-700">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSourceFilter('all');
+                        setCountryFilter('all');
+                        setConservationFilter('all');
+                      }}
+                      className="h-8 text-xs text-slate-700">
+
                         <X className="w-3 h-3 mr-1" />
                         Clear Filters
                       </Button>
@@ -330,9 +334,6 @@ export default function SavedData() {
                   <table className="w-full">
                     <thead className="bg-slate-50 sticky top-0 border-b">
                       <tr>
-                        <th className="px-4 py-3">
-                          <input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="cursor-pointer" />
-                        </th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
@@ -347,18 +348,21 @@ export default function SavedData() {
                     </thead>
                     <tbody>
                       {filteredSpecies.map((species) =>
-                        <motion.tr
-                          key={species.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
-                          onClick={() => { setSelectedSpecies(species); setShowDetails(true); }}>
-                          <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                            <input type="checkbox" checked={selectedIds.has(species.id)} onChange={() => toggleSelectOne(species.id)} className="cursor-pointer" />
-                          </td>
+                      <motion.tr
+                        key={species.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setSelectedSpecies(species);
+                          setShowDetails(true);
+                        }}>
+
                           <td className="px-4 py-3">
                             <div>
-                              <p className="font-medium text-slate-900 text-sm">{species.common_name || 'No common name'}</p>
+                              <p className="font-medium text-slate-900 text-sm">
+                                {species.common_name || 'No common name'}
+                              </p>
                               <p className="text-xs italic text-slate-500">{species.scientific_name}</p>
                             </div>
                           </td>
@@ -379,14 +383,16 @@ export default function SavedData() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-xs">
-                              {species.geographic_distribution?.countries?.length > 0 ? (
-                                <>
+                              {species.geographic_distribution?.countries?.length > 0 ?
+                            <>
                                   <div className="font-semibold text-slate-900">{species.geographic_distribution.countries.length}</div>
                                   <div className="text-slate-600 max-w-[120px] truncate">
                                     {species.geographic_distribution.countries.slice(0, 2).join(', ')}
                                   </div>
-                                </>
-                              ) : <span className="text-slate-400">—</span>}
+                                </> :
+
+                            <span className="text-slate-400">—</span>
+                            }
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -402,47 +408,94 @@ export default function SavedData() {
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button
-                                size="icon"
-                                onClick={() => { setSelectedSpecies(species); setShowDetails(true); }}
-                                className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
-                                title="View Details">
+                              size="icon"
+                              onClick={() => {
+                                setSelectedSpecies(species);
+                                setShowDetails(true);
+                              }}
+                              className="h-8 w-8 bg-bangor-sun text-white font-semibold hover:bg-bangor-sun/90"
+                              title="View Details">
+
                                 <Eye className="w-4 h-4" />
                               </Button>
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    const speciesName = species.scientific_name.replace(/ /g, '_');
-                                    const files = [];
-                                    if (species.search_summary_json) {
-                                      files.push({ blob: new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' }), name: `${speciesName}_search_summary.json` });
-                                    }
-                                    if (species.range_data_geojson) {
-                                      files.push({ blob: new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' }), name: `${speciesName}_range_data.geojson` });
-                                    }
-                                    if (species.observations?.length > 0) {
-                                      const csv = ['latitude,longitude,location,date,observer,photo_url', ...species.observations.map(obs => `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`)].join('\n');
-                                      files.push({ blob: new Blob([csv], { type: 'text/csv' }), name: `${speciesName}_observations.csv` });
-                                    }
-                                    files.forEach((file) => {
-                                      const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
-                                      const a = document.createElement('a');
-                                      a.href = url; a.download = file.name;
-                                      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                                      if (file.blob) URL.revokeObjectURL(url);
-                                    });
-                                  }}
-                                  className="h-8 w-8 text-green-600"
-                                  title="Download All Data Files">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const speciesName = species.scientific_name.replace(/ /g, '_');
+                                const files = [];
+
+                                // Download search summary
+                                if (species.search_summary_json) {
+                                  const blob = new Blob([JSON.stringify(species.search_summary_json, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_search_summary.json` });
+                                }
+
+                                // Download range geojson
+                                if (species.range_data_geojson) {
+                                  const blob = new Blob([JSON.stringify(species.range_data_geojson, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_range_data.geojson` });
+                                }
+
+                                // Download observations as CSV
+                                if (species.observations && species.observations.length > 0) {
+                                  const csv = [
+                                  'latitude,longitude,location,date,observer,photo_url',
+                                  ...species.observations.map((obs) =>
+                                  `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                                  )].
+                                  join('\n');
+                                  const blob = new Blob([csv], { type: 'text/csv' });
+                                  files.push({ blob, name: `${speciesName}_observations.csv` });
+                                }
+
+                                // Download habitats
+                                if (species.habitats_detailed) {
+                                  const blob = new Blob([JSON.stringify(species.habitats_detailed, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_habitats.json` });
+                                }
+
+                                // Download threats
+                                if (species.threats_detailed) {
+                                  const blob = new Blob([JSON.stringify(species.threats_detailed, null, 2)], { type: 'application/json' });
+                                  files.push({ blob, name: `${speciesName}_threats.json` });
+                                }
+
+                                // Download range map JPG if available
+                                if (species.range_map_jpg_url) {
+                                  files.push({ url: species.range_map_jpg_url, name: `${speciesName}_range_map.jpg` });
+                                }
+
+                                // Download assessment PDF if available
+                                if (species.assessment_pdf_url) {
+                                  files.push({ url: species.assessment_pdf_url, name: `${speciesName}_assessment.pdf` });
+                                }
+
+                                // Trigger downloads
+                                files.forEach((file) => {
+                                  const url = file.blob ? URL.createObjectURL(file.blob) : file.url;
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = file.name;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                  if (file.blob) URL.revokeObjectURL(url);
+                                });
+                              }}
+                              className="h-8 w-8 text-green-600"
+                              title="Download All Data Files">
+
                                   <Download className="w-4 h-4" />
                                 </Button>
-                              }
+                            }
                               <Button
-                                size="icon"
-                                onClick={() => deleteSpeciesMutation.mutate(species.id)}
-                                className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
-                                title="Delete">
+                              size="icon"
+                              onClick={() => deleteSpeciesMutation.mutate(species.id)}
+                              className="h-8 w-8 bg-red-600 text-white font-semibold hover:bg-red-700"
+                              title="Delete">
+
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -452,7 +505,7 @@ export default function SavedData() {
                     </tbody>
                   </table>
                   {filteredSpecies.length === 0 &&
-                    <div className="text-center py-12 text-slate-400">
+                  <div className="text-center py-12 text-slate-400">
                       <Database className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No species found</p>
                     </div>
@@ -464,19 +517,22 @@ export default function SavedData() {
         </div>
       </main>
 
+      {/* Data Integrity Checker */}
       {showIntegrityChecker &&
-        <DataIntegrityChecker
-          open={showIntegrityChecker}
-          onClose={() => setShowIntegrityChecker(false)}
-          onComplete={() => {
-            queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-            queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
-          }} />
+      <DataIntegrityChecker
+        open={showIntegrityChecker}
+        onClose={() => setShowIntegrityChecker(false)}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+          queryClient.invalidateQueries({ queryKey: ['savedSearches'] });
+        }} />
+
       }
 
+      {/* Species Details Modal */}
       <AnimatePresence>
         {showDetails && selectedSpecies &&
-          <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <Dialog open={showDetails} onOpenChange={setShowDetails}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
@@ -484,12 +540,20 @@ export default function SavedData() {
                 </DialogTitle>
                 <p className="text-sm italic text-slate-500">{selectedSpecies.scientific_name}</p>
               </DialogHeader>
+
               <div className="space-y-6 mt-4">
+                {/* Image */}
                 {selectedSpecies.image_url &&
-                  <div className="rounded-lg overflow-hidden">
-                    <img src={selectedSpecies.image_url} alt={selectedSpecies.scientific_name} className="w-full h-64 object-cover" />
+              <div className="rounded-lg overflow-hidden">
+                    <img
+                  src={selectedSpecies.image_url}
+                  alt={selectedSpecies.scientific_name}
+                  className="w-full h-64 object-cover" />
+
                   </div>
-                }
+              }
+
+                {/* Conservation Status */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status</h3>
@@ -500,6 +564,8 @@ export default function SavedData() {
                     <TrendIndicator trend={selectedSpecies.population_trend} showLabel />
                   </div>
                 </div>
+
+                {/* Taxonomy */}
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">Taxonomy</h3>
                   <div className="grid grid-cols-3 gap-3 text-sm">
@@ -511,173 +577,264 @@ export default function SavedData() {
                     <div><span className="font-medium">Genus:</span> {selectedSpecies.genus || '—'}</div>
                   </div>
                 </div>
+
+                {/* Population */}
                 {selectedSpecies.population_details &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Population Details</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.population_details}</p>
                   </div>
-                }
+              }
+
+                {/* Distribution */}
                 {selectedSpecies.geographic_distribution?.countries?.length > 0 &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">
                       Geographic Distribution ({selectedSpecies.geographic_distribution.countries.length} countries)
                     </h3>
                     <div className="flex flex-wrap gap-1">
                       {selectedSpecies.geographic_distribution.countries.map((country, i) =>
-                        <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded">{country}</span>
-                      )}
+                  <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded">
+                          {country}
+                        </span>
+                  )}
                     </div>
                   </div>
-                }
+              }
+
+                {/* Habitat */}
                 {selectedSpecies.habitat &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Habitat</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.habitat}</p>
                   </div>
-                }
+              }
+
+                {/* Range Description */}
                 {selectedSpecies.range_description &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Range Description</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.range_description}</p>
                   </div>
-                }
+              }
+
+                {/* Threats */}
                 {selectedSpecies.threats &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-red-700 mb-2">Threats</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.threats}</p>
                   </div>
-                }
+              }
+
+                {/* Conservation Actions */}
                 {selectedSpecies.conservation_actions &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-emerald-700 mb-2">Conservation Actions</h3>
                     <p className="text-sm text-slate-600">{selectedSpecies.conservation_actions}</p>
                   </div>
-                }
-                {selectedSpecies.status_history?.length > 0 &&
-                  <div>
+              }
+
+                {/* Status History */}
+                {selectedSpecies.status_history && selectedSpecies.status_history.length > 0 &&
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Conservation Status History</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedSpecies.status_history.map((h, i) =>
-                        <div key={i} className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded">
+                  <div key={i} className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded">
                           <span className="font-medium">{h.year}:</span> {h.status}
                         </div>
-                      )}
+                  )}
                     </div>
                   </div>
-                }
+              }
+
+                {/* Downloadable Data Files */}
                 {(selectedSpecies.search_summary_json || selectedSpecies.range_data_geojson || selectedSpecies.observations) &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Download Data Files</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedSpecies.search_summary_json &&
-                        <button className="text-xs px-3 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`;
-                            a.click(); URL.revokeObjectURL(url);
-                          }}>
-                          <FileText className="w-3 h-3" /> Search Summary (JSON)
+                  <button
+                    className="text-xs px-3 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const blob = new Blob([JSON.stringify(selectedSpecies.search_summary_json, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_search_summary.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
+
+                          <FileText className="w-3 h-3" />
+                          Search Summary (JSON)
                         </button>
-                      }
+                  }
                       {selectedSpecies.range_data_geojson &&
-                        <button className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`;
-                            a.click(); URL.revokeObjectURL(url);
-                          }}>
-                          <FileText className="w-3 h-3" /> Range Data (GeoJSON)
+                  <button
+                    className="text-xs px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const blob = new Blob([JSON.stringify(selectedSpecies.range_data_geojson, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_range_data.geojson`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
+
+                          <FileText className="w-3 h-3" />
+                          Range Data (GeoJSON)
                         </button>
-                      }
-                      {selectedSpecies.observations?.length > 0 &&
-                        <button className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const csv = ['latitude,longitude,location,date,observer,photo_url', ...selectedSpecies.observations.map(obs => `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`)].join('\n');
-                            const blob = new Blob([csv], { type: 'text/csv' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
-                            a.click(); URL.revokeObjectURL(url);
-                          }}>
-                          <FileText className="w-3 h-3" /> Observations (CSV)
+                  }
+                      {selectedSpecies.observations && selectedSpecies.observations.length > 0 &&
+                  <button
+                    className="text-xs px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const csv = [
+                      'latitude,longitude,location,date,observer,photo_url',
+                      ...selectedSpecies.observations.map((obs) =>
+                      `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
+                      )].
+                      join('\n');
+                      const blob = new Blob([csv], { type: 'text/csv' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_observations.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
+
+                          <FileText className="w-3 h-3" />
+                          Observations (CSV)
                         </button>
-                      }
+                  }
                       {(selectedSpecies.habitats_detailed || selectedSpecies.threats_detailed) &&
-                        <button className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
-                          onClick={() => {
-                            const detailedData = { scientific_name: selectedSpecies.scientific_name, habitats: selectedSpecies.habitats_detailed || [], threats: selectedSpecies.threats_detailed || [] };
-                            const blob = new Blob([JSON.stringify(detailedData, null, 2)], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_habitats_threats.json`;
-                            a.click(); URL.revokeObjectURL(url);
-                          }}>
-                          <FileText className="w-3 h-3" /> Habitats & Threats (JSON)
+                  <button
+                    className="text-xs px-3 py-2 bg-amber-100 text-amber-700 rounded-lg font-medium flex items-center gap-1"
+                    onClick={() => {
+                      const detailedData = {
+                        scientific_name: selectedSpecies.scientific_name,
+                        habitats: selectedSpecies.habitats_detailed || [],
+                        threats: selectedSpecies.threats_detailed || []
+                      };
+                      const blob = new Blob([JSON.stringify(detailedData, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${selectedSpecies.scientific_name.replace(/ /g, '_')}_habitats_threats.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}>
+
+                          <FileText className="w-3 h-3" />
+                          Habitats & Threats (JSON)
                         </button>
-                      }
+                  }
                     </div>
                   </div>
-                }
+              }
+
+                {/* External Links */}
                 <div>
                   <h3 className="text-sm font-semibold text-slate-700 mb-2">External Resources</h3>
                   <div className="space-y-3">
                     {selectedSpecies.iucn_id &&
-                      <div className="space-y-2">
+                  <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
-                          <a href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-medium">
-                            <ExternalLink className="w-4 h-4" /> View on IUCN Red List
+                          <a
+                        href={`https://www.iucnredlist.org/species/${selectedSpecies.iucn_id}/${selectedSpecies.scientific_name.replace(/ /g, '-').toLowerCase()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-medium">
+
+                            <ExternalLink className="w-4 h-4" />
+                            View on IUCN Red List
                           </a>
                           {selectedSpecies.assessment_pdf_url &&
-                            <a href={selectedSpecies.assessment_pdf_url} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
-                              <FileText className="w-4 h-4" /> Assessment PDF
+                      <a
+                        href={selectedSpecies.assessment_pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
+
+                              <FileText className="w-4 h-4" />
+                              Assessment PDF
                             </a>
-                          }
+                      }
                         </div>
-                        <p className="text-xs text-slate-500 italic">IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
+                        <p className="text-xs text-slate-500 italic">
+                          IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org
+                        </p>
                       </div>
-                    }
+                  }
                     {selectedSpecies.inat_taxon_id &&
-                      <div className="space-y-2">
+                  <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
-                          <a href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium">
-                            <ExternalLink className="w-4 h-4" /> View on iNaturalist
+                          <a
+                        href={`https://www.inaturalist.org/taxa/${selectedSpecies.inat_taxon_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium">
+
+                            <ExternalLink className="w-4 h-4" />
+                            View on iNaturalist
                           </a>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <span className="text-xs text-slate-600 font-medium">Download Observations:</span>
-                          <a href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`} target="_blank" rel="noopener noreferrer" className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">📥 CSV</a>
-                          <a href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`} target="_blank" rel="noopener noreferrer" className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">📊 JSON</a>
-                          <a href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`} target="_blank" rel="noopener noreferrer" className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">🗺️ KML</a>
+                          <a
+                        href={`https://www.inaturalist.org/observations/export?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            📥 CSV
+                          </a>
+                          <a
+                        href={`https://www.inaturalist.org/observations?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research&verifiable=true`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            📊 JSON
+                          </a>
+                          <a
+                        href={`https://www.inaturalist.org/observations.kml?taxon_id=${selectedSpecies.inat_taxon_id}&quality_grade=research`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium">
+
+                            🗺️ KML
+                          </a>
                         </div>
                       </div>
-                    }
+                  }
                   </div>
                 </div>
+
+                {/* Observation Data (iNaturalist) */}
                 {selectedSpecies.observation_count > 0 &&
-                  <div>
+              <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-2">Observation Data</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm">
-                      <div><span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count.toLocaleString()}</div>
+                      <div>
+                        <span className="font-medium">Total Observations:</span> {selectedSpecies.observation_count.toLocaleString()}
+                      </div>
                       {selectedSpecies.last_observed &&
-                        <div><span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}</div>
-                      }
+                  <div>
+                          <span className="font-medium">Last Observed:</span> {selectedSpecies.last_observed}
+                        </div>
+                  }
                     </div>
                   </div>
-                }
+              }
               </div>
             </DialogContent>
           </Dialog>
         }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
