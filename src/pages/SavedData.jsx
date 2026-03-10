@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Square, CheckSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -23,7 +23,6 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [selectedIds, setSelectedIds] = useState(new Set());
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -91,12 +90,6 @@ export default function SavedData() {
 
     return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
-
-  const deleteSelectedSpecies = async () => {
-    await Promise.allSettled([...selectedIds].map(id => base44.entities.Species.delete(id)));
-    setSelectedIds(new Set());
-    queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-  };
 
   const exportSpecies = (speciesToExport) => {
     const data = speciesToExport.map((sp) => ({
