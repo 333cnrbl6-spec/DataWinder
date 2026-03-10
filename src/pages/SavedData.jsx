@@ -235,6 +235,15 @@ export default function SavedData() {
                 <div className="flex items-center justify-between gap-4">
                   <CardTitle className="text-bangor-red">All Species ({filteredSpecies.length})</CardTitle>
                   <div className="flex items-center gap-2">
+                    {selectedIds.size > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={deleteSelectedSpecies}
+                        className="bg-red-600 text-white hover:bg-red-700">
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete Selected ({selectedIds.size})
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => refetchSpecies()}
