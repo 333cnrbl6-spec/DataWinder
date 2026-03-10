@@ -388,12 +388,17 @@ export default function SavedData() {
                         key={species.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
+                        className={`border-b cursor-pointer transition-colors ${selectedIds.has(species.id) ? 'bg-bangor-red/15' : 'bg-bangor-red/5 hover:bg-bangor-red/10'}`}
                         onClick={() => {
                           setSelectedSpecies(species);
                           setShowDetails(true);
                         }}>
 
+                          <td className="px-4 py-3 w-8" onClick={e => { e.stopPropagation(); toggleSelectSpecies(species.id); }}>
+                            {selectedIds.has(species.id)
+                              ? <CheckSquare className="w-4 h-4 text-bangor-red" />
+                              : <Square className="w-4 h-4 text-slate-400" />}
+                          </td>
                           <td className="px-4 py-3">
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
