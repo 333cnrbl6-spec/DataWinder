@@ -76,9 +76,9 @@ export default function SavedData() {
 
     // Data source filter
     const sourceMatch = sourceFilter === 'all' ||
-    sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List') ||
-    sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist') ||
-    sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist';
+    (sourceFilter === 'IUCN' && (sp.iucn_id || sp.data_source === 'IUCN Red List')) ||
+    (sourceFilter === 'iNaturalist' && (sp.inat_taxon_id || sp.data_source === 'iNaturalist')) ||
+    (sourceFilter === 'Combined' && sp.data_source === 'IUCN + iNaturalist');
 
     // Country filter
     const countryMatch = countryFilter === 'all' ||
@@ -86,8 +86,8 @@ export default function SavedData() {
 
     // Conservation action filter
     const conservationMatch = conservationFilter === 'all' ||
-    conservationFilter === 'yes' && sp.conservation_actions ||
-    conservationFilter === 'no' && !sp.conservation_actions;
+    (conservationFilter === 'yes' && !!sp.conservation_actions) ||
+    (conservationFilter === 'no' && !sp.conservation_actions);
 
     return searchMatch && statusMatch && sourceMatch && countryMatch && conservationMatch;
   });
