@@ -277,20 +277,8 @@ export default function Home() {
                     }
                   }
 
-                  // Download PDF, map JPG, and SHP via backend (bypasses CORS)
-                  try {
-                    const filesResult = await base44.functions.invoke('downloadIUCNFiles', {
-                      taxonid: sp.taxonid,
-                      scientific_name: sp.scientific_name
-                    });
-                    if (filesResult.data?.status === 'success') {
-                      assessmentPdfFileUri = filesResult.data.assessment_pdf_file_uri || null;
-                      rangeMapJpgFileUri = filesResult.data.range_map_jpg_file_uri || null;
-                      rangeShpFileUri = filesResult.data.range_shp_file_uri || null;
-                    }
-                  } catch (err) {
-                    console.error('Error downloading IUCN files via backend:', err);
-                  }
+                  // Note: IUCN PDF/map downloads require browser session (not API-accessible)
+                  // assessment_pdf_url and range_map_jpg_url are stored as reference links only
 
                   // Download and upload range CSV if available
                   if (rangeDataPoints && rangeDataPoints.length > 0) {
