@@ -20,10 +20,24 @@ Deno.serve(async (req) => {
 
         let apiUrl = '';
         switch (endpoint) {
-            // Search by family name: /api/v4/taxa/family/{family_name}
-            case 'taxa':
-                apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term)}`;
+            // Search by taxonomic level
+            case 'taxa': {
+                const taxaLevel = level || 'family';
+                if (taxaLevel === 'genus') {
+                    apiUrl = `${BASE}/taxa/genus/${encodeURIComponent(term)}`;
+                } else if (taxaLevel === 'order') {
+                    apiUrl = `${BASE}/taxa/order/${encodeURIComponent(term)}`;
+                } else if (taxaLevel === 'class') {
+                    apiUrl = `${BASE}/taxa/class/${encodeURIComponent(term)}`;
+                } else if (taxaLevel === 'species') {
+                    const parts = term.split(' ');
+                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
+                } else {
+                    // default to family
+                    apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term)}`;
+                }
                 break;
+            }
             // Get assessment by ID: /api/v4/assessment/{assessment_id}
             case 'assessment':
                 apiUrl = `${BASE}/assessment/${term}`;
