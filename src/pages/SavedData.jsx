@@ -59,6 +59,30 @@ export default function SavedData() {
     }
   });
 
+  const deleteSelectedSpecies = async () => {
+    for (const id of selectedIds) {
+      await base44.entities.Species.delete(id);
+    }
+    setSelectedIds(new Set());
+    queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+  };
+
+  const allFilteredSelected = filteredSpecies.length > 0 && filteredSpecies.every(sp => selectedIds.has(sp.id));
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredSpecies.map(sp => sp.id)));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelectedIds(next);
+  };
+
   // Get unique countries for filter
   const allCountries = [...new Set(
     allSpecies.flatMap((sp) => sp.geographic_distribution?.countries || [])
