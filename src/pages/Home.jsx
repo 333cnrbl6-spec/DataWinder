@@ -277,46 +277,19 @@ export default function Home() {
                     }
                   }
 
-                  // Download and upload assessment PDF
+                  // Download PDF, map JPG, and SHP via backend (bypasses CORS)
                   try {
-                    const pdfUrl = `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`;
-                    const pdfRes = await fetch(pdfUrl);
-                    if (pdfRes.ok) {
-                      const pdfBlob = await pdfRes.blob();
-                      const pdfFile = new File([pdfBlob], `${sp.scientific_name.replace(/ /g, '_')}_assessment.pdf`, { type: 'application/pdf' });
-                      const { file_uri: pdfUri } = await base44.integrations.Core.UploadPrivateFile({ file: pdfFile });
-                      assessmentPdfFileUri = pdfUri;
+                    const filesResult = await base44.functions.invoke('downloadIUCNFiles', {
+                      taxonid: sp.taxonid,
+                      scientific_name: sp.scientific_name
+                    });
+                    if (filesResult.data?.status === 'success') {
+                      assessmentPdfFileUri = filesResult.data.assessment_pdf_file_uri || null;
+                      rangeMapJpgFileUri = filesResult.data.range_map_jpg_file_uri || null;
+                      rangeShpFileUri = filesResult.data.range_shp_file_uri || null;
                     }
                   } catch (err) {
-                    console.error('Error downloading/uploading assessment PDF:', err);
-                  }
-
-                  // Download and upload range map JPG
-                  try {
-                    const mapUrl = `https://www.iucnredlist.org/species/map/${sp.taxonid}`;
-                    const mapRes = await fetch(mapUrl);
-                    if (mapRes.ok) {
-                      const mapBlob = await mapRes.blob();
-                      const mapFile = new File([mapBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_map.jpg`, { type: 'image/jpeg' });
-                      const { file_uri: mapUri } = await base44.integrations.Core.UploadPrivateFile({ file: mapFile });
-                      rangeMapJpgFileUri = mapUri;
-                    }
-                  } catch (err) {
-                    console.error('Error downloading/uploading range map JPG:', err);
-                  }
-
-                  // Download and upload range SHP file
-                  try {
-                    const shpUrl = `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`;
-                    const shpRes = await fetch(shpUrl);
-                    if (shpRes.ok) {
-                      const shpBlob = await shpRes.blob();
-                      const shpFile = new File([shpBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_data.shp.zip`, { type: 'application/zip' });
-                      const { file_uri: shpUri } = await base44.integrations.Core.UploadPrivateFile({ file: shpFile });
-                      rangeShpFileUri = shpUri;
-                    }
-                  } catch (err) {
-                    console.error('Error downloading/uploading range SHP:', err);
+                    console.error('Error downloading IUCN files via backend:', err);
                   }
 
                   // Download and upload range CSV if available
