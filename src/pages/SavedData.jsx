@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, Square, CheckSquare } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, CheckSquare, Square } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
@@ -23,31 +23,7 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [selectedIds, setSelectedIds] = useState(new Set());
   const queryClient = useQueryClient();
-
-  const toggleSelectSpecies = (id) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredSpecies.length && filteredSpecies.length > 0) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredSpecies.map(sp => sp.id)));
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Delete ${selectedIds.size} selected species?`)) return;
-    await Promise.allSettled([...selectedIds].map(id => base44.entities.Species.delete(id)));
-    setSelectedIds(new Set());
-    queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-  };
 
   // Subscribe to real-time Species updates
   React.useEffect(() => {
@@ -349,27 +325,9 @@ export default function SavedData() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="max-h-[70vh] overflow-y-auto">
-                  {selectedIds.size > 0 && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-bangor-red/10 border-b border-bangor-red/20">
-                      <span className="text-sm font-medium text-bangor-red">{selectedIds.size} selected</span>
-                      <Button size="sm" onClick={handleBulkDelete} className="bg-red-600 text-white hover:bg-red-700 h-7 text-xs">
-                        <Trash2 className="w-3 h-3 mr-1" /> Delete Selected
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} className="h-7 text-xs text-slate-600">
-                        <X className="w-3 h-3 mr-1" /> Clear
-                      </Button>
-                    </div>
-                  )}
                   <table className="w-full">
                     <thead className="bg-slate-50 sticky top-0 border-b">
                       <tr>
-                        <th className="px-4 py-3 w-8">
-                          <button onClick={toggleSelectAll} className="text-slate-500 hover:text-bangor-red">
-                            {selectedIds.size === filteredSpecies.length && filteredSpecies.length > 0
-                              ? <CheckSquare className="w-4 h-4" />
-                              : <Square className="w-4 h-4" />}
-                          </button>
-                        </th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Species</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-600">Trend</th>
@@ -388,17 +346,12 @@ export default function SavedData() {
                         key={species.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className={`border-b cursor-pointer transition-colors ${selectedIds.has(species.id) ? 'bg-bangor-red/15' : 'bg-bangor-red/5 hover:bg-bangor-red/10'}`}
+                        className="border-b bg-bangor-red/5 hover:bg-bangor-red/10 cursor-pointer transition-colors"
                         onClick={() => {
                           setSelectedSpecies(species);
                           setShowDetails(true);
                         }}>
 
-                          <td className="px-4 py-3 w-8" onClick={e => { e.stopPropagation(); toggleSelectSpecies(species.id); }}>
-                            {selectedIds.has(species.id)
-                              ? <CheckSquare className="w-4 h-4 text-bangor-red" />
-                              : <Square className="w-4 h-4 text-slate-400" />}
-                          </td>
                           <td className="px-4 py-3">
                             <div>
                               <p className="font-medium text-slate-900 text-sm">
