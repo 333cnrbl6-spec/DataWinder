@@ -1250,8 +1250,13 @@ export default function DataManagement() {
                       onClick={async () => {
                         setIsRunningTaxonomyCheck(true);
                         try {
-                          await base44.functions.invoke('runTaxonomyCheck', {});
-                          window.location.href = createPageUrl('ReviewDuplicates');
+                          const result = await base44.functions.invoke('runTaxonomyCheck', {});
+                          const count = result?.data?.duplicatesFound || 0;
+                          if (count > 0) {
+                            window.location.href = createPageUrl('ReviewDuplicates');
+                          } else {
+                            alert('Taxonomy check complete. No duplicates found.');
+                          }
                         } catch (error) {
                           console.error('Taxonomy check error:', error);
                           alert('Failed to run taxonomy check');
@@ -1489,9 +1494,40 @@ export default function DataManagement() {
                         input.accept = '.csv,.json';
                         input.onchange = async (e) => {
                           const file = e.target.files[0];
-                          if (file) {
-                            alert('Import functionality coming soon!');
-                          }
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = async (ev) => {
+                            try {
+                              let records = [];
+                              if (file.name.endsWith('.json')) {
+                                records = JSON.parse(ev.target.result);
+                                if (!Array.isArray(records)) records = [records];
+                              } else {
+                                const lines = ev.target.result.split('\n').filter(Boolean);
+                                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+                                records = lines.slice(1).map(line => {
+                                  const values = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+                                  const obj = {};
+                                  headers.forEach((h, i) => { obj[h] = (values[i] || '').replace(/^"|"$/g, '').trim(); });
+                                  return obj;
+                                });
+                              }
+                              let created = 0;
+                              for (const record of records) {
+                                if (!record.scientific_name) continue;
+                                const existing = await base44.entities.Species.filter({ scientific_name: record.scientific_name });
+                                if (existing.length === 0) {
+                                  await base44.entities.Species.create(record);
+                                  created++;
+                                }
+                              }
+                              alert(`Import complete! ${created} new species added.`);
+                              refetchSpecies();
+                            } catch (err) {
+                              alert('Import failed: ' + err.message);
+                            }
+                          };
+                          reader.readAsText(file);
                         };
                         input.click();
                       }}
