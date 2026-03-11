@@ -400,7 +400,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+              This will download comprehensive data from IUCN Red List{includeINat ? ', iNaturalist' : ''}{includeGBIF ? ' and GBIF' : ''}.
             </p>
             
             <label className="flex items-center gap-2 mb-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
