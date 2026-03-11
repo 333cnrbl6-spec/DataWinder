@@ -297,6 +297,52 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                 </div>
               </div>
 
+              {/* IUCN Available Files */}
+              {selectedSpecies.some(sp => sp.assessment_pdf_url || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url) && (
+                <div>
+                  <Label className="text-sm font-medium mb-3 block">Available IUCN Files</Label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {selectedSpecies.map(sp => (
+                      (sp.assessment_pdf_url || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url) && (
+                        <div key={sp.scientific_name} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                          <p className="text-xs font-semibold text-slate-700 italic mb-2">{sp.scientific_name}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {sp.assessment_pdf_url && (
+                              <a href={sp.assessment_pdf_url} target="_blank" rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200 hover:bg-red-100">
+                                <FileText className="w-3 h-3" /> Assessment (PDF)
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                            {sp.range_data_shp_url && (
+                              <a href={sp.range_data_shp_url} target="_blank" rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100">
+                                <Map className="w-3 h-3" /> Range Data - Polygons (SHP)
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                            {sp.range_data_csv_url && sp.range_data_csv_url !== 'available' && (
+                              <a href={sp.range_data_csv_url} target="_blank" rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-green-50 text-green-700 border border-green-200 hover:bg-green-100">
+                                <FileSpreadsheet className="w-3 h-3" /> Range Data - Points (CSV)
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                            {sp.range_map_jpg_url && (
+                              <a href={sp.range_map_jpg_url} target="_blank" rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+                                <Image className="w-3 h-3" /> Range Map (JPG)
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <Label className="text-sm font-medium">Data Fields</Label>
