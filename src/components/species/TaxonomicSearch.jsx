@@ -103,18 +103,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         });
 
         if (result.data?.assessments && result.data.assessments.length > 0) {
-          // Filter to latest assessments only, deduplicated by species name
-          const latestAssessments = result.data.assessments.filter(a => a.latest);
-          const seen = new Set();
-          const unique = latestAssessments.filter(a => {
-            if (seen.has(a.taxon_scientific_name)) return false;
-            seen.add(a.taxon_scientific_name);
-            return true;
-          });
-          setFamilySpecies(unique.length > 0 ? unique : result.data.assessments.filter(a => {
-            const seen2 = new Set();
-            return !seen2.has(a.taxon_scientific_name) && seen2.add(a.taxon_scientific_name);
+          const mappedSpecies = result.data.assessments.map(a => ({
+            taxonid: a.sis_taxon_id,
+            scientific_name: a.taxon_scientific_name,
+            main_common_name: a.main_common_name,
+            category: a.red_list_category_code,
           }));
+          setFamilySpecies(mappedSpecies);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -135,7 +130,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const selectAllSpecies = () => {
-    setSelectedSpecies(familySpecies.map(sp => sp.taxon_scientific_name));
+    setSelectedSpecies(familySpecies.map(sp => sp.scientific_name));
   };
 
   const deselectAllSpecies = () => {
@@ -339,21 +334,24 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <div className="max-h-60 overflow-y-auto space-y-2">
               {familySpecies.map((sp) => (
                 <label 
-                  key={sp.assessment_id}
+                  key={sp.taxonid}
                   className="flex items-start gap-2 p-2 bg-white rounded cursor-pointer"
                 >
                   <input
-                    id={`species-${sp.assessment_id}`}
-                    name={`species-${sp.assessment_id}`}
+                    id={`species-${sp.taxonid}`}
+                    name={`species-${sp.taxonid}`}
                     type="checkbox"
-                    checked={selectedSpecies.includes(sp.taxon_scientific_name)}
-                    onChange={() => toggleSpecies(sp.taxon_scientific_name)}
+                    checked={selectedSpecies.includes(sp.scientific_name)}
+                    onChange={() => toggleSpecies(sp.scientific_name)}
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">{sp.taxon_scientific_name}</div>
+                    <div className="text-sm font-medium text-slate-900">{sp.scientific_name}</div>
+                    {sp.main_common_name && (
+                      <div className="text-xs text-slate-500">{sp.main_common_name}</div>
+                    )}
                   </div>
-                  <StatusBadge status={sp.red_list_category_code} size="sm" />
+                  <StatusBadge status={sp.category} size="sm" />
                 </label>
               ))}
             </div>
