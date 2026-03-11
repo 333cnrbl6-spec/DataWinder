@@ -24,7 +24,8 @@ Deno.serve(async (req) => {
             case 'taxa': {
                 const taxaLevel = level || 'family';
                 if (taxaLevel === 'genus') {
-                    apiUrl = `${BASE}/taxa/genus/${encodeURIComponent(term)}`;
+                    // v4 has no /taxa/genus endpoint - use scientific_name with genus_name only
+                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'order') {
                     apiUrl = `${BASE}/taxa/order/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'class') {
