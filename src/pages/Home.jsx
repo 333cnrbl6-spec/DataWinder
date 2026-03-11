@@ -252,30 +252,29 @@ export default function Home() {
                     }
                   }
 
-                  // v4 field mappings:
-                  // narrative.population_trend (v4) vs narrative.populationtrend (v3)
-                  // narrative.population_narrative (v4) vs narrative.population (v3)
-                  // narrative.conservation_actions (v4) vs narrative.conservationmeasures (v3)
-                  // narrative.range (same), narrative.habitat (same), narrative.threats (same)
-                  // countries: {country_code, country_name} in v4 vs {country} in v3
-                  // habitats: {code, description, suitability, season} in v4
-                  // threats: {code, title, timing, scope, severity} in v4
-                  // taxon: {kingdom_name, phylum_name, class_name, order_name, family_name, genus_name}
-
-                  const commonName = (taxonInfo.common_names || []).find(c => c.main && c.language === 'eng')?.name 
+                  // Extract common name from taxon.common_names[]
+                  const commonName = (taxonInfo.common_names || []).find(c => c.main && c.language === 'eng')?.name
+                    || (taxonInfo.common_names || []).find(c => c.language === 'eng')?.name
                     || (taxonInfo.common_names || [])[0]?.name || '';
 
-                  const countryNames = countries.map(c => c.country_name || c.country || c.name).filter(Boolean);
-                  const regions = [...new Set(countries.map(c => c.region_name || c.region).filter(Boolean))];
+                  // v4 documentation fields contain free-text narrative
+                  const populationDetails = doc.population || '';
+                  const rangeDesc = doc.range || '';
+                  const habitatDesc = doc.habitat || '';
+                  const threatsDesc = doc.threats || '';
+                  const conservationActionsText = doc.conservation_actions || '';
 
-                  const populationTrend = (narrative.population_trend || narrative.populationtrend || 'unknown').toLowerCase();
-                  const populationDetails = narrative.population_narrative || narrative.population || '';
-                  const conservationActions = narrative.conservation_actions || narrative.conservationmeasures || '';
-                  const rangeDesc = narrative.range || '';
-                  const habitatDesc = narrative.habitat || '';
-                  const threatsDesc = narrative.threats || '';
+                  // conservation_actions array → joined string (each has {code, description})
+                  const conservationActions = conservationActionsText || 
+                    conservationActionsArr.map(ca => ca.description?.en || ca.title || '').filter(Boolean).join('; ');
 
-                  const statusHistory = (narrative.assessments_details || []).map(h => ({
+                  // Countries are NOT embedded in the v4 assessment —
+                  // We get them from the scopes or leave empty (they can be fetched separately via /countries/{code})
+                  const countryNames = [];
+                  const regions = (a?.scopes || []).map(s => s.description?.en || '').filter(Boolean);
+
+                  // Build status history from the assessments list on the SIS taxon (available via sp._sisAssessments)
+                  const statusHistory = (sp._sisAssessments || []).map(h => ({
                     year: parseInt(h.year_published),
                     status: h.red_list_category_code,
                     category: h.red_list_category_code
