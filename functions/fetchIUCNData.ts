@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
                     const parts = term.trim().split(' ');
                     apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
                 } else if (taxaLevel === 'genus') {
-                    // v4 has NO /taxa/genus/ endpoint — query /taxa/scientific_name with genus only
-                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(term.trim())}&species_name=`;
+                    // v4 has no /taxa/genus/ endpoint — use assessment_search filtered by genus
+                    apiUrl = `${BASE}/assessment_search?genus_name=${encodeURIComponent(term.trim())}&latest=true`;
                 } else if (taxaLevel === 'family') {
                     apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term.trim())}`;
                 } else if (taxaLevel === 'order') {
@@ -68,6 +68,13 @@ Deno.serve(async (req) => {
             // ---------------------------------------------------------------
             case 'sis':
                 apiUrl = `${BASE}/taxa/sis/${term}`;
+                break;
+
+            // ---------------------------------------------------------------
+            // RANGE - spatial range data by sis_taxon_id
+            // ---------------------------------------------------------------
+            case 'range':
+                apiUrl = `${BASE}/taxa/sis/${term}/range`;
                 break;
 
             // ---------------------------------------------------------------
