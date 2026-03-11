@@ -20,6 +20,7 @@ import SpeciesNotes from '@/components/species/SpeciesNotes';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import LogoShowcase from '@/components/LogoShowcase';
 import SaveSearchPanel from '@/components/SaveSearchPanel';
+import DataSourceBadges from '@/components/DataSourceBadges';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
