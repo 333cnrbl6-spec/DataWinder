@@ -8,11 +8,11 @@ import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
 
 const taxonomyLevels = [
-  { value: 'species', label: 'Species', placeholder: 'e.g., Panthera leo' },
-  { value: 'family', label: 'Family', placeholder: 'e.g., Felidae' },
+  { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
+  { value: 'genus', label: 'Genus', placeholder: 'e.g., Callithrix' },
+  { value: 'family', label: 'Family', placeholder: 'e.g., Callitrichidae' },
   { value: 'order', label: 'Order', placeholder: 'e.g., Primates' },
   { value: 'class', label: 'Class', placeholder: 'e.g., Mammalia' }
-  // Note: genus-level search is not supported by IUCN API v4
 ];
 
 export default function TaxonomicSearch({ onSearch, isLoading }) {
@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -59,7 +60,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat
+        includeINaturalist: includeINat,
+        includeGBIF
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -68,7 +70,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF
         });
       }
     }
@@ -400,17 +403,30 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-inat"
-                 name="include-inat"
-                 type="checkbox"
-                 checked={includeINat}
-                 onChange={(e) => setIncludeINat(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
+            <div className="space-y-2 mb-4">
+              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+                <input
+                  id="include-inat"
+                  name="include-inat"
+                  type="checkbox"
+                  checked={includeINat}
+                  onChange={(e) => setIncludeINat(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observation Data</span>
+              </label>
+              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+                <input
+                  id="include-gbif"
+                  name="include-gbif"
+                  type="checkbox"
+                  checked={includeGBIF}
+                  onChange={(e) => setIncludeGBIF(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrence Data</span>
+              </label>
+            </div>
 
             <div className="flex gap-3">
               <Button

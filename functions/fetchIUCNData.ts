@@ -24,11 +24,7 @@ Deno.serve(async (req) => {
             case 'taxa': {
                 const taxaLevel = level || 'family';
                 if (taxaLevel === 'genus') {
-                    // v4 has no /taxa/genus endpoint - closest is /taxa/family but for genus
-                    // we use /taxa/scientific_name with genus only (returns species in that genus)
-                    // fallback: treat as a family-level search won't work either
-                    // Best approach: return error to let UI handle it differently
-                    return Response.json({ status: 'error', message: 'IUCN API v4 does not support genus-level searches directly. Please search by family instead.', statusCode: 400 }, { status: 400 });
+                    apiUrl = `${BASE}/taxa/genus/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'order') {
                     apiUrl = `${BASE}/taxa/order/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'class') {
@@ -56,10 +52,13 @@ Deno.serve(async (req) => {
                 break;
             // History by taxon ID
             case 'history':
-                // v4: /taxa/sis/{id} returns all assessments (latest + historic) for the taxon
-                apiUrl = `${BASE}/taxa/sis/${term}`;
+                apiUrl = `${BASE}/taxa/sis/${term}/history`;
                 break;
-            // Range data by SIS id (same endpoint, returns assessment + range info)
+            // List of countries
+            case 'countries':
+                apiUrl = `${BASE}/countries/`;
+                break;
+            // Range / species by SIS id
             case 'range':
                 apiUrl = `${BASE}/taxa/sis/${term}`;
                 break;

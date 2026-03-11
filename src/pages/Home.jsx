@@ -134,47 +134,54 @@ export default function Home() {
 
             const searchData = searchResult.data.data;
 
-            // v4 returns assessments[] - filter for latest only (one per species)
-            const allAssessments = searchData.assessments || [];
-            const latestAssessments = allAssessments.filter(a => a.latest === true);
-            if (latestAssessments.length === 0) {
+            if (!searchData.result || searchData.result.length === 0) {
               console.warn(`No IUCN species found for ${term}`);
               continue;
             }
 
             // Get the list of species to fetch detailed data for
-            const speciesList = latestAssessments;
+            const speciesList = searchData.result;
 
             // For each species in the result, fetch comprehensive data
             const detailedSpecies = await Promise.all(
               speciesList.map(async (sp) => {
                 try {
                   // Fetch multiple data endpoints for comprehensive information using backend function
-                  // v4: habitats, threats, countries are all embedded in the assessment response
-                  const assessmentResult = await base44.functions.invoke('fetchIUCNData', {
-                    endpoint: 'assessment',
-                    term: String(sp.assessment_id)
-                  });
+                  const [assessmentResult, habitatResult, threatsResult, historicalResult, countriesResult] = await Promise.all([
+                    base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'assessment',
+                      term: String(sp.assessment_id || sp.taxonid)
+                    }),
+                    base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'habitats',
+                      term: String(sp.taxonid)
+                    }),
+                    base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'threats',
+                      term: String(sp.taxonid)
+                    }),
+                    base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'scientific_name',
+                      term: sp.scientific_name
+                    }),
+                    base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'countries',
+                      term: ''
+                    })
+                  ]);
 
-                  // v4: assessment response contains all data - habitats, threats, countries, narrative all embedded
-                  const assessment = assessmentResult.data.status === 'success' ? assessmentResult.data.data : {};
-                  const taxon = assessment.taxon || {};
-                  const narrative = assessment.narrative || {};
-                  // v4 embeds habitats, threats, distribution within the assessment object
-                  const habitats = assessment.habitats || [];
-                  const threats = assessment.threats || [];
-                  const countries = assessment.countries || assessment.distribution?.countries || [];
-                  // Build history from the full assessments list (already fetched via taxa endpoint)
-                  const history = allAssessments
-                    .filter(a => a.sis_taxon_id === sp.sis_taxon_id)
-                    .sort((a, b) => parseInt(a.year_published) - parseInt(b.year_published))
-                    .map(h => ({ year: parseInt(h.year_published), status: h.red_list_category_code, category: h.red_list_category_code }));
-                  // Extract key fields from v4 assessment/taxon
-                  const commonName = taxon.common_names?.find(c => c.main && c.language === 'eng')?.name ||
-                                     taxon.common_names?.find(c => c.language === 'eng')?.name ||
-                                     taxon.common_names?.[0]?.name || '';
-                  const iucnStatus = assessment.red_list_category?.code || sp.red_list_category_code || 'NE';
-                  const populationTrend = (assessment.population_trend?.code || assessment.population_trend?.description?.en || 'unknown').toLowerCase();
+                  const assessmentData = assessmentResult.data.status === 'success' ? assessmentResult.data.data : null;
+                  const habitatData = habitatResult.data.status === 'success' ? habitatResult.data.data : null;
+                  const threatsData = threatsResult.data.status === 'success' ? threatsResult.data.data : null;
+                  const historicalData = historicalResult.data.status === 'success' ? historicalResult.data.data : null;
+                  const countriesData = countriesResult.data.status === 'success' ? countriesResult.data.data : null;
+
+                  const assessment = assessmentData?.result || {};
+                  const narrative = assessment;
+                  const habitats = habitatData?.result || [];
+                  const threats = threatsData?.result || [];
+                  const history = historicalData?.result || [];
+                  const countries = countriesData?.result || [];
 
                   // Download and upload files to backend storage
                   let searchSummaryFileUri = null;
@@ -190,32 +197,43 @@ export default function Home() {
                   try {
                     const rangeResult = await base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'range',
-                      term: String(sp.sis_taxon_id)
+                      term: String(sp.taxonid || sp.assessment_id)
                     });
                     
                     if (rangeResult.data.status === 'success') {
                       rangeDataGeoJSON = rangeResult.data.data;
-                      rangeDataPoints = rangeDataGeoJSON?.result || rangeDataGeoJSON?.features || [];
+                      rangeDataPoints = rangeDataGeoJSON.result || [];
                     }
                   } catch (err) {
                     console.error('Error fetching range data:', err);
                   }
 
                   // Fetch additional images if available
-                  // v4: photos embedded in taxon data within assessment response
-                  const allImages = (taxon.photos || []).map(img => img.url || img.thumbnail_url || '').filter(Boolean);
+                  let allImages = [];
+                  if (sp.taxonid) {
+                    try {
+                      const imagesUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/sis/${sp.taxonid}?token=${iucnToken}`;
+                      const imagesRes = await fetch(imagesUrl);
+                      if (imagesRes.ok) {
+                        const imagesData = await imagesRes.json();
+                        allImages = imagesData.result?.map(img => img.url) || [];
+                      }
+                    } catch (err) {
+                      console.error('Error fetching images:', err);
+                    }
+                  }
 
                   // Create comprehensive search summary JSON
                   const searchSummary = {
-                    taxon_id: sp.sis_taxon_id,
-                    scientific_name: sp.taxon_scientific_name,
-                    common_name: commonName,
-                    category: iucnStatus,
-                    population_trend: populationTrend,
-                    population: narrative.population || '',
-                    assessment_date: sp.year_published,
-                    countries: countries.map(c => c.country || c.name || '').filter(Boolean),
-                    regions: [...new Set(countries.map(c => c.region || c.continent || '').filter(Boolean))],
+                    taxon_id: sp.taxonid,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name,
+                    category: sp.category,
+                    population_trend: narrative.populationtrend,
+                    population: narrative.population,
+                    assessment_date: sp.published_year,
+                    countries: countries.map(c => c.country),
+                    regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
                     habitats: habitats.map(h => ({
                       code: h.code,
                       habitat: h.habitat,
@@ -229,11 +247,11 @@ export default function Home() {
                       scope: t.scope,
                       severity: t.severity
                     })),
-                    conservation_measures: narrative.conservation_actions || narrative.conservationmeasures || '',
-                    range_description: narrative.geographic_range || narrative.range || '',
-                    habitat_description: narrative.habitat_ecology || narrative.habitat || '',
-                    threats_description: narrative.threats || '',
-                    use_and_trade: narrative.use_trade || narrative.usetrade || '',
+                    conservation_measures: narrative.conservationmeasures,
+                    range_description: narrative.range,
+                    habitat_description: narrative.habitat,
+                    threats_description: narrative.threats,
+                    use_and_trade: narrative.usetrade,
                     range_data_points: rangeDataPoints,
                     assessment_id: sp.assessment_id
                   };
@@ -282,25 +300,29 @@ export default function Home() {
                   }
                   
                   return {
-                    id: `iucn-${sp.sis_taxon_id}`,
-                    scientific_name: sp.taxon_scientific_name,
-                    common_name: commonName,
-                    iucn_status: iucnStatus,
-                    population_trend: populationTrend,
+                    id: `iucn-${sp.taxonid}`,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name || '',
+                    iucn_status: sp.category || 'NE',
+                    population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
                     population_details: narrative.population || '',
-                    status_history: history,
+                    status_history: history.map(h => ({
+                      year: h.year,
+                      status: h.code,
+                      category: h.category
+                    })),
                     geographic_distribution: {
-                      countries: countries.map(c => c.country || c.name || '').filter(Boolean),
-                      regions: [...new Set(countries.map(c => c.region || c.continent || '').filter(Boolean))],
+                      countries: countries.map(c => c.country),
+                      regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
                       area_km2: null
                     },
-                    kingdom: taxon.kingdom_name || '',
-                    phylum: taxon.phylum_name || '',
-                    class_name: taxon.class_name || '',
-                    order_name: taxon.order_name || '',
-                    family: taxon.family_name || '',
-                    genus: taxon.genus_name || '',
-                    habitat: narrative.habitat_ecology || narrative.habitat || '',
+                    kingdom: sp.kingdom || '',
+                    phylum: sp.phylum || '',
+                    class_name: sp.class || '',
+                    order_name: sp.order || '',
+                    family: sp.family || '',
+                    genus: sp.genus || '',
+                    habitat: narrative.habitat || '',
                     habitats_detailed: habitats.map(h => ({
                       code: h.code,
                       habitat: h.habitat,
@@ -308,7 +330,7 @@ export default function Home() {
                       season: h.season,
                       major_importance: h.majorimportance
                     })),
-                    range_description: narrative.geographic_range || narrative.range || '',
+                    range_description: narrative.range || '',
                     threats: narrative.threats || '',
                     threats_detailed: threats.map(t => ({
                       code: t.code,
@@ -317,18 +339,18 @@ export default function Home() {
                       scope: t.scope,
                       severity: t.severity
                     })),
-                    conservation_actions: narrative.conservation_actions || narrative.conservationmeasures || '',
-                    assessment_date: sp.year_published ? `${sp.year_published}-01-01` : null,
-                    iucn_id: sp.sis_taxon_id,
+                    conservation_actions: narrative.conservationmeasures || '',
+                    assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
+                    iucn_id: sp.taxonid,
                     assessment_id: sp.assessment_id,
-                    assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sp.sis_taxon_id}`,
-                    range_map_jpg_url: `https://www.iucnredlist.org/species/map/${sp.sis_taxon_id}`,
-                    range_data_shp_url: `https://www.iucnredlist.org/species/spatial-data/${sp.sis_taxon_id}`,
-                    range_data_csv_url: rangeDataPoints?.length > 0 ? 'available' : null,
+                    assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`,
+                    range_map_jpg_url: `https://www.iucnredlist.org/species/map/${sp.taxonid}`,
+                    range_data_shp_url: `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`,
+                    range_data_csv_url: rangeDataPoints ? 'available' : null,
                     range_data_geojson: rangeDataGeoJSON,
                     search_summary_json: searchSummary,
-                    search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(sp.taxon_scientific_name)}&searchType=species`,
-                    all_images_urls: allImages,
+                    search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
+                    all_images_urls: allImages.length > 0 ? allImages : (sp.main_common_name ? [sp.default_photo?.url].filter(Boolean) : []),
                     dataset_name: term,
                     data_source: 'IUCN Red List',
                     search_summary_file_uri: searchSummaryFileUri,
@@ -341,12 +363,17 @@ export default function Home() {
                 } catch (err) {
                   console.error(`Error fetching comprehensive details for ${sp.scientific_name}:`, err);
                   return {
-                    id: `iucn-${sp.sis_taxon_id}`,
-                    scientific_name: sp.taxon_scientific_name,
-                    common_name: '',
-                    iucn_status: sp.red_list_category_code || 'NE',
-                    iucn_id: sp.sis_taxon_id,
-                    assessment_id: sp.assessment_id,
+                    id: `iucn-${sp.taxonid}`,
+                    scientific_name: sp.scientific_name,
+                    common_name: sp.main_common_name || '',
+                    iucn_status: sp.category || 'NE',
+                    kingdom: sp.kingdom || '',
+                    phylum: sp.phylum || '',
+                    class_name: sp.class || '',
+                    order_name: sp.order || '',
+                    family: sp.family || '',
+                    genus: sp.genus || '',
+                    iucn_id: sp.taxonid,
                     dataset_name: term,
                     data_source: 'IUCN Red List'
                     };
