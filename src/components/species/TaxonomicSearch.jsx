@@ -25,7 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -60,8 +59,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF
+        includeINaturalist: includeINat
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -70,8 +68,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF
+          includeINaturalist: includeINat
         });
       }
     }
@@ -105,8 +102,29 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
-          setFamilySpecies(result.data.result);
+        // v4 API: result is axios response; result.data is {status, data}; result.data.data is {assessments:[...]}
+        if (result.data?.status === 'success' && result.data.data?.assessments) {
+          const assessments = result.data.data.assessments || [];
+          // Get latest assessment per unique taxon
+          const latestMap = {};
+          for (const a of assessments) {
+            if (a.latest) latestMap[a.sis_taxon_id] = a;
+          }
+          // Fallback: most recent per taxon if no 'latest' flag
+          if (Object.keys(latestMap).length === 0) {
+            for (const a of assessments) {
+              if (!latestMap[a.sis_taxon_id] || a.year_published > latestMap[a.sis_taxon_id].year_published) {
+                latestMap[a.sis_taxon_id] = a;
+              }
+            }
+          }
+          // Normalize v4 field names to v3-compatible names used in the species list UI
+          setFamilySpecies(Object.values(latestMap).map(a => ({
+            taxonid: a.sis_taxon_id,
+            scientific_name: a.taxon_scientific_name,
+            main_common_name: '',
+            category: a.red_list_category_code
+          })));
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -403,30 +421,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <div className="space-y-2 mb-4">
-              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-                <input
-                  id="include-inat"
-                  name="include-inat"
-                  type="checkbox"
-                  checked={includeINat}
-                  onChange={(e) => setIncludeINat(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observation Data</span>
-              </label>
-              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-                <input
-                  id="include-gbif"
-                  name="include-gbif"
-                  type="checkbox"
-                  checked={includeGBIF}
-                  onChange={(e) => setIncludeGBIF(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrence Data</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button

@@ -20,62 +20,63 @@ Deno.serve(async (req) => {
 
         let apiUrl = '';
         switch (endpoint) {
-            // Search by taxonomic level
+            // Search by taxonomic level - returns {assessments: [...]}
             case 'taxa': {
                 const taxaLevel = level || 'family';
-                if (taxaLevel === 'genus') {
-                    apiUrl = `${BASE}/taxa/genus/${encodeURIComponent(term)}`;
+                if (taxaLevel === 'species') {
+                    // Direct species lookup: returns {taxon: {...}}
+                    const parts = term.split(' ');
+                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
+                } else if (taxaLevel === 'genus') {
+                    // v4 has no /taxa/genus/ endpoint - use scientific_name with genus only
+                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(term)}`;
+                } else if (taxaLevel === 'family') {
+                    apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'order') {
                     apiUrl = `${BASE}/taxa/order/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'class') {
                     apiUrl = `${BASE}/taxa/class/${encodeURIComponent(term)}`;
-                } else if (taxaLevel === 'species') {
-                    const parts = term.split(' ');
-                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
                 } else {
-                    // default to family
                     apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term)}`;
                 }
                 break;
             }
-            // Get assessment by ID: /api/v4/assessment/{assessment_id}
+            // Get full assessment by assessment_id - returns assessment object directly (no .result wrapper)
             case 'assessment':
                 apiUrl = `${BASE}/assessment/${term}`;
                 break;
-            // Habitats by assessment ID
+            // Habitats by assessment_id (NOT taxon_id) - returns {habitats: [...]}
             case 'habitats':
                 apiUrl = `${BASE}/assessment/${term}/habitats`;
                 break;
-            // Threats by assessment ID
+            // Threats by assessment_id (NOT taxon_id) - returns {threats: [...]}
             case 'threats':
                 apiUrl = `${BASE}/assessment/${term}/threats`;
                 break;
-            // History by taxon ID
-            case 'history':
-                apiUrl = `${BASE}/taxa/sis/${term}/history`;
-                break;
-            // List of countries
+            // Countries where species occurs, by assessment_id - returns {countries: [...]}
             case 'countries':
-                apiUrl = `${BASE}/countries/`;
+                apiUrl = `${BASE}/assessment/${term}/countries`;
                 break;
-            // Range / species by SIS id
+            // All assessments (history) for a taxon by sis_id
+            case 'history':
+                apiUrl = `${BASE}/taxa/sis/${term}/assessments`;
+                break;
+            // Taxon details / range by SIS taxon id
             case 'range':
                 apiUrl = `${BASE}/taxa/sis/${term}`;
                 break;
-            // Images / species details by SIS id
+            // Taxon images by SIS taxon id
             case 'images':
                 apiUrl = `${BASE}/taxa/sis/${term}`;
                 break;
-            // Lookup by scientific name (genus + species)
+            // Lookup by scientific name
             case 'scientific_name': {
                 const parts = term.split(' ');
                 const genus = parts[0];
                 const species = parts[1] || '';
-                if (species) {
-                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}`;
-                } else {
-                    apiUrl = `${BASE}/taxa/family/${encodeURIComponent(genus)}`;
-                }
+                apiUrl = species
+                    ? `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}&species_name=${encodeURIComponent(species)}`
+                    : `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(genus)}`;
                 break;
             }
             default:
@@ -90,7 +91,7 @@ Deno.serve(async (req) => {
                 'Accept': 'application/json'
             }
         });
-        
+
         if (!iucnResponse.ok) {
             const errorText = await iucnResponse.text();
             console.error(`IUCN API Error for ${endpoint} with term ${term}: ${iucnResponse.status} - ${errorText}`);
