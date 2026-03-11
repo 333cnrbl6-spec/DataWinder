@@ -134,13 +134,47 @@ export default function Home() {
 
             const searchData = searchResult.data.data;
 
-            if (!searchData.result || searchData.result.length === 0) {
+            // v4 API: family/order/class returns {assessments:[]}, species returns {taxon:{...}}
+            let speciesList = [];
+
+            if (searchData.assessments && searchData.assessments.length > 0) {
+              // Higher-taxon search: get latest assessment per unique taxon
+              const latestMap = {};
+              for (const a of searchData.assessments) {
+                if (a.latest) latestMap[a.sis_taxon_id] = a;
+              }
+              // Fallback: most recent year per taxon
+              if (Object.keys(latestMap).length === 0) {
+                for (const a of searchData.assessments) {
+                  if (!latestMap[a.sis_taxon_id] || a.year_published > latestMap[a.sis_taxon_id].year_published) {
+                    latestMap[a.sis_taxon_id] = a;
+                  }
+                }
+              }
+              speciesList = Object.values(latestMap);
+            } else if (searchData.taxon) {
+              // Species-level search returns single taxon object — wrap to treat uniformly
+              const taxon = searchData.taxon;
+              // Find latest assessment from history if present
+              if (taxon.assessments && taxon.assessments.length > 0) {
+                const latest = taxon.assessments.find(a => a.latest) || taxon.assessments[0];
+                speciesList = [{ 
+                  sis_taxon_id: taxon.sis_id, 
+                  taxon_scientific_name: taxon.scientific_name,
+                  red_list_category_code: latest.red_list_category_code,
+                  assessment_id: latest.assessment_id,
+                  latest: true,
+                  _taxon: taxon
+                }];
+              } else {
+                speciesList = [];
+              }
+            }
+
+            if (speciesList.length === 0) {
               console.warn(`No IUCN species found for ${term}`);
               continue;
             }
-
-            // Get the list of species to fetch detailed data for
-            const speciesList = searchData.result;
 
             // For each species in the result, fetch comprehensive data
             const detailedSpecies = await Promise.all(
