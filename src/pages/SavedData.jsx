@@ -12,6 +12,7 @@ import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
+import OutlierDetectionModal from '@/components/species/OutlierDetectionModal.jsx';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,10 +69,7 @@ export default function SavedData() {
     const searchMatch = !searchTerm ||
     sp.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     sp.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.family?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.genus?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.order_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sp.class_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    sp.family?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // IUCN status filter
     const statusMatch = statusFilter === 'all' || sp.iucn_status === statusFilter;
@@ -245,7 +243,7 @@ export default function SavedData() {
                     <Input
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search by name, family, genus, order, class..."
+                      placeholder="Search by name, family..."
                       className="pl-10" />
 
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
