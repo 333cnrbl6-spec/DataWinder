@@ -25,7 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -60,8 +59,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF: includeGBIF
+        includeINaturalist: includeINat
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -70,8 +68,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF: includeGBIF
+          includeINaturalist: includeINat
         });
       }
     }
@@ -98,11 +95,10 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.fetchIUCNData({
+        const result = await base44.functions.invoke('fetchIUCNData', {
           level: level,
           term: value.trim(),
-          endpoint: 'taxa',
-          iucnToken: iucnToken
+          endpoint: 'taxa'
         });
 
         if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
@@ -400,10 +396,10 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ', iNaturalist' : ''}{includeGBIF ? ' and GBIF' : ''}.
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
                <input
                  id="include-inat"
                  name="include-inat"
@@ -413,17 +409,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                  className="w-4 h-4"
                />
                <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-gbif"
-                 name="include-gbif"
-                 type="checkbox"
-                 checked={includeGBIF}
-                 onChange={(e) => setIncludeGBIF(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include GBIF Occurrence Data</span>
              </label>
 
             <div className="flex gap-3">
