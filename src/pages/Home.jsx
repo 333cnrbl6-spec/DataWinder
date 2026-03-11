@@ -1480,7 +1480,6 @@ export default function Home() {
 
 
       </main>
-    </div>
 
       {/* Download Panel */}
       {showDownload && selectedSpecies.length > 0 && (
