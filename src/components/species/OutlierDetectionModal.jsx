@@ -332,6 +332,9 @@ export default function OutlierDetectionModal({ species, open, onClose, onComple
               <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="space-y-4 py-2">
 
+                {/* Detection criteria */}
+                <DetectionCriteriaPanel />
+
                 {/* Summary tiles */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-slate-50 border rounded-lg p-3 text-center">
