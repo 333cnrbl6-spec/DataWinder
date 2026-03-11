@@ -52,7 +52,8 @@ Deno.serve(async (req) => {
                 break;
             // History by taxon ID
             case 'history':
-                apiUrl = `${BASE}/taxa/sis/${term}/history`;
+                // v4 endpoint: assessments list for a taxon
+                apiUrl = `${BASE}/taxa/sis/${term}/assessments`;
                 break;
             // List of countries
             case 'countries':
