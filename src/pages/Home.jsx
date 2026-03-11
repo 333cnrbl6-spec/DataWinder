@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Leaf, AlertCircle, Info, Database, Download, Map, FileSpreadsheet, Layers, Grid3x3, FolderOpen, Upload, CloudRain } from 'lucide-react';
+import { AlertCircle, Info, Database, Map, FileSpreadsheet, Layers, Grid3x3, FolderOpen, Upload } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -996,48 +996,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-white via-bangor-sun/5 to-white/80 backdrop-blur-sm border-b-2 border-bangor-red sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <div onClick={() => setShowLogoSelector(true)} className="cursor-pointer opacity-90">
-              <BangOnLogo size="sm" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-bangor-red">The DataWinder</h1>
-              <p className="text-sm text-slate-600">b-Izzy on Data</p>
-            </div>
-            <div className="flex gap-2">
-              <Link to={createPageUrl('DataManagement')}>
-                <Button variant="default" size="default">
-                  <Database className="w-4 h-4" />
-                  Data Management
-                </Button>
-              </Link>
-              <Link to={createPageUrl('SavedData')}>
-                <Button variant="secondary" size="default">
-                  <FolderOpen className="w-4 h-4" />
-                  My Data
-                </Button>
-              </Link>
-              <Link to={createPageUrl('ArcGISTools')}>
-                <Button variant="outline" size="default">
-                  <Map className="w-4 h-4" />
-                  ArcGIS Tools
-                </Button>
-              </Link>
-              <Link to={createPageUrl('ClimateProjections')}>
-                <Button variant="outline" size="default">
-                  <CloudRain className="w-4 h-4" />
-                  Climate Projections
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3">
       <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
