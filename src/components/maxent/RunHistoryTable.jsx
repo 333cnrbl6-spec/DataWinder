@@ -4,19 +4,19 @@ import { Clock, CheckCircle, Loader2, AlertCircle, FileText, Layers } from 'luci
 import { format } from 'date-fns';
 
 const STATUS_CONFIG = {
-  draft:     { label: 'Draft',      bg: 'bg-slate-100',  text: 'text-slate-600',  Icon: FileText },
-  submitted: { label: 'Submitted',  bg: 'bg-blue-100',   text: 'text-blue-700',   Icon: Clock },
-  running:   { label: 'Running',    bg: 'bg-amber-100',  text: 'text-amber-700',  Icon: Loader2, spin: true },
-  completed: { label: 'Completed',  bg: 'bg-green-100',  text: 'text-green-700',  Icon: CheckCircle },
-  failed:    { label: 'Failed',     bg: 'bg-red-100',    text: 'text-red-700',    Icon: AlertCircle },
+  draft:     { label: 'Draft',      bg: 'bg-slate-100',  text: 'text-slate-600',  icon: FileText },
+  submitted: { label: 'Submitted',  bg: 'bg-blue-100',   text: 'text-blue-700',   icon: Clock },
+  running:   { label: 'Running',    bg: 'bg-amber-100',  text: 'text-amber-700',  icon: Loader2, spin: true },
+  completed: { label: 'Completed',  bg: 'bg-green-100',  text: 'text-green-700',  icon: CheckCircle },
+  failed:    { label: 'Failed',     bg: 'bg-red-100',    text: 'text-red-700',    icon: AlertCircle },
 };
 
-function StatusBadge({ status }) {
+function RunStatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.draft;
-  const { Icon } = cfg;
+  const StatusIcon = cfg.icon;
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold ${cfg.bg} ${cfg.text}`}>
-      <Icon className={`w-3 h-3 ${cfg.spin ? 'animate-spin' : ''}`} />
+      <StatusIcon className={`w-3 h-3 ${cfg.spin ? 'animate-spin' : ''}`} />
       {cfg.label}
     </span>
   );
@@ -64,7 +64,7 @@ export default function RunHistoryTable({ runs }) {
                   ? format(new Date(run.created_date), 'dd MMM yyyy')
                   : '—'}
               </div>
-              <StatusBadge status={run.status} />
+              <RunStatusBadge status={run.status} />
             </div>
           ))}
         </div>
