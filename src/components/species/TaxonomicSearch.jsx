@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -102,24 +103,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        const assessments = result.data?.data?.assessments;
-        if (assessments && assessments.length > 0) {
-          const seen = new Set();
-          const mappedSpecies = assessments.reduce((acc, a) => {
-            if (!seen.has(a.taxon_scientific_name)) {
-              seen.add(a.taxon_scientific_name);
-              acc.push({
-                taxonid: a.sis_taxon_id,
-                scientific_name: a.taxon_scientific_name,
-                main_common_name: a.main_common_name,
-                category: a.red_list_category_code,
-              });
-            }
-            return acc;
-          }, []);
-          setFamilySpecies(mappedSpecies);
-        } else {
-          setFamilySpecies([]);
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
