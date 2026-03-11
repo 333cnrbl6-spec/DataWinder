@@ -355,14 +355,12 @@ export default function Home() {
                     }
                   }
                   
-                  const yearPublished = assessmentData?.year_published || narrative.year_published;
-
                   return {
                     id: `iucn-${sisId}`,
                     scientific_name: scientificName,
                     common_name: commonName,
-                    iucn_status: sp.red_list_category_code || sp.category || 'NE',
-                    population_trend: populationTrend,
+                    iucn_status: redListCode,
+                    population_trend: populationTrendCode,
                     population_details: populationDetails,
                     status_history: statusHistory,
                     geographic_distribution: {
@@ -370,33 +368,33 @@ export default function Home() {
                       regions,
                       area_km2: null
                     },
-                    // v4 taxonomy comes from taxon object
+                    // v4: taxonomy is in assessment.taxon
                     kingdom: taxonInfo.kingdom_name || '',
                     phylum: taxonInfo.phylum_name || '',
                     class_name: taxonInfo.class_name || '',
                     order_name: taxonInfo.order_name || '',
                     family: taxonInfo.family_name || '',
                     genus: taxonInfo.genus_name || '',
-                    image_url: (taxonInfo.image_url || (allImages.length > 0 ? allImages[0] : null)),
+                    image_url: allImages.length > 0 ? allImages[0] : null,
                     habitat: habitatDesc,
                     habitats_detailed: habitats.map(h => ({
                       code: h.code,
-                      habitat: h.description || h.habitat,
-                      suitability: h.suitability,
-                      season: h.season,
-                      major_importance: h.major_importance || h.majorimportance
+                      habitat: h.description?.en || h.description || '',
+                      suitability: h.suitability?.description?.en || h.suitability || '',
+                      season: h.season?.description?.en || h.season || '',
+                      major_importance: h.major_importance
                     })),
                     range_description: rangeDesc,
                     threats: threatsDesc,
                     threats_detailed: threats.map(t => ({
                       code: t.code,
-                      title: t.title || t.description,
-                      timing: t.timing,
-                      scope: t.scope,
-                      severity: t.severity
+                      title: t.title || t.description?.en || '',
+                      timing: t.timing?.description?.en || t.timing || '',
+                      scope: t.scope?.description?.en || t.scope || '',
+                      severity: t.severity?.description?.en || t.severity || ''
                     })),
                     conservation_actions: conservationActions,
-                    assessment_date: yearPublished ? `${yearPublished}-01-01` : null,
+                    assessment_date: a?.year_published ? `${a.year_published}-01-01` : null,
                     iucn_id: sisId,
                     assessment_id: assessmentId,
                     assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sisId}`,
