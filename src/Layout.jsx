@@ -105,14 +105,20 @@ className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
       {/* ── Footer ── */}
       <footer className="bg-white border-t border-slate-200 py-5 mt-auto">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-bangor-red rounded flex items-center justify-center">
-                <Leaf className="w-3 h-3 text-bangor-sun" />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-bangor-red rounded flex items-center justify-center">
+                  <Leaf className="w-3 h-3 text-bangor-sun" />
+                </div>
+                <span>© {new Date().getFullYear()} Bangor University — Species Distribution Modelling</span>
               </div>
-              <span>© {new Date().getFullYear()} Bangor University — Species Distribution Modelling</span>
+              <span className="italic">Data for research purposes only. Always cite original sources.</span>
             </div>
-            <span className="italic">Data for research purposes only. Always cite original sources.</span>
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <span className="text-xs text-slate-400 shrink-0">Powered by:</span>
+              <DataSourceBadges size="xs" />
+            </div>
           </div>
         </div>
       </footer>
