@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
                     const parts = term.trim().split(' ');
                     apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
                 } else if (taxaLevel === 'genus') {
-                    // v4 has no /taxa/genus/ endpoint — use assessment_search filtered by genus
-                    apiUrl = `${BASE}/assessment_search?genus_name=${encodeURIComponent(term.trim())}&latest=true`;
+                    // v4 has NO genus endpoint — not supported
+                    return Response.json({ status: 'error', message: 'Genus-level search is not supported by IUCN API v4. Please search at family level or by species name.', statusCode: 400 }, { status: 400 });
                 } else if (taxaLevel === 'family') {
                     apiUrl = `${BASE}/taxa/family/${encodeURIComponent(term.trim())}`;
                 } else if (taxaLevel === 'order') {
@@ -70,12 +70,9 @@ Deno.serve(async (req) => {
                 apiUrl = `${BASE}/taxa/sis/${term}`;
                 break;
 
-            // ---------------------------------------------------------------
-            // RANGE - spatial range data by sis_taxon_id
-            // ---------------------------------------------------------------
+            // RANGE endpoint does not exist in IUCN API v4 — spatial data is bulk download only
             case 'range':
-                apiUrl = `${BASE}/taxa/sis/${term}/range`;
-                break;
+                return Response.json({ status: 'error', message: 'Range data is not available via IUCN API v4. Download spatial data from iucnredlist.org.', statusCode: 404 }, { status: 404 });
 
             // ---------------------------------------------------------------
             // SCIENTIFIC NAME lookup
