@@ -522,6 +522,19 @@ export default function SavedData() {
         </div>
       </main>
 
+      {/* Outlier Detection Modal */}
+      {outlierSpecies && (
+        <OutlierDetectionModal
+          species={outlierSpecies}
+          open={!!outlierSpecies}
+          onClose={() => setOutlierSpecies(null)}
+          onComplete={() => {
+            queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
+            setOutlierSpecies(null);
+          }}
+        />
+      )}
+
       {/* Data Integrity Checker */}
       {showIntegrityChecker &&
       <DataIntegrityChecker
