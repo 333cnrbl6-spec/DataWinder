@@ -3,8 +3,83 @@ import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle, Loader2, Trash2, MapPin, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Loader2, Trash2, MapPin, ShieldAlert, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// ─── Detection criteria reference ────────────────────────────────────────────
+const CRITERIA = [
+  {
+    label: 'Check 1 — Invalid / Missing Coordinates',
+    severity: 'HIGH',
+    confidence: '96–98%',
+    color: 'bg-red-100 border-red-300 text-red-900',
+    badge: 'bg-red-500 text-white',
+    rules: [
+      'NaN or unparseable lat/lng values → flagged as missing coordinates.',
+      'Exact (0°, 0°) — "Null Island" — almost always a geocoding or default-value error.',
+      'Values outside −90/+90 (lat) or −180/+180 (lng) are physically impossible.',
+    ],
+  },
+  {
+    label: 'Check 2 — IQR Statistical Outliers',
+    severity: 'MEDIUM',
+    confidence: '55–82%',
+    color: 'bg-amber-100 border-amber-300 text-amber-900',
+    badge: 'bg-amber-500 text-white',
+    rules: [
+      'Only applied when ≥ 5 clean records are available.',
+      'IQR fence: Q1 − 1.5×IQR … Q3 + 1.5×IQR (Tukey method).',
+      'Points outside the fence on both axes score higher (~82%) than single-axis outliers (~55–78%).',
+      'Confidence scales with distance beyond the fence — farther = more likely erroneous.',
+    ],
+  },
+  {
+    label: 'Check 3 — Duplicate Coordinates',
+    severity: 'LOW',
+    confidence: '~35%',
+    color: 'bg-blue-100 border-blue-300 text-blue-900',
+    badge: 'bg-blue-400 text-white',
+    rules: [
+      'Coordinates rounded to 4 decimal places (~11 m precision) are compared.',
+      'If two or more records share the same rounded location, all but the first are flagged.',
+      'Low confidence — repeated valid sightings at the same site are common; review manually.',
+    ],
+  },
+];
+
+function DetectionCriteriaPanel() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="border border-slate-200 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 text-sm font-semibold text-slate-700 transition-colors"
+      >
+        <span className="flex items-center gap-2"><Info className="w-4 h-4 text-slate-400" /> Detection Criteria</span>
+        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+      </button>
+      {open && (
+        <div className="p-3 space-y-3 bg-white">
+          {CRITERIA.map((c, i) => (
+            <div key={i} className={`rounded-lg border p-3 ${c.color}`}>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${c.badge}`}>{c.severity}</span>
+                <span className="text-xs font-bold">{c.label}</span>
+                <span className="text-xs ml-auto opacity-70">Confidence: {c.confidence}</span>
+              </div>
+              <ul className="mt-1 space-y-0.5 list-disc list-inside text-xs opacity-80">
+                {c.rules.map((r, j) => <li key={j}>{r}</li>)}
+              </ul>
+            </div>
+          ))}
+          <p className="text-xs text-slate-400 italic">
+            Confidence reflects the probability the record is genuinely erroneous based on the check type and deviation magnitude. Always review medium and low confidence flags manually before removing.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Confidence scoring ──────────────────────────────────────────────────────
 // Returns 0–100: how confident we are this point is genuinely erroneous
