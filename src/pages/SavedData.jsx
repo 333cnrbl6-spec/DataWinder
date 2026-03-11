@@ -24,6 +24,7 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
+  const [outlierSpecies, setOutlierSpecies] = useState(null);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
