@@ -1095,6 +1095,10 @@ export default function Home() {
                   <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
                   <p className="italic">• GBIF. Global Biodiversity Information Facility. www.gbif.org</p>
                   <p className="text-slate-500 mt-2">Integrate conservation status, occurrence records, specimen data, and genomic references.</p>
+                  <div className="mt-3 pt-3 border-t border-bangor-red/10">
+                    <p className="text-xs text-slate-500 mb-2 font-medium">Data & Tool Partners:</p>
+                    <DataSourceBadges size="xs" />
+                  </div>
                 </div>
 
                 <div className="mt-6 bg-gradient-to-br from-white to-bangor-sun/5 rounded-xl border border-bangor-sun/20 p-6 shadow-sm">
