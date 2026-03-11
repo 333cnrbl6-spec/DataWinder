@@ -45,13 +45,13 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={page}
                     to={createPageUrl(page)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isActive
                         ? 'bg-bangor-red text-white shadow-sm'
                         : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
                     {label}
                   </Link>
                 );
@@ -80,13 +80,13 @@ export default function Layout({ children, currentPageName }) {
                     key={page}
                     to={createPageUrl(page)}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       isActive
                         ? 'bg-bangor-red text-white'
                         : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0" />
+                    {React.createElement(Icon, { className: 'w-4 h-4 shrink-0' })}
                     {label}
                   </Link>
                 );
