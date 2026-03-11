@@ -268,37 +268,65 @@ export default function Home() {
                     }
                   }
 
-                  // Create comprehensive search summary JSON
+                  // v4 field mappings:
+                  // narrative.population_trend (v4) vs narrative.populationtrend (v3)
+                  // narrative.population_narrative (v4) vs narrative.population (v3)
+                  // narrative.conservation_actions (v4) vs narrative.conservationmeasures (v3)
+                  // narrative.range (same), narrative.habitat (same), narrative.threats (same)
+                  // countries: {country_code, country_name} in v4 vs {country} in v3
+                  // habitats: {code, description, suitability, season} in v4
+                  // threats: {code, title, timing, scope, severity} in v4
+                  // taxon: {kingdom_name, phylum_name, class_name, order_name, family_name, genus_name}
+
+                  const commonName = (taxonInfo.common_names || []).find(c => c.main && c.language === 'eng')?.name 
+                    || (taxonInfo.common_names || [])[0]?.name || '';
+
+                  const countryNames = countries.map(c => c.country_name || c.country || c.name).filter(Boolean);
+                  const regions = [...new Set(countries.map(c => c.region_name || c.region).filter(Boolean))];
+
+                  const populationTrend = (narrative.population_trend || narrative.populationtrend || 'unknown').toLowerCase();
+                  const populationDetails = narrative.population_narrative || narrative.population || '';
+                  const conservationActions = narrative.conservation_actions || narrative.conservationmeasures || '';
+                  const rangeDesc = narrative.range || '';
+                  const habitatDesc = narrative.habitat || '';
+                  const threatsDesc = narrative.threats || '';
+
+                  const statusHistory = (narrative.assessments_details || []).map(h => ({
+                    year: parseInt(h.year_published),
+                    status: h.red_list_category_code,
+                    category: h.red_list_category_code
+                  }));
+
                   const searchSummary = {
-                    taxon_id: sp.taxonid,
-                    scientific_name: sp.scientific_name,
-                    common_name: sp.main_common_name,
-                    category: sp.category,
-                    population_trend: narrative.populationtrend,
-                    population: narrative.population,
-                    assessment_date: sp.published_year,
-                    countries: countries.map(c => c.country),
-                    regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
+                    taxon_id: sisId,
+                    scientific_name: scientificName,
+                    common_name: commonName,
+                    category: sp.red_list_category_code || sp.category,
+                    population_trend: populationTrend,
+                    population: populationDetails,
+                    assessment_date: narrative.year_published || assessmentData?.year_published,
+                    countries: countryNames,
+                    regions,
                     habitats: habitats.map(h => ({
                       code: h.code,
-                      habitat: h.habitat,
+                      habitat: h.description || h.habitat,
                       suitability: h.suitability,
                       season: h.season
                     })),
                     threats: threats.map(t => ({
                       code: t.code,
-                      title: t.title,
+                      title: t.title || t.description,
                       timing: t.timing,
                       scope: t.scope,
                       severity: t.severity
                     })),
-                    conservation_measures: narrative.conservationmeasures,
-                    range_description: narrative.range,
-                    habitat_description: narrative.habitat,
-                    threats_description: narrative.threats,
-                    use_and_trade: narrative.usetrade,
+                    conservation_measures: conservationActions,
+                    range_description: rangeDesc,
+                    habitat_description: habitatDesc,
+                    threats_description: threatsDesc,
+                    use_and_trade: narrative.use_and_trade || narrative.usetrade || '',
                     range_data_points: rangeDataPoints,
-                    assessment_id: sp.assessment_id
+                    assessment_id: assessmentId
                   };
 
                   // Upload search summary JSON to backend storage
