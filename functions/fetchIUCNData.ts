@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
 
         const iucnResponse = await fetch(apiUrl, {
             headers: {
-                'Authorization': `Token ${token}`,
+                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
