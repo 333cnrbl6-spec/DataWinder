@@ -339,24 +339,21 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <div className="max-h-60 overflow-y-auto space-y-2">
               {familySpecies.map((sp) => (
                 <label 
-                  key={sp.taxonid}
+                  key={sp.assessment_id}
                   className="flex items-start gap-2 p-2 bg-white rounded cursor-pointer"
                 >
                   <input
-                    id={`species-${sp.taxonid}`}
-                    name={`species-${sp.taxonid}`}
+                    id={`species-${sp.assessment_id}`}
+                    name={`species-${sp.assessment_id}`}
                     type="checkbox"
-                    checked={selectedSpecies.includes(sp.scientific_name)}
-                    onChange={() => toggleSpecies(sp.scientific_name)}
+                    checked={selectedSpecies.includes(sp.taxon_scientific_name)}
+                    onChange={() => toggleSpecies(sp.taxon_scientific_name)}
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">{sp.scientific_name}</div>
-                    {sp.main_common_name && (
-                      <div className="text-xs text-slate-500">{sp.main_common_name}</div>
-                    )}
+                    <div className="text-sm font-medium text-slate-900">{sp.taxon_scientific_name}</div>
                   </div>
-                  <StatusBadge status={sp.category} size="sm" />
+                  <StatusBadge status={sp.red_list_category_code} size="sm" />
                 </label>
               ))}
             </div>
