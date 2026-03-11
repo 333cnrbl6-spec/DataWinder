@@ -1027,6 +1027,12 @@ export default function Home() {
                   ArcGIS Tools
                 </Button>
               </Link>
+              <Link to={createPageUrl('ClimateProjections')}>
+                <Button variant="outline" size="default">
+                  <CloudRain className="w-4 h-4" />
+                  Climate Projections
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
