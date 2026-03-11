@@ -180,42 +180,53 @@ export default function Home() {
             const detailedSpecies = await Promise.all(
               speciesList.map(async (sp) => {
                 try {
-                  // Fetch multiple data endpoints for comprehensive information using backend function
-                  const [assessmentResult, habitatResult, threatsResult, historicalResult, countriesResult] = await Promise.all([
-                    base44.functions.invoke('fetchIUCNData', {
+                  // v4 field names: sis_taxon_id, taxon_scientific_name, red_list_category_code, assessment_id
+                  const sisId = sp.sis_taxon_id || sp.taxonid;
+                  const assessmentId = sp.assessment_id;
+                  const scientificName = sp.taxon_scientific_name || sp.scientific_name;
+
+                  // Fetch assessment (narrative), habitats, threats, countries — all require assessment_id
+                  // Also fetch taxon details for taxonomy (kingdom/phylum/class/order/family/genus)
+                  const [assessmentResult, habitatResult, threatsResult, countriesResult, taxonResult] = await Promise.all([
+                    assessmentId ? base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'assessment',
-                      term: String(sp.assessment_id || sp.taxonid)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
+                      term: String(assessmentId)
+                    }) : Promise.resolve({ data: { status: 'error' } }),
+                    assessmentId ? base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'habitats',
-                      term: String(sp.taxonid)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
+                      term: String(assessmentId)
+                    }) : Promise.resolve({ data: { status: 'error' } }),
+                    assessmentId ? base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'threats',
-                      term: String(sp.taxonid)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'scientific_name',
-                      term: sp.scientific_name
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
+                      term: String(assessmentId)
+                    }) : Promise.resolve({ data: { status: 'error' } }),
+                    assessmentId ? base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'countries',
-                      term: ''
-                    })
+                      term: String(assessmentId)
+                    }) : Promise.resolve({ data: { status: 'error' } }),
+                    sisId ? base44.functions.invoke('fetchIUCNData', {
+                      endpoint: 'scientific_name',
+                      term: scientificName
+                    }) : Promise.resolve({ data: { status: 'error' } })
                   ]);
 
+                  // v4: assessment is returned directly (no .result wrapper)
                   const assessmentData = assessmentResult.data.status === 'success' ? assessmentResult.data.data : null;
                   const habitatData = habitatResult.data.status === 'success' ? habitatResult.data.data : null;
                   const threatsData = threatsResult.data.status === 'success' ? threatsResult.data.data : null;
-                  const historicalData = historicalResult.data.status === 'success' ? historicalResult.data.data : null;
                   const countriesData = countriesResult.data.status === 'success' ? countriesResult.data.data : null;
+                  const taxonData = taxonResult.data.status === 'success' ? taxonResult.data.data : null;
 
-                  const assessment = assessmentData?.result || {};
-                  const narrative = assessment;
-                  const habitats = habitatData?.result || [];
-                  const threats = threatsData?.result || [];
-                  const history = historicalData?.result || [];
-                  const countries = countriesData?.result || [];
+                  // v4 assessment object has narrative fields directly (no .result wrapper)
+                  const narrative = assessmentData || {};
+                  // v4: habitats array is in {habitats: [...]}
+                  const habitats = habitatData?.habitats || habitatData?.result || [];
+                  // v4: threats array is in {threats: [...]}
+                  const threats = threatsData?.threats || threatsData?.result || [];
+                  // v4: countries array is in {countries: [...]}
+                  const countries = countriesData?.countries || countriesData?.result || [];
+                  // v4: taxon details from scientific_name lookup
+                  const taxonInfo = taxonData?.taxon || sp._taxon || {};
 
                   // Download and upload files to backend storage
                   let searchSummaryFileUri = null;
