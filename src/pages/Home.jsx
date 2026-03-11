@@ -119,9 +119,9 @@ export default function Home() {
         for (const term of terms) {
           try {
             const searchResult = await base44.functions.invoke('fetchIUCNData', {
-              term: term,
+              term,
               endpoint: 'taxa',
-              level: level
+              level
             });
 
             if (searchResult.data.status === 'error') {
