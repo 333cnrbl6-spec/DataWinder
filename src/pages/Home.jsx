@@ -245,22 +245,9 @@ export default function Home() {
                   let rangeCsvFileUri = null;
                   let rangeMapJpgFileUri = null;
 
-                  // Fetch range data from IUCN API v4
-                  let rangeDataGeoJSON = null;
-                  let rangeDataPoints = null;
-                  try {
-                    const rangeResult = await base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'range',
-                      term: String(sisId)
-                    });
-                    
-                    if (rangeResult.data.status === 'success') {
-                      rangeDataGeoJSON = rangeResult.data.data;
-                      rangeDataPoints = rangeDataGeoJSON.result || [];
-                    }
-                  } catch (err) {
-                    console.error('Error fetching range data:', err);
-                  }
+                  // Range data not available via IUCN API v4 (bulk download only)
+                  const rangeDataGeoJSON = null;
+                  const rangeDataPoints = null;
 
                   // Fetch additional images if available
                   let allImages = [];

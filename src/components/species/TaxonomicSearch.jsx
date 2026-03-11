@@ -9,7 +9,6 @@ import StatusBadge from './StatusBadge';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
-  { value: 'genus', label: 'Genus', placeholder: 'e.g., Callithrix' },
   { value: 'family', label: 'Family', placeholder: 'e.g., Callitrichidae' },
   { value: 'order', label: 'Order', placeholder: 'e.g., Primates' },
   { value: 'class', label: 'Class', placeholder: 'e.g., Mammalia' }
@@ -102,29 +101,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        // v4 API: result is axios response; result.data is {status, data}; result.data.data is {assessments:[...]}
-        if (result.data?.status === 'success' && result.data.data?.assessments) {
-          const assessments = result.data.data.assessments || [];
-          // Get latest assessment per unique taxon
-          const latestMap = {};
-          for (const a of assessments) {
-            if (a.latest) latestMap[a.sis_taxon_id] = a;
-          }
-          // Fallback: most recent per taxon if no 'latest' flag
-          if (Object.keys(latestMap).length === 0) {
-            for (const a of assessments) {
-              if (!latestMap[a.sis_taxon_id] || a.year_published > latestMap[a.sis_taxon_id].year_published) {
-                latestMap[a.sis_taxon_id] = a;
-              }
-            }
-          }
-          // Normalize v4 field names to v3-compatible names used in the species list UI
-          setFamilySpecies(Object.values(latestMap).map(a => ({
-            taxonid: a.sis_taxon_id,
-            scientific_name: a.taxon_scientific_name,
-            main_common_name: '',
-            category: a.red_list_category_code
-          })));
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
