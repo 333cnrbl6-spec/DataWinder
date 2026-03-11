@@ -1480,14 +1480,7 @@ export default function Home() {
 
 
       </main>
-    </div>
-  );
-}
 
-// ── Modals rendered outside main layout ──────────────────────────────────────
-function HomeModals({ showDownload, selectedSpecies, setShowDownload, showCompare, handleRemoveFromCompare, setShowCompare, showListManager, setShowListManager, showNotes, noteSpecies, setShowNotes, setNoteSpecies, showOnboarding, handleOnboardingComplete, showLogoSelector, setShowLogoSelector, showSaveSearch, setShowSaveSearch, species, searchInfo }) {
-  return (
-    <>
       {/* Download Panel */}
       {showDownload && selectedSpecies.length > 0 && (
         <DownloadPanel
@@ -1556,6 +1549,6 @@ function HomeModals({ showDownload, selectedSpecies, setShowDownload, showCompar
           }}
         />
       )}
-      </div>
-      );
-      }
+    </div>
+  );
+}
