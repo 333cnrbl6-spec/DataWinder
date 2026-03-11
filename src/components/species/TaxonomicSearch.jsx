@@ -135,7 +135,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const selectAllSpecies = () => {
-    setSelectedSpecies(familySpecies.map(sp => sp.scientific_name));
+    setSelectedSpecies(familySpecies.map(sp => sp.taxon_scientific_name));
   };
 
   const deselectAllSpecies = () => {
