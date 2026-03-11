@@ -372,58 +372,58 @@ export default function Home() {
                     }
                   }
                   
+                  const yearPublished = assessmentData?.year_published || narrative.year_published;
+
                   return {
-                    id: `iucn-${sp.taxonid}`,
-                    scientific_name: sp.scientific_name,
-                    common_name: sp.main_common_name || '',
-                    iucn_status: sp.category || 'NE',
-                    population_trend: narrative.populationtrend?.toLowerCase() || 'unknown',
-                    population_details: narrative.population || '',
-                    status_history: history.map(h => ({
-                      year: h.year,
-                      status: h.code,
-                      category: h.category
-                    })),
+                    id: `iucn-${sisId}`,
+                    scientific_name: scientificName,
+                    common_name: commonName,
+                    iucn_status: sp.red_list_category_code || sp.category || 'NE',
+                    population_trend: populationTrend,
+                    population_details: populationDetails,
+                    status_history: statusHistory,
                     geographic_distribution: {
-                      countries: countries.map(c => c.country),
-                      regions: [...new Set(countries.map(c => c.region).filter(Boolean))],
+                      countries: countryNames,
+                      regions,
                       area_km2: null
                     },
-                    kingdom: sp.kingdom || '',
-                    phylum: sp.phylum || '',
-                    class_name: sp.class || '',
-                    order_name: sp.order || '',
-                    family: sp.family || '',
-                    genus: sp.genus || '',
-                    habitat: narrative.habitat || '',
+                    // v4 taxonomy comes from taxon object
+                    kingdom: taxonInfo.kingdom_name || '',
+                    phylum: taxonInfo.phylum_name || '',
+                    class_name: taxonInfo.class_name || '',
+                    order_name: taxonInfo.order_name || '',
+                    family: taxonInfo.family_name || '',
+                    genus: taxonInfo.genus_name || '',
+                    image_url: (taxonInfo.image_url || (allImages.length > 0 ? allImages[0] : null)),
+                    habitat: habitatDesc,
                     habitats_detailed: habitats.map(h => ({
                       code: h.code,
-                      habitat: h.habitat,
+                      habitat: h.description || h.habitat,
                       suitability: h.suitability,
                       season: h.season,
-                      major_importance: h.majorimportance
+                      major_importance: h.major_importance || h.majorimportance
                     })),
-                    range_description: narrative.range || '',
-                    threats: narrative.threats || '',
+                    range_description: rangeDesc,
+                    threats: threatsDesc,
                     threats_detailed: threats.map(t => ({
                       code: t.code,
-                      title: t.title,
+                      title: t.title || t.description,
                       timing: t.timing,
                       scope: t.scope,
                       severity: t.severity
                     })),
-                    conservation_actions: narrative.conservationmeasures || '',
-                    assessment_date: sp.published_year ? `${sp.published_year}-01-01` : null,
-                    iucn_id: sp.taxonid,
-                    assessment_id: sp.assessment_id,
-                    assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sp.taxonid}`,
-                    range_map_jpg_url: `https://www.iucnredlist.org/species/map/${sp.taxonid}`,
-                    range_data_shp_url: `https://www.iucnredlist.org/species/spatial-data/${sp.taxonid}`,
+                    conservation_actions: conservationActions,
+                    assessment_date: yearPublished ? `${yearPublished}-01-01` : null,
+                    iucn_id: sisId,
+                    assessment_id: assessmentId,
+                    assessment_pdf_url: `https://www.iucnredlist.org/species/pdf/${sisId}`,
+                    range_map_jpg_url: `https://www.iucnredlist.org/species/map/${sisId}`,
+                    range_data_shp_url: `https://www.iucnredlist.org/species/spatial-data/${sisId}`,
                     range_data_csv_url: rangeDataPoints ? 'available' : null,
                     range_data_geojson: rangeDataGeoJSON,
                     search_summary_json: searchSummary,
                     search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
-                    all_images_urls: allImages.length > 0 ? allImages : (sp.main_common_name ? [sp.default_photo?.url].filter(Boolean) : []),
+                    all_images_urls: allImages,
                     dataset_name: term,
                     data_source: 'IUCN Red List',
                     search_summary_file_uri: searchSummaryFileUri,
@@ -434,19 +434,15 @@ export default function Home() {
                     range_map_jpg_file_uri: rangeMapJpgFileUri
                   };
                 } catch (err) {
-                  console.error(`Error fetching comprehensive details for ${sp.scientific_name}:`, err);
+                  console.error(`Error fetching comprehensive details for ${sp.taxon_scientific_name || sp.scientific_name}:`, err);
+                  const sisIdFallback = sp.sis_taxon_id || sp.taxonid;
                   return {
-                    id: `iucn-${sp.taxonid}`,
-                    scientific_name: sp.scientific_name,
-                    common_name: sp.main_common_name || '',
-                    iucn_status: sp.category || 'NE',
-                    kingdom: sp.kingdom || '',
-                    phylum: sp.phylum || '',
-                    class_name: sp.class || '',
-                    order_name: sp.order || '',
-                    family: sp.family || '',
-                    genus: sp.genus || '',
-                    iucn_id: sp.taxonid,
+                    id: `iucn-${sisIdFallback}`,
+                    scientific_name: sp.taxon_scientific_name || sp.scientific_name,
+                    common_name: '',
+                    iucn_status: sp.red_list_category_code || sp.category || 'NE',
+                    iucn_id: sisIdFallback,
+                    assessment_id: sp.assessment_id,
                     dataset_name: term,
                     data_source: 'IUCN Red List'
                     };
