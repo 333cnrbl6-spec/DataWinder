@@ -284,30 +284,30 @@ export default function Home() {
                     taxon_id: sisId,
                     scientific_name: scientificName,
                     common_name: commonName,
-                    category: sp.red_list_category_code || sp.category,
-                    population_trend: populationTrend,
+                    category: redListCode,
+                    population_trend: populationTrendCode,
                     population: populationDetails,
-                    assessment_date: narrative.year_published || assessmentData?.year_published,
+                    assessment_date: a?.year_published,
                     countries: countryNames,
                     regions,
                     habitats: habitats.map(h => ({
                       code: h.code,
-                      habitat: h.description || h.habitat,
-                      suitability: h.suitability,
-                      season: h.season
+                      habitat: h.description?.en || h.description || '',
+                      suitability: h.suitability?.description?.en || h.suitability || '',
+                      season: h.season?.description?.en || h.season || ''
                     })),
                     threats: threats.map(t => ({
                       code: t.code,
-                      title: t.title || t.description,
-                      timing: t.timing,
-                      scope: t.scope,
-                      severity: t.severity
+                      title: t.title || t.description?.en || '',
+                      timing: t.timing?.description?.en || t.timing || '',
+                      scope: t.scope?.description?.en || t.scope || '',
+                      severity: t.severity?.description?.en || t.severity || ''
                     })),
                     conservation_measures: conservationActions,
                     range_description: rangeDesc,
                     habitat_description: habitatDesc,
                     threats_description: threatsDesc,
-                    use_and_trade: narrative.use_and_trade || narrative.usetrade || '',
+                    use_and_trade: doc.use_trade || '',
                     range_data_points: rangeDataPoints,
                     assessment_id: assessmentId
                   };
