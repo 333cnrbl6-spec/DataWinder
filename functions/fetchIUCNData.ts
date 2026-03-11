@@ -24,8 +24,11 @@ Deno.serve(async (req) => {
             case 'taxa': {
                 const taxaLevel = level || 'family';
                 if (taxaLevel === 'genus') {
-                    // v4 has no /taxa/genus endpoint - use scientific_name with genus + wildcard species
-                    apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(term)}&species_name=`;
+                    // v4 has no /taxa/genus endpoint - closest is /taxa/family but for genus
+                    // we use /taxa/scientific_name with genus only (returns species in that genus)
+                    // fallback: treat as a family-level search won't work either
+                    // Best approach: return error to let UI handle it differently
+                    return Response.json({ status: 'error', message: 'IUCN API v4 does not support genus-level searches directly. Please search by family instead.', statusCode: 400 }, { status: 400 });
                 } else if (taxaLevel === 'order') {
                     apiUrl = `${BASE}/taxa/order/${encodeURIComponent(term)}`;
                 } else if (taxaLevel === 'class') {
