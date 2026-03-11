@@ -95,10 +95,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.fetchIUCNData({
           level: level,
           term: value.trim(),
-          endpoint: 'taxa'
+          endpoint: 'taxa',
+          iucnToken: iucnToken
         });
 
         if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
@@ -150,16 +151,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       {/* IUCN Credentials */}
       <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">IUCN Red List API</h3>
-        {!iucnToken ? (
+        {showIucnInput || !iucnToken ? (
           <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
             <div className="flex items-start gap-3">
               <Key className="w-5 h-5 text-bangor-sun mt-0.5" />
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-bangor-sun mb-1">API Token Required</h4>
-                <p className="text-xs text-bangor-sun/80 mb-3">
-                  To access IUCN data, you need a free API token. Sign up or log in to get yours.
-                </p>
-                {!showIucnInput ? (
+                <h4 className="text-sm font-medium text-bangor-sun mb-1">
+                  {iucnToken ? 'Update IUCN API Token' : 'API Token Required'}
+                </h4>
+                {!iucnToken && (
+                  <p className="text-xs text-bangor-sun/80 mb-3">
+                    To access IUCN data, you need a free API token. Sign up or log in to get yours.
+                  </p>
+                )}
+                {!showIucnInput && !iucnToken ? (
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
                       <a
@@ -171,13 +176,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                         <ExternalLink className="w-3 h-3" />
                         Sign Up (Free)
                       </a>
-                      <button
-                        onClick={() => setShowIucnInput(true)}
-                        className="text-xs px-3 py-1.5 rounded-md border border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun inline-flex items-center gap-1 cursor-pointer font-medium"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Log In & Get Token
-                      </button>
                     </div>
                     <Button
                       size="sm"
@@ -192,13 +190,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                 ) : (
                   <div className="space-y-2">
                     <p className="text-xs text-bangor-sun/80 mb-2">
-                       After logging in, find your token on your account page and paste it below:
+                      Paste your IUCN API token below (find it on your iucnredlist.org account page):
                     </p>
                     <div className="flex gap-2">
                       <Input
                         id="iucn-api-token"
                         name="iucn-api-token"
-                        value={iucnToken}
+                        defaultValue=""
                         onChange={(e) => setIucnToken(e.target.value)}
                         placeholder="Paste your IUCN API token here"
                         className="text-xs h-8"
