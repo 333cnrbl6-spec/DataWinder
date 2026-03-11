@@ -102,14 +102,24 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        if (result.data?.assessments && result.data.assessments.length > 0) {
-          const mappedSpecies = result.data.assessments.map(a => ({
-            taxonid: a.sis_taxon_id,
-            scientific_name: a.taxon_scientific_name,
-            main_common_name: a.main_common_name,
-            category: a.red_list_category_code,
-          }));
+        const assessments = result.data?.data?.assessments;
+        if (assessments && assessments.length > 0) {
+          const seen = new Set();
+          const mappedSpecies = assessments.reduce((acc, a) => {
+            if (!seen.has(a.taxon_scientific_name)) {
+              seen.add(a.taxon_scientific_name);
+              acc.push({
+                taxonid: a.sis_taxon_id,
+                scientific_name: a.taxon_scientific_name,
+                main_common_name: a.main_common_name,
+                category: a.red_list_category_code,
+              });
+            }
+            return acc;
+          }, []);
           setFamilySpecies(mappedSpecies);
+        } else {
+          setFamilySpecies([]);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
