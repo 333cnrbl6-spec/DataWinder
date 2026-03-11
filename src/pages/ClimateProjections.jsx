@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   ArrowLeft, Info, CloudRain, Thermometer, Layers, Download, Database,
-  ExternalLink, Search, CheckCircle2, Leaf, Globe2, Wind, SlidersHorizontal, FileText
+  ExternalLink, Search, CheckCircle2, Leaf, Globe2, Wind, SlidersHorizontal, FileText, Droplets, Map
 } from 'lucide-react';
 import BangOnLogo from '@/components/BangOnLogo';
 import ClimateSourceCard from '@/components/climate/ClimateSourceCard';
