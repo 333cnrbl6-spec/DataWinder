@@ -60,7 +60,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat
+        includeINaturalist: includeINat,
+        includeGBIF
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -69,7 +70,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF
         });
       }
     }
