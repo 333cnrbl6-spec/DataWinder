@@ -414,6 +414,15 @@ export default function SavedData() {
 
                                 <Eye className="w-4 h-4" />
                               </Button>
+                              {(species.observations?.length > 0 || species.gbif_occurrences?.length > 0) && (
+                                <Button
+                                  size="icon"
+                                  onClick={() => setOutlierSpecies(species)}
+                                  className="h-8 w-8 bg-amber-500 text-white font-semibold hover:bg-amber-600"
+                                  title="Detect Observation Outliers">
+                                  <ShieldAlert className="w-4 h-4" />
+                                </Button>
+                              )}
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
                             <Button
                               variant="ghost"
