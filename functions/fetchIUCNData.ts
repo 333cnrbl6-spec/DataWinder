@@ -42,17 +42,17 @@ Deno.serve(async (req) => {
             case 'assessment':
                 apiUrl = `${BASE}/assessment/${term}`;
                 break;
-            // Habitats by assessment code
+            // Habitats by assessment ID
             case 'habitats':
-                apiUrl = `${BASE}/habitats/`;
+                apiUrl = `${BASE}/assessment/${term}/habitats`;
                 break;
-            // Threats by code
+            // Threats by assessment ID
             case 'threats':
-                apiUrl = `${BASE}/threats/`;
+                apiUrl = `${BASE}/assessment/${term}/threats`;
                 break;
-            // History / Red list categories
+            // History by taxon ID
             case 'history':
-                apiUrl = `${BASE}/red_list_categories/`;
+                apiUrl = `${BASE}/taxa/sis/${term}/history`;
                 break;
             // List of countries
             case 'countries':
