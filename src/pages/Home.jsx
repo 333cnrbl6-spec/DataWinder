@@ -153,13 +153,14 @@ export default function Home() {
               }
               speciesList = Object.values(latestMap);
             } else if (searchData.taxon) {
-              // Species-level search returns single taxon object — wrap to treat uniformly
+              // Species-level search: response is {taxon:{...}, assessments:[...]}
+              // assessments are at top level, not nested inside taxon
               const taxon = searchData.taxon;
-              // Find latest assessment from history if present
-              if (taxon.assessments && taxon.assessments.length > 0) {
-                const latest = taxon.assessments.find(a => a.latest) || taxon.assessments[0];
-                speciesList = [{ 
-                  sis_taxon_id: taxon.sis_id, 
+              const assessments = searchData.assessments || [];
+              const latest = assessments.find(a => a.latest) || assessments[0];
+              if (latest) {
+                speciesList = [{
+                  sis_taxon_id: taxon.sis_id,
                   taxon_scientific_name: taxon.scientific_name,
                   red_list_category_code: latest.red_list_category_code,
                   assessment_id: latest.assessment_id,
@@ -250,7 +251,7 @@ export default function Home() {
                   try {
                     const rangeResult = await base44.functions.invoke('fetchIUCNData', {
                       endpoint: 'range',
-                      term: String(sp.taxonid || sp.assessment_id)
+                      term: String(sisId)
                     });
                     
                     if (rangeResult.data.status === 'success') {
@@ -263,9 +264,9 @@ export default function Home() {
 
                   // Fetch additional images if available
                   let allImages = [];
-                  if (sp.taxonid) {
+                  if (sisId) {
                     try {
-                      const imagesUrl = `https://apiv4.iucnredlist.org/api/v4/taxa/sis/${sp.taxonid}?token=${iucnToken}`;
+                      const imagesUrl = `https://api.iucnredlist.org/api/v4/taxa/sis/${sisId}?token=${iucnToken}`;
                       const imagesRes = await fetch(imagesUrl);
                       if (imagesRes.ok) {
                         const imagesData = await imagesRes.json();
@@ -339,7 +340,7 @@ export default function Home() {
                   // Upload search summary JSON to backend storage
                   try {
                     const searchSummaryBlob = new Blob([JSON.stringify(searchSummary, null, 2)], { type: 'application/json' });
-                    const searchSummaryFile = new File([searchSummaryBlob], `${sp.scientific_name.replace(/ /g, '_')}_search_summary.json`, { type: 'application/json' });
+                    const searchSummaryFile = new File([searchSummaryBlob], `${scientificName.replace(/ /g, '_')}_search_summary.json`, { type: 'application/json' });
                     const { file_uri: summaryUri } = await base44.integrations.Core.UploadPrivateFile({ file: searchSummaryFile });
                     searchSummaryFileUri = summaryUri;
                   } catch (err) {
@@ -350,7 +351,7 @@ export default function Home() {
                   if (rangeDataGeoJSON) {
                     try {
                       const rangeGeoJsonBlob = new Blob([JSON.stringify(rangeDataGeoJSON, null, 2)], { type: 'application/json' });
-                      const rangeGeoJsonFile = new File([rangeGeoJsonBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_data.geojson`, { type: 'application/json' });
+                      const rangeGeoJsonFile = new File([rangeGeoJsonBlob], `${scientificName.replace(/ /g, '_')}_range_data.geojson`, { type: 'application/json' });
                       const { file_uri: geoJsonUri } = await base44.integrations.Core.UploadPrivateFile({ file: rangeGeoJsonFile });
                       rangeGeoJsonFileUri = geoJsonUri;
                     } catch (err) {
@@ -371,7 +372,7 @@ export default function Home() {
                         )
                       ].join('\n');
                       const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-                      const csvFile = new File([csvBlob], `${sp.scientific_name.replace(/ /g, '_')}_range_points.csv`, { type: 'text/csv' });
+                      const csvFile = new File([csvBlob], `${scientificName.replace(/ /g, '_')}_range_points.csv`, { type: 'text/csv' });
                       const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
                       rangeCsvFileUri = csvUri;
                     } catch (err) {
