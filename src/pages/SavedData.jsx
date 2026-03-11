@@ -245,7 +245,7 @@ export default function SavedData() {
                     <Input
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search by name, family..."
+                      placeholder="Search by name, family, genus, order, class..."
                       className="pl-10" />
 
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
