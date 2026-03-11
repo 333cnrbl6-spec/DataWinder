@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Download, FileJson, FileSpreadsheet, Check, X, Database } from 'lucide-react';
+import { Download, FileJson, FileSpreadsheet, Check, X, Database, FileText, Map, Image, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { base44 } from '@/api/base44Client';
