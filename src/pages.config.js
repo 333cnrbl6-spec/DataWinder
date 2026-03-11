@@ -53,6 +53,8 @@ import Home from './pages/Home';
 import ReviewDuplicates from './pages/ReviewDuplicates';
 import SavedData from './pages/SavedData';
 import ClimateProjections from './pages/ClimateProjections';
+import MAXENTModeler from './pages/MAXENTModeler';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -62,9 +64,11 @@ export const PAGES = {
     "ReviewDuplicates": ReviewDuplicates,
     "SavedData": SavedData,
     "ClimateProjections": ClimateProjections,
+    "MAXENTModeler": MAXENTModeler,
 }
 
 export const pagesConfig = {
     mainPage: "Home",
     Pages: PAGES,
+    Layout: __Layout,
 };
