@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf } from 'lucide-react';
+import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
   { label: 'Species Search', page: 'Home', icon: Search },

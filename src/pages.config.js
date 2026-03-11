@@ -48,23 +48,23 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ArcGISTools from './pages/ArcGISTools';
+import ClimateProjections from './pages/ClimateProjections';
 import DataManagement from './pages/DataManagement';
 import Home from './pages/Home';
+import MAXENTModeler from './pages/MAXENTModeler';
 import ReviewDuplicates from './pages/ReviewDuplicates';
 import SavedData from './pages/SavedData';
-import ClimateProjections from './pages/ClimateProjections';
-import MAXENTModeler from './pages/MAXENTModeler';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ArcGISTools": ArcGISTools,
+    "ClimateProjections": ClimateProjections,
     "DataManagement": DataManagement,
     "Home": Home,
+    "MAXENTModeler": MAXENTModeler,
     "ReviewDuplicates": ReviewDuplicates,
     "SavedData": SavedData,
-    "ClimateProjections": ClimateProjections,
-    "MAXENTModeler": MAXENTModeler,
 }
 
 export const pagesConfig = {
