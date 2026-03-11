@@ -171,6 +171,30 @@ export default function Home() {
               }
             }
 
+            // Enrich speciesList items with SIS assessment history for status_history
+            // We batch fetch SIS records for all unique taxon IDs
+            const uniqueSisIds = [...new Set(speciesList.map(sp => sp.sis_taxon_id).filter(Boolean))];
+            const sisDataMap = {};
+            // Batch in chunks of 5 to avoid overloading
+            for (let i = 0; i < uniqueSisIds.length; i += 5) {
+              const chunk = uniqueSisIds.slice(i, i + 5);
+              await Promise.all(chunk.map(async (sisId) => {
+                try {
+                  const sisResult = await base44.functions.invoke('fetchIUCNData', {
+                    endpoint: 'sis', term: String(sisId)
+                  });
+                  if (sisResult.data.status === 'success') {
+                    sisDataMap[sisId] = sisResult.data.data;
+                  }
+                } catch (e) { /* non-critical */ }
+              }));
+            }
+            // Attach SIS assessments to each species for status history
+            speciesList = speciesList.map(sp => ({
+              ...sp,
+              _sisAssessments: sisDataMap[sp.sis_taxon_id]?.assessments || []
+            }));
+
             if (speciesList.length === 0) {
               console.warn(`No IUCN species found for ${term}`);
               continue;
