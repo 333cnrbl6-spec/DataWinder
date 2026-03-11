@@ -120,7 +120,8 @@ export default function Home() {
           try {
             const searchResult = await base44.functions.invoke('fetchIUCNData', {
               term: term,
-              endpoint: 'taxa'
+              endpoint: 'taxa',
+              level: level
             });
 
             if (searchResult.data.status === 'error') {
