@@ -1082,10 +1082,15 @@ export default function Home() {
                 <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
                   <Info className="h-4 w-4 text-bangor-sun" />
                   <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
-                  <AlertDescription className="text-slate-700">
-                    Search species data from multiple academic sources including IUCN Red List (conservation status), iNaturalist (citizen science observations), and GBIF (occurrence & specimen records). 
-                    Build comprehensive datasets with genomic references, distribution data, and specimen information. 
-                    Compare species, create custom lists, add personal notes, and export filtered data in CSV or JSON format.
+                  <AlertDescription className="text-slate-700 space-y-2">
+                    <p>DataWinder is a species distribution modelling toolkit built for ecological research at Bangor University. Use the workflow below to build, analyse, and model species data:</p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li><span className="font-semibold">Search</span> — Query by species, genus, family, order, or class across IUCN Red List, iNaturalist, and GBIF simultaneously.</li>
+                      <li><span className="font-semibold">Enrich</span> — Pull conservation status, population trends, habitat & threat data from IUCN; citizen science observations from iNaturalist; and georeferenced occurrence records from GBIF.</li>
+                      <li><span className="font-semibold">Review & Compare</span> — Select species, compare side-by-side, add personal research notes, and organise into custom lists.</li>
+                      <li><span className="font-semibold">Export</span> — Download occurrence data formatted for MAXENT, GeoJSON ranges for ArcGIS, or a full species dataset as CSV.</li>
+                      <li><span className="font-semibold">Model</span> — Use the MAXENT Modeller to configure and run habitat suitability models using your curated species and climate layer selections.</li>
+                    </ol>
                   </AlertDescription>
                 </Alert>
 
