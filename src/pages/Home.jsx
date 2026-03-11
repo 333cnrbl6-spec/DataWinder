@@ -150,39 +150,21 @@ export default function Home() {
               speciesList.map(async (sp) => {
                 try {
                   // Fetch multiple data endpoints for comprehensive information using backend function
-                  // v4: habitats & threats use assessment_id (not sis_taxon_id)
-                  const [assessmentResult, habitatResult, threatsResult, countriesResult] = await Promise.all([
-                    base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'assessment',
-                      term: String(sp.assessment_id)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'habitats',
-                      term: String(sp.assessment_id)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'threats',
-                      term: String(sp.assessment_id)
-                    }),
-                    base44.functions.invoke('fetchIUCNData', {
-                      endpoint: 'countries',
-                      term: ''
-                    })
-                  ]);
+                  // v4: habitats, threats, countries are all embedded in the assessment response
+                  const assessmentResult = await base44.functions.invoke('fetchIUCNData', {
+                    endpoint: 'assessment',
+                    term: String(sp.assessment_id)
+                  });
 
-                  const assessmentData = assessmentResult.data.status === 'success' ? assessmentResult.data.data : null;
-                  const habitatData = habitatResult.data.status === 'success' ? habitatResult.data.data : null;
-                  const threatsData = threatsResult.data.status === 'success' ? threatsResult.data.data : null;
-                  const countriesData = countriesResult.data.status === 'success' ? countriesResult.data.data : null;
-
-                  // v4: data returned directly - no .result wrapper
-                  const assessment = assessmentData || {};
+                  // v4: assessment response contains all data - habitats, threats, countries, narrative all embedded
+                  const assessment = assessmentResult.data.status === 'success' ? assessmentResult.data.data : {};
                   const taxon = assessment.taxon || {};
                   const narrative = assessment.narrative || {};
-                  const habitats = habitatData?.habitats || habitatData?.result || [];
-                  const threats = threatsData?.threats || threatsData?.result || [];
-                  const countries = countriesData?.countries || countriesData?.result || [];
-                  // Build history from the full assessments list for this species
+                  // v4 embeds habitats, threats, distribution within the assessment object
+                  const habitats = assessment.habitats || [];
+                  const threats = assessment.threats || [];
+                  const countries = assessment.countries || assessment.distribution?.countries || [];
+                  // Build history from the full assessments list (already fetched via taxa endpoint)
                   const history = allAssessments
                     .filter(a => a.sis_taxon_id === sp.sis_taxon_id)
                     .sort((a, b) => parseInt(a.year_published) - parseInt(b.year_published))
@@ -192,7 +174,7 @@ export default function Home() {
                                      taxon.common_names?.find(c => c.language === 'eng')?.name ||
                                      taxon.common_names?.[0]?.name || '';
                   const iucnStatus = assessment.red_list_category?.code || sp.red_list_category_code || 'NE';
-                  const populationTrend = (assessment.population_trend?.code || assessment.population_trend?.description || 'unknown').toLowerCase();
+                  const populationTrend = (assessment.population_trend?.code || assessment.population_trend?.description?.en || 'unknown').toLowerCase();
 
                   // Download and upload files to backend storage
                   let searchSummaryFileUri = null;
