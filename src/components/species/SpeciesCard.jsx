@@ -225,23 +225,23 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
             {/* Population */}
             {species.population_details && (
-              <div className="bg-slate-50 rounded-lg p-3">
-                <h4 className="text-sm font-semibold text-slate-700 mb-1">Population</h4>
-                <p className="text-xs text-slate-600">{species.population_details}</p>
+              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
+                <h4 className="text-sm font-semibold text-slate-700 mb-1.5">Population</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">{species.population_details}</p>
               </div>
             )}
 
             {/* Habitat */}
             {species.habitat && (
-              <div className="bg-green-50 rounded-lg p-3">
-                <h4 className="text-sm font-semibold text-green-800 mb-1">Habitat</h4>
-                <p className="text-xs text-green-700">{species.habitat}</p>
+              <div className="bg-green-50 rounded-xl p-3.5 border border-green-100">
+                <h4 className="text-sm font-semibold text-green-800 mb-1.5">Habitat</h4>
+                <p className="text-xs text-green-700 leading-relaxed">{species.habitat}</p>
               </div>
             )}
 
             {/* Threats (collapsible) */}
             {species.threats && (
-              <div className="bg-red-50 rounded-lg p-3">
+              <div className="bg-red-50 rounded-xl p-3.5 border border-red-100">
                 <button
                   className="flex items-center justify-between w-full"
                   onClick={() => setShowThreats(v => !v)}
