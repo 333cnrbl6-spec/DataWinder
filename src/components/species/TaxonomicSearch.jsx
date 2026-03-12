@@ -241,11 +241,33 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-6">
+      <div className="mb-3">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
+
+      {/* GBIF */}
+      <div className="mb-3">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">GBIF</h3>
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-green-600" />
+          <span className="text-xs text-green-700 font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
+
+      {/* Coming Soon */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">Coming Soon</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {['GBIF Genomics', 'eBird', 'Ocean Biodiversity (OBIS)', 'VertNet'].map(src => (
+            <div key={src} className="p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2 opacity-60">
+              <div className="w-2 h-2 rounded-full bg-slate-300" />
+              <span className="text-xs text-slate-500">{src}</span>
+            </div>
+          ))}
         </div>
       </div>
 
