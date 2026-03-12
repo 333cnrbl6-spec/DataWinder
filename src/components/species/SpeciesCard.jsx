@@ -72,8 +72,8 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: index * 0.04 }}
       >
-        <Card className={`relative overflow-hidden transition-all duration-200 cursor-pointer hover:shadow-md ${
-          selected ? 'ring-2 ring-red-500 shadow-red-100' : 'shadow-sm'
+        <Card className={`relative overflow-hidden transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 ${
+          selected ? 'ring-2 ring-bangor-red shadow-md shadow-red-100 -translate-y-0.5' : 'shadow-sm hover:shadow-bangor-red/10'
         }`} onClick={() => setShowModal(true)}>
 
           {/* Selection checkbox */}
