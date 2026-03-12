@@ -629,7 +629,8 @@ export default function Home() {
 
             // Process each species (up to 300)
             for (const taxon of iNatTaxa.slice(0, 300)) {
-              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
+              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=200&order=desc&order_by=created_at&quality_grade=research`;
+
               const obsRes = await fetch(obsUrl);
               let observationData = null;
               if (obsRes.ok) {
