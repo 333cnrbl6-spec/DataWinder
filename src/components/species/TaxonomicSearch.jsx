@@ -240,12 +240,46 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* iNaturalist */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-bangor-sun" />
-          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+      {/* Active data sources */}
+      <div className="mb-4">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">Observation Data Sources</h3>
+        <div className="space-y-2">
+          {/* iNaturalist - active */}
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-green-600 shrink-0" />
+            <div className="flex-1">
+              <span className="text-xs text-green-800 font-semibold">iNaturalist</span>
+              <span className="text-xs text-green-600 ml-2">Public API — No credentials required</span>
+            </div>
+            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
+          </div>
+
+          {/* GBIF - active */}
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+            <div className="flex-1">
+              <span className="text-xs text-blue-800 font-semibold">GBIF</span>
+              <span className="text-xs text-blue-600 ml-2">Global Biodiversity Information Facility — No credentials required</span>
+            </div>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Active</span>
+          </div>
+
+          {/* Future sources - coming soon */}
+          {[
+            { name: 'eBird', desc: 'Cornell Lab bird observations (300M+ records)', color: 'amber' },
+            { name: 'OBIS', desc: 'Ocean Biodiversity Information System — marine species', color: 'cyan' },
+            { name: 'VertNet', desc: 'Vertebrate specimen records from natural history collections', color: 'purple' },
+            { name: 'BioTIME', desc: 'Time-series biodiversity data for trend analysis', color: 'rose' },
+          ].map(({ name, desc, color }) => (
+            <div key={name} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2 opacity-60 select-none">
+              <HardHat className="w-4 h-4 text-slate-400 shrink-0" />
+              <div className="flex-1">
+                <span className="text-xs text-slate-600 font-semibold">{name}</span>
+                <span className="text-xs text-slate-400 ml-2">{desc}</span>
+              </div>
+              <span className="text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">Coming Soon</span>
+            </div>
+          ))}
         </div>
       </div>
 
