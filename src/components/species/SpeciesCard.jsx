@@ -161,8 +161,6 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
               {species.assessment_pdf_file_uri ? (
                 <FileChip icon={FileText} label="PDF" color="red"
                   onClick={() => downloadFile(species.assessment_pdf_file_uri, `${safeName}_assessment.pdf`)} />
-              ) : species.assessment_pdf_url ? (
-                <FileChip icon={FileText} label="PDF ↗" color="red" href={species.assessment_pdf_url} />
               ) : null}
               {species.range_map_jpg_file_uri ? (
                 <FileChip icon={Map} label="Map" color="slate"
