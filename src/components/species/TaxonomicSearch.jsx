@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -222,39 +223,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
-            {!showIucnInput ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Key className="w-4 h-4 text-bangor-sun" />
-                  <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
-                </div>
-                <button
-                  onClick={() => setShowIucnInput(true)}
-                  className="text-xs text-bangor-sun underline font-medium"
-                >
-                  Change
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-xs text-bangor-sun/80 mb-1">Enter new IUCN API token:</p>
-                <div className="flex gap-2">
-                  <Input
-                    value={iucnToken}
-                    onChange={(e) => setIucnToken(e.target.value)}
-                    placeholder="Paste your IUCN API token here"
-                    className="text-xs h-8"
-                  />
-                  <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
-                    Save
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowIucnInput(false)} className="text-xs h-8">
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
+          <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center justify-between">
+             <div className="flex items-center gap-2">
+               <Key className="w-4 h-4 text-bangor-sun" />
+               <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
+             </div>
+             <button
+               onClick={() => setShowIucnInput(true)}
+               className="text-xs text-bangor-sun underline font-medium"
+            >
+              Change
+            </button>
           </div>
         )}
       </div>
