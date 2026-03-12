@@ -60,19 +60,21 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat
+        includeINaturalist: includeINat,
+        includeGBIF
       });
-    } else {
+      } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
         onSearch({ 
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF
         });
       }
-    }
+      }
   };
 
   const addSearchTerm = () => {
