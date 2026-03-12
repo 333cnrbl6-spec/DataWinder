@@ -213,7 +213,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
             {/* Distribution */}
             {species.geographic_distribution?.countries?.length > 0 && (
-              <div className="bg-slate-50 rounded-lg p-3">
+              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
                 <div className="flex items-center gap-1 mb-1">
                   <Globe className="w-4 h-4 text-slate-600" />
                   <h4 className="text-sm font-semibold text-slate-700">Distribution</h4>
