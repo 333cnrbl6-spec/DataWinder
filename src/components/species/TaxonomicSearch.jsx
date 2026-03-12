@@ -374,7 +374,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </>
           ) : (
             <>
-              <Search className="w-4 h-4 mr-2" />
+              <Search className="w-4 h-4" />
               SEARCH
             </>
           )}
