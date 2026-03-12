@@ -25,7 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -57,22 +56,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     // If not species level with selected species, search those specific species
     if (level !== 'species' && selectedSpecies.length > 0) {
       onSearch({ 
-          level: 'species', 
-          terms: selectedSpecies, 
+        level: 'species', 
+        terms: selectedSpecies, 
+        iucnToken,
+        includeINaturalist: includeINat
+      });
+    } else {
+      const validTerms = searchTerms.filter(t => t.trim());
+      if (validTerms.length > 0) {
+        onSearch({ 
+          level, 
+          terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF
+          includeINaturalist: includeINat
         });
-      } else {
-        const validTerms = searchTerms.filter(t => t.trim());
-        if (validTerms.length > 0) {
-          onSearch({ 
-            level, 
-            terms: validTerms, 
-            iucnToken,
-            includeINaturalist: includeINat,
-            includeGBIF
-          });
       }
     }
   };
@@ -225,52 +222,49 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center justify-between">
-             <div className="flex items-center gap-2">
-               <Key className="w-4 h-4 text-bangor-sun" />
-               <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
-             </div>
-             <button
-               onClick={() => setShowIucnInput(true)}
-               className="text-xs text-bangor-sun underline font-medium"
-            >
-              Change
-            </button>
+          <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
+            {!showIucnInput ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-bangor-sun" />
+                  <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
+                </div>
+                <button
+                  onClick={() => setShowIucnInput(true)}
+                  className="text-xs text-bangor-sun underline font-medium"
+                >
+                  Change
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-bangor-sun/80 mb-1">Enter new IUCN API token:</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={iucnToken}
+                    onChange={(e) => setIucnToken(e.target.value)}
+                    placeholder="Paste your IUCN API token here"
+                    className="text-xs h-8"
+                  />
+                  <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
+                    Save
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setShowIucnInput(false)} className="text-xs h-8">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-3">
+      <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
-        </div>
-      </div>
-
-      {/* GBIF */}
-      <div className="mb-3">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">GBIF</h3>
-        <label className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between cursor-pointer">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-green-600" />
-            <span className="text-xs text-green-700 font-medium">Public API - No Credentials Required</span>
-          </div>
-          <input
-            type="checkbox"
-            checked={includeGBIF}
-            onChange={(e) => setIncludeGBIF(e.target.checked)}
-            className="w-4 h-4 accent-green-600"
-          />
-        </label>
-      </div>
-
-      {/* Additional Sources - Coming Soon */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">Additional Searches</h3>
-        <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-medium italic">More data sources coming soon (eBird, VertNet, ALA…)</span>
         </div>
       </div>
 
