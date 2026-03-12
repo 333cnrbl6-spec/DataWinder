@@ -102,8 +102,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
-          setFamilySpecies(result.data.result);
+        const resultData = result.data;
+        if (resultData?.status === 'success' && resultData?.data?.result && resultData.data.result.length > 0) {
+          setFamilySpecies(resultData.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
