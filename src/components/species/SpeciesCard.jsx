@@ -103,14 +103,14 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
             </div>
           )}
 
-          <CardContent className="p-3">
+          <CardContent className="p-3.5">
             {/* Name & Status */}
-            <div className="flex items-start justify-between gap-1 mb-1">
+            <div className="flex items-start justify-between gap-1 mb-2">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-900 leading-tight truncate">
+                <p className="text-sm font-semibold text-slate-900 leading-snug truncate">
                   {species.common_name || 'No common name'}
                 </p>
-                <p className="text-xs italic text-slate-500 truncate">{species.scientific_name}</p>
+                <p className="text-xs italic text-slate-400 truncate mt-0.5">{species.scientific_name}</p>
               </div>
               <StatusBadge status={species.iucn_status} size="sm" />
             </div>
