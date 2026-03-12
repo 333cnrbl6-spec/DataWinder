@@ -337,6 +337,24 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                     <Download className="w-3 h-3 mr-1" /> GBIF Occurrences CSV
                   </Button>
                 )}
+                {species.assessment_pdf_file_uri && (
+                  <Button size="sm" variant="outline" className="text-xs h-7"
+                    onClick={() => downloadFile(species.assessment_pdf_file_uri, `${safeName}_assessment.pdf`)}>
+                    <FileText className="w-3 h-3 mr-1" /> Assessment PDF (stored)
+                  </Button>
+                )}
+                {species.range_map_jpg_file_uri && (
+                  <Button size="sm" variant="outline" className="text-xs h-7"
+                    onClick={() => downloadFile(species.range_map_jpg_file_uri, `${safeName}_range_map.jpg`)}>
+                    <Map className="w-3 h-3 mr-1" /> Range Map JPG (stored)
+                  </Button>
+                )}
+                {species.range_shp_file_uri && (
+                  <Button size="sm" variant="outline" className="text-xs h-7"
+                    onClick={() => downloadFile(species.range_shp_file_uri, `${safeName}_range.zip`)}>
+                    <Download className="w-3 h-3 mr-1" /> Range SHP (stored)
+                  </Button>
+                )}
                 {!species.inat_taxon_id && onEnrichWithINaturalist && (
                   <Button size="sm" className="text-xs h-7 bg-amber-500 hover:bg-amber-600 text-white"
                     onClick={() => { setShowModal(false); onEnrichWithINaturalist(species); }}>
