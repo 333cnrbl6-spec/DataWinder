@@ -93,13 +93,13 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
           {/* Image */}
           {species.image_url ? (
-            <div className="h-32 overflow-hidden bg-slate-100">
+            <div className="h-36 overflow-hidden bg-slate-100">
               <img src={species.image_url} alt={species.common_name || species.scientific_name}
-                className="w-full h-full object-cover" />
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
             </div>
           ) : (
-            <div className="h-32 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
-              <Leaf className="w-10 h-10 text-slate-300" />
+            <div className="h-36 bg-gradient-to-br from-bangor-red/5 via-slate-100 to-bangor-sun/10 flex items-center justify-center">
+              <Leaf className="w-10 h-10 text-bangor-red/20" />
             </div>
           )}
 
