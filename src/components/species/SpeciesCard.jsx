@@ -169,7 +169,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
             </div>
 
             {/* View details prompt */}
-            <p className="text-[10px] text-slate-400 mt-2 text-center">Click card for full details</p>
+            <p className="text-[10px] text-slate-300 mt-2.5 text-center tracking-wide uppercase font-medium">Click to view details</p>
           </CardContent>
         </Card>
       </motion.div>
