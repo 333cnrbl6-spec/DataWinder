@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X, HardHat } from 'lucide-react';
+import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
@@ -25,7 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -60,21 +59,19 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF
+        includeINaturalist: includeINat
       });
-      } else {
+    } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
         onSearch({ 
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF
+          includeINaturalist: includeINat
         });
       }
-      }
+    }
   };
 
   const addSearchTerm = () => {
@@ -240,46 +237,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* Active data sources */}
-      <div className="mb-4">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">Observation Data Sources</h3>
-        <div className="space-y-2">
-          {/* iNaturalist - active */}
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-green-600 shrink-0" />
-            <div className="flex-1">
-              <span className="text-xs text-green-800 font-semibold">iNaturalist</span>
-              <span className="text-xs text-green-600 ml-2">Public API — No credentials required</span>
-            </div>
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
-          </div>
-
-          {/* GBIF - active */}
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
-            <div className="flex-1">
-              <span className="text-xs text-blue-800 font-semibold">GBIF</span>
-              <span className="text-xs text-blue-600 ml-2">Global Biodiversity Information Facility — No credentials required</span>
-            </div>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Active</span>
-          </div>
-
-          {/* Future sources - coming soon */}
-          {[
-            { name: 'eBird', desc: 'Cornell Lab bird observations (300M+ records)', color: 'amber' },
-            { name: 'OBIS', desc: 'Ocean Biodiversity Information System — marine species', color: 'cyan' },
-            { name: 'VertNet', desc: 'Vertebrate specimen records from natural history collections', color: 'purple' },
-            { name: 'BioTIME', desc: 'Time-series biodiversity data for trend analysis', color: 'rose' },
-          ].map(({ name, desc, color }) => (
-            <div key={name} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2 opacity-60 select-none">
-              <HardHat className="w-4 h-4 text-slate-400 shrink-0" />
-              <div className="flex-1">
-                <span className="text-xs text-slate-600 font-semibold">{name}</span>
-                <span className="text-xs text-slate-400 ml-2">{desc}</span>
-              </div>
-              <span className="text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">Coming Soon</span>
-            </div>
-          ))}
+      {/* iNaturalist */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
+        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-bangor-sun" />
+          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
       </div>
 
@@ -411,7 +374,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </>
           ) : (
             <>
-              Search {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
+              <Search className="w-4 h-4 mr-2" />
+              SEARCH
             </>
           )}
         </Button>
@@ -434,33 +398,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ', iNaturalist' : ''}{includeGBIF ? ' and GBIF' : ''}.
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <div className="space-y-2 mb-4">
-              <label className="flex items-center gap-2 p-3 bg-green-50 rounded-lg cursor-pointer border border-green-200">
-                <input
-                  id="include-inat"
-                  name="include-inat"
-                  type="checkbox"
-                  checked={includeINat}
-                  onChange={(e) => setIncludeINat(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observations</span>
-              </label>
-              <label className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer border border-blue-200">
-                <input
-                  id="include-gbif"
-                  name="include-gbif"
-                  type="checkbox"
-                  checked={includeGBIF}
-                  onChange={(e) => setIncludeGBIF(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrences</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button
