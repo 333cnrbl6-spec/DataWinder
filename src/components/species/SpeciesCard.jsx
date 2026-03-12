@@ -176,7 +176,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
       {/* ── Detail Modal ── */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-slate-900">
               {species.common_name || species.scientific_name}
