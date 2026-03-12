@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(false);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
