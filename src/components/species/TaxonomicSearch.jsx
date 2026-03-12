@@ -57,20 +57,22 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     // If not species level with selected species, search those specific species
     if (level !== 'species' && selectedSpecies.length > 0) {
       onSearch({ 
-        level: 'species', 
-        terms: selectedSpecies, 
-        iucnToken,
-        includeINaturalist: includeINat
-      });
-    } else {
-      const validTerms = searchTerms.filter(t => t.trim());
-      if (validTerms.length > 0) {
-        onSearch({ 
-          level, 
-          terms: validTerms, 
+          level: 'species', 
+          terms: selectedSpecies, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF
         });
+      } else {
+        const validTerms = searchTerms.filter(t => t.trim());
+        if (validTerms.length > 0) {
+          onSearch({ 
+            level, 
+            terms: validTerms, 
+            iucnToken,
+            includeINaturalist: includeINat,
+            includeGBIF
+          });
       }
     }
   };
