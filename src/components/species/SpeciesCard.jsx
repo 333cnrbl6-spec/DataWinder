@@ -351,6 +351,24 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                     Assessment PDF <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
+                {species.range_map_jpg_url && (
+                  <a href={species.range_map_jpg_url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-slate-600 font-medium flex items-center gap-1 hover:underline">
+                    Range Map <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+                {species.range_data_shp_url && (
+                  <a href={species.range_data_shp_url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-green-700 font-medium flex items-center gap-1 hover:underline">
+                    Range SHP Download <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+                {species.range_data_csv_url && species.range_data_csv_url !== 'available' && (
+                  <a href={species.range_data_csv_url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-green-700 font-medium flex items-center gap-1 hover:underline">
+                    Range CSV Download <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
                 {species.inat_taxon_id && (
                   <a href={`https://www.inaturalist.org/taxa/${species.inat_taxon_id}`}
                     target="_blank" rel="noopener noreferrer"
