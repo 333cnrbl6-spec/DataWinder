@@ -238,11 +238,36 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-6">
+      <div className="mb-3">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
+
+      {/* GBIF */}
+      <div className="mb-3">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">GBIF</h3>
+        <label className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between cursor-pointer">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-green-600" />
+            <span className="text-xs text-green-700 font-medium">Public API - No Credentials Required</span>
+          </div>
+          <input
+            type="checkbox"
+            checked={includeGBIF}
+            onChange={(e) => setIncludeGBIF(e.target.checked)}
+            className="w-4 h-4 accent-green-600"
+          />
+        </label>
+      </div>
+
+      {/* Additional Sources - Coming Soon */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">Additional Searches</h3>
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
+          <span className="text-xs text-slate-400 font-medium italic">More data sources coming soon (eBird, VertNet, ALA…)</span>
         </div>
       </div>
 
@@ -374,8 +399,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             </>
           ) : (
             <>
-              <Search className="w-4 h-4" />
-              SEARCH
+              Search {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}
             </>
           )}
         </Button>
