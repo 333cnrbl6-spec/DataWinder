@@ -861,6 +861,50 @@ export default function Home() {
         }
       }
 
+      // Persist all iNat-only and GBIF-only species to DB (IUCN ones are already saved above)
+      for (const sp of Object.values(allSpeciesMap)) {
+        if (sp.data_source === 'IUCN Red List') continue; // already saved
+        try {
+          const existing = await base44.entities.Species.filter({ scientific_name: sp.scientific_name });
+          const dbFields = {
+            scientific_name: sp.scientific_name,
+            common_name: sp.common_name || '',
+            kingdom: sp.kingdom || '',
+            phylum: sp.phylum || '',
+            class_name: sp.class_name || '',
+            order_name: sp.order_name || '',
+            family: sp.family || '',
+            genus: sp.genus || '',
+            iucn_status: sp.iucn_status || 'NE',
+            inat_taxon_id: sp.inat_taxon_id || null,
+            inat_wikipedia_url: sp.inat_wikipedia_url || null,
+            observation_count: sp.observation_count || 0,
+            observations: sp.observations || [],
+            last_observed: sp.last_observed || null,
+            inat_observations_csv_file_uri: sp.inat_observations_csv_file_uri || null,
+            gbif_id: sp.gbif_id || null,
+            gbif_occurrence_count: sp.gbif_occurrence_count || 0,
+            gbif_occurrences: sp.gbif_occurrences || [],
+            gbif_basis_of_record: sp.gbif_basis_of_record || null,
+            gbif_last_occurrence: sp.gbif_last_occurrence || null,
+            gbif_occurrences_csv_file_uri: sp.gbif_occurrences_csv_file_uri || null,
+            image_url: sp.image_url || null,
+          };
+          if (existing.length > 0) {
+            // Merge new observation/occurrence data into existing IUCN record
+            const updates = {};
+            if (sp.inat_taxon_id && !existing[0].inat_taxon_id) { updates.inat_taxon_id = sp.inat_taxon_id; updates.observation_count = sp.observation_count; updates.observations = sp.observations; updates.last_observed = sp.last_observed; updates.inat_observations_csv_file_uri = sp.inat_observations_csv_file_uri; }
+            if (sp.gbif_id && !existing[0].gbif_id) { updates.gbif_id = sp.gbif_id; updates.gbif_occurrence_count = sp.gbif_occurrence_count; updates.gbif_occurrences = sp.gbif_occurrences; updates.gbif_basis_of_record = sp.gbif_basis_of_record; updates.gbif_last_occurrence = sp.gbif_last_occurrence; updates.gbif_occurrences_csv_file_uri = sp.gbif_occurrences_csv_file_uri; }
+            if (!existing[0].image_url && sp.image_url) updates.image_url = sp.image_url;
+            if (Object.keys(updates).length > 0) await base44.entities.Species.update(existing[0].id, updates);
+          } else {
+            await base44.entities.Species.create(dbFields);
+          }
+        } catch (e) {
+          console.error(`Error persisting ${sp.scientific_name} to DB:`, e.message);
+        }
+      }
+
       const allSpecies = Object.values(allSpeciesMap);
 
       if (allSpecies.length === 0) {
