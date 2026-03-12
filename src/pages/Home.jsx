@@ -447,6 +447,28 @@ export default function Home() {
                     allSpeciesMap[sp.scientific_name] = sp;
                   });
 
+            // Attempt to download and store IUCN binary files (PDF, range map) for each species
+            for (const species of detailedSpecies) {
+              if (!species.iucn_id) continue;
+              try {
+                const dlResult = await base44.functions.invoke('downloadIUCNFiles', {
+                  scientific_name: species.scientific_name,
+                  assessment_id: species.assessment_id,
+                  range_map_jpg_url: species.range_map_jpg_url,
+                  range_data_shp_url: species.range_data_shp_url,
+                  range_data_csv_url: species.range_data_csv_url && species.range_data_csv_url !== 'available' ? species.range_data_csv_url : null
+                });
+                if (dlResult.data?.status === 'success') {
+                  if (dlResult.data.assessment_pdf_file_uri) species.assessment_pdf_file_uri = dlResult.data.assessment_pdf_file_uri;
+                  if (dlResult.data.range_map_jpg_file_uri) species.range_map_jpg_file_uri = dlResult.data.range_map_jpg_file_uri;
+                  if (dlResult.data.range_shp_file_uri) species.range_shp_file_uri = dlResult.data.range_shp_file_uri;
+                  if (dlResult.data.range_csv_file_uri) species.range_csv_file_uri = dlResult.data.range_csv_file_uri;
+                }
+              } catch (e) {
+                console.warn(`IUCN file download skipped for ${species.scientific_name}:`, e.message);
+              }
+            }
+
             // Save IUCN species to database
             for (const species of detailedSpecies) {
               try {
