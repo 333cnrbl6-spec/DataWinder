@@ -46,10 +46,10 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={page}
                     to={createPageUrl(page)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                       isActive
-                        ? 'bg-bangor-red text-white shadow-sm'
-                        : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
+                        ? 'bg-bangor-red text-white shadow-sm scale-[1.02]'
+                        : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red hover:scale-[1.02]'
                     }`}
                   >
                     {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
