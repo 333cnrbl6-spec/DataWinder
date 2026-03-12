@@ -165,8 +165,6 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
               {species.range_map_jpg_file_uri ? (
                 <FileChip icon={Map} label="Map" color="slate"
                   onClick={() => downloadFile(species.range_map_jpg_file_uri, `${safeName}_range_map.jpg`)} />
-              ) : species.range_map_jpg_url ? (
-                <FileChip icon={Map} label="Map ↗" color="slate" href={species.range_map_jpg_url} />
               ) : null}
               {species.range_shp_file_uri && (
                 <FileChip icon={Download} label="SHP" color="green"
