@@ -189,10 +189,10 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
             <div className="flex gap-4">
               {species.image_url ? (
                 <img src={species.image_url} alt={species.scientific_name}
-                  className="w-32 h-32 object-cover rounded-lg flex-shrink-0" />
+                  className="w-36 h-36 object-cover rounded-xl flex-shrink-0 shadow-md" />
               ) : (
-                <div className="w-32 h-32 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Leaf className="w-10 h-10 text-slate-300" />
+                <div className="w-36 h-36 bg-gradient-to-br from-bangor-red/5 to-bangor-sun/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Leaf className="w-12 h-12 text-bangor-red/20" />
                 </div>
               )}
               <div className="flex-1 space-y-2">
