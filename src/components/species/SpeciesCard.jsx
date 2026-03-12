@@ -258,7 +258,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
 
             {/* Status History */}
             {species.status_history?.length > 1 && (
-              <div className="bg-slate-50 rounded-lg p-3">
+              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
                 <h4 className="text-sm font-semibold text-slate-700 mb-2">Status History</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {species.status_history.map((h, i) => (
