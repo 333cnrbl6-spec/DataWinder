@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
+import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X, HardHat } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
+  { value: 'genus', label: 'Genus', placeholder: 'e.g., Callithrix' },
   { value: 'family', label: 'Family', placeholder: 'e.g., Callitrichidae' },
   { value: 'order', label: 'Order', placeholder: 'e.g., Primates' },
   { value: 'class', label: 'Class', placeholder: 'e.g., Mammalia' }
