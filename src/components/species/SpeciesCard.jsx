@@ -158,13 +158,21 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                 <FileChip icon={Download} label="GBIF CSV" color="blue"
                   onClick={() => downloadFile(species.gbif_occurrences_csv_file_uri, `${safeName}_gbif.csv`)} />
               )}
-              {species.assessment_pdf_url && (
-                <FileChip icon={FileText} label="PDF ↗" color="red"
-                  href={species.assessment_pdf_url} />
-              )}
-              {species.range_map_jpg_url && (
-                <FileChip icon={Map} label="Map ↗" color="slate"
-                  href={species.range_map_jpg_url} />
+              {species.assessment_pdf_file_uri ? (
+                <FileChip icon={FileText} label="PDF" color="red"
+                  onClick={() => downloadFile(species.assessment_pdf_file_uri, `${safeName}_assessment.pdf`)} />
+              ) : species.assessment_pdf_url ? (
+                <FileChip icon={FileText} label="PDF ↗" color="red" href={species.assessment_pdf_url} />
+              ) : null}
+              {species.range_map_jpg_file_uri ? (
+                <FileChip icon={Map} label="Map" color="slate"
+                  onClick={() => downloadFile(species.range_map_jpg_file_uri, `${safeName}_range_map.jpg`)} />
+              ) : species.range_map_jpg_url ? (
+                <FileChip icon={Map} label="Map ↗" color="slate" href={species.range_map_jpg_url} />
+              ) : null}
+              {species.range_shp_file_uri && (
+                <FileChip icon={Download} label="SHP" color="green"
+                  onClick={() => downloadFile(species.range_shp_file_uri, `${safeName}_range.zip`)} />
               )}
             </div>
 
