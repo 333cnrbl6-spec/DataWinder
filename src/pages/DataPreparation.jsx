@@ -104,6 +104,7 @@ export default function DataPreparation() {
       exportName: exportName.trim(),
       exportDescription: exportDescription.trim(),
       outlierExclusions,
+      spatialThinning: spatialThinning.enabled ? spatialThinning : null,
     });
     setIsGenerating(false);
     setExportName('');
