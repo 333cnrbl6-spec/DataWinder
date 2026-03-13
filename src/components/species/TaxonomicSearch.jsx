@@ -144,25 +144,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <h2 className="text-lg font-semibold text-slate-900">Search Multiple Data Sources</h2>
       </div>
       
-      <p className="text-sm text-slate-500 mb-3">
-        Search for species by taxonomic group. Data will be fetched from IUCN Red List, iNaturalist and GBIF.
+      <p className="text-sm text-slate-500 mb-4">
+        Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
       </p>
-      <div className="flex flex-wrap items-center gap-1.5 mb-4">
-        <span className="text-xs text-slate-400">Coming soon:</span>
-        {[
-          { name: 'OBIS', color: '#5B7FA6' },
-          { name: 'AquaMaps', color: '#1A6B8A' },
-          { name: 'eBird', color: '#B85C2A' },
-        ].map(s => (
-          <span
-            key={s.name}
-            className="text-xs px-2 py-0.5 rounded-full font-medium text-white opacity-50 cursor-default italic"
-            style={{ backgroundColor: s.color }}
-          >
-            {s.name}
-          </span>
-        ))}
-      </div>
 
       {/* IUCN Credentials */}
       <div className="mb-4">
@@ -410,23 +394,70 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
-            <p className="text-sm text-slate-600 mb-4">
-              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">Add Species to Dataset?</h3>
+            <p className="text-sm text-slate-500 mb-4">
+              Fetching data for <strong>{level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}</strong>. Select which sources to include:
             </p>
-            
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-inat"
-                 name="include-inat"
-                 type="checkbox"
-                 checked={includeINat}
-                 onChange={(e) => setIncludeINat(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
+
+            {/* Active sources */}
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Include observation & occurrence data from</p>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {/* IUCN — always on, not togglable */}
+              <div className="flex items-center gap-2 p-2.5 rounded-xl border-2 border-red-200 bg-red-50 opacity-80">
+                <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center shrink-0">
+                  <img src="https://www.google.com/s2/favicons?domain=iucnredlist.org&sz=16" alt="IUCN" className="w-4 h-4" onError={(e) => e.target.style.display='none'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-700">IUCN Red List</div>
+                  <div className="text-xs text-slate-400">Always included</div>
+                </div>
+                <div className="w-4 h-4 rounded bg-red-500 flex items-center justify-center shrink-0">
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+              </div>
+
+              {/* iNaturalist — toggleable */}
+              <label className={`flex items-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer transition-all ${includeINat ? 'border-green-300 bg-green-50' : 'border-slate-200 bg-slate-50'}`}>
+                <div className="w-7 h-7 rounded-lg bg-[#74AC00] flex items-center justify-center shrink-0">
+                  <img src="https://www.google.com/s2/favicons?domain=inaturalist.org&sz=16" alt="iNat" className="w-4 h-4" onError={(e) => e.target.style.display='none'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-700">iNaturalist</div>
+                  <div className="text-xs text-slate-400">Observations</div>
+                </div>
+                <input type="checkbox" checked={includeINat} onChange={(e) => setIncludeINat(e.target.checked)} className="w-4 h-4 accent-green-500 shrink-0" />
+              </label>
+
+              {/* GBIF — toggleable */}
+              <label className={`flex items-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer transition-all ${includeINat ? 'border-green-300 bg-green-50' : 'border-slate-200 bg-slate-50'}`}>
+                <div className="w-7 h-7 rounded-lg bg-[#4CAF50] flex items-center justify-center shrink-0">
+                  <img src="https://www.google.com/s2/favicons?domain=gbif.org&sz=16" alt="GBIF" className="w-4 h-4" onError={(e) => e.target.style.display='none'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-700">GBIF</div>
+                  <div className="text-xs text-slate-400">Occurrences</div>
+                </div>
+                <input type="checkbox" checked={includeINat} onChange={(e) => setIncludeINat(e.target.checked)} className="w-4 h-4 accent-green-500 shrink-0" />
+              </label>
+            </div>
+
+            {/* Coming soon sources */}
+            <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">Coming soon</p>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[
+                { name: 'OBIS', sub: 'Marine data', color: '#5B7FA6', domain: 'obis.org' },
+                { name: 'AquaMaps', sub: 'Aquatic', color: '#1A6B8A', domain: 'aquamaps.org' },
+                { name: 'eBird', sub: 'Bird obs.', color: '#B85C2A', domain: 'ebird.org' },
+              ].map(s => (
+                <div key={s.name} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 opacity-40 cursor-not-allowed">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: s.color }}>
+                    <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=16`} alt={s.name} className="w-4 h-4" onError={(e) => e.target.style.display='none'} />
+                  </div>
+                  <div className="text-xs font-bold text-slate-600 text-center">{s.name}</div>
+                  <div className="text-xs text-slate-400 text-center">{s.sub}</div>
+                </div>
+              ))}
+            </div>
 
             <div className="flex gap-3">
               <Button
