@@ -75,14 +75,24 @@ Deno.serve(async (req) => {
     const rows = ['species,longitude,latitude'];
     species.forEach(sp => {
       const { observations, gbif_occurrences } = getObservations(sp);
+
+      // Build unified point list for this species
+      let points = [];
       observations.forEach(obs => {
         if (obs.longitude != null && obs.latitude != null)
-          rows.push(csvRow([sp.scientific_name, obs.longitude, obs.latitude]));
+          points.push({ lat: obs.latitude, lon: obs.longitude, row: csvRow([sp.scientific_name, obs.longitude, obs.latitude]) });
       });
       gbif_occurrences.forEach(occ => {
         if (occ.decimalLongitude != null && occ.decimalLatitude != null)
-          rows.push(csvRow([sp.scientific_name, occ.decimalLongitude, occ.decimalLatitude]));
+          points.push({ lat: occ.decimalLatitude, lon: occ.decimalLongitude, row: csvRow([sp.scientific_name, occ.decimalLongitude, occ.decimalLatitude]) });
       });
+
+      // Apply spatial thinning if configured
+      if (spatialThinning?.enabled && spatialThinning.minDistanceKm > 0) {
+        points = spatialThin(points, spatialThinning.minDistanceKm);
+      }
+
+      points.forEach(p => rows.push(p.row));
     });
     zip.file('maxent_occurrences.csv', rows.join('\n'));
   }
