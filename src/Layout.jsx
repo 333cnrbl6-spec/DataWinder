@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2 } from 'lucide-react';
+import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
