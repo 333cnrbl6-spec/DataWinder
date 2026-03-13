@@ -95,16 +95,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.fetchIUCNData({
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
           iucnToken: iucnToken
         });
 
-        const resultData = result.data;
-        if (resultData?.status === 'success' && resultData?.data?.result && resultData.data.result.length > 0) {
-          setFamilySpecies(resultData.data.result);
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -145,9 +144,25 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <h2 className="text-lg font-semibold text-slate-900">Search Multiple Data Sources</h2>
       </div>
       
-      <p className="text-sm text-slate-500 mb-4">
-        Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
+      <p className="text-sm text-slate-500 mb-3">
+        Search for species by taxonomic group. Data will be fetched from IUCN Red List, iNaturalist and GBIF.
       </p>
+      <div className="flex flex-wrap items-center gap-1.5 mb-4">
+        <span className="text-xs text-slate-400">Coming soon:</span>
+        {[
+          { name: 'OBIS', color: '#5B7FA6' },
+          { name: 'AquaMaps', color: '#1A6B8A' },
+          { name: 'eBird', color: '#B85C2A' },
+        ].map(s => (
+          <span
+            key={s.name}
+            className="text-xs px-2 py-0.5 rounded-full font-medium text-white opacity-50 cursor-default italic"
+            style={{ backgroundColor: s.color }}
+          >
+            {s.name}
+          </span>
+        ))}
+      </div>
 
       {/* IUCN Credentials */}
       <div className="mb-4">
