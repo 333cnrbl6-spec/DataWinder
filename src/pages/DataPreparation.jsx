@@ -281,6 +281,24 @@ export default function DataPreparation() {
           </CardContent>
         </Card>
 
+        {/* ── Spatial Thinning ── */}
+        <Card className="shadow-lg border-bangor-sun/20">
+          <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+            <CardTitle className="text-bangor-red flex items-center gap-2 text-base">
+              <GitMerge className="w-4 h-4" />
+              Spatial Thinning
+            </CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5">Reduce spatial autocorrelation in MAXENT occurrence output (recommended for SDMs)</p>
+          </CardHeader>
+          <CardContent className="p-4">
+            <SpatialThinningPanel
+              value={spatialThinning}
+              onChange={setSpatialThinning}
+              stats={spatialThinningStats}
+            />
+          </CardContent>
+        </Card>
+
         {/* ── Step 2: Data Types ── */}
         <Card className="shadow-lg border-bangor-sun/20">
           <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
