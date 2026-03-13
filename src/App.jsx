@@ -6,6 +6,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import DataPreparation from './pages/DataPreparation';
+import OutlierScanAll from './pages/OutlierScanAll';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/DataPreparation" element={<LayoutWrapper currentPageName="DataPreparation"><DataPreparation /></LayoutWrapper>} />
+      <Route path="/OutlierScanAll" element={<LayoutWrapper currentPageName="OutlierScanAll"><OutlierScanAll /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

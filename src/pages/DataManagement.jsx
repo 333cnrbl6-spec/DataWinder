@@ -1321,6 +1321,16 @@ export default function DataManagement() {
                     {isEnrichingNames ? 'Fetching Common Names…' : `Auto-fill Common Names (${allSpecies.filter(sp => !sp.common_name).length} missing)`}
                   </Button>
 
+                  {/* Scan All Outliers */}
+                  <Button
+                    onClick={() => window.location.href = createPageUrl('OutlierScanAll')}
+                    className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-white mt-2"
+                    disabled={!allSpecies.some(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)}
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Scan All Outliers (Multi-Species Map)
+                  </Button>
+
                   {/* Merge Duplicate Records */}
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Merging</h3>

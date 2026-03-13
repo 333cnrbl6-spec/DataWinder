@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PackageOpen, Loader2, RefreshCw, X } from 'lucide-react';
+import { PackageOpen, Loader2, RefreshCw, X, ShieldAlert } from 'lucide-react';
 import TaxonomicSelector from '@/components/dataprep/TaxonomicSelector';
+import { detectOutliers } from '@/lib/outlierDetection';
 import DataTypeSelector from '@/components/dataprep/DataTypeSelector';
 import ExportFileCard from '@/components/dataprep/ExportFileCard';
 
@@ -25,6 +26,7 @@ export default function DataPreparation() {
   const [exportName, setExportName] = useState('');
   const [exportDescription, setExportDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [outlierHandling, setOutlierHandling] = useState('include_all');
   const [generateError, setGenerateError] = useState('');
 
   const { data: allSpecies = [] } = useQuery({
@@ -47,6 +49,17 @@ export default function DataPreparation() {
     [allSpecies, selectedSpeciesIds]
   );
 
+  const outlierExclusionCount = useMemo(() => {
+    if (outlierHandling === 'include_all' || !selectedSpecies.length) return 0;
+    return selectedSpecies.reduce((total, sp) => {
+      const { flagged } = detectOutliers(sp);
+      const excluded = outlierHandling === 'exclude_high'
+        ? flagged.filter(f => f.confidence >= 75)
+        : flagged;
+      return total + excluded.length;
+    }, 0);
+  }, [selectedSpecies, outlierHandling]);
+
   const loadFromSearch = (search) => {
     const s = search.search_term.toLowerCase();
     const matching = allSpecies.filter(sp =>
@@ -64,11 +77,31 @@ export default function DataPreparation() {
     if (!selectedSpeciesIds.length) { setGenerateError('Please select at least one species.'); return; }
     if (!selectedDataTypes.length) { setGenerateError('Please select at least one data type.'); return; }
     setIsGenerating(true);
+
+    // Build per-species outlier exclusions if filtering is active
+    let outlierExclusions = null;
+    if (outlierHandling !== 'include_all') {
+      outlierExclusions = {};
+      for (const sp of selectedSpecies) {
+        const { flagged } = detectOutliers(sp);
+        const toExclude = outlierHandling === 'exclude_high'
+          ? flagged.filter(f => f.confidence >= 75)
+          : flagged;
+        if (toExclude.length > 0) {
+          outlierExclusions[sp.id] = {
+            inatIdxs: toExclude.filter(f => f.source === 'iNaturalist').map(f => f.idx),
+            gbifIdxs: toExclude.filter(f => f.source === 'GBIF').map(f => f.idx),
+          };
+        }
+      }
+    }
+
     await base44.functions.invoke('generateExportFile', {
       speciesIds: selectedSpeciesIds,
       dataTypes: selectedDataTypes,
       exportName: exportName.trim(),
       exportDescription: exportDescription.trim(),
+      outlierExclusions,
     });
     setIsGenerating(false);
     setExportName('');
@@ -169,6 +202,50 @@ export default function DataPreparation() {
                 >
                   <X className="w-3 h-3" /> Clear all
                 </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Outlier Handling ── */}
+        <Card className="shadow-lg border-bangor-sun/20">
+          <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+            <CardTitle className="text-bangor-red flex items-center gap-2 text-base">
+              <ShieldAlert className="w-4 h-4" />
+              Outlier Handling
+            </CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5">Choose how statistically suspect occurrence points are treated in the export</p>
+          </CardHeader>
+          <CardContent className="p-4 space-y-2">
+            {[
+              { value: 'include_all',         label: 'Include all points',                       desc: 'No filtering — export every occurrence record as-is' },
+              { value: 'exclude_high',        label: 'Exclude high-confidence outliers (≥75%)',  desc: 'Removes invalid coords and strong IQR deviations; keeps low-confidence duplicates' },
+              { value: 'exclude_all_flagged', label: 'Exclude all flagged points',               desc: 'Removes everything flagged by any check, including low-confidence duplicates' },
+            ].map(opt => (
+              <label
+                key={opt.value}
+                className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${outlierHandling === opt.value ? 'border-bangor-red bg-bangor-red/5' : 'border-slate-200 hover:border-slate-300 bg-white'}`}
+              >
+                <input
+                  type="radio"
+                  name="outlierHandling"
+                  value={opt.value}
+                  checked={outlierHandling === opt.value}
+                  onChange={e => setOutlierHandling(e.target.value)}
+                  className="mt-0.5 accent-red-600"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">{opt.label}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{opt.desc}</p>
+                </div>
+              </label>
+            ))}
+            {outlierHandling !== 'include_all' && selectedSpeciesIds.length > 0 && (
+              <div className="mt-1 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>
+                  <strong>{outlierExclusionCount}</strong> occurrence point{outlierExclusionCount !== 1 ? 's' : ''} would be excluded across the {selectedSpeciesIds.length} selected species.
+                </span>
               </div>
             )}
           </CardContent>
