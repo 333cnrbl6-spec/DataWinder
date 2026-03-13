@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
   { label: 'Species Search', page: 'Home', icon: Search },
   { label: 'My Data', page: 'SavedData', icon: FolderOpen },
   { label: 'Data Management', page: 'DataManagement', icon: Database },
-  { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: Map },
+  { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
   { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
   { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
   { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
   { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
   { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
   { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
+  { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
 ];
 
 export default function Layout({ children, currentPageName }) {

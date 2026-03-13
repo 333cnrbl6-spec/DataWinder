@@ -10,6 +10,7 @@ import OutlierScanAll from './pages/OutlierScanAll';
 import VariableSelector from './pages/VariableSelector';
 import ModelReadinessCheck from './pages/ModelReadinessCheck';
 import ModelPerformance from './pages/ModelPerformance';
+import MaxentResultsMap from './pages/MaxentResultsMap';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
       <Route path="/VariableSelector" element={<LayoutWrapper currentPageName="VariableSelector"><VariableSelector /></LayoutWrapper>} />
       <Route path="/ModelReadinessCheck" element={<LayoutWrapper currentPageName="ModelReadinessCheck"><ModelReadinessCheck /></LayoutWrapper>} />
       <Route path="/ModelPerformance" element={<LayoutWrapper currentPageName="ModelPerformance"><ModelPerformance /></LayoutWrapper>} />
+      <Route path="/MaxentResultsMap" element={<LayoutWrapper currentPageName="MaxentResultsMap"><MaxentResultsMap /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
