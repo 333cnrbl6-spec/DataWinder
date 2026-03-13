@@ -1,18 +1,33 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, GitMerge, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, AlertCircle, GitMerge, X, Crown, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const COMPARE_FIELDS = [
+  { key: 'common_name', label: 'Common Name' },
+  { key: 'kingdom', label: 'Kingdom' },
+  { key: 'phylum', label: 'Phylum' },
+  { key: 'class_name', label: 'Class' },
+  { key: 'order_name', label: 'Order' },
+  { key: 'family', label: 'Family' },
+  { key: 'genus', label: 'Genus' },
+  { key: 'iucn_status', label: 'IUCN Status' },
+  { key: 'habitat', label: 'Habitat' },
+  { key: 'inat_taxon_id', label: 'iNaturalist ID' },
+  { key: 'gbif_id', label: 'GBIF ID' },
+];
 
 export default function DuplicateReviewModal({ review, onClose, onMerge, onDismiss }) {
   const [selectedCanonical, setSelectedCanonical] = useState(review.ai_analysis?.suggested_canonical_id);
-  const [expandedSpecs, setExpandedSpecs] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
 
   const speciesInGroup = review.duplicate_species_data || [];
+
+  const relevantFields = COMPARE_FIELDS.filter(f =>
+    speciesInGroup.some(sp => sp[f.key])
+  );
 
   const handleMerge = async () => {
     setIsProcessing(true);
@@ -21,18 +36,13 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
         .filter(sp => sp.id !== selectedCanonical)
         .map(sp => sp.id);
 
-      // Create merge record
-      const mergeData = {
+      await base44.entities.PendingSpeciesReview.update(review.id, {
         review_group_id: review.review_group_id,
         canonical_id: selectedCanonical,
         records_to_delete: recordsToDelete,
         status: 'merged'
-      };
+      });
 
-      // Update review record
-      await base44.entities.PendingSpeciesReview.update(review.id, mergeData);
-      
-      // Notify parent
       onMerge(review.id, recordsToDelete);
     } catch (error) {
       console.error('Merge error:', error);
@@ -45,17 +55,16 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
   const handleDismiss = async () => {
     setIsProcessing(true);
     try {
-      await base44.entities.PendingSpeciesReview.update(review.id, { 
-        status: 'dismissed' 
-      });
+      await base44.entities.PendingSpeciesReview.update(review.id, { status: 'dismissed' });
       onDismiss(review.id);
     } catch (error) {
-      console.error('Dismiss error:', error);
       alert('Failed to dismiss review');
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const masterSpecies = speciesInGroup.find(s => s.id === selectedCanonical);
 
   return (
     <motion.div
@@ -68,147 +77,160 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
         initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.95 }}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
       >
-        <DialogHeader className="p-6 border-b border-slate-200 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-bangor-red" />
-              <DialogTitle>Review Potential Duplicates</DialogTitle>
+        {/* Header */}
+        <div className="p-5 border-b border-slate-200 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 flex items-center justify-between sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-bangor-red" />
+            <div>
+              <h2 className="font-semibold text-slate-900">Review Potential Duplicates</h2>
+              <p className="text-xs text-slate-500 mt-0.5 max-w-xl">{review.ai_analysis.reason}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
-        </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-bangor-red/20 text-bangor-red">{review.ai_analysis.confidence}% confidence</Badge>
+            <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4" /></Button>
+          </div>
+        </div>
 
         <div className="p-6 space-y-6">
-          {/* AI Analysis Summary */}
-          <Card className="border-bangor-sun/20 bg-bangor-sun/5">
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                AI Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-slate-700"><strong>Reason:</strong> {review.ai_analysis.reason}</p>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">Confidence:</span>
-                <Badge className="bg-bangor-red/20 text-bangor-red">
-                  {review.ai_analysis.confidence}%
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Species Comparison */}
+          {/* Step 1: Pick master */}
           <div>
-            <h3 className="text-sm font-semibold text-slate-700 mb-3">Suspected Duplicates</h3>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-full bg-bangor-red text-white text-xs flex items-center justify-center font-bold">1</div>
+              <h3 className="font-semibold text-slate-800">Select the Master Record to Keep</h3>
+            </div>
+            <div className={`grid gap-3 ${speciesInGroup.length === 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
               {speciesInGroup.map((species) => {
                 const isCanonical = species.id === selectedCanonical;
                 const isAISuggested = species.id === review.ai_analysis?.suggested_canonical_id;
-                
                 return (
-                  <motion.div
+                  <button
                     key={species.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <Card className={`border-2 cursor-pointer transition-all ${
-                      isCanonical 
-                        ? 'border-bangor-red/50 bg-bangor-red/5' 
-                        : 'border-slate-200 hover:border-bangor-sun/50'
-                    }`}
                     onClick={() => setSelectedCanonical(species.id)}
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle className="text-base">{species.scientific_name}</CardTitle>
-                              {isCanonical && (
-                                <Badge className="bg-bangor-red text-white">
-                                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                                  Master
-                                </Badge>
-                              )}
-                              {isAISuggested && !isCanonical && (
-                                <Badge variant="outline" className="border-bangor-sun">
-                                  AI Suggested
-                                </Badge>
-                              )}
-                            </div>
-                            {species.common_name && (
-                              <p className="text-sm text-slate-500 mt-1">{species.common_name}</p>
-                            )}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedSpecs(prev => ({
-                                ...prev,
-                                [species.id]: !prev[species.id]
-                              }));
-                            }}
-                          >
-                            {expandedSpecs[species.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </CardHeader>
-
-                      <AnimatePresence>
-                        {expandedSpecs[species.id] && (
-                          <CardContent className="space-y-2 text-sm border-t border-slate-200 pt-4">
-                            {[
-                              { label: 'Kingdom', value: species.kingdom },
-                              { label: 'Phylum', value: species.phylum },
-                              { label: 'Class', value: species.class_name },
-                              { label: 'Order', value: species.order_name },
-                              { label: 'Family', value: species.family },
-                              { label: 'Genus', value: species.genus },
-                              { label: 'IUCN Status', value: species.iucn_status }
-                            ].map(({ label, value }) => (
-                              value && (
-                                <div key={label} className="flex justify-between">
-                                  <span className="text-slate-600">{label}:</span>
-                                  <span className="font-medium">{value}</span>
-                                </div>
-                              )
-                            ))}
-                          </CardContent>
+                    className={`text-left rounded-xl border-2 p-4 transition-all w-full ${
+                      isCanonical
+                        ? 'border-bangor-red bg-bangor-red/5 shadow-md'
+                        : 'border-slate-200 hover:border-bangor-sun/50 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        isCanonical ? 'border-bangor-red bg-bangor-red' : 'border-slate-300'
+                      }`}>
+                        {isCanonical && <div className="w-2 h-2 rounded-full bg-white" />}
+                      </div>
+                      <div className="flex gap-1 flex-wrap">
+                        {isCanonical && (
+                          <Badge className="bg-bangor-red text-white text-xs">
+                            <Crown className="w-3 h-3 mr-1" />Master
+                          </Badge>
                         )}
-                      </AnimatePresence>
-                    </Card>
-                  </motion.div>
+                        {isAISuggested && (
+                          <Badge variant="outline" className="border-bangor-sun text-bangor-sun text-xs">AI Pick</Badge>
+                        )}
+                        {!isCanonical && (
+                          <Badge variant="outline" className="border-red-300 text-red-400 text-xs">
+                            <Trash2 className="w-3 h-3 mr-1" />Delete
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <p className="font-semibold text-slate-900 text-sm italic">{species.scientific_name}</p>
+                    {species.common_name && <p className="text-xs text-slate-500 mt-0.5">{species.common_name}</p>}
+                    <div className="mt-2 space-y-1">
+                      {species.iucn_status && (
+                        <p className="text-xs text-slate-500">IUCN: <span className="font-medium text-slate-700">{species.iucn_status}</span></p>
+                      )}
+                      {species.family && (
+                        <p className="text-xs text-slate-500">Family: <span className="font-medium text-slate-700">{species.family}</span></p>
+                      )}
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </div>
 
+          {/* Step 2: Field comparison */}
+          {relevantFields.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-full bg-slate-400 text-white text-xs flex items-center justify-center font-bold">2</div>
+                <h3 className="font-semibold text-slate-800">Field Comparison</h3>
+                <span className="text-xs text-slate-400">⚠ = conflicting values between records</span>
+              </div>
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="text-left p-3 font-semibold text-slate-600 w-32 text-xs">Field</th>
+                      {speciesInGroup.map(sp => (
+                        <th
+                          key={sp.id}
+                          className={`text-left p-3 font-semibold text-xs ${
+                            sp.id === selectedCanonical
+                              ? 'text-bangor-red bg-bangor-red/5'
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          <span className="italic">{sp.scientific_name}</span>
+                          {sp.id === selectedCanonical && (
+                            <span className="ml-1 not-italic font-normal">(Master)</span>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {relevantFields.map((field, i) => {
+                      const values = speciesInGroup.map(sp => sp[field.key]);
+                      const hasConflict = new Set(values.filter(Boolean)).size > 1;
+                      return (
+                        <tr
+                          key={field.key}
+                          className={`border-t border-slate-100 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} ${hasConflict ? 'bg-amber-50/60' : ''}`}
+                        >
+                          <td className="p-3 font-medium text-slate-500 text-xs">
+                            {field.label}
+                            {hasConflict && <span className="ml-1 text-amber-500">⚠</span>}
+                          </td>
+                          {speciesInGroup.map(sp => (
+                            <td
+                              key={sp.id}
+                              className={`p-3 text-xs ${
+                                sp.id === selectedCanonical
+                                  ? 'text-slate-900 font-medium'
+                                  : 'text-slate-400'
+                              }`}
+                            >
+                              {String(sp[field.key] ?? '—')}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t border-slate-200">
             <Button
               onClick={handleMerge}
-              disabled={isProcessing}
+              disabled={isProcessing || !selectedCanonical}
               className="flex-1 bg-bangor-red hover:bg-bangor-red/90"
             >
               <GitMerge className="w-4 h-4 mr-2" />
-              {isProcessing ? 'Processing...' : 'Merge Selected'}
+              {isProcessing
+                ? 'Processing...'
+                : `Merge — Keep "${masterSpecies?.scientific_name || ''}"`}
             </Button>
-            <Button
-              onClick={handleDismiss}
-              disabled={isProcessing}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={handleDismiss} disabled={isProcessing} variant="outline" className="flex-1">
               <X className="w-4 h-4 mr-2" />
               Not a Duplicate
             </Button>
