@@ -44,6 +44,7 @@ export default function DataManagement() {
   const [showSaveSearch, setShowSaveSearch] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isRunningTaxonomyCheck, setIsRunningTaxonomyCheck] = useState(false);
+  const [isEnrichingNames, setIsEnrichingNames] = useState(false);
   const [showTaxonomyInfo, setShowTaxonomyInfo] = useState(false);
   const [metricsModal, setMetricsModal] = useState({ isOpen: false, type: null, title: null, data: null });
   const [showMergeModal, setShowMergeModal] = useState(false);
@@ -1297,6 +1298,28 @@ export default function DataManagement() {
                       </ul>
                     </div>
                   )}
+
+                  {/* Enrich Common Names */}
+                  <Button
+                    onClick={async () => {
+                      setIsEnrichingNames(true);
+                      try {
+                        const result = await base44.functions.invoke('enrichCommonNames', {});
+                        alert(`✓ ${result.data.message}`);
+                        refetchSpecies();
+                      } catch (err) {
+                        alert('Failed to enrich common names: ' + err.message);
+                      } finally {
+                        setIsEnrichingNames(false);
+                      }
+                    }}
+                    disabled={isEnrichingNames || allSpecies.length === 0}
+                    className="w-full justify-start bg-teal-600 hover:bg-teal-700 text-white mt-2"
+                    title="Automatically fills missing common names using iNaturalist and GBIF"
+                  >
+                    <Leaf className="w-4 h-4 mr-2" />
+                    {isEnrichingNames ? 'Fetching Common Names…' : `Auto-fill Common Names (${allSpecies.filter(sp => !sp.common_name).length} missing)`}
+                  </Button>
 
                   {/* Merge Duplicate Records */}
                   <div>
