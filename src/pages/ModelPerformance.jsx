@@ -46,6 +46,9 @@ export default function ModelPerformance() {
           <p className="mt-2 text-slate-600 max-w-2xl leading-relaxed">
             Review AUC, TSS, and feature importance for completed MAXENT runs. Select up to 4 runs to compare side-by-side.
           </p>
+          <div className="mt-4">
+            <ReportGenerator runs={selectedRuns} species={allSpecies} />
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
