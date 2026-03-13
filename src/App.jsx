@@ -65,6 +65,7 @@ const AuthenticatedApp = () => {
       <Route path="/DataPreparation" element={<LayoutWrapper currentPageName="DataPreparation"><DataPreparation /></LayoutWrapper>} />
       <Route path="/OutlierScanAll" element={<LayoutWrapper currentPageName="OutlierScanAll"><OutlierScanAll /></LayoutWrapper>} />
       <Route path="/VariableSelector" element={<LayoutWrapper currentPageName="VariableSelector"><VariableSelector /></LayoutWrapper>} />
+      <Route path="/ModelReadinessCheck" element={<LayoutWrapper currentPageName="ModelReadinessCheck"><ModelReadinessCheck /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
