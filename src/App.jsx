@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import DataPreparation from './pages/DataPreparation';
 import OutlierScanAll from './pages/OutlierScanAll';
+import VariableSelector from './pages/VariableSelector';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
