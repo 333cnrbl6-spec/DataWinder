@@ -25,7 +25,7 @@ function CheckItem({ icon: StepIcon, label, status, detail, linkLabel, linkTo })
       <cfg.Icon className={`w-5 h-5 mt-0.5 shrink-0 ${cfg.iconColor}`} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <Icon className="w-4 h-4 text-slate-500 shrink-0" />
+          <StepIcon className="w-4 h-4 text-slate-500 shrink-0" />
           <span className="text-sm font-semibold text-slate-800">{label}</span>
         </div>
         <p className={`text-xs mt-0.5 ${cfg.text}`}>{detail}</p>
