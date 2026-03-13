@@ -29,6 +29,7 @@ export default function DataPreparation() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [outlierHandling, setOutlierHandling] = useState('include_all');
   const [generateError, setGenerateError] = useState('');
+  const [spatialThinning, setSpatialThinning] = useState({ enabled: false, minDistanceKm: 10 });
 
   const { data: allSpecies = [] } = useQuery({
     queryKey: ['allSpecies'],
