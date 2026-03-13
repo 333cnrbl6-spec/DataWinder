@@ -7,6 +7,7 @@ import { BarChart2, GitCompare, Info, Layers } from 'lucide-react';
 import MetricCard from '@/components/maxent/MetricCard';
 import FeatureImportancePlot from '@/components/maxent/FeatureImportancePlot';
 import RunCompareSelector from '@/components/maxent/RunCompareSelector';
+import ReportGenerator from '@/components/maxent/ReportGenerator';
 
 export default function ModelPerformance() {
   const [selectedRuns, setSelectedRuns] = useState([]);
