@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
   { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
   { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
+  { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
 ];
 
 export default function Layout({ children, currentPageName }) {

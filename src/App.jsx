@@ -11,6 +11,7 @@ import VariableSelector from './pages/VariableSelector';
 import ModelReadinessCheck from './pages/ModelReadinessCheck';
 import ModelPerformance from './pages/ModelPerformance';
 import MaxentResultsMap from './pages/MaxentResultsMap';
+import MaxentBatchSubmit from './pages/MaxentBatchSubmit';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
       <Route path="/ModelReadinessCheck" element={<LayoutWrapper currentPageName="ModelReadinessCheck"><ModelReadinessCheck /></LayoutWrapper>} />
       <Route path="/ModelPerformance" element={<LayoutWrapper currentPageName="ModelPerformance"><ModelPerformance /></LayoutWrapper>} />
       <Route path="/MaxentResultsMap" element={<LayoutWrapper currentPageName="MaxentResultsMap"><MaxentResultsMap /></LayoutWrapper>} />
+      <Route path="/MaxentBatchSubmit" element={<LayoutWrapper currentPageName="MaxentBatchSubmit"><MaxentBatchSubmit /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
