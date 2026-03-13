@@ -45,6 +45,30 @@ const SOURCES = [
   },
 ];
 
+const COMING_SOON = [
+  {
+    name: 'OBIS',
+    short: 'OBIS',
+    url: 'https://obis.org',
+    color: '#5B7FA6',
+    favicon: 'obis.org'
+  },
+  {
+    name: 'AquaMaps',
+    short: 'AquaMaps',
+    url: 'https://www.aquamaps.org',
+    color: '#1A6B8A',
+    favicon: 'aquamaps.org'
+  },
+  {
+    name: 'eBird',
+    short: 'eBird',
+    url: 'https://ebird.org',
+    color: '#B85C2A',
+    favicon: 'ebird.org'
+  },
+];
+
 export default function DataSourceBadges({ size = 'sm', showLabel = false, sources }) {
   const displaySources = sources
     ? SOURCES.filter(s => sources.includes(s.short))
@@ -75,6 +99,19 @@ export default function DataSourceBadges({ size = 'sm', showLabel = false, sourc
             <span className="text-white/80 text-xs">{source.name}</span>
           )}
         </a>
+      ))}
+      {COMING_SOON.map(source => (
+        <span
+          key={source.short}
+          title={`${source.name} — Coming Soon`}
+          className="flex items-center gap-1.5 rounded-md px-2 py-1 opacity-50 cursor-default"
+          style={{ backgroundColor: source.color }}
+        >
+          <span className="text-white font-bold" style={{ fontSize: size === 'xs' ? '10px' : '11px' }}>
+            {source.short}
+          </span>
+          <span className="text-white/70 italic" style={{ fontSize: '9px' }}>soon</span>
+        </span>
       ))}
     </div>
   );
