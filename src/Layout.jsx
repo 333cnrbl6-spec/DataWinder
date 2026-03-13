@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
   { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
   { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
+  { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
 ];
 
 export default function Layout({ children, currentPageName }) {
