@@ -17,6 +17,11 @@ export default function ModelPerformance() {
     queryFn: () => base44.entities.MaxentRun.list('-created_date', 100),
   });
 
+  const { data: allSpecies = [] } = useQuery({
+    queryKey: ['species-slim'],
+    queryFn: () => base44.entities.Species.list('-created_date', 200),
+  });
+
   const completedRuns = allRuns.filter(r => r.status === 'completed');
 
   const toggleRun = (run) => {
