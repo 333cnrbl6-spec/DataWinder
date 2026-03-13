@@ -112,6 +112,33 @@ export default function DataPreparation() {
     queryClient.invalidateQueries({ queryKey: ['exportedFiles'] });
   };
 
+  // Haversine for spatial thinning preview
+  const haversineKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  const spatialThinningStats = useMemo(() => {
+    if (!spatialThinning.enabled || !selectedSpecies.length) return { total: 0, removed: 0 };
+    let total = 0, kept = 0;
+    for (const sp of selectedSpecies) {
+      const points = [];
+      (sp.observations || []).forEach(o => { if (o.latitude != null && o.longitude != null) points.push([o.latitude, o.longitude]); });
+      (sp.gbif_occurrences || []).forEach(o => { if (o.decimalLatitude != null && o.decimalLongitude != null) points.push([o.decimalLatitude, o.decimalLongitude]); });
+      total += points.length;
+      const retained = [];
+      for (const p of points) {
+        if (!retained.some(r => haversineKm(p[0], p[1], r[0], r[1]) < spatialThinning.minDistanceKm)) retained.push(p);
+      }
+      kept += retained.length;
+    }
+    return { total, removed: total - kept };
+  }, [selectedSpecies, spatialThinning]);
+
   const canGenerate = selectedSpeciesIds.length > 0 && selectedDataTypes.length > 0 && !isGenerating;
 
   return (
