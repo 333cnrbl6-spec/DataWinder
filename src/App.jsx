@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import DataPreparation from './pages/DataPreparation';
 import OutlierScanAll from './pages/OutlierScanAll';
 import VariableSelector from './pages/VariableSelector';
+import ModelReadinessCheck from './pages/ModelReadinessCheck';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
