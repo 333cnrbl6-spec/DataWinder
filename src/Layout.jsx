@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck } from 'lucide-react';
+import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
   { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
   { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
+  { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
 ];
 
 export default function Layout({ children, currentPageName }) {
