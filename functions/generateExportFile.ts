@@ -1,6 +1,26 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import JSZip from 'npm:jszip@3.10.1';
 
+// Haversine distance in km between two lat/lon points
+const haversineKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+// Spatial thinning: retain only points with minDistKm between each
+const spatialThin = (points, minDistKm) => {
+  const kept = [];
+  for (const pt of points) {
+    const tooClose = kept.some(k => haversineKm(pt.lat, pt.lon, k.lat, k.lon) < minDistKm);
+    if (!tooClose) kept.push(pt);
+  }
+  return kept;
+};
+
 const csvEscape = (val) => {
   const s = String(val ?? '').replace(/"/g, '""');
   return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
