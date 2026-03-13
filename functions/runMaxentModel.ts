@@ -10,51 +10,58 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { run_id, species_name, parameters, layer_names, occurrence_count } = body;
+    const { run_id, species_name, parameters, layer_names, occurrence_count, occurrence_csv_url } = body;
 
     if (!run_id) {
       return Response.json({ error: 'run_id is required' }, { status: 400 });
     }
 
-    // Update status to submitted and record timestamp
+    const MAXENT_API_URL = Deno.env.get('MAXENT_API_URL');
+    const MAXENT_API_KEY = Deno.env.get('MAXENT_API_KEY');
+
+    if (!MAXENT_API_URL || !MAXENT_API_KEY) {
+      // No external service configured — mark as submitted/placeholder
+      await base44.asServiceRole.entities.MaxentRun.update(run_id, {
+        status: 'submitted',
+        notes: `Submitted at ${new Date().toISOString()} by ${user.email}. No external MAXENT service configured (MAXENT_API_URL / MAXENT_API_KEY not set).`,
+      });
+      return Response.json({ status: 'submitted', message: 'Run saved. Configure MAXENT_API_URL and MAXENT_API_KEY to enable processing.', run_id });
+    }
+
+    // Submit job to external MAXENT service
+    const response = await fetch(`${MAXENT_API_URL}/runs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MAXENT_API_KEY}`,
+      },
+      body: JSON.stringify({
+        species: species_name,
+        occurrence_csv_url: occurrence_csv_url || null,
+        layer_names: layer_names || [],
+        parameters: parameters || {},
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      await base44.asServiceRole.entities.MaxentRun.update(run_id, {
+        status: 'failed',
+        notes: `Submission failed at ${new Date().toISOString()}: HTTP ${response.status} — ${errText}`,
+      });
+      return Response.json({ error: `MAXENT service error: ${response.status}`, detail: errText }, { status: 502 });
+    }
+
+    const result = await response.json();
+    const externalJobId = result.job_id || result.id || result.run_id;
+
     await base44.asServiceRole.entities.MaxentRun.update(run_id, {
-      status: 'submitted',
-      notes: `Submitted at ${new Date().toISOString()} by ${user.email}. Awaiting external MAXENT service connection.\n\nSpecies: ${species_name}\nOccurrence records: ${occurrence_count}\nEnvironmental layers: ${(layer_names || []).join(', ')}\n\nTo connect a real MAXENT service, replace the placeholder block in this function with your API call.`,
+      status: 'running',
+      external_job_id: externalJobId,
+      notes: `Job submitted at ${new Date().toISOString()} by ${user.email}. External job ID: ${externalJobId}`,
     });
 
-    // ─── EXTERNAL MAXENT SERVICE HOOK ────────────────────────────────────────
-    // Replace this block when connecting to a real MAXENT service:
-    //
-    // const MAXENT_API_URL = Deno.env.get('MAXENT_API_URL');
-    // const MAXENT_API_KEY = Deno.env.get('MAXENT_API_KEY');
-    //
-    // const response = await fetch(`${MAXENT_API_URL}/runs`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${MAXENT_API_KEY}`,
-    //   },
-    //   body: JSON.stringify({
-    //     species: species_name,
-    //     occurrence_csv_url: body.occurrence_csv_url,
-    //     layer_names,
-    //     parameters,
-    //   }),
-    // });
-    //
-    // const result = await response.json();
-    //
-    // await base44.asServiceRole.entities.MaxentRun.update(run_id, {
-    //   status: 'running',
-    //   external_job_id: result.job_id,
-    // });
-    // ─────────────────────────────────────────────────────────────────────────
-
-    return Response.json({
-      status: 'success',
-      message: `Model run saved (ID: ${run_id}). Connect an external MAXENT service to process it.`,
-      run_id,
-    });
+    return Response.json({ status: 'running', run_id, external_job_id: externalJobId });
 
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
