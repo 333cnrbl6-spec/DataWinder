@@ -180,6 +180,57 @@ export default function ParametersPanel({ parameters, onChange }) {
           )}
         </ParamRow>
 
+        {/* ── Feature Types ── */}
+        <ParamRow
+          label={
+            <>
+              Feature Types
+              <HelpTip text="These control the shape of the response curves MAXENT fits for each variable. Linear and Hinge are good defaults for most datasets. Quadratic adds curvature. Product captures interactions. Threshold creates step-changes. Only add more if you have plenty of occurrence records (50+)." />
+            </>
+          }
+          description="Which mathematical shapes can the model use to fit species responses?"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {[
+              { key: 'linear',    label: 'Linear',    symbol: 'L', desc: 'Straight-line response',    recommended: true  },
+              { key: 'quadratic', label: 'Quadratic', symbol: 'Q', desc: 'Curved (unimodal) response', recommended: true  },
+              { key: 'hinge',     label: 'Hinge',     symbol: 'H', desc: 'Piecewise linear segments',  recommended: true  },
+              { key: 'product',   label: 'Product',   symbol: 'P', desc: 'Variable interactions',      recommended: false },
+              { key: 'threshold', label: 'Threshold', symbol: 'T', desc: 'Step-change response',       recommended: false },
+            ].map(({ key, label, symbol, desc, recommended }) => {
+              const isOn = (parameters.feature_types || ['linear','quadratic','hinge']).includes(key);
+              const toggle = () => {
+                const current = parameters.feature_types || ['linear','quadratic','hinge'];
+                set('feature_types', isOn ? current.filter(f => f !== key) : [...current, key]);
+              };
+              return (
+                <button
+                  key={key}
+                  onClick={toggle}
+                  className={`flex items-center gap-2.5 p-2.5 rounded-xl border-2 text-left transition-all ${
+                    isOn
+                      ? 'border-bangor-red bg-bangor-red/5 shadow-sm'
+                      : 'border-slate-200 bg-white hover:border-bangor-red/30 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-sm ${
+                    isOn ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {symbol}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      {label}
+                      {!recommended && <span className="text-xs font-normal text-amber-500">(adv.)</span>}
+                    </div>
+                    <div className="text-xs text-slate-400 leading-tight">{desc}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </ParamRow>
+
         {/* ── Advanced Toggle ── */}
         <button
           onClick={() => setShowAdvanced(v => !v)}
