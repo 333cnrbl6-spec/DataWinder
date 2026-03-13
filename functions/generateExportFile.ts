@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { speciesIds, dataTypes, exportName, exportDescription, outlierExclusions } = await req.json();
+  const { speciesIds, dataTypes, exportName, exportDescription, outlierExclusions, spatialThinning } = await req.json();
 
   if (!speciesIds?.length || !dataTypes?.length) {
     return Response.json({ error: 'Please select species and at least one data type' }, { status: 400 });
