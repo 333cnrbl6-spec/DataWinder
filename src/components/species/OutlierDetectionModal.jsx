@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle, Loader2, Trash2, Flag, MapPin, ShieldAlert, ChevronDown, ChevronUp, Info, Map, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { detectOutliers, severityConfig, confidenceLabel, CRITERIA } from '@/lib/outlierDetection';
+import { detectOutliers, severityConfig, confidenceLabel, CRITERIA } from '@/components/outlierDetection';
 import OutlierMapPanel from './OutlierMapPanel';
 
 // ─── Detection criteria reference ────────────────────────────────────────────

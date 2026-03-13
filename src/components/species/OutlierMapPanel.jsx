@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
-import { severityConfig } from '@/lib/outlierDetection';
+import { severityConfig } from '@/components/outlierDetection';
 import 'leaflet/dist/leaflet.css';
 
 function AutoFit({ points }) {

@@ -7,7 +7,7 @@ import { AlertTriangle, CheckCircle, Loader2, ArrowLeft, Trash2, Flag, ChevronDo
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import OutlierMapPanel from '@/components/species/OutlierMapPanel';
-import { detectOutliers, severityConfig, SPECIES_COLORS } from '@/lib/outlierDetection';
+import { detectOutliers, severityConfig, SPECIES_COLORS } from '@/components/outlierDetection';
 
 const MAX_CLEAN_PER_SPECIES = 80;
 

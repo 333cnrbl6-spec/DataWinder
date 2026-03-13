@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PackageOpen, Loader2, RefreshCw, X, ShieldAlert } from 'lucide-react';
 import TaxonomicSelector from '@/components/dataprep/TaxonomicSelector';
-import { detectOutliers } from '@/lib/outlierDetection';
+import { detectOutliers } from '@/components/outlierDetection';
 import DataTypeSelector from '@/components/dataprep/DataTypeSelector';
 import ExportFileCard from '@/components/dataprep/ExportFileCard';
 

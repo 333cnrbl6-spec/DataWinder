@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { speciesIds, dataTypes, exportName, exportDescription } = await req.json();
+  const { speciesIds, dataTypes, exportName, exportDescription, outlierExclusions } = await req.json();
 
   if (!speciesIds?.length || !dataTypes?.length) {
     return Response.json({ error: 'Please select species and at least one data type' }, { status: 400 });
@@ -40,15 +40,26 @@ Deno.serve(async (req) => {
     zip.file('species_summary.csv', [headers, ...rows].join('\n'));
   }
 
+  // Helper: filter observations/occurrences by outlier exclusions
+  const getObservations = (sp) => {
+    const excl = outlierExclusions?.[sp.id];
+    const inatIdxs = new Set(excl?.inatIdxs || []);
+    const gbifIdxs = new Set(excl?.gbifIdxs || []);
+    const observations = (sp.observations || []).filter((_, i) => !inatIdxs.has(i));
+    const gbif_occurrences = (sp.gbif_occurrences || []).filter((_, i) => !gbifIdxs.has(i));
+    return { observations, gbif_occurrences };
+  };
+
   // 2. MAXENT Occurrences CSV (species, longitude, latitude)
   if (dataTypes.includes('occurrences_maxent')) {
     const rows = ['species,longitude,latitude'];
     species.forEach(sp => {
-      (sp.observations || []).forEach(obs => {
+      const { observations, gbif_occurrences } = getObservations(sp);
+      observations.forEach(obs => {
         if (obs.longitude != null && obs.latitude != null)
           rows.push(csvRow([sp.scientific_name, obs.longitude, obs.latitude]));
       });
-      (sp.gbif_occurrences || []).forEach(occ => {
+      gbif_occurrences.forEach(occ => {
         if (occ.decimalLongitude != null && occ.decimalLatitude != null)
           rows.push(csvRow([sp.scientific_name, occ.decimalLongitude, occ.decimalLatitude]));
       });
@@ -60,11 +71,12 @@ Deno.serve(async (req) => {
   if (dataTypes.includes('occurrences_arcgis')) {
     const rows = ['scientific_name,common_name,iucn_status,longitude,latitude,source,observation_date'];
     species.forEach(sp => {
-      (sp.observations || []).forEach(obs => {
+      const { observations, gbif_occurrences } = getObservations(sp);
+      observations.forEach(obs => {
         if (obs.longitude != null && obs.latitude != null)
           rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', obs.longitude, obs.latitude, 'iNaturalist', obs.observed_on || '']));
       });
-      (sp.gbif_occurrences || []).forEach(occ => {
+      gbif_occurrences.forEach(occ => {
         if (occ.decimalLongitude != null && occ.decimalLatitude != null)
           rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', occ.decimalLongitude, occ.decimalLatitude, 'GBIF', occ.eventDate || '']));
       });
@@ -92,7 +104,8 @@ Deno.serve(async (req) => {
   if (dataTypes.includes('gbif_occurrences')) {
     const rows = ['scientific_name,gbif_key,latitude,longitude,country,state_province,event_date,basis_of_record,institution'];
     species.forEach(sp => {
-      (sp.gbif_occurrences || []).forEach(occ => {
+      const { gbif_occurrences } = getObservations(sp);
+      gbif_occurrences.forEach(occ => {
         rows.push(csvRow([
           sp.scientific_name, occ.key || '', occ.decimalLatitude || '', occ.decimalLongitude || '',
           occ.countryCode || '', occ.stateProvince || '', occ.eventDate || '', occ.basisOfRecord || '', occ.institutionCode || ''
@@ -106,7 +119,8 @@ Deno.serve(async (req) => {
   if (dataTypes.includes('inat_observations')) {
     const rows = ['scientific_name,latitude,longitude,location,date,observer,photo_url'];
     species.forEach(sp => {
-      (sp.observations || []).forEach(obs => {
+      const { observations } = getObservations(sp);
+      observations.forEach(obs => {
         rows.push(csvRow([
           sp.scientific_name, obs.latitude || '', obs.longitude || '',
           obs.location || '', obs.observed_on || '', obs.user || '', obs.photo_url || ''
