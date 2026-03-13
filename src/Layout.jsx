@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf } from 'lucide-react';
+import { Search, Database, FolderOpen, Map, CloudRain, Layers, Menu, X, Leaf, PackageOpen } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: Map },
   { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
   { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
+  { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
 ];
 
 export default function Layout({ children, currentPageName }) {
