@@ -289,23 +289,20 @@ export default function OnboardingWizard({ open, onComplete }) {
                     </div>
                   </button>
 
-                  {/* Cloud service */}
-                  <button
-                    onClick={() => setFormData(f => ({ ...f, maxent_choice: 'cloud', maxent_terms_accepted: false }))}
-                    className={`text-left p-4 rounded-xl border-2 transition-all ${formData.maxent_choice === 'cloud' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'}`}
-                  >
+                  {/* Cloud service — coming soon */}
+                  <div className="relative text-left p-4 rounded-xl border-2 border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed select-none">
                     <div className="flex items-center gap-2 mb-2">
-                      <Wifi className="w-5 h-5 text-blue-500" />
-                      <span className="font-semibold text-slate-800">Use Cloud Service</span>
-                      <span className="ml-auto text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Beta</span>
+                      <Wifi className="w-5 h-5 text-slate-400" />
+                      <span className="font-semibold text-slate-400">Use Cloud Service</span>
+                      <span className="ml-auto text-xs bg-slate-200 text-slate-500 font-semibold px-2 py-0.5 rounded-full">Coming Soon</span>
                     </div>
-                    <div className="space-y-1.5 text-xs text-slate-600">
-                      <div className="flex items-start gap-1.5"><ThumbsUp className="w-3.5 h-3.5 text-green-600 mt-0.5 shrink-0" /><span>No installation required — works in browser</span></div>
-                      <div className="flex items-start gap-1.5"><ThumbsUp className="w-3.5 h-3.5 text-green-600 mt-0.5 shrink-0" /><span>Good for occasional or exploratory runs</span></div>
-                      <div className="flex items-start gap-1.5"><ThumbsDown className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" /><span>Slower than local — depends on server availability</span></div>
-                      <div className="flex items-start gap-1.5"><ThumbsDown className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" /><span>Occurrence data is transmitted to our server</span></div>
+                    <div className="space-y-1.5 text-xs text-slate-400">
+                      <div className="flex items-start gap-1.5"><ThumbsUp className="w-3.5 h-3.5 mt-0.5 shrink-0" /><span>No installation required — works in browser</span></div>
+                      <div className="flex items-start gap-1.5"><ThumbsUp className="w-3.5 h-3.5 mt-0.5 shrink-0" /><span>Good for occasional or exploratory runs</span></div>
+                      <div className="flex items-start gap-1.5"><ThumbsDown className="w-3.5 h-3.5 mt-0.5 shrink-0" /><span>Slower than local — depends on server availability</span></div>
+                      <div className="flex items-start gap-1.5"><ThumbsDown className="w-3.5 h-3.5 mt-0.5 shrink-0" /><span>Occurrence data is transmitted to our server</span></div>
                     </div>
-                  </button>
+                  </div>
 
                   {/* Skip */}
                   <button
