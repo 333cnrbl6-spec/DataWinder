@@ -228,12 +228,7 @@ export default function MAXENTModeler() {
                 </div>
               )}
 
-              {maxentChoice === 'cloud' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-                  <p className="font-semibold mb-1">Cloud Service Selected</p>
-                  <p className="text-xs text-blue-700">Your model runs will be submitted to DataWinder's cloud processing service. Performance depends on server load. For frequent or large-scale runs, we strongly recommend switching to a local installation.</p>
-                </div>
-              )}
+
             </div>
           )}
         </div>
