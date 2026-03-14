@@ -8,6 +8,7 @@ import MetricCard from '@/components/maxent/MetricCard';
 import FeatureImportancePlot from '@/components/maxent/FeatureImportancePlot';
 import RunCompareSelector from '@/components/maxent/RunCompareSelector';
 import ReportGenerator from '@/components/maxent/ReportGenerator';
+import HillWinderBenchmark from '@/components/maxent/HillWinderBenchmark';
 
 export default function ModelPerformance() {
   const [selectedRuns, setSelectedRuns] = useState([]);
