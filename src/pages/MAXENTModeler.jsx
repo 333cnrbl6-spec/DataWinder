@@ -131,6 +131,115 @@ export default function MAXENTModeler() {
           </button>
         </div>
 
+        {/* ── MAXENT Bolt-On Banner ── */}
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 overflow-hidden">
+          <button
+            onClick={() => setShowMaxentSetup(v => !v)}
+            className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-amber-100 transition-colors"
+          >
+            <HardDrive className="w-5 h-5 text-amber-600 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800">Boost Performance — Install MAXENT Locally</p>
+              <p className="text-xs text-amber-700 mt-0.5">A local installation runs significantly faster and keeps your data private. Click to learn more or set it up now.</p>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-amber-600 transition-transform ${showMaxentSetup ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showMaxentSetup && (
+            <div className="px-5 pb-5 border-t border-amber-200 pt-4 space-y-4">
+              {/* Option cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  onClick={() => { setMaxentChoice('local'); setMaxentTermsAccepted(false); }}
+                  className={`text-left p-4 rounded-xl border-2 transition-all bg-white ${maxentChoice === 'local' ? 'border-bangor-red' : 'border-slate-200 hover:border-bangor-red/40'}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <HardDrive className="w-4 h-4 text-bangor-red" />
+                    <span className="text-sm font-semibold text-slate-800">Local Install</span>
+                    <span className="ml-auto text-xs bg-green-100 text-green-700 font-semibold px-1.5 py-0.5 rounded-full">Best</span>
+                  </div>
+                  <div className="space-y-1 text-xs text-slate-600">
+                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>Fastest — runs on your hardware</span></div>
+                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>Full control, data stays local</span></div>
+                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 text-red-400 mt-0.5 shrink-0" /><span>Requires Java + ~5 min setup</span></div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setMaxentChoice('cloud'); setMaxentTermsAccepted(false); }}
+                  className={`text-left p-4 rounded-xl border-2 transition-all bg-white ${maxentChoice === 'cloud' ? 'border-blue-500' : 'border-slate-200 hover:border-blue-300'}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Wifi className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-semibold text-slate-800">Cloud Service</span>
+                    <span className="ml-auto text-xs bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded-full">Beta</span>
+                  </div>
+                  <div className="space-y-1 text-xs text-slate-600">
+                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>No installation needed</span></div>
+                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 text-red-400 mt-0.5 shrink-0" /><span>Slower, data sent to server</span></div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setMaxentChoice('dismiss'); setMaxentTermsAccepted(false); setShowMaxentSetup(false); }}
+                  className="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white transition-all"
+                >
+                  <p className="text-sm font-semibold text-slate-500 mb-1">Dismiss</p>
+                  <p className="text-xs text-slate-400">Continue using the cloud service or set this up another time.</p>
+                </button>
+              </div>
+
+              {/* Local install guide + T&Cs */}
+              {maxentChoice === 'local' && (
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm space-y-3">
+                    <p className="font-semibold text-green-800">Installation Steps (~5 minutes)</p>
+                    <ol className="list-decimal list-inside space-y-1.5 text-slate-700 text-xs">
+                      <li>Ensure <strong>Java 8+</strong> is installed — <a href="https://www.java.com/en/download/" target="_blank" rel="noopener noreferrer" className="text-bangor-red underline">download from java.com</a></li>
+                      <li>Download <strong>maxent.jar</strong> from the AMNH link below</li>
+                      <li>Save to an accessible folder (e.g. <code className="bg-slate-100 px-1 rounded">C:\maxent\</code>)</li>
+                      <li>Double-click <code className="bg-slate-100 px-1 rounded">maxent.jar</code> to launch — no installer needed</li>
+                      <li>In DataWinder's MAXENT settings, point to your <code className="bg-slate-100 px-1 rounded">maxent.jar</code> path</li>
+                    </ol>
+                    <a
+                      href="https://biodiversityinformatics.amnh.org/open_source/maxent/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg text-sm font-semibold"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download MAXENT (AMNH)
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                  <div className="bg-white border border-amber-300 rounded-lg p-4 space-y-2">
+                    <p className="text-sm font-semibold text-amber-800">MAXENT Software — Your Responsibility</p>
+                    <p className="text-xs text-slate-600">MAXENT is published by the American Museum of Natural History. DataWinder is not affiliated with AMNH and accepts no responsibility for the software. By downloading MAXENT you agree to AMNH's terms.</p>
+                    <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-bangor-red underline text-xs">
+                      Read MAXENT terms <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <label className="flex items-start gap-2 cursor-pointer pt-1">
+                      <Checkbox checked={maxentTermsAccepted} onCheckedChange={setMaxentTermsAccepted} className="mt-0.5" />
+                      <span className="text-xs text-slate-700">I accept the MAXENT terms and take responsibility for its installation and use on my device.</span>
+                    </label>
+                    {maxentTermsAccepted && (
+                      <p className="text-xs text-green-700 font-semibold">✓ Thank you. You can now download MAXENT using the link above.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {maxentChoice === 'cloud' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+                  <p className="font-semibold mb-1">Cloud Service Selected</p>
+                  <p className="text-xs text-blue-700">Your model runs will be submitted to DataWinder's cloud processing service. Performance depends on server load. For frequent or large-scale runs, we strongly recommend switching to a local installation.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* ── Run History (collapsible) ── */}
         <AnimatePresence>
           {showHistory && (
