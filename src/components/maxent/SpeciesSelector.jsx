@@ -24,7 +24,8 @@ function OccurrenceQuality({ count }) {
   );
 }
 
-export default function SpeciesSelector({ selectedSpecies, onSelect }) {
+// selectedSpecies is now an array; onSelect toggles a species in/out
+export default function SpeciesSelector({ selectedSpecies = [], onSelect }) {
   const [search, setSearch] = useState('');
 
   const { data: allSpecies = [], isLoading } = useQuery({
@@ -45,13 +46,25 @@ export default function SpeciesSelector({ selectedSpecies, onSelect }) {
   const getCount = (sp) =>
     (sp.observations?.length || 0) + (sp.gbif_occurrences?.length || 0);
 
+  const selectedIds = new Set(selectedSpecies.map(s => s.id));
+
+  const toggleSpecies = (sp) => {
+    if (selectedIds.has(sp.id)) {
+      onSelect(selectedSpecies.filter(s => s.id !== sp.id));
+    } else {
+      onSelect([...selectedSpecies, sp]);
+    }
+  };
+
+  const totalOccurrences = selectedSpecies.reduce((sum, sp) => sum + getCount(sp), 0);
+
   return (
     <Card className="shadow-lg border-slate-200">
       <CardHeader className="bg-gradient-to-r from-bangor-red/8 to-bangor-sun/8 border-b border-slate-200">
-        <CardTitle className="text-bangor-red text-lg">Select a Species</CardTitle>
+        <CardTitle className="text-bangor-red text-lg">Select Species</CardTitle>
         <p className="text-sm text-slate-600 mt-1">
-          Choose the species you want to model. Only species with occurrence records are shown.
-          MAXENT needs at least 10 records for a meaningful model — 50+ is ideal.
+          Choose one or more species to model. Only species with occurrence records are shown.
+          MAXENT needs at least 10 records per species — 50+ is ideal.
         </p>
       </CardHeader>
       <CardContent className="p-6">
@@ -90,11 +103,11 @@ export default function SpeciesSelector({ selectedSpecies, onSelect }) {
 
           {filtered.map(sp => {
             const count = getCount(sp);
-            const isSelected = selectedSpecies?.id === sp.id;
+            const isSelected = selectedIds.has(sp.id);
             return (
               <button
                 key={sp.id}
-                onClick={() => onSelect(sp)}
+                onClick={() => toggleSpecies(sp)}
                 className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
                   isSelected
                     ? 'border-bangor-red bg-bangor-red/5 shadow-md'
@@ -119,17 +132,19 @@ export default function SpeciesSelector({ selectedSpecies, onSelect }) {
           })}
         </div>
 
-        {selectedSpecies && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+        {selectedSpecies.length > 0 && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl space-y-2">
             <p className="text-sm font-semibold text-green-800">
-              ✓ Selected: <em>{selectedSpecies.scientific_name}</em>
+              ✓ {selectedSpecies.length} species selected — {totalOccurrences} total occurrence records
             </p>
-            <p className="text-xs text-green-700 mt-1">
-              {getCount(selectedSpecies)} occurrence records available for modelling
-              {getCount(selectedSpecies) < 10 && (
-                <span className="ml-1 text-amber-700 font-semibold">(consider adding more data before running)</span>
-              )}
-            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedSpecies.map(sp => (
+                <span key={sp.id} className="inline-flex items-center gap-1 bg-white border border-green-300 rounded-lg px-2 py-0.5 text-xs font-medium text-green-800">
+                  <em>{sp.scientific_name}</em>
+                  <button onClick={(e) => { e.stopPropagation(); toggleSpecies(sp); }} className="ml-0.5 text-green-600 hover:text-red-500">×</button>
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </CardContent>
