@@ -52,8 +52,11 @@ export default function OnboardingWizard({ open, onComplete }) {
       const pastedToken = formData.iucn_api_token || user.iucn_api_token;
       
       await base44.auth.updateMe({
-        ...formData,
+        institution: formData.institution,
+        research_purpose: formData.research_purpose,
+        research_area: formData.research_area,
         iucn_api_token: pastedToken,
+        maxent_setup_choice: formData.maxent_choice,
         terms_accepted_date: new Date().toISOString(),
         onboarding_completed: true
       });
