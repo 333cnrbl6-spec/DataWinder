@@ -165,20 +165,18 @@ export default function MAXENTModeler() {
                   </div>
                 </button>
 
-                <button
-                  onClick={() => { setMaxentChoice('cloud'); setMaxentTermsAccepted(false); }}
-                  className={`text-left p-4 rounded-xl border-2 transition-all bg-white ${maxentChoice === 'cloud' ? 'border-blue-500' : 'border-slate-200 hover:border-blue-300'}`}
-                >
+                {/* Cloud service — coming soon */}
+                <div className="text-left p-4 rounded-xl border-2 border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed select-none">
                   <div className="flex items-center gap-2 mb-2">
-                    <Wifi className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-semibold text-slate-800">Cloud Service</span>
-                    <span className="ml-auto text-xs bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded-full">Beta</span>
+                    <Wifi className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm font-semibold text-slate-400">Cloud Service</span>
+                    <span className="ml-auto text-xs bg-slate-200 text-slate-500 font-semibold px-1.5 py-0.5 rounded-full">Coming Soon</span>
                   </div>
-                  <div className="space-y-1 text-xs text-slate-600">
-                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>No installation needed</span></div>
-                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 text-red-400 mt-0.5 shrink-0" /><span>Slower, data sent to server</span></div>
+                  <div className="space-y-1 text-xs text-slate-400">
+                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 mt-0.5 shrink-0" /><span>No installation needed</span></div>
+                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 mt-0.5 shrink-0" /><span>Slower, data sent to server</span></div>
                   </div>
-                </button>
+                </div>
 
                 <button
                   onClick={() => { setMaxentChoice('dismiss'); setMaxentTermsAccepted(false); setShowMaxentSetup(false); }}
