@@ -171,19 +171,12 @@ Deno.serve(async (req) => {
     zip.file('habitats_threats.json', JSON.stringify(data, null, 2));
   }
 
-  // Generate ZIP buffer and convert to base64 for upload
+  // Generate ZIP buffer and upload as Blob
   const zipBuffer = await zip.generateAsync({ type: 'uint8array' });
-
-  // Encode to base64 in chunks to avoid stack overflow on large files
-  let binary = '';
-  const chunkSize = 8192;
-  for (let i = 0; i < zipBuffer.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, zipBuffer.subarray(i, i + chunkSize));
-  }
-  const base64File = btoa(binary);
+  const zipBlob = new Blob([zipBuffer], { type: 'application/zip' });
 
   // Upload to private storage
-  const uploadResult = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: base64File });
+  const uploadResult = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: zipBlob });
 
   // Create ExportedFile record
   const name = exportName?.trim() || `Export ${new Date().toLocaleDateString('en-GB')}`;
