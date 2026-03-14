@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronRight, ChevronLeft, ExternalLink, AlertCircle, CheckCircle, Key } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ExternalLink, AlertCircle, CheckCircle, Key, Download, Cpu, Wifi, HardDrive, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import BangOnLogo from './BangOnLogo';
