@@ -16,7 +16,8 @@ const steps = [
   { id: 1, title: 'Welcome', subtitle: 'Get started with species data' },
   { id: 2, title: 'Your Profile', subtitle: 'Tell us about yourself' },
   { id: 3, title: 'IUCN API Token', subtitle: 'Set up data access' },
-  { id: 4, title: 'Terms of Use', subtitle: 'Accept data usage terms' }
+  { id: 4, title: 'MAXENT Setup', subtitle: 'Enhance modelling power' },
+  { id: 5, title: 'Terms of Use', subtitle: 'Accept data usage terms' }
 ];
 
 export default function OnboardingWizard({ open, onComplete }) {
