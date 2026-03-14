@@ -11,12 +11,12 @@ Deno.serve(async (req) => {
 
         const { endpoint, term, level } = await req.json();
 
-        if (!user.iucn_api_token) {
-            return Response.json({ error: 'IUCN API token not configured for user.' }, { status: 400 });
-        }
-
         const BASE = 'https://api.iucnredlist.org/api/v4';
-        const token = user.iucn_api_token;
+        const token = Deno.env.get('IUCN_API_KEY') || user.iucn_api_token;
+
+        if (!token) {
+            return Response.json({ error: 'IUCN API token not configured. Set IUCN_API_KEY in environment variables.' }, { status: 400 });
+        }
 
         let apiUrl = '';
         switch (endpoint) {
