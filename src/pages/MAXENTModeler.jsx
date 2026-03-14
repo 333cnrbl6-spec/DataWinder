@@ -42,6 +42,9 @@ export default function MAXENTModeler() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastRun, setLastRun] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showMaxentSetup, setShowMaxentSetup] = useState(false);
+  const [maxentChoice, setMaxentChoice] = useState(null);
+  const [maxentTermsAccepted, setMaxentTermsAccepted] = useState(false);
 
   const { data: runs = [], refetch: refetchRuns } = useQuery({
     queryKey: ['maxentRuns'],
