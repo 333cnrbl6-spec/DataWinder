@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
 const NAV_ITEMS = [
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
   { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
   { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
+  { label: 'Community', page: 'Community', icon: Users },
 ];
 
 export default function Layout({ children, currentPageName }) {

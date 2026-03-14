@@ -13,6 +13,7 @@ import ModelPerformance from './pages/ModelPerformance';
 import MaxentResultsMap from './pages/MaxentResultsMap';
 import MaxentBatchSubmit from './pages/MaxentBatchSubmit';
 import ClimateScenarioComparison from './pages/ClimateScenarioComparison';
+import Community from './pages/Community';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
       <Route path="/MaxentResultsMap" element={<LayoutWrapper currentPageName="MaxentResultsMap"><MaxentResultsMap /></LayoutWrapper>} />
       <Route path="/MaxentBatchSubmit" element={<LayoutWrapper currentPageName="MaxentBatchSubmit"><MaxentBatchSubmit /></LayoutWrapper>} />
       <Route path="/ClimateScenarioComparison" element={<LayoutWrapper currentPageName="ClimateScenarioComparison"><ClimateScenarioComparison /></LayoutWrapper>} />
+      <Route path="/Community" element={<LayoutWrapper currentPageName="Community"><Community /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
