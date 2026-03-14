@@ -36,7 +36,7 @@ export default function MAXENTModeler() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [runName, setRunName] = useState('');
-  const [selectedSpecies, setSelectedSpecies] = useState(null);
+  const [selectedSpecies, setSelectedSpecies] = useState([]);
   const [selectedLayers, setSelectedLayers] = useState([]);
   const [parameters, setParameters] = useState(DEFAULT_PARAMS);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,25 +52,26 @@ export default function MAXENTModeler() {
   });
 
   const canProceedFromStep = () => {
-    if (currentStep === 1) return !!selectedSpecies;
+    if (currentStep === 1) return selectedSpecies.length > 0;
     if (currentStep === 2) return selectedLayers.length > 0;
     return true;
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    const speciesNames = selectedSpecies.map(s => s.scientific_name).join(', ');
     const name = runName.trim() ||
-      `${selectedSpecies.scientific_name} — ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+      `${speciesNames} — ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
-    const occurrenceCount =
-      (selectedSpecies.observations?.length || 0) +
-      (selectedSpecies.gbif_occurrences?.length || 0);
+    const occurrenceCount = selectedSpecies.reduce(
+      (sum, sp) => sum + (sp.observations?.length || 0) + (sp.gbif_occurrences?.length || 0), 0
+    );
 
     // Save the run record to the database
     const run = await base44.entities.MaxentRun.create({
       name,
-      species_id: selectedSpecies.id,
-      species_name: selectedSpecies.scientific_name,
+      species_id: selectedSpecies[0]?.id,
+      species_name: speciesNames,
       climate_dataset_ids: selectedLayers.map(l => l.id),
       climate_dataset_names: selectedLayers.map(l => l.name),
       occurrence_count: occurrenceCount,
@@ -82,7 +83,7 @@ export default function MAXENTModeler() {
     try {
       await base44.functions.invoke('runMaxentModel', {
         run_id: run.id,
-        species_name: selectedSpecies.scientific_name,
+        species_name: speciesNames,
         parameters,
         layer_names: selectedLayers.map(l => l.name),
         occurrence_count: occurrenceCount,
@@ -100,7 +101,7 @@ export default function MAXENTModeler() {
 
   const resetWizard = () => {
     setCurrentStep(1);
-    setSelectedSpecies(null);
+    setSelectedSpecies([]);
     setSelectedLayers([]);
     setParameters(DEFAULT_PARAMS);
     setRunName('');
@@ -308,7 +309,7 @@ export default function MAXENTModeler() {
                       <span className="text-slate-400 font-normal">(optional — helps you find it later)</span>
                     </label>
                     <Input
-                      placeholder={`e.g. ${selectedSpecies?.scientific_name} baseline run`}
+                     placeholder={`e.g. ${selectedSpecies[0]?.scientific_name ?? 'species'} baseline run`}
                       value={runName}
                       onChange={e => setRunName(e.target.value)}
                       className="max-w-md border-slate-200"
@@ -318,13 +319,14 @@ export default function MAXENTModeler() {
                   {/* Summary tiles */}
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Species</div>
-                      <div className="font-semibold text-slate-900 italic text-sm">{selectedSpecies?.scientific_name}</div>
-                      {selectedSpecies?.common_name && (
-                        <div className="text-xs text-slate-500 mt-0.5">{selectedSpecies.common_name}</div>
-                      )}
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Species ({selectedSpecies.length})</div>
+                      <div className="space-y-0.5">
+                        {selectedSpecies.map(sp => (
+                          <div key={sp.id} className="font-semibold text-slate-900 italic text-xs truncate">{sp.scientific_name}</div>
+                        ))}
+                      </div>
                       <div className="mt-2 text-xs font-bold text-green-700">
-                        {(selectedSpecies?.observations?.length || 0) + (selectedSpecies?.gbif_occurrences?.length || 0)} occurrence records
+                        {selectedSpecies.reduce((s, sp) => s + (sp.observations?.length || 0) + (sp.gbif_occurrences?.length || 0), 0)} total occurrence records
                       </div>
                     </div>
 
