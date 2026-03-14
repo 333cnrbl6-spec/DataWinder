@@ -195,6 +195,9 @@ export default function ModelPerformance() {
                   </Card>
                 ))}
 
+                {/* ── Hill & Winder Benchmark ── */}
+                <HillWinderBenchmark runs={selectedRuns} />
+
                 {/* ── Feature importance comparison ── */}
                 <Card className="shadow-sm border-slate-200">
                   <CardHeader className="border-b bg-slate-50 py-3 px-5">
