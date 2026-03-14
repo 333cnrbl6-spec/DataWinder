@@ -28,7 +28,9 @@ export default function OnboardingWizard({ open, onComplete }) {
     research_purpose: '',
     research_area: '',
     iucn_api_token: '',
-    terms_accepted: false
+    terms_accepted: false,
+    maxent_terms_accepted: false,
+    maxent_choice: null // 'local' | 'cloud' | 'skip'
   });
 
   const handleNext = () => {
