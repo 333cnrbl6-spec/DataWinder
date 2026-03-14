@@ -71,7 +71,8 @@ export default function OnboardingWizard({ open, onComplete }) {
       case 1: return true;
       case 2: return formData.institution && formData.research_purpose;
       case 3: return formData.iucn_api_token;
-      case 4: return formData.terms_accepted;
+      case 4: return !!formData.maxent_choice && (formData.maxent_choice !== 'local' || formData.maxent_terms_accepted);
+      case 5: return formData.terms_accepted;
       default: return false;
     }
   };
