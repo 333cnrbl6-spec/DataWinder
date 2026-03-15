@@ -1088,7 +1088,7 @@ export default function Home() {
                       <Button
                         size="sm"
                         onClick={() => setViewMode('grid')}
-                        className={viewMode === 'grid' ? 'bg-bangor-red' : 'bg-slate-100'}
+                        className={viewMode === 'grid' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
                       >
                         <Grid3x3 className="w-4 h-4 mr-1" />
                         Grid
@@ -1096,7 +1096,7 @@ export default function Home() {
                       <Button
                         size="sm"
                         onClick={() => setViewMode('map')}
-                        className={viewMode === 'map' ? 'bg-bangor-red' : 'bg-slate-100'}
+                        className={viewMode === 'map' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
                       >
                         <Map className="w-4 h-4 mr-1" />
                         Map
