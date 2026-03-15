@@ -350,7 +350,7 @@ export default function DataPreparation() {
                 <Button
                   onClick={handleGenerate}
                   disabled={!canGenerate}
-                  className="bg-bangor-red text-white px-8 font-bold"
+                  className="bg-bangor-red text-white px-8 font-bold disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-600 disabled:cursor-not-allowed"
                 >
                   {isGenerating
                     ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating…</>

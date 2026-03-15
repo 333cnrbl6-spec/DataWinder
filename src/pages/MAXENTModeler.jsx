@@ -435,7 +435,7 @@ export default function MAXENTModeler() {
               <Button
                 onClick={() => setCurrentStep(s => s + 1)}
                 disabled={!canProceedFromStep()}
-                className={`${canProceedFromStep() ? 'bg-bangor-red border-bangor-red text-white' : ''}`}
+                className={`${canProceedFromStep() ? 'bg-bangor-red border-bangor-red text-white' : 'bg-slate-200 text-slate-600 cursor-not-allowed opacity-100'}`}
               >
                 Continue
                 <ChevronRight className="w-4 h-4 ml-1" />
