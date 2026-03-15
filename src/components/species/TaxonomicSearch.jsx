@@ -365,7 +365,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red text-white font-semibold hover:bg-red-700 disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-500"
+          className="w-full bg-bangor-red text-white font-semibold hover:bg-red-700 disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-600 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
