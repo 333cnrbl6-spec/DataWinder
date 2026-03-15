@@ -174,7 +174,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                       </a>
                       <button
                         onClick={() => setShowIucnInput(true)}
-                        className="text-xs px-3 py-1.5 rounded-md border border-bangor-sun/40 bg-bangor-sun/10 text-slate-800 inline-flex items-center gap-1 cursor-pointer font-medium hover:bg-bangor-sun/30"
+                        className="text-xs px-3 py-1.5 rounded-md border border-bangor-sun/30 bg-bangor-sun/10 text-bangor-sun inline-flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Log In & Get Token
@@ -295,7 +295,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             variant="outline"
             size="sm"
             onClick={addSearchTerm}
-            className="text-xs"
+            className="text-xs text-slate-800"
           >
             <Plus className="w-3 h-3 mr-1" />
             Add Another {currentLevel?.label}
@@ -443,7 +443,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Primates
         </button>
@@ -457,7 +457,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Carnivores
         </button>
@@ -471,7 +471,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Marine Mammals
         </button>
@@ -485,7 +485,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Birds of Prey
         </button>
@@ -499,7 +499,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Reptiles
         </button>
@@ -513,7 +513,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Amphibians
         </button>
@@ -527,7 +527,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Fish
         </button>
@@ -541,7 +541,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-slate-800 font-medium border border-bangor-sun/40 hover:bg-bangor-sun/40 cursor-pointer"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Insects
         </button>
