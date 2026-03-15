@@ -295,7 +295,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             variant="outline"
             size="sm"
             onClick={addSearchTerm}
-            className="text-xs text-slate-800"
+            className="text-xs"
           >
             <Plus className="w-3 h-3 mr-1" />
             Add Another {currentLevel?.label}
@@ -365,7 +365,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
-          className="w-full bg-bangor-red text-white font-semibold"
+          className="w-full bg-bangor-red text-white font-semibold hover:bg-red-700"
         >
           {isLoading ? (
             <>
