@@ -6,6 +6,7 @@ import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-re
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
+import DataSourceBadges from '@/components/DataSourceBadges';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
@@ -95,15 +96,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.fetchIUCNData({
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
           iucnToken: iucnToken
         });
 
-        if (result.data?.status === 'success' && result.data?.data?.result && result.data.data.result.length > 0) {
-          setFamilySpecies(result.data.data.result);
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
