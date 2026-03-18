@@ -1575,7 +1575,7 @@ export default function Home() {
           selectedSpecies={selectedSpecies}
           onClose={() => setShowDownload(false)}
           onSaveComplete={() => {
-            alert('Data saved to database successfully!');
+            toast.success('Data saved to database successfully!');
           }}
         />
       )}
