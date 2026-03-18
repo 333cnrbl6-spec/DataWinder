@@ -33,21 +33,40 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
   const handleMerge = async () => {
     setIsProcessing(true);
     try {
+      const masterSpeciesData = speciesInGroup.find(s => s.id === selectedCanonical);
       const recordsToDelete = speciesInGroup
         .filter(sp => sp.id !== selectedCanonical)
         .map(sp => sp.id);
 
-      await base44.entities.PendingSpeciesReview.update(review.id, {
-        review_group_id: review.review_group_id,
-        canonical_id: selectedCanonical,
-        records_to_delete: recordsToDelete,
-        status: 'merged'
+      // Build merged data: start from master, fill in any missing fields from duplicates
+      const mergedData = { ...masterSpeciesData };
+      for (const dup of speciesInGroup.filter(sp => sp.id !== selectedCanonical)) {
+        for (const [key, val] of Object.entries(dup)) {
+          if (!mergedData[key] && val) mergedData[key] = val;
+        }
+      }
+      // Strip internal fields before sending
+      const { id, created_date, updated_date, created_by, ...cleanMergedData } = mergedData;
+
+      // Call backend to update master + delete duplicates
+      const res = await base44.functions.invoke('mergeSpeciesRecords', {
+        masterId: selectedCanonical,
+        duplicateIds: recordsToDelete,
+        mergedData: cleanMergedData
       });
 
+      if (res.data?.status !== 'success') {
+        throw new Error(res.data?.error || 'Merge failed');
+      }
+
+      // Mark the review as merged
+      await base44.entities.PendingSpeciesReview.update(review.id, { status: 'merged' });
+
+      toast.success(`Merged into "${masterSpeciesData?.scientific_name}"`);
       onMerge(review.id, recordsToDelete);
     } catch (error) {
       console.error('Merge error:', error);
-      alert('Failed to merge records');
+      toast.error('Failed to merge records: ' + error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -59,7 +78,7 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
       await base44.entities.PendingSpeciesReview.update(review.id, { status: 'dismissed' });
       onDismiss(review.id);
     } catch (error) {
-      alert('Failed to dismiss review');
+      toast.error('Failed to dismiss review');
     } finally {
       setIsProcessing(false);
     }
