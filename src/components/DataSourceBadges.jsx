@@ -69,10 +69,10 @@ const COMING_SOON = [
   },
 ];
 
-export default function DataSourceBadges({ size = 'sm', showLabel = false, sources }) {
-  const displaySources = sources
+export default function DataSourceBadges({ size = 'sm', showLabel = false, sources, comingSoonOnly = false }) {
+  const displaySources = comingSoonOnly ? [] : (sources
     ? SOURCES.filter(s => sources.includes(s.short))
-    : SOURCES;
+    : SOURCES);
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">

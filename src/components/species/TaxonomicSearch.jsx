@@ -253,7 +253,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           <Clock className="w-3.5 h-3.5 text-slate-400" />
           More Sources Coming Soon
         </h3>
-        <DataSourceBadges sources={[]} />
+        <DataSourceBadges comingSoonOnly />
       </div>
 
       <div className="space-y-3">
