@@ -239,12 +239,21 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-6">
+      <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
+      </div>
+
+      {/* Additional / Coming Soon Sources */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2 flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-slate-400" />
+          More Sources Coming Soon
+        </h3>
+        <DataSourceBadges sources={[]} />
       </div>
 
       <div className="space-y-3">
