@@ -1543,7 +1543,7 @@ export default function Home() {
                                   created++;
                                 }
                               }
-                              alert(`Import complete! ${created} new species added.`);
+                              toast.success(`Import complete! ${created} new species added.`);
                               refetchSpecies();
                             } catch (err) {
                               alert('Import failed: ' + err.message);
