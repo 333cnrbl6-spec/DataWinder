@@ -433,6 +433,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         </motion.div>
       )}
 
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-slate-400">Additional sources coming soon:</span>
+        <DataSourceBadges size="xs" comingSoonOnly />
+      </div>
+
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="text-xs text-slate-400">Quick load multiple:</span>
 
