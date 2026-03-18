@@ -96,12 +96,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.fetchIUCNData({
+        const response = await base44.functions.invoke('fetchIUCNData', {
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
           iucnToken: iucnToken
         });
+        const result = response.data;
 
         if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
           setFamilySpecies(result.data.result);
