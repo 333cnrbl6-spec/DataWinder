@@ -250,15 +250,18 @@ export default function Home() {
                   const rangeDataGeoJSON = null;
                   const rangeDataPoints = null;
 
-                  // Fetch additional images if available
+                  // Fetch additional images via backend (keeps token server-side)
                   let allImages = [];
-                  if (sisId) {
+                  if (sisId && iucnToken) {
                     try {
-                      const imagesUrl = `https://api.iucnredlist.org/api/v4/taxa/sis/${sisId}?token=${iucnToken}`;
-                      const imagesRes = await fetch(imagesUrl);
-                      if (imagesRes.ok) {
-                        const imagesData = await imagesRes.json();
-                        allImages = imagesData.result?.map(img => img.url) || [];
+                      const imagesRes = await base44.functions.invoke('fetchIUCNData', {
+                        endpoint: 'sis',
+                        term: String(sisId),
+                        iucnToken
+                      });
+                      if (imagesRes.data?.status === 'success') {
+                        const sisImgData = imagesRes.data.data;
+                        allImages = (sisImgData?.taxon?.image_links || []).map(img => img.url).filter(Boolean);
                       }
                     } catch (err) {
                       console.error('Error fetching images:', err);
