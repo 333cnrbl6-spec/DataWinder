@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X, Clock } from 'lucide-react';
-import DataSourceBadges from '@/components/DataSourceBadges';
+import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
@@ -96,7 +95,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.fetchIUCNData({
+        const result = await base44.functions.invoke('fetchIUCNData', {
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
@@ -239,21 +238,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-4">
+      <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
-      </div>
-
-      {/* Additional / Coming Soon Sources */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2 flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-slate-400" />
-          More Sources Coming Soon
-        </h3>
-        <DataSourceBadges comingSoonOnly />
       </div>
 
       <div className="space-y-3">
@@ -453,7 +443,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Primates
         </button>
@@ -467,7 +457,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Carnivores
         </button>
@@ -481,7 +471,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Marine Mammals
         </button>
@@ -495,7 +485,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Birds of Prey
         </button>
@@ -509,7 +499,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Reptiles
         </button>
@@ -523,7 +513,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Amphibians
         </button>
@@ -537,7 +527,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Fish
         </button>
@@ -551,7 +541,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
           }}
-          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-amber-800 font-medium hover:bg-bangor-sun/30"
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
         >
           Insects
         </button>
