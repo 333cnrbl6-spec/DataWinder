@@ -1546,7 +1546,7 @@ export default function Home() {
                               toast.success(`Import complete! ${created} new species added.`);
                               refetchSpecies();
                             } catch (err) {
-                              alert('Import failed: ' + err.message);
+                              toast.error('Import failed: ' + err.message);
                             }
                           };
                           reader.readAsText(file);
