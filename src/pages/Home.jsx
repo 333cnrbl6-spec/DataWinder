@@ -1619,9 +1619,8 @@ export default function Home() {
         open={showLogoSelector}
         onClose={() => setShowLogoSelector(false)}
         onSelect={(logoId) => {
-          console.log('Selected logo:', logoId);
           setShowLogoSelector(false);
-          alert(`Logo "${logoId}" selected! To fully implement this, you'd update the BangOnLogo component or create a logo preference system.`);
+          toast.success(`Logo "${logoId}" selected.`);
         }}
       />
 
