@@ -76,7 +76,6 @@ const AuthenticatedApp = () => {
       <Route path="/MaxentBatchSubmit" element={<LayoutWrapper currentPageName="MaxentBatchSubmit"><MaxentBatchSubmit /></LayoutWrapper>} />
       <Route path="/ClimateScenarioComparison" element={<LayoutWrapper currentPageName="ClimateScenarioComparison"><ClimateScenarioComparison /></LayoutWrapper>} />
       <Route path="/Community" element={<LayoutWrapper currentPageName="Community"><Community /></LayoutWrapper>} />
-      <Route path="/ReviewDuplicates" element={<LayoutWrapper currentPageName="ReviewDuplicates"><ReviewDuplicates /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
