@@ -52,7 +52,7 @@ export default function Layout({ children, currentPageName }) {
                 return (
                   <Link
                     key={page}
-                    to={createPageUrl(page)}
+                    to={`/${page}`}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                       isActive
                         ? 'bg-bangor-red text-white shadow-sm scale-[1.02]'
