@@ -33,7 +33,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Brand Mark */}
             <Link
-              to={createPageUrl('Home')}
+              to="/Home"
               className="flex items-center gap-2.5 shrink-0 group"
             >
               <div className="w-8 h-8 bg-bangor-red rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity">
