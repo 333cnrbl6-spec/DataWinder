@@ -86,7 +86,7 @@ export default function Layout({ children, currentPageName }) {
                 return (
                   <Link
                     key={page}
-                    to={createPageUrl(page)}
+                    to={`/${page}`}
                     onClick={() => setMenuOpen(false)}
 className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       isActive
