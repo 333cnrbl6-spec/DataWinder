@@ -1,5 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+// Simple in-memory cache (persists for function lifetime)
+const responseCache = new Map();
+const CACHE_TTL = 3600000; // 1 hour
+
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
@@ -9,7 +13,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { endpoint, term, level } = await req.json();
+        const { endpoint, term, level, skipCache } = await req.json();
 
         const BASE = 'https://api.iucnredlist.org/api/v4';
         const token = Deno.env.get('IUCN_API_KEY') || user.iucn_api_token;
@@ -100,6 +104,16 @@ Deno.serve(async (req) => {
                 return Response.json({ error: 'Invalid IUCN API endpoint specified.' }, { status: 400 });
         }
 
+        // Check cache (unless explicitly skipped)
+        const cacheKey = `${endpoint}:${term}:${level}`;
+        if (!skipCache && responseCache.has(cacheKey)) {
+            const cached = responseCache.get(cacheKey);
+            if (Date.now() - cached.timestamp < CACHE_TTL) {
+                console.log(`[IUCN v4 CACHE HIT] ${cacheKey}`);
+                return Response.json({ status: 'success', data: cached.data, cached: true });
+            }
+        }
+
         console.log(`[IUCN v4] ${endpoint} → ${apiUrl}`);
 
         const iucnResponse = await fetch(apiUrl, {
@@ -119,6 +133,10 @@ Deno.serve(async (req) => {
         }
 
         const data = await iucnResponse.json();
+        
+        // Cache successful response
+        responseCache.set(cacheKey, { data, timestamp: Date.now() });
+        
         return Response.json({ status: 'success', data });
 
     } catch (error) {
