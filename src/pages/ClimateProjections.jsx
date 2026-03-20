@@ -329,6 +329,8 @@ export default function ClimateProjections() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeScenario, setActiveScenario] = useState('All');
   const [selectedIds, setSelectedIds] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
   const filtered = useMemo(() => {
     return CLIMATE_SOURCES.filter(s => {
