@@ -1222,7 +1222,7 @@ export default function Home() {
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="relative">
-                  <div className="w-16 h-16 border-4 border-bangor-sun/30 rounded-full animate-pulse" />
+                  <div className="w-16 h-16 border-4 border-bangor-red/30 rounded-full animate-pulse" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Leaf className="w-6 h-6 text-bangor-red animate-bounce" />
                   </div>
