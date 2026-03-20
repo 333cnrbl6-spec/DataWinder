@@ -348,8 +348,11 @@ export default function ClimateProjections() {
     );
   };
 
+  const RECOMMENDED_IDS = ['worldclim-bio-current', 'modis-ndvi', 'hansen-forest-change', 'srtm-dem', 'global-aridity'];
+
   const selectAll = () => setSelectedIds(filtered.map(s => s.id));
   const selectMaxentReady = () => setSelectedIds(filtered.filter(s => s.maxentReady).map(s => s.id));
+  const selectRecommended = () => setSelectedIds(RECOMMENDED_IDS);
   const clearSelection = () => setSelectedIds([]);
 
   const selectedSources = CLIMATE_SOURCES.filter(s => selectedIds.includes(s.id));
