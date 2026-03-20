@@ -23,6 +23,7 @@ import BangOnLogo from '@/components/BangOnLogo';
 import LogoShowcase from '@/components/LogoShowcase';
 import SaveSearchPanel from '@/components/SaveSearchPanel';
 import SmartDropZone from '@/components/SmartDropZone';
+import DuplicateReviewModal from '@/components/species/DuplicateReviewModal';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useSearchSounds } from '@/hooks/useSearchSounds';
