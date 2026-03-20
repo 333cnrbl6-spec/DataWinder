@@ -609,22 +609,28 @@ export default function ClimateProjections() {
                   Based on published literature (Winder et al., Hill &amp; Winder 2020, Carvalho et al.) the following variable combination is recommended to avoid collinearity while capturing the main ecological drivers:
                 </p>
                 {[
-                  { icon: <Thermometer className="w-4 h-4 text-red-500" />, label: 'BIO1', desc: 'Annual Mean Temperature — primary thermal driver' },
-                  { icon: <Thermometer className="w-4 h-4 text-orange-500" />, label: 'BIO4', desc: 'Temperature Seasonality — thermoregulation stress' },
-                  { icon: <Droplets className="w-4 h-4 text-blue-500" />, label: 'BIO12', desc: 'Annual Precipitation — water availability' },
-                  { icon: <Droplets className="w-4 h-4 text-cyan-500" />, label: 'BIO15', desc: 'Precipitation Seasonality — dry season severity' },
-                  { icon: <Leaf className="w-4 h-4 text-green-600" />, label: 'NDVI (MODIS)', desc: 'Vegetation greenness — direct habitat proxy' },
-                  { icon: <Map className="w-4 h-4 text-emerald-600" />, label: 'Forest Cover (Hansen)', desc: 'Tree cover % — canopy availability' },
-                  { icon: <Globe2 className="w-4 h-4 text-slate-500" />, label: 'Elevation (SRTM)', desc: 'Altitude — physiological and vegetation zone limits' },
-                  { icon: <Wind className="w-4 h-4 text-slate-400" />, label: 'Aridity Index', desc: 'Integrated water stress — savanna boundary proxy' },
+                  { id: 'worldclim-bio-current', icon: <Thermometer className="w-4 h-4 text-red-500" />, label: 'BIO1', desc: 'Annual Mean Temperature — primary thermal driver' },
+                  { id: 'worldclim-bio-current', icon: <Thermometer className="w-4 h-4 text-orange-500" />, label: 'BIO4', desc: 'Temperature Seasonality — thermoregulation stress' },
+                  { id: 'worldclim-bio-current', icon: <Droplets className="w-4 h-4 text-blue-500" />, label: 'BIO12', desc: 'Annual Precipitation — water availability' },
+                  { id: 'worldclim-bio-current', icon: <Droplets className="w-4 h-4 text-cyan-500" />, label: 'BIO15', desc: 'Precipitation Seasonality — dry season severity' },
+                  { id: 'modis-ndvi', icon: <Leaf className="w-4 h-4 text-green-600" />, label: 'NDVI (MODIS)', desc: 'Vegetation greenness — direct habitat proxy' },
+                  { id: 'hansen-forest-change', icon: <Map className="w-4 h-4 text-emerald-600" />, label: 'Forest Cover (Hansen)', desc: 'Tree cover % — canopy availability' },
+                  { id: 'srtm-dem', icon: <Globe2 className="w-4 h-4 text-slate-500" />, label: 'Elevation (SRTM)', desc: 'Altitude — physiological and vegetation zone limits' },
+                  { id: 'global-aridity', icon: <Wind className="w-4 h-4 text-slate-400" />, label: 'Aridity Index', desc: 'Integrated water stress — savanna boundary proxy' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
+                  <label key={i} className="flex items-start gap-3 cursor-pointer hover:bg-slate-50 rounded-lg p-1 -mx-1 transition-colors">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 w-4 h-4 accent-bangor-red"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => toggleSelect(CLIMATE_SOURCES.find(s => s.id === item.id))}
+                    />
                     <div className="mt-0.5">{item.icon}</div>
                     <div>
                       <span className="text-xs font-bold text-slate-800">{item.label}:</span>
                       <span className="text-xs text-slate-600 ml-1">{item.desc}</span>
                     </div>
-                  </div>
+                  </label>
                 ))}
                 <Alert className="bg-emerald-50 border-emerald-200 mt-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
