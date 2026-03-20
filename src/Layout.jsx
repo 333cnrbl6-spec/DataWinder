@@ -123,24 +123,36 @@ className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
 
       {/* ── Floating FAQ Bot Bubble ── */}
       {currentPageName !== 'FAQBot' && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center gap-2">
           {showTooltip && (
-            <div className="relative bg-white border border-slate-200 shadow-lg rounded-2xl px-4 py-2.5 text-sm text-slate-700 max-w-[200px] text-center">
+            <div className="relative bg-white border border-slate-200 shadow-xl rounded-2xl px-4 py-3 text-sm text-slate-700 max-w-[220px] text-center">
               👋 Hi! Need help with climate data or MAXENT modelling?
-              <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white border-r border-b border-slate-200 rotate-45"></div>
+              <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-slate-200 rotate-45"></div>
             </div>
           )}
           <button
             onClick={() => navigate('/FAQBot')}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            className="w-16 h-16 rounded-full shadow-2xl border-2 border-bangor-red overflow-hidden hover:scale-110 transition-transform duration-200 bg-white"
+            className="flex flex-col items-center gap-1 group"
             aria-label="Open FAQ Assistant"
+            style={{ animation: 'botFloat 3s ease-in-out infinite' }}
           >
-            <img src={BOT_AVATAR} alt="FAQ Assistant" className="w-full h-full object-cover object-top" />
+            <div className="w-24 h-24 rounded-full shadow-2xl border-4 border-bangor-red overflow-hidden group-hover:scale-110 transition-transform duration-200 bg-white ring-4 ring-bangor-red/20">
+              <img src={BOT_AVATAR} alt="FAQ Assistant" className="w-full h-full object-cover object-top" />
+            </div>
+            <span className="bg-bangor-red text-white text-xs font-bold px-3 py-1 rounded-full shadow-md group-hover:bg-bangor-red/90 transition-colors">
+              Ask Me!
+            </span>
           </button>
         </div>
       )}
+      <style>{`
+        @keyframes botFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+      `}</style>
 
       {/* ── Footer ── */}
       <footer className="bg-white border-t border-slate-200 py-5 mt-auto">
