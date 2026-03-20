@@ -95,7 +95,7 @@ export default function Home() {
     setOnboardingChecked(true);
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '' }) => {
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
