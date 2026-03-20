@@ -1161,8 +1161,8 @@ export default function Home() {
             {/* Info Banner when no results */}
             {!species.length && !isLoading && !error && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-                <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
-                  <Info className="h-4 w-4 text-bangor-sun" />
+                <Alert className="bg-bangor-red/5 border-bangor-red/20">
+                  <Info className="h-4 w-4 text-bangor-red" />
                   <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
                   <AlertDescription className="text-slate-700 space-y-2">
                     <p>DataWinder is a species distribution modelling toolkit built for ecological research at Bangor University. Use the workflow below to build, analyse, and model species data:</p>
@@ -1176,7 +1176,7 @@ export default function Home() {
                   </AlertDescription>
                 </Alert>
 
-                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
+                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
                   <p className="mb-1 font-semibold text-slate-700">Academic Data Sources:</p>
                   <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
                   <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
