@@ -412,7 +412,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+            <label className="flex items-center gap-2 mb-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
                <input
                  id="include-inat"
                  name="include-inat"
@@ -422,6 +422,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                  className="w-4 h-4"
                />
                <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-gbif"
+                 name="include-gbif"
+                 type="checkbox"
+                 checked={includeGBIF}
+                 onChange={(e) => setIncludeGBIF(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include GBIF Occurrence Data</span>
              </label>
 
             <div className="flex gap-3">
