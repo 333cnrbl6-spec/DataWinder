@@ -108,13 +108,19 @@ export default function MAXENTModeler() {
     if (detectedMaxentPath || customMaxentPath) {
       const maxentPath = customMaxentPath || detectedMaxentPath;
       try {
-        await base44.functions.invoke('runMaxentModel', {
+        const response = await base44.functions.invoke('runMaxentModel', {
           action: 'execute',
           maxentPath,
           occurrenceFile: `occurrence_${run.id}.csv`,
           environmentalLayers: selectedLayers.map(l => l.name).join(','),
           parameters: { ...parameters, outputDir: `./results_${run.id}` },
         });
+        
+        // If platform constraint detected, fallback to cloud service
+        if (response.data?.status === 'platform_constraint') {
+          console.warn('Local execution not available on this platform. Queuing for cloud service.');
+          // Queue for cloud service instead
+        }
       } catch (err) {
         console.warn('Local execution failed, queuing for cloud service:', err);
       }
