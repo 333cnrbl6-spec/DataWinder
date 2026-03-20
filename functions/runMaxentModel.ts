@@ -1,68 +1,92 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+// Execute MAXENT locally via command line
+const executeMaxent = async (maxentPath, occurrenceFile, environmentalLayers, parameters = {}) => {
+  try {
+    const isJar = maxentPath.endsWith('.jar');
+    const command = isJar ? 'java' : maxentPath;
+    
+    // Build MAXENT command arguments
+    const args = [];
+    
+    if (isJar) {
+      args.push('-jar', maxentPath);
+    }
+
+    // Add input files
+    args.push(
+      '-e', environmentalLayers,
+      '-s', occurrenceFile,
+      '-o', parameters.outputDir || './maxent_results',
+      '-r'  // Response curves
+    );
+
+    // Add optional parameters
+    if (parameters.regularizationMultiplier) {
+      args.push('-beta', String(parameters.regularizationMultiplier));
+    }
+    if (parameters.maxIterations) {
+      args.push('-i', String(parameters.maxIterations));
+    }
+    if (parameters.replicates) {
+      args.push('-x', String(parameters.replicates));
+    }
+    if (parameters.featureTypes) {
+      args.push('-f', parameters.featureTypes.join(','));
+    }
+
+    // Execute
+    const process = new Deno.Command(command, { args });
+    const output = await process.output();
+    
+    const stdout = new TextDecoder().decode(output.stdout);
+    const stderr = new TextDecoder().decode(output.stderr);
+
+    return {
+      success: output.success,
+      exitCode: output.code,
+      stdout: stdout.slice(0, 5000), // Limit output size
+      stderr: stderr.slice(0, 5000),
+      message: output.success ? 'MAXENT execution completed' : 'MAXENT execution failed'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const {
+      maxentPath,
+      occurrenceFile,
+      environmentalLayers,
+      parameters,
+      action
+    } = await req.json();
+
+    if (action !== 'execute') {
+      return Response.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    const body = await req.json();
-    const { run_id, species_name, parameters, layer_names, occurrence_count, occurrence_csv_url } = body;
-
-    if (!run_id) {
-      return Response.json({ error: 'run_id is required' }, { status: 400 });
+    if (!maxentPath || !occurrenceFile || !environmentalLayers) {
+      return Response.json({
+        error: 'Missing required parameters: maxentPath, occurrenceFile, environmentalLayers'
+      }, { status: 400 });
     }
 
-    const MAXENT_API_URL = Deno.env.get('MAXENT_API_URL');
-    const MAXENT_API_KEY = Deno.env.get('MAXENT_API_KEY');
+    const result = await executeMaxent(maxentPath, occurrenceFile, environmentalLayers, parameters);
 
-    if (!MAXENT_API_URL || !MAXENT_API_KEY) {
-      // No external service configured — mark as submitted/placeholder
-      await base44.asServiceRole.entities.MaxentRun.update(run_id, {
-        status: 'submitted',
-        notes: `Submitted at ${new Date().toISOString()} by ${user.email}. No external MAXENT service configured (MAXENT_API_URL / MAXENT_API_KEY not set).`,
-      });
-      return Response.json({ status: 'submitted', message: 'Run saved. Configure MAXENT_API_URL and MAXENT_API_KEY to enable processing.', run_id });
-    }
-
-    // Submit job to external MAXENT service
-    const response = await fetch(`${MAXENT_API_URL}/runs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MAXENT_API_KEY}`,
-      },
-      body: JSON.stringify({
-        species: species_name,
-        occurrence_csv_url: occurrence_csv_url || null,
-        layer_names: layer_names || [],
-        parameters: parameters || {},
-      }),
+    return Response.json({
+      status: result.success ? 'success' : 'failed',
+      execution: result
     });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      await base44.asServiceRole.entities.MaxentRun.update(run_id, {
-        status: 'failed',
-        notes: `Submission failed at ${new Date().toISOString()}: HTTP ${response.status} — ${errText}`,
-      });
-      return Response.json({ error: `MAXENT service error: ${response.status}`, detail: errText }, { status: 502 });
-    }
-
-    const result = await response.json();
-    const externalJobId = result.job_id || result.id || result.run_id;
-
-    await base44.asServiceRole.entities.MaxentRun.update(run_id, {
-      status: 'running',
-      external_job_id: externalJobId,
-      notes: `Job submitted at ${new Date().toISOString()} by ${user.email}. External job ID: ${externalJobId}`,
-    });
-
-    return Response.json({ status: 'running', run_id, external_job_id: externalJobId });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
