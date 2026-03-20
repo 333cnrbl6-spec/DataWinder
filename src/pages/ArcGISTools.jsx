@@ -23,7 +23,7 @@ export default function ArcGISTools() {
 
   const { data: allSpecies = [] } = useQuery({
     queryKey: ['allSpecies'],
-    queryFn: () => base44.entities.Species.list('-created_date')
+    queryFn: () => base44.entities.Species.list('-created_date', 10000)
   });
 
   const speciesWithRangeData = allSpecies.filter(sp => sp.range_data_geojson);
