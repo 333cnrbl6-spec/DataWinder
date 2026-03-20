@@ -1106,6 +1106,14 @@ export default function Home() {
                         <Map className="w-4 h-4 mr-1" />
                         Map
                       </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setViewMode('sources')}
+                        className={viewMode === 'sources' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
+                      >
+                        <Layers className="w-4 h-4 mr-1" />
+                        Sources
+                      </Button>
                     </div>
                   </div>
                   {searchInfo && (
