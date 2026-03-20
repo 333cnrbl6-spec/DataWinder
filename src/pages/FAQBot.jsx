@@ -13,7 +13,7 @@ export default function FAQBot() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0c36cccd0_generated_image.png";
+  const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/65ab2624b_generated_image.png";
 
   useEffect(() => {
     startConversation();
