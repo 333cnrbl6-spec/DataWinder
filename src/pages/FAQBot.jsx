@@ -147,9 +147,11 @@ export default function FAQBot() {
             </div>
           )}
 
-          {messages.map((msg, i) => (
-            <FAQMessage key={msg.id ?? i} message={msg} botAvatar={BOT_AVATAR} />
-          ))}
+          {messages
+            .filter((m) => !(m.role === "user" && m.content?.startsWith("[CONTEXT:")))
+            .map((msg, i) => (
+              <FAQMessage key={msg.id ?? i} message={msg} botAvatar={BOT_AVATAR} />
+            ))}
 
           {isLoading && (
             <FAQMessage
