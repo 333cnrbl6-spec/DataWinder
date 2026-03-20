@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
+import JSZip from 'jszip';
 
 const ENTITY_OPTIONS = [
   { key: 'Species', label: 'Species Record', description: 'Taxonomic & conservation data', color: 'green' },
