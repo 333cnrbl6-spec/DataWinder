@@ -110,6 +110,7 @@ export default function Home() {
       terms: terms.join(', '),
       includeINaturalist,
       includeGBIF,
+      includeSpeciesLink,
       iucnToken: !!iucnToken
     });
 
