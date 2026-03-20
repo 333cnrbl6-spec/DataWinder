@@ -56,6 +56,15 @@ export default function ReviewDuplicates() {
 
   const pendingReviews = reviews.filter(r => !processedGroups.has(r.id));
 
+  const loadNextReview = () => {
+    const nextReview = pendingReviews.find(r => r.id !== reviewingId);
+    if (nextReview) {
+      setReviewingId(nextReview.id);
+    } else {
+      setReviewingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3">
       <header className="bg-white border-b-2 border-bangor-red sticky top-0 z-40 shadow-sm">
@@ -176,6 +185,7 @@ export default function ReviewDuplicates() {
             onClose={() => setReviewingId(null)}
             onMerge={handleMerge}
             onDismiss={handleDismiss}
+            onNextReview={loadNextReview}
           />
         )}
       </AnimatePresence>
