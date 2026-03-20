@@ -14,6 +14,17 @@ const getMimeTypeFromFilename = (filename) => {
   return mimeMap[ext] || 'application/octet-stream';
 };
 
+const validateIUCNToken = async (token) => {
+  try {
+    const res = await fetch('https://api.iucnredlist.org/api/v4/countries', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.status === 200;
+  } catch {
+    return false;
+  }
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -104,7 +115,13 @@ Deno.serve(async (req) => {
       range_data_csv_url, `${safeName}_range_data.csv`, null
     );
 
-    result.status = 'success';
+    // Determine status based on what succeeded
+    const successCount = Object.values(result).filter(v => typeof v === 'string' && v.startsWith('private://')).length;
+    const totalAttempts = [result.assessment_pdf_file_uri, result.range_map_jpg_file_uri, result.range_shp_file_uri, result.range_csv_file_uri].filter(v => v !== null).length;
+    
+    result.status = successCount > 0 ? 'partial_success' : 'no_files_downloaded';
+    result.summary = `Downloaded ${successCount} file${successCount === 1 ? '' : 's'}. ${result.logs.filter(l => l.includes('Skipped') || l.includes('Error')).length} resource${result.logs.filter(l => l.includes('Skipped') || l.includes('Error')).length === 1 ? '' : 's'} unavailable.`;
+    
     return Response.json(result);
   } catch (error) {
     return Response.json({ status: 'error', message: error.message, stack: error.stack }, { status: 500 });
