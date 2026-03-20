@@ -958,6 +958,10 @@ export default function Home() {
             gbif_basis_of_record: sp.gbif_basis_of_record || null,
             gbif_last_occurrence: sp.gbif_last_occurrence || null,
             gbif_occurrences_csv_file_uri: sp.gbif_occurrences_csv_file_uri || null,
+            specieslink_occurrence_count: sp.specieslink_occurrence_count || 0,
+            specieslink_occurrences: sp.specieslink_occurrences || [],
+            specieslink_last_collected: sp.specieslink_last_collected || null,
+            specieslink_occurrences_csv_file_uri: sp.specieslink_occurrences_csv_file_uri || null,
             image_url: sp.image_url || null,
           };
           if (existing.length > 0) {
