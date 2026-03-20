@@ -165,13 +165,13 @@ Respond with JSON only.`,
           }`}
       >
         <input ref={inputRef} type="file" className="hidden"
-          accept=".csv,.xlsx,.xls,.json,.txt"
+          accept=".csv,.xlsx,.xls,.json,.txt,.zip"
           onChange={(e) => handleFile(e.target.files[0])} />
         <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragging ? 'text-bangor-red' : 'text-slate-400'}`} />
         <p className="text-sm font-semibold text-slate-600">
           {dragging ? 'Release to analyse & import' : 'Drag & drop a file to import'}
         </p>
-        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · TXT — AI will identify where your data belongs</p>
+        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · TXT · ZIP — AI will identify where your data belongs</p>
       </div>
 
       {/* Smart Import Modal */}
