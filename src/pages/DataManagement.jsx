@@ -52,7 +52,9 @@ export default function DataManagement() {
   const [showMergeModal, setShowMergeModal] = useState(false);
   const [mergeCandidates, setMergeCandidates] = useState([]);
   const [isLoadingMergeCandidates, setIsLoadingMergeCandidates] = useState(false);
+  const [soundMuted, setSoundMuted] = useState(false);
   const queryClient = useQueryClient();
+  const { playSuccess, playError, startTicking, stopTicking, toggleMute } = useSearchSounds();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
     queryKey: ['allSpecies'],
