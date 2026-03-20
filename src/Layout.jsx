@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, BookOpen } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, BookOpen, Folder } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
 
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
   { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
   { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
+  { label: 'Projects', page: 'ProjectDashboard', icon: Folder },
   { label: 'Community', page: 'Community', icon: Users },
   { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
   // { label: 'Literature', page: 'LiteratureLibrary', icon: BookOpen }, // Coming soon - Mendeley integration in progress
