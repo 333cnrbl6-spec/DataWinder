@@ -163,46 +163,46 @@ export default function ArcGISTools() {
                 </TabsList>
                 
                 <TabsContent value="buffer" className="mt-4">
-                  <BufferAnalysis 
-                    species={allSpecies}
-                    onResultReady={(result) => {
-                      setAnalysisResults(prev => [...prev, {
-                        name: `Buffer Analysis (${result.features.length} zones)`,
-                        type: 'buffer',
-                        data: result,
-                        features: result.features
-                      }]);
-                    }}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="overlay" className="mt-4">
-                  <RangeOverlayAnalysis 
-                    species={allSpecies}
-                    onResultReady={(result) => {
-                      setAnalysisResults(prev => [...prev, {
-                        name: `Range Overlay (${result.features.length} overlaps)`,
-                        type: 'overlay',
-                        data: result,
-                        features: result.features
-                      }]);
-                    }}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="spatial-join" className="mt-4">
-                  <SpatialJoinAnalysis 
-                    species={allSpecies}
-                    onResultReady={(result) => {
-                      setAnalysisResults(prev => [...prev, {
-                        name: `Spatial Join (${result.features.length} associations)`,
-                        type: 'spatial_join',
-                        data: result,
-                        features: result.features
-                      }]);
-                    }}
-                  />
-                </TabsContent>
+                   <BufferAnalysis 
+                     species={allSpecies}
+                     onResultReady={(result) => {
+                       addResult({
+                         name: `Buffer Analysis (${result.features.length} zones)`,
+                         type: 'buffer',
+                         data: result,
+                         features: result.features
+                       });
+                     }}
+                   />
+                 </TabsContent>
+
+                 <TabsContent value="overlay" className="mt-4">
+                   <RangeOverlayAnalysis 
+                     species={allSpecies}
+                     onResultReady={(result) => {
+                       addResult({
+                         name: `Range Overlay (${result.features.length} overlaps)`,
+                         type: 'overlay',
+                         data: result,
+                         features: result.features
+                       });
+                     }}
+                   />
+                 </TabsContent>
+
+                 <TabsContent value="spatial-join" className="mt-4">
+                   <SpatialJoinAnalysis 
+                     species={allSpecies}
+                     onResultReady={(result) => {
+                       addResult({
+                         name: `Spatial Join (${result.features.length} associations)`,
+                         type: 'spatial_join',
+                         data: result,
+                         features: result.features
+                       });
+                     }}
+                   />
+                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
