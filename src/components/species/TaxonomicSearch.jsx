@@ -244,12 +244,56 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-6">
+      <div className="mb-4">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
+      </div>
+
+      {/* speciesLink */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">speciesLink</h3>
+        {!speciesLinkApiKey ? (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Key className="w-5 h-5 text-emerald-600 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-sm font-medium text-emerald-800 mb-1">API Key Required</h4>
+                <p className="text-xs text-emerald-700 mb-3">
+                  Free registration at speciesLink.net gives access to herbarium &amp; museum specimen records.
+                </p>
+                {!showSpeciesLinkInput ? (
+                  <div className="flex flex-wrap gap-2">
+                    <a href="https://specieslink.net/api/" target="_blank" rel="noopener noreferrer"
+                      className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 text-white inline-flex items-center gap-1 font-medium">
+                      <ExternalLink className="w-3 h-3" /> Get Free API Key
+                    </a>
+                    <Button size="sm" variant="outline" onClick={() => setShowSpeciesLinkInput(true)} className="text-xs h-7">
+                      <Key className="w-3 h-3 mr-1" /> I Have My Key
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input value={speciesLinkApiKey} onChange={(e) => setSpeciesLinkApiKey(e.target.value)}
+                      placeholder="Paste your speciesLink API key" className="text-xs h-8" />
+                    <Button size="sm" onClick={saveSpeciesLinkKey} className="text-xs h-8 bg-emerald-600 text-white">Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowSpeciesLinkInput(false)} className="text-xs h-8">Cancel</Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs text-emerald-700 font-medium">speciesLink API Key Configured</span>
+            </div>
+            <button onClick={() => setShowSpeciesLinkInput(true)} className="text-xs text-emerald-600 underline font-medium">Change</button>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
