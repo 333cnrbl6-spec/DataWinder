@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon, FolderOpen, Upload, Grid3x3, Leaf, AlertCircle, Info, Wand2, HelpCircle, X, Globe, Images, FileText, Activity, MapPin } from 'lucide-react';
+import { Database, Download, Map, FileSpreadsheet, Layers, Search as SearchIcon, FolderOpen, Upload, Grid3x3, Leaf, AlertCircle, Info, Wand2, HelpCircle, X, Globe, Images, FileText, Activity, MapPin, Volume2, VolumeX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
