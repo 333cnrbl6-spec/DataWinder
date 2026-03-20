@@ -171,12 +171,12 @@ Deno.serve(async (req) => {
     zip.file('habitats_threats.json', JSON.stringify(data, null, 2));
   }
 
-  // Generate ZIP buffer and upload as Blob
+  // Generate ZIP buffer and upload as File
   const zipBuffer = await zip.generateAsync({ type: 'uint8array' });
-  const zipBlob = new Blob([zipBuffer], { type: 'application/zip' });
+  const zipFile = new File([zipBuffer], `${(exportName || 'export').replace(/\s+/g, '_')}.zip`, { type: 'application/zip' });
 
   // Upload to private storage
-  const uploadResult = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: zipBlob });
+  const uploadResult = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: zipFile });
 
   // Create ExportedFile record
   const name = exportName?.trim() || `Export ${new Date().toLocaleDateString('en-GB')}`;
