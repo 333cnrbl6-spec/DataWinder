@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X, AlertTriangle } from 'lucide-react';
+import { Search, Loader2, Sparkles, Key, ExternalLink, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
-import { toast } from 'sonner';
 
 const taxonomyLevels = [
   { value: 'species', label: 'Species', placeholder: 'e.g., Callithrix aurita' },
-  { value: 'genus', label: 'Genus', placeholder: 'e.g., Callithrix', unsupported: true },
+  { value: 'genus', label: 'Genus', placeholder: 'e.g., Callithrix' },
   { value: 'family', label: 'Family', placeholder: 'e.g., Callitrichidae' },
   { value: 'order', label: 'Order', placeholder: 'e.g., Primates' },
   { value: 'class', label: 'Class', placeholder: 'e.g., Mammalia' }
@@ -26,10 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(false);
-  // For preset quick-load: store terms to use in the dialog
-  const [pendingTerms, setPendingTerms] = useState(null);
-  const [pendingLevel, setPendingLevel] = useState(null);
+  const [includeGBIF, setIncludeGBIF] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -49,46 +45,34 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     if (iucnToken.trim()) {
       await base44.auth.updateMe({ iucn_api_token: iucnToken.trim() });
       setShowIucnInput(false);
-      toast.success('IUCN API token saved');
     }
   };
 
-  // Open confirm dialog — use pending preset terms if provided, else current state
-  const handleSearch = (presetTerms = null, presetLevel = null) => {
-    setPendingTerms(presetTerms);
-    setPendingLevel(presetLevel);
+  const handleSearch = () => {
     setShowConfirmDialog(true);
   };
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-
-    const effectiveLevel = pendingLevel || level;
-    const effectiveTerms = pendingTerms || searchTerms;
-
     // If not species level with selected species, search those specific species
-    if (!pendingTerms && effectiveLevel !== 'species' && selectedSpecies.length > 0) {
-      onSearch({
-        level: 'species',
-        terms: selectedSpecies,
+    if (level !== 'species' && selectedSpecies.length > 0) {
+      onSearch({ 
+        level: 'species', 
+        terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF,
+        includeINaturalist: includeINat
       });
     } else {
-      const validTerms = effectiveTerms.filter(t => t.trim());
+      const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
-        onSearch({
-          level: effectiveLevel,
-          terms: validTerms,
+        onSearch({ 
+          level, 
+          terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF,
+          includeINaturalist: includeINat
         });
       }
     }
-    setPendingTerms(null);
-    setPendingLevel(null);
   };
 
   const addSearchTerm = () => {
@@ -106,44 +90,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     newTerms[index] = value;
     setSearchTerms(newTerms);
 
-    // genus level is unsupported — don't attempt to fetch
-    if (level === 'genus') return;
-
-    // If not species level and term entered, fetch species list via invoke
+    // If not species level and term entered, fetch species list
     if (level !== 'species' && value.trim() && iucnToken) {
       setLoadingSpecies(true);
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const response = await base44.functions.invoke('fetchIUCNData', {
+        const result = await base44.functions.fetchIUCNData({
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
           iucnToken: iucnToken
         });
-        const result = response.data;
 
-        // v4 API returns assessments array for higher taxa
-        if (result.status === 'success' && result.data?.assessments && result.data.assessments.length > 0) {
-          // Deduplicate to latest per taxon
-          const latestMap = {};
-          for (const a of result.data.assessments) {
-            if (a.latest) latestMap[a.sis_taxon_id] = a;
-          }
-          if (Object.keys(latestMap).length === 0) {
-            for (const a of result.data.assessments) {
-              if (!latestMap[a.sis_taxon_id] || a.year_published > latestMap[a.sis_taxon_id].year_published) {
-                latestMap[a.sis_taxon_id] = a;
-              }
-            }
-          }
-          setFamilySpecies(Object.values(latestMap).map(a => ({
-            taxonid: a.sis_taxon_id,
-            scientific_name: a.taxon_scientific_name,
-            category: a.red_list_category_code
-          })));
-        } else if (result.status === 'success' && result.data?.result) {
-          // Fallback for older response shape
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
           setFamilySpecies(result.data.result);
         }
       } catch (err) {
@@ -157,8 +117,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   };
 
   const toggleSpecies = (scientificName) => {
-    setSelectedSpecies(prev =>
-      prev.includes(scientificName)
+    setSelectedSpecies(prev => 
+      prev.includes(scientificName) 
         ? prev.filter(s => s !== scientificName)
         : [...prev, scientificName]
     );
@@ -174,17 +134,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const currentLevel = taxonomyLevels.find(t => t.value === level);
 
-  // Count for display in button / dialog
-  const effectiveCount = pendingTerms
-    ? pendingTerms.filter(t => t.trim()).length
-    : (level !== 'species' && selectedSpecies.length > 0
-        ? selectedSpecies.length
-        : searchTerms.filter(t => t.trim()).length);
-
-  const effectiveLabelPlural = pendingLevel
-    ? (taxonomyLevels.find(t => t.value === pendingLevel)?.label || pendingLevel)
-    : (level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -195,7 +144,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <Sparkles className="w-5 h-5 text-bangor-red" />
         <h2 className="text-lg font-semibold text-slate-900">Search Multiple Data Sources</h2>
       </div>
-
+      
       <p className="text-sm text-slate-500 mb-4">
         Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
       </p>
@@ -259,9 +208,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                       <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
                         Save
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
                         onClick={() => setShowIucnInput(false)}
                         className="text-xs h-8"
                       >
@@ -300,28 +249,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Select value={level} onValueChange={(val) => { setLevel(val); setFamilySpecies([]); setSelectedSpecies([]); }}>
+          <Select value={level} onValueChange={setLevel}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {taxonomyLevels.map(t => (
                 <SelectItem key={t.value} value={t.value}>
-                  {t.label}{t.unsupported ? ' ⚠️' : ''}
+                  {t.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <span className="text-sm text-slate-500">to search for:</span>
         </div>
-
-        {/* Genus not supported warning */}
-        {level === 'genus' && (
-          <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-            <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-            <span>Genus-level search is not supported by the IUCN API v4. Please use <strong>Family</strong> level or search by <strong>Species</strong> name directly.</span>
-          </div>
-        )}
 
         {searchTerms.map((term, index) => (
           <div key={index} className="flex gap-2">
@@ -333,8 +274,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
                 onChange={(e) => updateSearchTerm(index, e.target.value)}
                 placeholder={currentLevel?.placeholder}
                 className="pr-10"
-                onKeyDown={(e) => e.key === 'Enter' && !currentLevel?.unsupported && handleSearch()}
-                disabled={currentLevel?.unsupported}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             </div>
@@ -357,7 +297,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             size="sm"
             onClick={addSearchTerm}
             className="text-xs"
-            disabled={currentLevel?.unsupported}
           >
             <Plus className="w-3 h-3 mr-1" />
             Add Another {currentLevel?.label}
@@ -365,31 +304,31 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         </div>
 
         {/* Species Selection for non-species levels */}
-        {level !== 'species' && level !== 'genus' && familySpecies.length > 0 && (
+        {level !== 'species' && familySpecies.length > 0 && (
           <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-slate-700">
                 {familySpecies.length} species found in {currentLevel?.label} "{searchTerms[0]}"
               </h4>
               <div className="flex gap-2">
-                <button
+                <button 
                   onClick={selectAllSpecies}
                   className="text-xs text-bangor-red underline font-medium"
-                >
-                  Select All
+                  >
+                   Select All
                 </button>
                 <span className="text-slate-300">|</span>
-                <button
+                <button 
                   onClick={deselectAllSpecies}
                   className="text-xs text-slate-500 underline font-medium"
-                >
-                  Deselect All
+                  >
+                   Deselect All
                 </button>
               </div>
             </div>
             <div className="max-h-60 overflow-y-auto space-y-2">
               {familySpecies.map((sp) => (
-                <label
+                <label 
                   key={sp.taxonid}
                   className="flex items-start gap-2 p-2 bg-white rounded cursor-pointer"
                 >
@@ -424,9 +363,9 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </div>
         )}
 
-        <Button
-          onClick={() => handleSearch()}
-          disabled={isLoading || currentLevel?.unsupported || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
+        <Button 
+          onClick={handleSearch}
+          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
           className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
@@ -456,36 +395,23 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-lg font-semibold text-slate-900 mb-3">Confirm Data Fetch</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
-              You're about to fetch data for <strong>{effectiveCount} {effectiveLabelPlural}</strong>.
-              This may take a moment depending on the number of species.
+              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
-
-            <div className="space-y-2 mb-4">
-              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-                <input
-                  id="include-inat"
-                  name="include-inat"
-                  type="checkbox"
-                  checked={includeINat}
-                  onChange={(e) => setIncludeINat(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observation Data</span>
-              </label>
-              <label className="flex items-center gap-2 p-3 bg-green-50 rounded-lg cursor-pointer border border-green-200">
-                <input
-                  id="include-gbif"
-                  name="include-gbif"
-                  type="checkbox"
-                  checked={includeGBIF}
-                  onChange={(e) => setIncludeGBIF(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrence Records</span>
-              </label>
-            </div>
+            
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button
@@ -506,30 +432,120 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         </motion.div>
       )}
 
-      {/* Quick Load Presets */}
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="text-xs text-slate-400">Quick load:</span>
-        {[
-          { label: 'Primates', terms: ['Callitrichidae', 'Cebidae', 'Atelidae', 'Cercopithecidae'] },
-          { label: 'Carnivores', terms: ['Felidae', 'Canidae', 'Ursidae', 'Mustelidae', 'Phocidae'] },
-          { label: 'Marine Mammals', terms: ['Cetaceae', 'Sirenia', 'Odobenidae'] },
-          { label: 'Birds of Prey', terms: ['Accipitridae', 'Falconidae', 'Strigidae'] },
-          { label: 'Reptiles', terms: ['Colubridae', 'Pythonidae', 'Boidae', 'Chelonidae', 'Crocodylidae'] },
-          { label: 'Amphibians', terms: ['Bufonidae', 'Ranidae', 'Salamandridae'] },
-          { label: 'Fish', terms: ['Salmonidae', 'Cichlidae', 'Serranidae'] },
-          { label: 'Insects', terms: ['Drosophilidae', 'Apidae', 'Formicidae'] },
-        ].map(({ label, terms }) => (
-          <button
-            key={label}
-            onClick={() => {
-              // Pass terms and level directly to avoid React state async race condition
-              handleSearch(terms, 'family');
-            }}
-            className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
-          >
-            {label}
-          </button>
-        ))}
+        <span className="text-xs text-slate-400">Quick load multiple:</span>
+
+        {/* Primates */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Callitrichidae', 'Cebidae', 'Atelidae', 'Cercopithecidae', 'Hominoidea']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Primates
+        </button>
+
+        {/* Carnivores */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Felidae', 'Canidae', 'Ursidae', 'Mustelidae', 'Phocidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Carnivores
+        </button>
+
+        {/* Marine Mammals */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Cetaceae', 'Sirenia', 'Odobenidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Marine Mammals
+        </button>
+
+        {/* Birds of Prey */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Accipitridae', 'Falconidae', 'Strigidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Birds of Prey
+        </button>
+
+        {/* Reptiles */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Colubridae', 'Pythonidae', 'Boidae', 'Chelonidae', 'Crocodylidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Reptiles
+        </button>
+
+        {/* Amphibians */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Bufonidae', 'Ranidae', 'Salamandridae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Amphibians
+        </button>
+
+        {/* Fish */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Salmonidae', 'Cichlidae', 'Serranidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Fish
+        </button>
+
+        {/* Invertebrates */}
+        <button
+          onClick={() => {
+            setLevel('family');
+            setSearchTerms(['Hominidae', 'Drosophilidae', 'Apidae']);
+            setFamilySpecies([]);
+            setSelectedSpecies([]);
+            setTimeout(handleSearch, 0);
+          }}
+          className="text-xs px-2 py-1 rounded-full bg-bangor-sun/20 text-bangor-sun font-medium hover:bg-bangor-sun/30"
+        >
+          Insects
+        </button>
       </div>
     </motion.div>
   );
