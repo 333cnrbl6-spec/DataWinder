@@ -1068,7 +1068,7 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-bangor-sun/8 to-bangor-red/3">
+    <div className="bg-gradient-to-br from-slate-50 via-slate-100 to-bangor-red/5">
       <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -98,7 +98,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
             </div>
           ) : (
-            <div className="h-36 bg-gradient-to-br from-bangor-red/5 via-slate-100 to-bangor-sun/10 flex items-center justify-center">
+            <div className="h-36 bg-gradient-to-br from-bangor-red/5 via-slate-100 to-slate-200 flex items-center justify-center">
               <Leaf className="w-10 h-10 text-bangor-red/20" />
             </div>
           )}
