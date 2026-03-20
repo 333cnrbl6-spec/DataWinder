@@ -131,7 +131,7 @@ className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
             </div>
           )}
           <button
-            onClick={() => navigate('/FAQBot')}
+            onClick={() => navigate(`/FAQBot?from=${currentPageName}`)}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
             className="flex flex-col items-center gap-1 group"
