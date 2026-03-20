@@ -24,7 +24,7 @@ export default function LiteratureLibrary() {
                     </div>
                     <div>
                         <h1 className="text-lg font-bold text-slate-800">Literature Library</h1>
-                        <p className="text-xs text-slate-500">Coming soon</p>
+                        <p className="text-xs text-slate-400">Coming soon — Research paper integration</p>
                     </div>
                 </div>
             </div>
