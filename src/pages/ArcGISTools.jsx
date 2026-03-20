@@ -14,12 +14,14 @@ import BufferAnalysis from '@/components/arcgis/BufferAnalysis';
 import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
 import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
+import { useSpecies } from '@/lib/SpeciesContext';
+import { useAnalysisState } from '@/hooks/useAnalysisState';
 
 export default function ArcGISTools() {
   const [showArcGISTerms, setShowArcGISTerms] = useState(false);
   const [arcgisAgreed, setArcgisAgreed] = useState(false);
-  const [selectedSpecies, setSelectedSpecies] = useState(null);
-  const [analysisResults, setAnalysisResults] = useState([]);
+  const { selectedSpecies, setSelectedSpecies } = useSpecies();
+  const { analysisResults, addResult, clearResults } = useAnalysisState();
 
   const { data: allSpecies = [] } = useQuery({
     queryKey: ['allSpecies'],
