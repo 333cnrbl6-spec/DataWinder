@@ -14,6 +14,7 @@ import BufferAnalysis from '@/components/arcgis/BufferAnalysis';
 import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
 import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
+import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
