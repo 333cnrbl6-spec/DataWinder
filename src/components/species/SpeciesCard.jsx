@@ -285,7 +285,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
             )}
 
             {/* Observations */}
-            {(species.observation_count > 0 || species.gbif_occurrence_count > 0) && (
+            {(species.observation_count > 0 || species.gbif_occurrence_count > 0 || species.specieslink_occurrence_count > 0) && (
               <div className="grid grid-cols-2 gap-3">
                 {species.observation_count > 0 && (
                   <div className="bg-amber-50 rounded-lg p-3">
@@ -301,6 +301,14 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                     <p className="text-lg font-bold text-blue-700">{species.gbif_occurrence_count.toLocaleString()}</p>
                     <p className="text-[10px] text-blue-600">occurrences</p>
                     {species.gbif_last_occurrence && <p className="text-[10px] text-blue-600 mt-1">Last: {species.gbif_last_occurrence}</p>}
+                  </div>
+                )}
+                {species.specieslink_occurrence_count > 0 && (
+                  <div className="bg-emerald-50 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-emerald-800 mb-0.5">speciesLink</p>
+                    <p className="text-lg font-bold text-emerald-700">{species.specieslink_occurrence_count.toLocaleString()}</p>
+                    <p className="text-[10px] text-emerald-600">specimens</p>
+                    {species.specieslink_last_collected && <p className="text-[10px] text-emerald-600 mt-1">Last: {species.specieslink_last_collected.slice(0,4)}</p>}
                   </div>
                 )}
               </div>
