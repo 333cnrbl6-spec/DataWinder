@@ -791,9 +791,13 @@ export default function DataManagement() {
         ...sp,
         is_new: !savedSpeciesScientificNames.has(sp.scientific_name)
       })));
+      stopTicking();
+      playSuccess();
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to fetch data. Please check your connection and try again.');
+      stopTicking();
+      playError();
     } finally {
       setIsLoading(false);
     }
