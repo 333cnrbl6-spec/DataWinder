@@ -293,10 +293,49 @@ export default function MAXENTModeler() {
                 </div>
               )}
 
+              {/* Custom path input (if not auto-detected) */}
+              {maxentStatus !== 'found' && (
+               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                 <div className="flex items-start gap-3">
+                   <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                   <div>
+                     <p className="text-sm font-semibold text-blue-900">Manually Set MAXENT Path</p>
+                     <p className="text-xs text-blue-700 mt-1">If MAXENT is installed in a non-standard location, enter the path below.</p>
+                   </div>
+                 </div>
+                 <div className="flex gap-2">
+                   <Input
+                     placeholder="e.g., /usr/local/maxent/maxent.jar"
+                     value={customMaxentPath}
+                     onChange={e => setCustomMaxentPath(e.target.value)}
+                     className="border-blue-200 text-sm"
+                   />
+                   <Button
+                     onClick={async () => {
+                       const response = await base44.functions.invoke('detectMaxentLocation', {
+                         action: 'verify',
+                         customPath
+                       });
+                       if (response.data?.verified) {
+                         setDetectedMaxentPath(customMaxentPath);
+                         setMaxentStatus('found');
+                       } else {
+                         setMaxentStatus('not_found');
+                       }
+                     }}
+                     variant="outline"
+                     size="sm"
+                     className="shrink-0"
+                   >
+                     <Search className="w-4 h-4" />
+                   </Button>
+                 </div>
+               </div>
+              )}
 
-            </div>
-          )}
-        </div>
+              </div>
+              )}
+              </div>
 
         {/* ── Run History (collapsible) ── */}
         <AnimatePresence>
