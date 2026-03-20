@@ -18,10 +18,13 @@ Deno.serve(async (req) => {
   for (const sp of missing) {
     let commonName = null;
 
+    // Strip author+year suffixes: "Genus species (Author, 1234)" → "Genus species"
+    const cleanName = sp.scientific_name.trim().replace(/\s+[\(\[].*$/, '').trim();
+
     // 1. Try iNaturalist preferred_common_name
     if (!commonName) {
       try {
-        const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(sp.scientific_name)}&rank=species&per_page=1`;
+        const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(cleanName)}&rank=species&per_page=1`;
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
