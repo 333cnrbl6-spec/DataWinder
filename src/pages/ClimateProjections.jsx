@@ -350,6 +350,56 @@ export default function ClimateProjections() {
 
   const selectedSources = CLIMATE_SOURCES.filter(s => selectedIds.includes(s.id));
 
+  const saveToDatabase = async () => {
+    setSaving(true);
+    try {
+      const existing = await base44.entities.ClimateDataset.list();
+      const existingNames = new Set(existing.map(e => e.name));
+      const toSave = selectedSources.filter(s => !existingNames.has(s.name));
+      const alreadyExist = selectedSources.length - toSave.length;
+
+      if (toSave.length > 0) {
+        await base44.entities.ClimateDataset.bulkCreate(toSave.map(s => ({
+          name: s.name,
+          source: s.provider.includes('WorldClim') ? 'WorldClim'
+            : s.provider.includes('CHELSA') ? 'CHELSA'
+            : s.provider.includes('ECMWF') || s.provider.includes('Copernicus') ? 'ERA5'
+            : s.provider.includes('NASA') || s.provider.includes('USGS') ? 'MODIS'
+            : s.provider.includes('ESA') ? 'ESA CCI'
+            : s.provider.includes('CGIAR') ? 'CGIAR'
+            : s.provider.includes('Idaho') ? 'TerraClimate'
+            : s.provider.includes('ISIMIP') ? 'ISIMIP'
+            : s.provider.includes('ESGF') || s.provider.includes('IPCC') ? 'CMIP6/ESGF'
+            : 'Other',
+          variable_category: s.category,
+          scenario: s.scenario === 'Historical/Baseline' ? 'Historical/Baseline'
+            : s.scenario === 'All SSPs' ? 'All SSPs'
+            : s.scenario === 'Multiple SSPs' ? 'Multiple SSPs'
+            : s.scenario,
+          time_period: s.timePeriod,
+          resolution: s.resolution,
+          gcm: s.gcm,
+          variables: s.variables,
+          description: s.description,
+          download_url: s.url,
+          maxent_ready: s.maxentReady,
+        })));
+      }
+
+      toast({
+        title: toSave.length > 0 ? `Saved ${toSave.length} dataset(s)` : 'Nothing new to save',
+        description: alreadyExist > 0
+          ? `${alreadyExist} dataset(s) were already in your database.`
+          : 'Datasets are now available in MAXENT Modeller.',
+      });
+      setSelectedIds([]);
+    } catch (err) {
+      toast({ title: 'Error saving', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const exportSelectedUrls = () => {
     const lines = selectedSources.map(s => `${s.name}\t${s.url}`).join('\n');
     const blob = new Blob([lines], { type: 'text/plain' });
