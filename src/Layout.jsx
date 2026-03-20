@@ -116,7 +116,7 @@ className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 bg-bangor-red rounded flex items-center justify-center">
-                  <Leaf className="w-3 h-3 text-bangor-sun" />
+                  <Leaf className="w-3 h-3 text-white" />
                 </div>
                 <span>© {new Date().getFullYear()} Bangor University — Species Distribution Modelling</span>
               </div>
