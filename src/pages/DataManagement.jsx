@@ -25,6 +25,7 @@ import SaveSearchPanel from '@/components/SaveSearchPanel';
 import SmartDropZone from '@/components/SmartDropZone';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { useSearchSounds } from '@/hooks/useSearchSounds';
 
 export default function DataManagement() {
   const [species, setSpecies] = useState([]);
