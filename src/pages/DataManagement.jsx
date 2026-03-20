@@ -22,6 +22,7 @@ import OnboardingWizard from '@/components/OnboardingWizard';
 import BangOnLogo from '@/components/BangOnLogo';
 import LogoShowcase from '@/components/LogoShowcase';
 import SaveSearchPanel from '@/components/SaveSearchPanel';
+import SmartDropZone from '@/components/SmartDropZone';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
