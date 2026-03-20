@@ -164,6 +164,10 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                 <FileChip icon={Download} label="GBIF CSV" color="blue"
                   onClick={() => downloadFile(species.gbif_occurrences_csv_file_uri, `${safeName}_gbif.csv`)} />
               )}
+              {species.specieslink_occurrences_csv_file_uri && (
+                <FileChip icon={Download} label="spLink CSV" color="green"
+                  onClick={() => downloadFile(species.specieslink_occurrences_csv_file_uri, `${safeName}_specieslink.csv`)} />
+              )}
               {species.assessment_pdf_file_uri ? (
                 <FileChip icon={FileText} label="PDF" color="red"
                   onClick={() => downloadFile(species.assessment_pdf_file_uri, `${safeName}_assessment.pdf`)} />
