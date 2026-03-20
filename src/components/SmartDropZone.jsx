@@ -52,6 +52,7 @@ export default function SmartDropZone({ onImported }) {
 
     try {
       let fileToProcess = file;
+      let extractedFrom = null;
       
       // If ZIP file, unzip and get first extractable file
       if (file.name.endsWith('.zip') || file.type === 'application/zip') {
@@ -63,8 +64,14 @@ export default function SmartDropZone({ onImported }) {
         
         const firstFile = files[0];
         const blob = await firstFile.async('blob');
-        fileToProcess = new File([blob], firstFile.name, { type: blob.type });
-        setFileInfo({ name: firstFile.name, size: blob.size, type: blob.type, extractedFrom: file.name });
+        // Infer MIME type from file extension
+        const ext = firstFile.name.split('.').pop().toLowerCase();
+        const mimeTypes = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json', txt: 'text/plain' };
+        const mimeType = mimeTypes[ext] || blob.type || 'application/octet-stream';
+        
+        fileToProcess = new File([blob], firstFile.name, { type: mimeType });
+        extractedFrom = file.name;
+        setFileInfo({ name: firstFile.name, size: blob.size, type: mimeType, extractedFrom });
       }
       
       // Upload file then extract data
