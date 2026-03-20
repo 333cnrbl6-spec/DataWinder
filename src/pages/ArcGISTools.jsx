@@ -210,17 +210,17 @@ export default function ArcGISTools() {
 
         {/* Analysis Results */}
         {analysisResults.length > 0 && (
-          <div className="mb-6">
-            <AnalysisResultsViewer 
-              results={analysisResults}
-              onVisualize={(result) => {
-                toast.success(`Visualizing ${result.name}`);
-                // Could integrate with map viewer here
-              }}
-              onClear={() => setAnalysisResults([])}
-            />
-          </div>
-        )}
+           <div className="mb-6">
+             <AnalysisResultsViewer 
+               results={analysisResults}
+               onVisualize={(result) => {
+                 toast.success(`Visualizing ${result.name}`);
+                 // Could integrate with map viewer here
+               }}
+               onClear={clearResults}
+             />
+           </div>
+         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* ArcGIS Export Tools */}
