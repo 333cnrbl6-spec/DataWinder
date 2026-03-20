@@ -25,7 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(false);
   const [includeSpeciesLink, setIncludeSpeciesLink] = useState(false);
   const [speciesLinkApiKey, setSpeciesLinkApiKey] = useState('');
   const [showSpeciesLinkInput, setShowSpeciesLinkInput] = useState(false);
@@ -35,24 +35,13 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       try {
         const user = await base44.auth.me();
         if (user.iucn_api_token) setIucnToken(user.iucn_api_token);
-        if (user.specieslink_api_key) {
-          setSpeciesLinkApiKey(user.specieslink_api_key);
-          setIncludeSpeciesLink(true);
-        }
+        if (user.specieslink_api_key) setSpeciesLinkApiKey(user.specieslink_api_key);
       } catch (e) {
         // Not logged in or no credentials
       }
     };
     loadCredentials();
   }, []);
-
-  const saveSpeciesLinkKey = async () => {
-    if (speciesLinkApiKey.trim()) {
-      await base44.auth.updateMe({ specieslink_api_key: speciesLinkApiKey.trim() });
-      setShowSpeciesLinkInput(false);
-      setIncludeSpeciesLink(true);
-    }
-  };
 
   const saveIucnToken = async () => {
     if (iucnToken.trim()) {
@@ -67,19 +56,23 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    const searchPayload = {
-      iucnToken,
-      includeINaturalist: includeINat,
-      includeGBIF,
-      includeSpeciesLink,
-      speciesLinkApiKey
-    };
+    // If not species level with selected species, search those specific species
     if (level !== 'species' && selectedSpecies.length > 0) {
-      onSearch({ level: 'species', terms: selectedSpecies, ...searchPayload });
+      onSearch({ 
+        level: 'species', 
+        terms: selectedSpecies, 
+        iucnToken,
+        includeINaturalist: includeINat
+      });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
-        onSearch({ level, terms: validTerms, ...searchPayload });
+        onSearch({ 
+          level, 
+          terms: validTerms, 
+          iucnToken,
+          includeINaturalist: includeINat
+        });
       }
     }
   };
@@ -248,71 +241,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
 
       {/* iNaturalist */}
-      <div className="mb-4">
+      <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
         </div>
-      </div>
-
-      {/* GBIF */}
-      <div className="mb-4">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">GBIF</h3>
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600" />
-          <span className="text-xs text-blue-700 font-medium">Public API - No Credentials Required</span>
-        </div>
-      </div>
-
-      {/* speciesLink */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">speciesLink <span className="text-[10px] text-slate-400 font-normal">(South American museum specimens)</span></h3>
-        {!speciesLinkApiKey ? (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <Key className="w-5 h-5 text-emerald-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-emerald-700 mb-3">Free API key required. Register at speciesLink.net to get one.</p>
-                {!showSpeciesLinkInput ? (
-                  <div className="flex gap-2">
-                    <a href="https://specieslink.net/aut/profile/apikeys" target="_blank" rel="noopener noreferrer"
-                      className="text-xs px-3 py-1.5 rounded-md bg-emerald-600 text-white inline-flex items-center gap-1 font-medium">
-                      <ExternalLink className="w-3 h-3" /> Get API Key
-                    </a>
-                    <button onClick={() => setShowSpeciesLinkInput(true)}
-                      className="text-xs px-3 py-1.5 rounded-md border border-emerald-300 text-emerald-700 font-medium">
-                      I Have a Key
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Input value={speciesLinkApiKey} onChange={(e) => setSpeciesLinkApiKey(e.target.value)}
-                      placeholder="Paste speciesLink API key" className="text-xs h-8 flex-1" />
-                    <Button size="sm" onClick={saveSpeciesLinkKey} className="text-xs h-8 bg-emerald-600 text-white">Save</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowSpeciesLinkInput(false)} className="text-xs h-8">Cancel</Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs text-emerald-700 font-medium">speciesLink API Key Configured</span>
-            </div>
-            <button onClick={() => setShowSpeciesLinkInput(true)} className="text-xs text-emerald-600 underline font-medium">Change</button>
-          </div>
-        )}
-        {showSpeciesLinkInput && speciesLinkApiKey && (
-          <div className="flex gap-2 mt-2">
-            <Input value={speciesLinkApiKey} onChange={(e) => setSpeciesLinkApiKey(e.target.value)}
-              placeholder="Paste speciesLink API key" className="text-xs h-8 flex-1" />
-            <Button size="sm" onClick={saveSpeciesLinkKey} className="text-xs h-8 bg-emerald-600 text-white">Save</Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowSpeciesLinkInput(false)} className="text-xs h-8">Cancel</Button>
-          </div>
-        )}
       </div>
 
       <div className="space-y-3">
@@ -466,25 +400,20 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
-              This will download data from IUCN Red List{includeINat ? ', iNaturalist' : ''}{includeGBIF ? ', GBIF' : ''}{includeSpeciesLink && speciesLinkApiKey ? ', speciesLink' : ''}.
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <div className="space-y-2 mb-4">
-              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-                <input type="checkbox" checked={includeINat} onChange={(e) => setIncludeINat(e.target.checked)} className="w-4 h-4" />
-                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observations</span>
-              </label>
-              <label className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer border border-blue-200">
-                <input type="checkbox" checked={includeGBIF} onChange={(e) => setIncludeGBIF(e.target.checked)} className="w-4 h-4" />
-                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrences</span>
-              </label>
-              {speciesLinkApiKey && (
-                <label className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg cursor-pointer border border-emerald-200">
-                  <input type="checkbox" checked={includeSpeciesLink} onChange={(e) => setIncludeSpeciesLink(e.target.checked)} className="w-4 h-4" />
-                  <span className="text-sm text-slate-700 font-medium">Include speciesLink Specimens</span>
-                </label>
-              )}
-            </div>
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button
