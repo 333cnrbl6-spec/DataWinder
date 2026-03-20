@@ -1239,8 +1239,8 @@ export default function Home() {
 
           {/* Right: Database Management Panel - Always Visible */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <Card className="shadow-lg border-bangor-sun/20">
-              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+            <Card className="shadow-lg border-slate-200">
+              <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
                 <CardTitle className="flex items-center gap-2 text-bangor-red">
                   <Database className="w-5 h-5" />
                   Database Management
@@ -1249,7 +1249,7 @@ export default function Home() {
               <CardContent className="p-6 space-y-6">
                 {/* Database Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-sun/10 rounded-lg p-4">
+                  <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-cardinal/10 rounded-lg p-4">
                     <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
                     <div className="text-sm text-slate-600 mt-1">Total Species</div>
                   </div>
