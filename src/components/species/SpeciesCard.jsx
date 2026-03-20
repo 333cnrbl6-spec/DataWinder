@@ -64,6 +64,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
   const hasIUCN = !!species.iucn_id;
   const hasINat = !!(species.inat_taxon_id || species.observation_count > 0);
   const hasGBIF = !!(species.gbif_id || species.gbif_occurrence_count > 0);
+  const hasSL = !!(species.specieslink_occurrence_count > 0);
 
   return (
     <>
