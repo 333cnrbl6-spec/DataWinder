@@ -50,6 +50,7 @@ export default function FAQBot() {
     // Optimistic user message
     setMessages((prev) => [...prev, { role: "user", content: msg, id: "temp-user" }]);
 
+    if (!conversation) return;
     await base44.agents.addMessage(conversation, { role: "user", content: msg });
     setIsLoading(false);
     inputRef.current?.focus();
