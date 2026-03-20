@@ -18,7 +18,7 @@ export default function FAQSuggestions({ onSelect }) {
           <button
             key={q}
             onClick={() => onSelect(q)}
-            className="text-xs px-2.5 py-1 rounded-full bg-bangor-red/8 border border-bangor-red/20 text-bangor-red hover:bg-bangor-red hover:text-white transition-all duration-200"
+            className="text-xs px-2.5 py-1 rounded-full bg-bangor-red/10 border border-bangor-red/20 text-bangor-red hover:bg-bangor-red hover:text-white transition-all duration-200"
           >
             {q}
           </button>
