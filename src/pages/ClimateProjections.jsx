@@ -470,11 +470,27 @@ export default function ClimateProjections() {
                   onScenarioChange={setActiveScenario}
                 />
 
-                <div className="text-xs text-slate-500">
-                  Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {CLIMATE_SOURCES.length} datasets
-                  {selectedIds.length > 0 && (
-                    <span className="ml-2 text-bangor-red font-semibold">· {selectedIds.length} selected</span>
-                  )}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-xs text-slate-500">
+                    Showing <span className="font-semibold text-slate-700">{filtered.length}</span> of {CLIMATE_SOURCES.length} datasets
+                    {selectedIds.length > 0 && (
+                      <span className="ml-2 text-bangor-red font-semibold">· {selectedIds.length} selected</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={selectAll}>
+                      Select All ({filtered.length})
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-2 text-emerald-700 border-emerald-300 hover:bg-emerald-50" onClick={selectMaxentReady}>
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      MAXENT Ready ({filtered.filter(s => s.maxentReady).length})
+                    </Button>
+                    {selectedIds.length > 0 && (
+                      <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-slate-500" onClick={clearSelection}>
+                        Clear
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
