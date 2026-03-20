@@ -54,25 +54,28 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     setShowConfirmDialog(true);
   };
 
+  const saveSpeciesLinkKey = async () => {
+    if (speciesLinkApiKey.trim()) {
+      await base44.auth.updateMe({ specieslink_api_key: speciesLinkApiKey.trim() });
+      setShowSpeciesLinkInput(false);
+    }
+  };
+
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    // If not species level with selected species, search those specific species
+    const extraParams = {
+      iucnToken,
+      includeINaturalist: includeINat,
+      includeGBIF,
+      includeSpeciesLink,
+      speciesLinkApiKey: speciesLinkApiKey.trim()
+    };
     if (level !== 'species' && selectedSpecies.length > 0) {
-      onSearch({ 
-        level: 'species', 
-        terms: selectedSpecies, 
-        iucnToken,
-        includeINaturalist: includeINat
-      });
+      onSearch({ level: 'species', terms: selectedSpecies, ...extraParams });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
-        onSearch({ 
-          level, 
-          terms: validTerms, 
-          iucnToken,
-          includeINaturalist: includeINat
-        });
+        onSearch({ level, terms: validTerms, ...extraParams });
       }
     }
   };
