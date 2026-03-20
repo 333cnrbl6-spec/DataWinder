@@ -357,12 +357,13 @@ export default function ClimateProjections() {
 
   const selectedSources = CLIMATE_SOURCES.filter(s => selectedIds.includes(s.id));
 
-  const saveToDatabase = async () => {
+  const saveToDatabase = async (overrideSources) => {
     setSaving(true);
+    const sourcesToSave = overrideSources || selectedSources;
     try {
       const existing = await base44.entities.ClimateDataset.list();
       const existingNames = new Set(existing.map(e => e.name));
-      const toSave = selectedSources.filter(s => !existingNames.has(s.name));
+      const toSave = sourcesToSave.filter(s => !existingNames.has(s.name));
       const alreadyExist = selectedSources.length - toSave.length;
 
       if (toSave.length > 0) {
