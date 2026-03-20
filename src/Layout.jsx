@@ -25,6 +25,7 @@ const NAV_CATEGORIES = [
     icon: PackageOpen,
     items: [
       { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
+      { label: 'Database Cleanse', page: 'DatabaseCleanse', icon: PackageOpen },
       { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
       { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
     ]
