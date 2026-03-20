@@ -1190,6 +1190,7 @@ export default function DataManagement() {
                   {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
                   {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
                   {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
+                  {searchInfo?.includeSpeciesLink && <p>• Fetching from speciesLink (staged, one at a time…)</p>}
                 </div>
               </div>
             )}
