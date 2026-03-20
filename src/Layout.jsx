@@ -125,7 +125,7 @@ className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
       {currentPageName !== 'FAQBot' && (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
           {showTooltip && (
-            <div className="bg-white border border-slate-200 shadow-lg rounded-2xl px-4 py-2.5 text-sm text-slate-700 max-w-[200px] text-center animate-bounce-in">
+            <div className="relative bg-white border border-slate-200 shadow-lg rounded-2xl px-4 py-2.5 text-sm text-slate-700 max-w-[200px] text-center">
               👋 Hi! Need help with climate data or MAXENT modelling?
               <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white border-r border-b border-slate-200 rotate-45"></div>
             </div>
