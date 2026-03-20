@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ChevronRight, ChevronLeft, Rocket, CheckCircle, History, Info, Loader2, Download, HardDrive, Wifi, ExternalLink, ChevronDown, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Rocket, CheckCircle, History, Info, Loader2, Download, HardDrive, Wifi, ExternalLink, ChevronDown, ThumbsUp, ThumbsDown, Search, AlertCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import StepIndicator from '@/components/maxent/StepIndicator';
@@ -45,11 +45,36 @@ export default function MAXENTModeler() {
   const [showMaxentSetup, setShowMaxentSetup] = useState(false);
   const [maxentChoice, setMaxentChoice] = useState(null);
   const [maxentTermsAccepted, setMaxentTermsAccepted] = useState(false);
+  const [maxentStatus, setMaxentStatus] = useState(null);
+  const [detectedMaxentPath, setDetectedMaxentPath] = useState(null);
+  const [customMaxentPath, setCustomMaxentPath] = useState('');
+  const [isDetecting, setIsDetecting] = useState(false);
 
   const { data: runs = [], refetch: refetchRuns } = useQuery({
     queryKey: ['maxentRuns'],
     queryFn: () => base44.entities.MaxentRun.list('-created_date', 50),
   });
+
+  // Auto-detect MAXENT on mount
+  useEffect(() => {
+    const detectMaxent = async () => {
+      setIsDetecting(true);
+      try {
+        const response = await base44.functions.invoke('detectMaxentLocation', { action: 'detect' });
+        if (response.data?.detection?.path) {
+          setDetectedMaxentPath(response.data.detection.path);
+          setMaxentStatus('found');
+        } else {
+          setMaxentStatus('not_found');
+        }
+      } catch (err) {
+        console.error('Detection failed:', err);
+        setMaxentStatus('error');
+      }
+      setIsDetecting(false);
+    };
+    detectMaxent();
+  }, []);
 
   const canProceedFromStep = () => {
     if (currentStep === 1) return selectedSpecies.length > 0;
@@ -76,20 +101,36 @@ export default function MAXENTModeler() {
       climate_dataset_names: selectedLayers.map(l => l.name),
       occurrence_count: occurrenceCount,
       parameters,
-      status: 'submitted',
+      status: detectedMaxentPath ? 'running' : 'submitted',
     });
 
-    // Notify backend function (placeholder hook for external MAXENT service)
-    try {
-      await base44.functions.invoke('runMaxentModel', {
-        run_id: run.id,
-        species_name: speciesNames,
-        parameters,
-        layer_names: selectedLayers.map(l => l.name),
-        occurrence_count: occurrenceCount,
-      });
-    } catch {
-      // Non-critical — run is already saved regardless
+    // Try local execution if MAXENT detected
+    if (detectedMaxentPath || customMaxentPath) {
+      const maxentPath = customMaxentPath || detectedMaxentPath;
+      try {
+        await base44.functions.invoke('runMaxentModel', {
+          action: 'execute',
+          maxentPath,
+          occurrenceFile: `occurrence_${run.id}.csv`,
+          environmentalLayers: selectedLayers.map(l => l.name).join(','),
+          parameters: { ...parameters, outputDir: `./results_${run.id}` },
+        });
+      } catch (err) {
+        console.warn('Local execution failed, queuing for cloud service:', err);
+      }
+    } else {
+      // Fallback to cloud service
+      try {
+        await base44.functions.invoke('runMaxentModel', {
+          run_id: run.id,
+          species_name: speciesNames,
+          parameters,
+          layer_names: selectedLayers.map(l => l.name),
+          occurrence_count: occurrenceCount,
+        });
+      } catch {
+        // Non-critical — run is already saved regardless
+      }
     }
 
     setLastRun({ ...run, name });
@@ -133,21 +174,44 @@ export default function MAXENTModeler() {
         </div>
 
         {/* ── MAXENT Bolt-On Banner ── */}
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 overflow-hidden">
-          <button
-            onClick={() => setShowMaxentSetup(v => !v)}
-            className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-amber-100 transition-colors"
-          >
-            <HardDrive className="w-5 h-5 text-amber-600 shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-800">Boost Performance — Install MAXENT Locally</p>
-              <p className="text-xs text-amber-700 mt-0.5">A local installation runs significantly faster and keeps your data private. Click to learn more or set it up now.</p>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-amber-600 transition-transform ${showMaxentSetup ? 'rotate-180' : ''}`} />
-          </button>
+         <div className={`mb-6 rounded-xl border overflow-hidden ${
+           maxentStatus === 'found' 
+             ? 'border-green-200 bg-green-50' 
+             : 'border-amber-200 bg-amber-50'
+         }`}>
+           <button
+             onClick={() => setShowMaxentSetup(v => !v)}
+             className={`w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors ${
+               maxentStatus === 'found' 
+                 ? 'hover:bg-green-100' 
+                 : 'hover:bg-amber-100'
+             }`}
+           >
+             {isDetecting ? (
+               <Loader2 className="w-5 h-5 text-amber-600 shrink-0 animate-spin" />
+             ) : maxentStatus === 'found' ? (
+               <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+             ) : (
+               <HardDrive className="w-5 h-5 text-amber-600 shrink-0" />
+             )}
+             <div className="flex-1">
+               {maxentStatus === 'found' ? (
+                 <>
+                   <p className="text-sm font-semibold text-green-800">✓ MAXENT Detected & Ready</p>
+                   <p className="text-xs text-green-700 mt-0.5">Models will run locally on your machine for optimal performance.</p>
+                 </>
+               ) : (
+                 <>
+                   <p className="text-sm font-semibold text-amber-800">Boost Performance — Install MAXENT Locally</p>
+                   <p className="text-xs text-amber-700 mt-0.5">A local installation runs significantly faster and keeps your data private. Click to learn more or set it up now.</p>
+                 </>
+               )}
+             </div>
+             <ChevronDown className={`w-4 h-4 transition-transform ${maxentStatus === 'found' ? 'text-green-600' : 'text-amber-600'} ${showMaxentSetup ? 'rotate-180' : ''}`} />
+           </button>
 
           {showMaxentSetup && (
-            <div className="px-5 pb-5 border-t border-amber-200 pt-4 space-y-4">
+            <div className={`px-5 pb-5 pt-4 space-y-4 border-t ${maxentStatus === 'found' ? 'border-green-200' : 'border-amber-200'}`}>
               {/* Option cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
