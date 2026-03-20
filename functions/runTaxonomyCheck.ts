@@ -130,9 +130,15 @@ Return ONLY valid JSON:
       };
     });
 
+    // Clear old pending review records before saving new ones
+    const oldReviews = await base44.asServiceRole.entities.PendingSpeciesReview.filter({ status: 'pending' });
+    for (const r of oldReviews) {
+      await base44.asServiceRole.entities.PendingSpeciesReview.delete(r.id);
+    }
+
     // Save review records
     if (reviewRecords.length > 0) {
-      await base44.entities.PendingSpeciesReview.bulkCreate(reviewRecords);
+      await base44.asServiceRole.entities.PendingSpeciesReview.bulkCreate(reviewRecords);
     }
 
     return Response.json({
