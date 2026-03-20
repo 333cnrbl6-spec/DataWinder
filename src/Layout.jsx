@@ -1,27 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, BookOpen, Folder } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, BookOpen, Folder, ChevronDown } from 'lucide-react';
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
 
-const NAV_ITEMS = [
-  { label: 'Species Search', page: 'Home', icon: Search },
-  { label: 'My Data', page: 'SavedData', icon: FolderOpen },
-  { label: 'Data Management', page: 'DataManagement', icon: Database },
-  { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
-  { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
-  { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
-  { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
-  { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
-  { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
-  { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
-  { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
-  { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
-  { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
-  { label: 'Projects', page: 'ProjectDashboard', icon: Folder },
-  { label: 'Community', page: 'Community', icon: Users },
-  { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
-  // { label: 'Literature', page: 'LiteratureLibrary', icon: BookOpen }, // Coming soon - Mendeley integration in progress
+const NAV_CATEGORIES = [
+  {
+    label: 'Search & Data',
+    icon: Search,
+    items: [
+      { label: 'Species Search', page: 'Home', icon: Search },
+      { label: 'My Data', page: 'SavedData', icon: FolderOpen },
+      { label: 'Data Management', page: 'DataManagement', icon: Database },
+    ]
+  },
+  {
+    label: 'Data Preparation',
+    icon: PackageOpen,
+    items: [
+      { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
+      { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
+      { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
+    ]
+  },
+  {
+    label: 'Modeling',
+    icon: Layers,
+    items: [
+      { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
+      { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
+      { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
+      { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
+      { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
+      { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
+      { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
+    ]
+  },
+  {
+    label: 'Projects',
+    page: 'ProjectDashboard',
+    icon: Folder,
+    standalone: true
+  },
+  {
+    label: 'Community',
+    icon: Users,
+    items: [
+      { label: 'Community', page: 'Community', icon: Users },
+      { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
+    ]
+  },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -52,25 +81,61 @@ export default function Layout({ children, currentPageName }) {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-0.5">
-              {NAV_ITEMS.map(({ label, page, icon: Icon }) => {
-                const isActive = currentPageName === page;
-                return (
-                  <Link
-                    key={page}
-                    to={`/${page}`}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                      isActive
-                        ? 'bg-bangor-red text-white shadow-sm scale-[1.02]'
-                        : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red hover:scale-[1.02]'
-                    }`}
-                  >
-                    {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
+            <NavigationMenu className="hidden lg:flex">
+              <NavigationMenuList className="gap-0">
+                {NAV_CATEGORIES.map((category) => {
+                  if (category.standalone) {
+                    const isActive = currentPageName === category.page;
+                    return (
+                      <NavigationMenuItem key={category.label}>
+                        <Link
+                          to={`/${category.page}`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                            isActive
+                              ? 'bg-bangor-red text-white shadow-sm'
+                              : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
+                          }`}
+                        >
+                          {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                          {category.label}
+                        </Link>
+                      </NavigationMenuItem>
+                    );
+                  }
+                  
+                  return (
+                    <NavigationMenuItem key={category.label}>
+                      <NavigationMenuTrigger className="text-xs font-semibold text-slate-600 hover:text-bangor-red hover:bg-bangor-red/10 data-[state=open]:bg-bangor-red/10 data-[state=open]:text-bangor-red">
+                        {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                        {category.label}
+                        <ChevronDown className="w-3 h-3 ml-0.5" />
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <div className="w-48 p-2 bg-white rounded-lg shadow-lg border border-slate-100">
+                          {category.items.map(({ label, page, icon: Icon }) => {
+                            const isActive = currentPageName === page;
+                            return (
+                              <Link
+                                key={page}
+                                to={`/${page}`}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                                  isActive
+                                    ? 'bg-bangor-red/10 text-bangor-red'
+                                    : 'text-slate-600 hover:bg-slate-100'
+                                }`}
+                              >
+                                {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                                {label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  );
+                })}
+              </NavigationMenuList>
+            </NavigationMenu>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -85,27 +150,56 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Dropdown */}
         {menuOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2">
-            <div className="grid grid-cols-2 gap-1.5">
-              {NAV_ITEMS.map(({ label, page, icon: Icon }) => {
-                const isActive = currentPageName === page;
+          <div className="lg:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2 space-y-3">
+            {NAV_CATEGORIES.map((category) => {
+              if (category.standalone) {
+                const isActive = currentPageName === category.page;
                 return (
                   <Link
-                    key={page}
-                    to={`/${page}`}
+                    key={category.label}
+                    to={`/${category.page}`}
                     onClick={() => setMenuOpen(false)}
-className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       isActive
                         ? 'bg-bangor-red text-white'
                         : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
                     }`}
                   >
-                    {React.createElement(Icon, { className: 'w-4 h-4 shrink-0' })}
-                    {label}
+                    {React.createElement(category.icon, { className: 'w-4 h-4 shrink-0' })}
+                    {category.label}
                   </Link>
                 );
-              })}
-            </div>
+              }
+
+              return (
+                <div key={category.label}>
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-500 uppercase tracking-wide">
+                    {React.createElement(category.icon, { className: 'w-3.5 h-3.5' })}
+                    {category.label}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 ml-2">
+                    {category.items.map(({ label, page, icon: Icon }) => {
+                      const isActive = currentPageName === page;
+                      return (
+                        <Link
+                          key={page}
+                          to={`/${page}`}
+                          onClick={() => setMenuOpen(false)}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? 'bg-bangor-red text-white'
+                              : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
+                          }`}
+                        >
+                          {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                          {label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </nav>
