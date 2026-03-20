@@ -488,6 +488,10 @@ export default function ClimateProjections() {
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       MAXENT Ready ({filtered.filter(s => s.maxentReady).length})
                     </Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7 px-2 text-blue-700 border-blue-300 hover:bg-blue-50" onClick={selectRecommended}>
+                      <Layers className="w-3 h-3 mr-1" />
+                      Recommended Stack
+                    </Button>
                     {selectedIds.length > 0 && (
                       <Button size="sm" variant="ghost" className="text-xs h-7 px-2 text-slate-500" onClick={clearSelection}>
                         Clear
