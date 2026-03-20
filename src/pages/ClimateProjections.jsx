@@ -480,10 +480,16 @@ export default function ClimateProjections() {
               <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-bangor-red/10 to-blue-50 flex flex-row items-center justify-between">
                 <CardTitle className="text-bangor-red">Available Datasets ({filtered.length})</CardTitle>
                 {selectedIds.length > 0 && (
-                  <Button size="sm" onClick={exportSelectedUrls} className="bg-emerald-600 hover:bg-emerald-700">
-                    <Download className="w-3 h-3 mr-1" />
-                    Export Links ({selectedIds.length})
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={exportSelectedUrls} variant="outline">
+                      <Download className="w-3 h-3 mr-1" />
+                      Export Links ({selectedIds.length})
+                    </Button>
+                    <Button size="sm" onClick={saveToDatabase} disabled={saving} className="bg-bangor-red hover:bg-bangor-red/90">
+                      <Database className="w-3 h-3 mr-1" />
+                      {saving ? 'Saving…' : `Add to My Data (${selectedIds.length})`}
+                    </Button>
+                  </div>
                 )}
               </CardHeader>
               <CardContent className="p-4 max-h-[680px] overflow-y-auto">
