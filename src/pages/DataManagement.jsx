@@ -52,6 +52,8 @@ export default function DataManagement() {
   const [showMergeModal, setShowMergeModal] = useState(false);
   const [mergeCandidates, setMergeCandidates] = useState([]);
   const [isLoadingMergeCandidates, setIsLoadingMergeCandidates] = useState(false);
+  const [duplicateReviews, setDuplicateReviews] = useState([]);
+  const [reviewingDuplicateId, setReviewingDuplicateId] = useState(null);
   const [soundMuted, setSoundMuted] = useState(false);
   const queryClient = useQueryClient();
   const { playSuccess, playError, startTicking, stopTicking, toggleMute } = useSearchSounds();
