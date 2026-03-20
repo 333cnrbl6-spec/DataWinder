@@ -137,6 +137,9 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
               {species.gbif_occurrence_count > 0 && (
                 <span>{species.gbif_occurrence_count.toLocaleString()} occ</span>
               )}
+              {species.specieslink_occurrence_count > 0 && (
+                <span>{species.specieslink_occurrence_count.toLocaleString()} spec</span>
+              )}
             </div>
 
             {/* Available files */}
