@@ -306,8 +306,10 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
           {step === 'complete' && (
             <Button
               onClick={() => {
-                onClose();
                 onComplete?.();
+                setStep('checking');
+                setDuplicates([]);
+                onClose();
               }}
               className="flex-1 bg-bangor-red text-white font-semibold"
             >
