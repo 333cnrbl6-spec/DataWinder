@@ -13,8 +13,7 @@ export default function FAQBot() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Bot avatar — replace src with uploaded image URL once provided
-  const BOT_AVATAR = null;
+  const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/ffaa8fd75_reface-2026-02-13-02-54-50.jpg";
 
   useEffect(() => {
     startConversation();
