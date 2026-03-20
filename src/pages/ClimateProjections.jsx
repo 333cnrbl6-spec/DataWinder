@@ -587,15 +587,19 @@ export default function ClimateProjections() {
                       Select All
                     </Button>
                     <Button size="sm" variant="outline" className="text-xs" onClick={() => {
-                      selectRecommended();
-                      setTimeout(exportSelectedUrls, 50);
+                      const sources = CLIMATE_SOURCES.filter(s => RECOMMENDED_IDS.includes(s.id));
+                      const lines = sources.map(s => `${s.name}\t${s.url}`).join('\n');
+                      const blob = new Blob([lines], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a'); a.href = url; a.download = 'recommended_stack.txt';
+                      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                     }}>
                       <Download className="w-3 h-3 mr-1" />
                       Export Links
                     </Button>
                     <Button size="sm" className="text-xs bg-bangor-red hover:bg-bangor-red/90" onClick={async () => {
-                      selectRecommended();
-                      await new Promise(r => setTimeout(r, 50));
+                      setSelectedIds(RECOMMENDED_IDS);
+                      await new Promise(r => setTimeout(r, 10));
                       saveToDatabase();
                     }}>
                       <Database className="w-3 h-3 mr-1" />
