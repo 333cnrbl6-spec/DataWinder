@@ -1144,12 +1144,14 @@ export default function Home() {
                         onSelect={handleSelect}
                         onEnrichWithINaturalist={enrichWithINaturalist}
                       />
-                    ) : (
+                    ) : viewMode === 'map' ? (
                       <MapView
                         species={species}
                         selectedIds={selectedIds}
                         onSelect={handleSelect}
                       />
+                    ) : (
+                      <OccurrenceSourceMap species={species} />
                     )}
                   </div>
                 </CardContent>
