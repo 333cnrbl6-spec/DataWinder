@@ -1085,8 +1085,8 @@ export default function Home() {
 
             {/* Search Results */}
             {species.length > 0 && (
-              <Card className="shadow-lg border-bangor-sun/20">
-                <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+              <Card className="shadow-lg border-slate-200">
+                <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-bangor-red">Search Results ({species.length})</CardTitle>
                     <div className="flex gap-2">
