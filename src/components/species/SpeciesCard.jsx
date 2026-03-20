@@ -122,6 +122,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
               {hasIUCN && <DataSourceBadge label="IUCN" color="iucn" />}
               {hasINat && <DataSourceBadge label="iNat" color="inat" />}
               {hasGBIF && <DataSourceBadge label="GBIF" color="gbif" />}
+              {hasSL && <DataSourceBadge label="spLink" color="sl" />}
               {species.family && (
                 <span className="text-[10px] text-slate-500 px-1.5 py-0.5 bg-slate-100 rounded-full">{species.family}</span>
               )}
