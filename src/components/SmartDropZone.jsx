@@ -197,9 +197,9 @@ Respond with JSON only.`,
               <Loader2 className="w-10 h-10 text-bangor-red animate-spin" />
               <div className="text-center">
                 <p className="font-semibold text-slate-700">Analysing your file…</p>
-                <p className="text-sm text-slate-500 mt-1">{fileInfo?.name}</p>
+                <p className="text-sm text-slate-500 mt-1">{fileInfo?.extractedFrom || fileInfo?.name}</p>
                 {fileInfo?.extractedFrom && (
-                  <p className="text-xs text-emerald-600 mt-1">Extracted from {fileInfo.extractedFrom}</p>
+                  <p className="text-xs text-emerald-600 mt-1">📦 Extracted: {fileInfo.name}</p>
                 )}
                 <p className="text-xs text-slate-400 mt-2">AI is examining the data structure and content</p>
               </div>
