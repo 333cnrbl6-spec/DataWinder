@@ -47,7 +47,31 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     }
   };
 
-  const handleSearch = () => {
+  const validateToken = async () => {
+    if (!iucnToken) {
+      console.warn('No IUCN token provided');
+      return false;
+    }
+    try {
+      const response = await fetch('https://api.iucnredlist.org/api/v4/countries', {
+        headers: { 'Authorization': `Bearer ${iucnToken}` }
+      });
+      return response.status === 200;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSearch = async () => {
+    if (level !== 'species' && !searchTerms.some(t => t.trim())) {
+      console.warn('No search terms provided');
+      return;
+    }
+    const tokenValid = await validateToken();
+    if (!tokenValid) {
+      alert('IUCN API token is invalid. Please verify your token and try again.');
+      return;
+    }
     setShowConfirmDialog(true);
   };
 
@@ -102,8 +126,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           iucnToken: iucnToken
         });
 
-        if (result.data?.status === 'success' && result.data?.data?.length > 0) {
-          setFamilySpecies(result.data.data);
+        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
+          setFamilySpecies(result.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -362,6 +386,12 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </div>
         )}
 
+        {!iucnToken && level !== 'species' && searchTerms.some(t => t.trim()) && (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800">
+            ⚠️ Add your IUCN API token above to browse species within taxonomic groups.
+          </div>
+        )}
+
         <Button 
           onClick={handleSearch}
           disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
@@ -466,7 +496,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <button
           onClick={() => {
             setLevel('family');
-            setSearchTerms(['Delphinidae', 'Phocidae', 'Sirenia']);
+            setSearchTerms(['Cetaceae', 'Sirenia', 'Odobenidae']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
@@ -532,11 +562,11 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           Fish
         </button>
 
-        {/* Insects */}
+        {/* Invertebrates */}
         <button
           onClick={() => {
             setLevel('family');
-            setSearchTerms(['Formicidae', 'Drosophilidae', 'Apidae']);
+            setSearchTerms(['Hominidae', 'Drosophilidae', 'Apidae']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
