@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Upload, FileText, Loader2, CheckCircle2, X, FlaskConical, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Upload, FileText, Loader2, CheckCircle2, X, FlaskConical, ChevronDown, ChevronUp, ExternalLink, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import ApplyMethodology from './ApplyMethodology';
 
 export default function PaperUploader({ onProcessed }) {
     const [dragging, setDragging] = useState(false);
@@ -10,6 +11,7 @@ export default function PaperUploader({ onProcessed }) {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [expandedSection, setExpandedSection] = useState('results');
+    const [showApplyModal, setShowApplyModal] = useState(false);
     const fileRef = useRef();
 
     const processFile = async (file) => {
@@ -201,13 +203,32 @@ export default function PaperUploader({ onProcessed }) {
                         <p className="whitespace-pre-wrap">{result.key_limitations || 'None stated'}</p>
                     </Section>
 
-                    <button
-                        onClick={() => { setResult(null); setError(null); }}
-                        className="w-full py-2.5 text-sm text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-                    >
-                        Process another paper
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => { setResult(null); setError(null); }}
+                            className="flex-1 py-2.5 text-sm text-slate-600 hover:text-slate-800 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                            Process another paper
+                        </button>
+                        <button
+                            onClick={() => setShowApplyModal(true)}
+                            className="flex-1 py-2.5 text-sm bg-bangor-red text-white rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 font-medium"
+                        >
+                            <Zap className="w-4 h-4" />
+                            Apply to MaxEnt
+                        </button>
+                    </div>
                 </div>
+            )}
+
+            {showApplyModal && result && (
+                <ApplyMethodology
+                    paper={result}
+                    onClose={() => setShowApplyModal(false)}
+                    onApplied={(data) => {
+                        alert(`✓ Created project: ${data.project.name}\nwith ${data.runs.length} MaxEnt run(s)`);
+                    }}
+                />
             )}
         </div>
     );
