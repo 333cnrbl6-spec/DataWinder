@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,7 +82,7 @@ export default function SmartFileImporter({ onFileAnalyzed, onClose }) {
   const FileIcon = analysis ? getFileIcon(analysis.data_type) : Upload;
 
   // Auto-validate when analysis completes
-  React.useEffect(() => {
+  useEffect(() => {
     if (analysis && step === 'validation' && !validating && !validationResult) {
       runValidation();
     }
