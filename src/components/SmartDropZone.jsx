@@ -74,20 +74,17 @@ export default function SmartDropZone({ onImported }) {
         setFileInfo({ name: firstFile.name, size: blob.size, type: mimeType, extractedFrom });
       }
       
-      // Upload file then extract data
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToProcess });
-
-      // Ask AI what this data is
+      // Ask AI what this data is (pass file directly, not uploaded URL)
       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${file.name}". 
-Examine the file content and determine:
-1. What type of data it contains (species records, climate data, occurrence records, etc.)
-2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, or SavedSearch
-3. A brief 1-sentence explanation of your reasoning
-4. Key fields you detected in the data
+        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}". 
+      Examine the file content and determine:
+      1. What type of data it contains (species records, climate data, occurrence records, etc.)
+      2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, or SavedSearch
+      3. A brief 1-sentence explanation of your reasoning
+      4. Key fields you detected in the data
 
-Respond with JSON only.`,
-        file_urls: [file_url],
+      Respond with JSON only.`,
+        file_urls: [fileToProcess], // Pass file directly
         response_json_schema: {
           type: 'object',
           properties: {
@@ -100,7 +97,7 @@ Respond with JSON only.`,
         }
       });
 
-      // Also extract structured data
+      // Also extract structured data (pass file directly)
       const entitySchema = {
         Species: { type: 'object', properties: { scientific_name: { type: 'string' }, common_name: { type: 'string' }, kingdom: { type: 'string' }, iucn_status: { type: 'string' } } },
         ClimateDataset: { type: 'object', properties: { name: { type: 'string' }, source: { type: 'string' }, variable_category: { type: 'string' }, description: { type: 'string' } } },
@@ -111,7 +108,7 @@ Respond with JSON only.`,
       const targetSchema = entitySchema[aiAnalysis.suggested_entity] || entitySchema['Species'];
 
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
+        file_url: fileToProcess, // Pass file directly instead of uploaded URL
         json_schema: {
           type: 'object',
           properties: {
