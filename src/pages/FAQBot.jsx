@@ -71,15 +71,11 @@ export default function FAQBot() {
 
   async function sendMessage(text) {
     const msg = text ?? input.trim();
-    if (!msg || isLoading) return;
+    if (!msg || isLoading || !conversation) return;
     setInput("");
     setShowSuggestions(false);
     setIsLoading(true);
-
-    // Optimistic user message
-    setMessages((prev) => [...prev, { role: "user", content: msg, id: "temp-user" }]);
-
-    if (!conversation) return;
+    setMessages((prev) => [...prev, { role: "user", content: msg, id: "temp-user-" + Date.now() }]);
     await base44.agents.addMessage(conversation, { role: "user", content: msg });
     setIsLoading(false);
     inputRef.current?.focus();

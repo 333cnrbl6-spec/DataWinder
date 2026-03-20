@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Send, X, RotateCcw, MessageCircle, ChevronDown } from "lucide-react";
+import { Send, RotateCcw, ChevronDown } from "lucide-react";
 import FAQMessage from "@/components/faq/FAQMessage";
 
 const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0d5777eaa_generated_image.png";
@@ -170,10 +170,25 @@ export default function AssistantPanel({ currentPageName }) {
   async function resetConversation() {
     setMessages([]);
     setConversation(null);
-    setInitialised(false);
     setIsLoading(false);
-    // Re-open fresh
-    openPanel();
+    // Re-init fresh — bypass the initialised guard by running init inline
+    setInitialised(true);
+    setIsOpen(true);
+    setIsLoading(true);
+    const conv = await base44.agents.createConversation({
+      agent_name: "faq_bot",
+      metadata: { name: `Help: ${pageLabel}` },
+    });
+    setConversation(conv);
+    setMessages(conv.messages ?? []);
+    if (currentPageName && PAGE_LABELS[currentPageName]) {
+      await base44.agents.addMessage(conv, {
+        role: "user",
+        content: `[CONTEXT: The user is currently on the "${pageLabel}" page. Please greet them warmly and offer one concise, practical tip or next step for this page. Keep it to 2-3 sentences.]`,
+      });
+    }
+    setIsLoading(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
   }
 
   const handleKeyDown = (e) => {
