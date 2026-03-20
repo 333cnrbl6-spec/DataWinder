@@ -94,13 +94,13 @@
   .border-bangor-red {
     border-color: hsl(var(--bangor-red));
   }
-  .bg-bangor-sun {
-    background-color: hsl(var(--bangor-sun));
+  .bg-bangor-cardinal {
+    background-color: hsl(var(--bangor-cardinal));
   }
-  .text-bangor-sun {
-    color: hsl(var(--bangor-sun));
+  .text-bangor-cardinal {
+    color: hsl(var(--bangor-cardinal));
   }
-  .border-bangor-sun {
-    border-color: hsl(var(--bangor-sun));
+  .border-bangor-cardinal {
+    border-color: hsl(var(--bangor-cardinal));
   }
 }
