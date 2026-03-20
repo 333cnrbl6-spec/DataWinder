@@ -598,10 +598,9 @@ export default function ClimateProjections() {
                       <Download className="w-3 h-3 mr-1" />
                       Export Links
                     </Button>
-                    <Button size="sm" className="text-xs bg-bangor-red hover:bg-bangor-red/90" onClick={async () => {
-                      setSelectedIds(RECOMMENDED_IDS);
-                      await new Promise(r => setTimeout(r, 10));
-                      saveToDatabase();
+                    <Button size="sm" className="text-xs bg-bangor-red hover:bg-bangor-red/90" onClick={() => {
+                      const sources = CLIMATE_SOURCES.filter(s => RECOMMENDED_IDS.includes(s.id));
+                      saveToDatabase(sources);
                     }}>
                       <Database className="w-3 h-3 mr-1" />
                       Add to My Data
