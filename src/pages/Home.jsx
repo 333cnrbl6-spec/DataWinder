@@ -1188,14 +1188,14 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-bangor-sun/5 rounded-lg border border-bangor-red/10 flex items-start gap-3">
+                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/10 flex items-start gap-3">
                   <Leaf className="w-4 h-4 text-bangor-red mt-0.5 shrink-0" />
                   <p className="text-xs text-slate-600 italic">
                     Inspired by the pioneering work of <span className="font-semibold text-bangor-red not-italic">Dr. I.C. Winder</span>, whose research in ecological modelling has been instrumental in shaping this platform.
                   </p>
                 </div>
 
-                <div className="mt-6 bg-gradient-to-br from-white to-bangor-sun/5 rounded-xl border border-bangor-sun/20 p-6 shadow-sm">
+                <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 shadow-sm">
                   <h3 className="text-sm font-semibold text-bangor-red mb-4">IUCN Red List Categories</h3>
                   <div className="flex flex-wrap gap-3">
                     {Object.entries(statusConfig).map(([code, config]) => (
