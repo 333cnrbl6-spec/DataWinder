@@ -1074,8 +1074,8 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Search Panel */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <Card className="shadow-lg border-bangor-sun/20">
-              <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+            <Card className="shadow-lg border-slate-200">
+              <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
                 <CardTitle className="text-bangor-red">Species Search</CardTitle>
               </CardHeader>
               <CardContent className="p-6">

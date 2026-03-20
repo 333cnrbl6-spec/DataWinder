@@ -195,7 +195,7 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                 <img src={species.image_url} alt={species.scientific_name}
                   className="w-36 h-36 object-cover rounded-xl flex-shrink-0 shadow-md" />
               ) : (
-                <div className="w-36 h-36 bg-gradient-to-br from-bangor-red/5 to-bangor-sun/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-36 h-36 bg-gradient-to-br from-bangor-red/5 to-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
                   <Leaf className="w-12 h-12 text-bangor-red/20" />
                 </div>
               )}
