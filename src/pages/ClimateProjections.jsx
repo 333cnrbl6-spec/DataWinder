@@ -576,10 +576,33 @@ export default function ClimateProjections() {
             {/* Recommended Workflow */}
             <Card className="shadow-lg border-blue-100">
               <CardHeader className="border-b border-blue-100 bg-gradient-to-r from-bangor-red/10 to-blue-50">
-                <CardTitle className="text-bangor-red flex items-center gap-2">
-                  <Layers className="w-5 h-5" />
-                  Recommended Variable Stack for Primate SDMs
-                </CardTitle>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <CardTitle className="text-bangor-red flex items-center gap-2">
+                    <Layers className="w-5 h-5" />
+                    Recommended Variable Stack for Primate SDMs
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50" onClick={selectRecommended}>
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Select All
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => {
+                      selectRecommended();
+                      setTimeout(exportSelectedUrls, 50);
+                    }}>
+                      <Download className="w-3 h-3 mr-1" />
+                      Export Links
+                    </Button>
+                    <Button size="sm" className="text-xs bg-bangor-red hover:bg-bangor-red/90" onClick={async () => {
+                      selectRecommended();
+                      await new Promise(r => setTimeout(r, 50));
+                      saveToDatabase();
+                    }}>
+                      <Database className="w-3 h-3 mr-1" />
+                      Add to My Data
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <p className="text-xs text-slate-600 leading-relaxed">
