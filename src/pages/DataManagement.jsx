@@ -116,6 +116,7 @@ export default function DataManagement() {
     setError(null);
     setSpecies([]);
     setSelectedIds([]);
+    startTicking(4000);
     setSearchInfo({ 
       level, 
       terms: terms.join(', '),
