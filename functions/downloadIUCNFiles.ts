@@ -28,16 +28,26 @@ Deno.serve(async (req) => {
 
     const downloadAndUpload = async (url, filename, expectedMimePrefix) => {
       if (!url) return null;
-      result.logs.push(`Fetching: ${url}`);
-      const res = await fetch(url, {
-        headers: { 'Accept': '*/*', 'User-Agent': 'Mozilla/5.0' }
-      });
-      result.logs.push(`Status: ${res.status}, Content-Type: ${res.headers.get('content-type')}`);
-      if (!res.ok) return null;
+      
+      const maxRetries = 3;
+      let lastError = null;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          result.logs.push(`Fetching: ${url} (attempt ${attempt}/${maxRetries})`);
+          const res = await fetch(url, {
+            headers: { 'Accept': '*/*', 'User-Agent': 'Mozilla/5.0' }
+          });
+          result.logs.push(`Status: ${res.status}, Content-Type: ${res.headers.get('content-type')}`);
+          if (!res.ok) {
+            lastError = `HTTP ${res.status}`;
+            if (attempt < maxRetries) continue;
+            return null;
+          }
       const ct = res.headers.get('content-type') || '';
       // Skip HTML responses — these are webpage redirects, not binary files
       if (ct.includes('text/html')) {
-        result.logs.push(`Skipped: HTML response (not a binary file) — manual download required`);
+        result.logs.push(`Skipped: HTML response (requires authentication — download manually from IUCN website)`);
         return null;
       }
       if (expectedMimePrefix && !ct.includes(expectedMimePrefix)) {
@@ -45,17 +55,27 @@ Deno.serve(async (req) => {
         return null;
       }
       const bytes = await res.arrayBuffer();
-       result.logs.push(`Downloaded: ${bytes.byteLength} bytes`);
-       if (bytes.byteLength < 100) {
-         result.logs.push(`Skipped: file too small (likely an error page)`);
-         return null;
-       }
-       // Use explicit MIME type from extension when content-type is unreliable
-       const mimeType = ct || getMimeTypeFromFilename(filename);
-       const file = new File([bytes], filename, { type: mimeType });
+      result.logs.push(`Downloaded: ${bytes.byteLength} bytes`);
+      if (bytes.byteLength < 100) {
+        result.logs.push(`Skipped: file too small (likely an error page)`);
+        return null;
+      }
+      // Use explicit MIME type from extension when content-type is unreliable
+      const mimeType = ct || getMimeTypeFromFilename(filename);
+      const file = new File([bytes], filename, { type: mimeType });
       const { file_uri } = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file });
       result.logs.push(`Stored: ${file_uri}`);
       return file_uri;
+      } catch (err) {
+      lastError = err.message;
+      result.logs.push(`Error (attempt ${attempt}/${maxRetries}): ${err.message}`);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // exponential backoff
+        continue;
+      }
+      return null;
+      }
+      }
     };
 
     // IUCN Assessment PDF — correct URL uses assessment_id, not sis_id
