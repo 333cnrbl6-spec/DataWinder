@@ -51,8 +51,24 @@ export default function SmartDropZone({ onImported }) {
     setFileInfo({ name: file.name, size: file.size, type: file.type });
 
     try {
+      let fileToProcess = file;
+      
+      // If ZIP file, unzip and get first extractable file
+      if (file.name.endsWith('.zip') || file.type === 'application/zip') {
+        const zip = new JSZip();
+        await zip.loadAsync(file);
+        
+        const files = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
+        if (files.length === 0) throw new Error('ZIP file is empty or contains no valid files');
+        
+        const firstFile = files[0];
+        const blob = await firstFile.async('blob');
+        fileToProcess = new File([blob], firstFile.name, { type: blob.type });
+        setFileInfo({ name: firstFile.name, size: blob.size, type: blob.type, extractedFrom: file.name });
+      }
+      
       // Upload file then extract data
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToProcess });
 
       // Ask AI what this data is
       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
