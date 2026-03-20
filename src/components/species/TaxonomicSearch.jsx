@@ -34,8 +34,10 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     const loadCredentials = async () => {
       try {
         const user = await base44.auth.me();
-        if (user.iucn_api_token) {
-          setIucnToken(user.iucn_api_token);
+        if (user.iucn_api_token) setIucnToken(user.iucn_api_token);
+        if (user.specieslink_api_key) {
+          setSpeciesLinkApiKey(user.specieslink_api_key);
+          setIncludeSpeciesLink(true);
         }
       } catch (e) {
         // Not logged in or no credentials
@@ -43,6 +45,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     };
     loadCredentials();
   }, []);
+
+  const saveSpeciesLinkKey = async () => {
+    if (speciesLinkApiKey.trim()) {
+      await base44.auth.updateMe({ specieslink_api_key: speciesLinkApiKey.trim() });
+      setShowSpeciesLinkInput(false);
+      setIncludeSpeciesLink(true);
+    }
+  };
 
   const saveIucnToken = async () => {
     if (iucnToken.trim()) {
