@@ -1235,7 +1235,7 @@ export default function Home() {
                   <Info className="h-4 w-4 text-bangor-red" />
                   <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
                   <AlertDescription className="text-slate-700 space-y-2">
-                    <p>DataWinder is a species distribution modelling toolkit built for ecological research at Bangor University. Use the workflow below to build, analyse, and model species data:</p>
+                    <p>DataWinder is a species distribution modelling toolkit built for ecological research. Use the workflow below to build, analyse, and model species data:</p>
                     <ol className="list-decimal list-inside space-y-1 text-sm">
                       <li><span className="font-semibold">Search</span> — Query by species, genus, family, order, or class across IUCN Red List, iNaturalist, and GBIF simultaneously.</li>
                       <li><span className="font-semibold">Enrich</span> — Pull conservation status, population trends, habitat & threat data from IUCN; citizen science observations from iNaturalist; and georeferenced occurrence records from GBIF.</li>
@@ -1261,7 +1261,7 @@ export default function Home() {
                 <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/10 flex items-start gap-3">
                   <Leaf className="w-4 h-4 text-bangor-red mt-0.5 shrink-0" />
                   <p className="text-xs text-slate-600 italic">
-                    Inspired by the pioneering work of <span className="font-semibold text-bangor-red not-italic">Dr. I.C. Winder</span>, whose research in ecological modelling has been instrumental in shaping this platform.
+                    Built by conservation researchers for conservation researchers. Supporting biodiversity science worldwide.
                   </p>
                 </div>
 
