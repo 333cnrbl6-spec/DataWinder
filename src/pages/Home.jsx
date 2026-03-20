@@ -867,6 +867,70 @@ export default function Home() {
         }
       }
 
+      // Search speciesLink if enabled
+      if (includeSpeciesLink && speciesLinkApiKey) {
+        const namesToSearch = Object.keys(allSpeciesMap).length > 0
+          ? Object.keys(allSpeciesMap)
+          : terms.filter(t => t.trim());
+
+        for (const scientificName of namesToSearch) {
+          try {
+            const slResult = await base44.functions.invoke('fetchSpeciesLinkData', {
+              scientificName,
+              apiKey: speciesLinkApiKey,
+              limit: 200
+            });
+
+            if (slResult.data?.status === 'success') {
+              const slData = slResult.data.data;
+
+              // Build CSV file
+              let slCsvFileUri = null;
+              if (slData.specieslink_occurrences?.length > 0) {
+                const csvContent = [
+                  'latitude,longitude,location,date,basis_of_record,institution,collection,catalog_number,recorded_by,type_status',
+                  ...slData.specieslink_occurrences.map(o =>
+                    `${o.latitude},${o.longitude},"${o.location}",${o.date || ''},"${o.basis_of_record}","${o.institution}","${o.collection}","${o.catalog_number}","${o.recorded_by}","${o.type_status}"`
+                  )
+                ].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const file = new File([blob], `${scientificName.replace(/ /g, '_')}_specieslink.csv`, { type: 'text/csv' });
+                const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+                slCsvFileUri = file_uri;
+              }
+
+              if (allSpeciesMap[scientificName]) {
+                allSpeciesMap[scientificName] = {
+                  ...allSpeciesMap[scientificName],
+                  specieslink_occurrence_count: slData.specieslink_occurrence_count,
+                  specieslink_occurrences: slData.specieslink_occurrences,
+                  specieslink_last_collected: slData.specieslink_last_collected,
+                  specieslink_occurrences_csv_file_uri: slCsvFileUri,
+                  data_source: allSpeciesMap[scientificName].data_source
+                    ? `${allSpeciesMap[scientificName].data_source} + speciesLink`
+                    : 'speciesLink'
+                };
+              } else {
+                allSpeciesMap[scientificName] = {
+                  id: `specieslink-${scientificName}`,
+                  scientific_name: scientificName,
+                  common_name: '',
+                  iucn_status: 'NE',
+                  specieslink_occurrence_count: slData.specieslink_occurrence_count,
+                  specieslink_occurrences: slData.specieslink_occurrences,
+                  specieslink_last_collected: slData.specieslink_last_collected,
+                  specieslink_occurrences_csv_file_uri: slCsvFileUri,
+                  data_source: 'speciesLink',
+                  dataset_name: terms.join(', ')
+                };
+              }
+            }
+          } catch (err) {
+            console.error(`Error fetching speciesLink data for ${scientificName}:`, err);
+          }
+        }
+      }
+
       // Persist all iNat-only and GBIF-only species to DB (IUCN ones are already saved above)
       for (const sp of Object.values(allSpeciesMap)) {
         if (sp.data_source === 'IUCN Red List') continue; // already saved
