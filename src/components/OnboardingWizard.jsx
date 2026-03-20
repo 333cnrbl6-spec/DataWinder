@@ -404,7 +404,7 @@ export default function OnboardingWizard({ open, onComplete }) {
                       <p className="font-bold text-slate-800 text-base">Free Membership — Founding Member Status</p>
                     </div>
                     <p className="text-sm text-slate-700">
-                      DataWinder is being actively developed at Bangor University. Early members get <strong>free lifetime access</strong> to the platform and help shape its future. Join now and become a Founding Member.
+                      DataWinder is being actively developed as a free research platform. Early members get <strong>free lifetime access</strong> and help shape its future. Join now and become a Founding Member.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                       {[
@@ -472,12 +472,12 @@ export default function OnboardingWizard({ open, onComplete }) {
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
                         <p className="text-sm font-semibold text-amber-800">Community Membership Terms</p>
                         <ul className="text-xs text-slate-700 space-y-1 list-disc ml-4">
-                          <li>Membership is free and you may leave at any time by contacting us</li>
-                          <li>We will never sell or share your personal data with third parties</li>
-                          <li>Your email address will only be used for DataWinder communications you opt into</li>
-                          <li>Profile directory listings show only name, institution, field and country — never contact details</li>
-                          <li>We may contact you about beta testing opportunities, but only if you opt in above</li>
-                          <li>Bangor University data protection policy applies to all member data</li>
+                           <li>Membership is free and you may leave at any time by contacting us</li>
+                           <li>We will never sell or share your personal data with third parties</li>
+                           <li>Your email address will only be used for DataWinder communications you opt into</li>
+                           <li>Profile directory listings show only name, institution, field and country — never contact details</li>
+                           <li>We may contact you about beta testing opportunities, but only if you opt in above</li>
+                           <li>Standard data protection and privacy policies apply to all member data</li>
                         </ul>
                         <label className="flex items-start gap-3 cursor-pointer mt-1">
                           <Checkbox checked={formData.community_terms_accepted}
