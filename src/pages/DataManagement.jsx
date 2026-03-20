@@ -725,6 +725,57 @@ export default function DataManagement() {
         }
       }
 
+      // ── speciesLink: one species at a time to avoid freezing ──
+      if (includeSpeciesLink && speciesLinkApiKey) {
+        const speciesNames = Object.keys(allSpeciesMap).length > 0
+          ? Object.keys(allSpeciesMap)
+          : (level === 'species' ? terms : []);
+
+        for (const name of speciesNames) {
+          try {
+            const slResult = await base44.functions.invoke('fetchSpeciesLinkData', {
+              scientificName: name,
+              apiKey: speciesLinkApiKey,
+              limit: 500
+            });
+
+            if (slResult.data?.status === 'success') {
+              const slData = slResult.data.data;
+
+              // Upload CSV if we have occurrences
+              let slCsvFileUri = null;
+              if (slData.specieslink_occurrences?.length > 0) {
+                const csvContent = [
+                  'latitude,longitude,location,date,basis_of_record,institution,collection,catalog_number',
+                  ...slData.specieslink_occurrences.map(o =>
+                    `${o.latitude},${o.longitude},"${o.location}",${o.date || ''},"${o.basis_of_record}","${o.institution}","${o.collection}","${o.catalog_number}"`
+                  )
+                ].join('\n');
+                const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+                const csvFile = new File([csvBlob], `${name.replace(/ /g, '_')}_specieslink.csv`, { type: 'text/csv' });
+                const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
+                slCsvFileUri = file_uri;
+              }
+
+              const slFields = {
+                specieslink_occurrence_count: slData.specieslink_occurrence_count,
+                specieslink_occurrences: slData.specieslink_occurrences,
+                specieslink_last_collected: slData.specieslink_last_collected,
+                specieslink_occurrences_csv_file_uri: slCsvFileUri
+              };
+
+              if (allSpeciesMap[name]) {
+                allSpeciesMap[name] = { ...allSpeciesMap[name], ...slFields };
+              } else {
+                allSpeciesMap[name] = { id: `sl-${name}`, scientific_name: name, iucn_status: 'NE', data_source: 'speciesLink', ...slFields };
+              }
+            }
+          } catch (err) {
+            console.warn(`speciesLink fetch failed for ${name}:`, err.message);
+          }
+        }
+      }
+
       const allSpeciesFinal = Object.values(allSpeciesMap);
 
       if (allSpeciesFinal.length === 0) {
