@@ -1200,6 +1200,14 @@ export default function DataManagement() {
                   {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
                   {searchInfo?.includeSpeciesLink && <p>• Fetching from speciesLink (staged, one at a time…)</p>}
                 </div>
+                <button
+                  onClick={() => { const m = toggleMute(); setSoundMuted(m); }}
+                  className="mt-4 flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                  title={soundMuted ? 'Unmute sounds' : 'Mute sounds'}
+                >
+                  {soundMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  {soundMuted ? 'Sounds off' : 'Sounds on'}
+                </button>
               </div>
             )}
           </motion.div>
