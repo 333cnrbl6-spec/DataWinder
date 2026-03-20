@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
   { label: 'Community', page: 'Community', icon: Users },
   { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
-  { label: 'Literature', page: 'LiteratureLibrary', icon: BookOpen },
+  // { label: 'Literature', page: 'LiteratureLibrary', icon: BookOpen }, // Coming soon - Mendeley integration in progress
 ];
 
 export default function Layout({ children, currentPageName }) {
