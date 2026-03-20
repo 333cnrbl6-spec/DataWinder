@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 
