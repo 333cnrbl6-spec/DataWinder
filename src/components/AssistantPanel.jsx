@@ -5,6 +5,79 @@ import FAQMessage from "@/components/faq/FAQMessage";
 
 const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0d5777eaa_generated_image.png";
 
+const PAGE_CHIPS = {
+  Home: [
+    "How do I search for a species?",
+    "How do I save my search results?",
+    "What data sources does the search use?",
+  ],
+  SavedData: [
+    "How do I create a species list?",
+    "Can I share my saved data?",
+    "How do I export my saved species?",
+  ],
+  DataManagement: [
+    "How do I merge duplicate records?",
+    "What does the taxonomy check do?",
+    "How do I import species data?",
+  ],
+  ArcGISTools: [
+    "How do buffer analysis works?",
+    "What is a spatial join?",
+    "How do I overlay species ranges?",
+  ],
+  ClimateProjections: [
+    "What climate datasets are available?",
+    "What are SSP scenarios?",
+    "Which dataset is best for MAXENT?",
+  ],
+  MAXENTModeler: [
+    "How do I set up a MAXENT run?",
+    "What is regularisation multiplier?",
+    "Which feature types should I use?",
+  ],
+  DataPreparation: [
+    "What is spatial thinning?",
+    "How do I export occurrence data?",
+    "What formats does MAXENT accept?",
+  ],
+  VariableSelector: [
+    "How do I choose climate variables?",
+    "What is multicollinearity?",
+    "How many variables should I use?",
+  ],
+  ModelReadinessCheck: [
+    "What checks does the QC run?",
+    "How many occurrences do I need?",
+    "What does 'model ready' mean?",
+  ],
+  ModelPerformance: [
+    "What is AUC score?",
+    "What is a good TSS value?",
+    "How do I interpret the ROC curve?",
+  ],
+  MaxentResultsMap: [
+    "How do I read the suitability map?",
+    "What do the colour ranges mean?",
+    "Can I export the results map?",
+  ],
+  MaxentBatchSubmit: [
+    "How do I set up a batch run?",
+    "Can I run multiple species at once?",
+    "How do I track job progress?",
+  ],
+  ClimateScenarioComparison: [
+    "How do I compare SSP scenarios?",
+    "What does habitat gain/loss mean?",
+    "How do I interpret the overlap map?",
+  ],
+  Community: [
+    "How do I join the community?",
+    "What is a Founding Member?",
+    "Can I share my species lists?",
+  ],
+};
+
 const PAGE_LABELS = {
   Home: "Species Search",
   SavedData: "My Data",
