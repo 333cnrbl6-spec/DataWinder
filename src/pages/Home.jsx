@@ -969,6 +969,7 @@ export default function Home() {
             const updates = {};
             if (sp.inat_taxon_id && !existing[0].inat_taxon_id) { updates.inat_taxon_id = sp.inat_taxon_id; updates.observation_count = sp.observation_count; updates.observations = sp.observations; updates.last_observed = sp.last_observed; updates.inat_observations_csv_file_uri = sp.inat_observations_csv_file_uri; }
             if (sp.gbif_id && !existing[0].gbif_id) { updates.gbif_id = sp.gbif_id; updates.gbif_occurrence_count = sp.gbif_occurrence_count; updates.gbif_occurrences = sp.gbif_occurrences; updates.gbif_basis_of_record = sp.gbif_basis_of_record; updates.gbif_last_occurrence = sp.gbif_last_occurrence; updates.gbif_occurrences_csv_file_uri = sp.gbif_occurrences_csv_file_uri; }
+            if (sp.specieslink_occurrence_count && !existing[0].specieslink_occurrence_count) { updates.specieslink_occurrence_count = sp.specieslink_occurrence_count; updates.specieslink_occurrences = sp.specieslink_occurrences; updates.specieslink_last_collected = sp.specieslink_last_collected; updates.specieslink_occurrences_csv_file_uri = sp.specieslink_occurrences_csv_file_uri; }
             if (!existing[0].image_url && sp.image_url) updates.image_url = sp.image_url;
             if (Object.keys(updates).length > 0) await base44.entities.Species.update(existing[0].id, updates);
           } else {
