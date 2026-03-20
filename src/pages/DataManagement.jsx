@@ -1324,9 +1324,13 @@ export default function DataManagement() {
                         setIsRunningTaxonomyCheck(true);
                         try {
                           const result = await base44.functions.invoke('runTaxonomyCheck', {});
-                          const count = result?.data?.duplicatesFound || 0;
-                          if (count > 0) {
-                            window.location.href = createPageUrl('ReviewDuplicates');
+                          // Fetch pending reviews from database
+                          const reviews = await base44.entities.PendingSpeciesReview.filter({
+                            status: 'pending'
+                          });
+                          setDuplicateReviews(reviews);
+                          if (reviews.length > 0) {
+                            setReviewingDuplicateId(reviews[0].id);
                           } else {
                             alert('Taxonomy check complete. No duplicates found.');
                           }
