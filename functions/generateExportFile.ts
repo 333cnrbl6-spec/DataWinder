@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Please select species and at least one data type' }, { status: 400 });
   }
 
-  const allSpecies = await base44.entities.Species.list();
+  const allSpecies = await base44.entities.Species.list('-created_date', 10000);
   const species = allSpecies.filter(sp => speciesIds.includes(sp.id));
 
   if (!species.length) {
@@ -83,8 +83,8 @@ Deno.serve(async (req) => {
           points.push({ lat: obs.latitude, lon: obs.longitude, row: csvRow([sp.scientific_name, obs.longitude, obs.latitude]) });
       });
       gbif_occurrences.forEach(occ => {
-        if (occ.decimalLongitude != null && occ.decimalLatitude != null)
-          points.push({ lat: occ.decimalLatitude, lon: occ.decimalLongitude, row: csvRow([sp.scientific_name, occ.decimalLongitude, occ.decimalLatitude]) });
+        if (occ.longitude != null && occ.latitude != null)
+          points.push({ lat: occ.latitude, lon: occ.longitude, row: csvRow([sp.scientific_name, occ.longitude, occ.latitude]) });
       });
 
       // Apply spatial thinning if configured
@@ -107,8 +107,8 @@ Deno.serve(async (req) => {
           rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', obs.longitude, obs.latitude, 'iNaturalist', obs.observed_on || '']));
       });
       gbif_occurrences.forEach(occ => {
-        if (occ.decimalLongitude != null && occ.decimalLatitude != null)
-          rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', occ.decimalLongitude, occ.decimalLatitude, 'GBIF', occ.eventDate || '']));
+        if (occ.longitude != null && occ.latitude != null)
+          rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', occ.longitude, occ.latitude, 'GBIF', occ.date || '']));
       });
     });
     zip.file('arcgis_points.csv', rows.join('\n'));
@@ -132,13 +132,13 @@ Deno.serve(async (req) => {
 
   // 5. GBIF Occurrences CSV
   if (dataTypes.includes('gbif_occurrences')) {
-    const rows = ['scientific_name,gbif_key,latitude,longitude,country,state_province,event_date,basis_of_record,institution'];
+    const rows = ['scientific_name,latitude,longitude,location,date,basis_of_record,institution,catalog_number'];
     species.forEach(sp => {
       const { gbif_occurrences } = getObservations(sp);
       gbif_occurrences.forEach(occ => {
         rows.push(csvRow([
-          sp.scientific_name, occ.key || '', occ.decimalLatitude || '', occ.decimalLongitude || '',
-          occ.countryCode || '', occ.stateProvince || '', occ.eventDate || '', occ.basisOfRecord || '', occ.institutionCode || ''
+          sp.scientific_name, occ.latitude || '', occ.longitude || '',
+          occ.location || '', occ.date || '', occ.basis_of_record || '', occ.institution || '', occ.catalog_number || ''
         ]));
       });
     });
