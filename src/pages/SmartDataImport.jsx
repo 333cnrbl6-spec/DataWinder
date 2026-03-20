@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Table2, Code2, FileArchive } from 'lucide-react';
+import { ArrowRight, MapPin, Table2, Code2, FileArchive, Upload } from 'lucide-react';
 import SmartFileImporter from '@/components/SmartFileImporter';
 import { motion } from 'framer-motion';
 

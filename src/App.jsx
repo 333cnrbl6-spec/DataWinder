@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import DataPreparation from './pages/DataPreparation';
 import DatabaseCleanse from './pages/DatabaseCleanse';
+import SmartDataImport from './pages/SmartDataImport';
 import OutlierScanAll from './pages/OutlierScanAll';
 import VariableSelector from './pages/VariableSelector';
 import ModelReadinessCheck from './pages/ModelReadinessCheck';
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
       ))}
       <Route path="/DataPreparation" element={<LayoutWrapper currentPageName="DataPreparation"><DataPreparation /></LayoutWrapper>} />
       <Route path="/DatabaseCleanse" element={<LayoutWrapper currentPageName="DatabaseCleanse"><DatabaseCleanse /></LayoutWrapper>} />
+      <Route path="/SmartDataImport" element={<LayoutWrapper currentPageName="SmartDataImport"><SmartDataImport /></LayoutWrapper>} />
       <Route path="/OutlierScanAll" element={<LayoutWrapper currentPageName="OutlierScanAll"><OutlierScanAll /></LayoutWrapper>} />
       <Route path="/VariableSelector" element={<LayoutWrapper currentPageName="VariableSelector"><VariableSelector /></LayoutWrapper>} />
       <Route path="/ModelReadinessCheck" element={<LayoutWrapper currentPageName="ModelReadinessCheck"><ModelReadinessCheck /></LayoutWrapper>} />
