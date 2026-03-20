@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     // 3. Try GBIF species search by name for vernacular
     if (!commonName) {
       try {
-        const url = `https://api.gbif.org/v1/species?name=${encodeURIComponent(sp.scientific_name)}&limit=1`;
+        const url = `https://api.gbif.org/v1/species?name=${encodeURIComponent(cleanName)}&limit=1`;
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
