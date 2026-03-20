@@ -118,6 +118,7 @@ export default function DataManagement() {
       terms: terms.join(', '),
       includeINaturalist,
       includeGBIF,
+      includeSpeciesLink,
       iucnToken: !!iucnToken
     });
 
