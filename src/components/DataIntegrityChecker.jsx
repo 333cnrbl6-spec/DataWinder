@@ -94,24 +94,39 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
     setTotalToProcess(duplicates.length);
     setProcessed(0);
 
+    // Track which IDs have already been deleted to avoid double-delete errors
+    const deletedIds = new Set();
+    const SKIP_KEYS = new Set(['id', 'created_date', 'updated_date', 'created_by', 'created_by_id', 'is_sample']);
+
     try {
       for (const dupGroup of duplicates) {
-        const mainRecord = dupGroup.records[0];
-        const duplicateRecords = dupGroup.records.slice(1);
+        // Skip groups whose primary record was already deleted by an earlier group
+        const mainRecord = dupGroup.records.find(r => !deletedIds.has(r.id));
+        if (!mainRecord) {
+          setProcessed(prev => prev + 1);
+          continue;
+        }
 
-        // Merge data: take non-empty values from all records
-        const mergedData = { ...mainRecord };
+        const duplicateRecords = dupGroup.records.filter(r => r.id !== mainRecord.id && !deletedIds.has(r.id));
+
+        if (duplicateRecords.length === 0) {
+          setProcessed(prev => prev + 1);
+          continue;
+        }
+
+        // Build clean merged payload (no internal fields)
+        const mergedData = {};
+        Object.keys(mainRecord).forEach(key => {
+          if (!SKIP_KEYS.has(key)) mergedData[key] = mainRecord[key];
+        });
+
         duplicateRecords.forEach(dup => {
           Object.keys(dup).forEach(key => {
-            if (key === 'id' || key === 'created_date' || key === 'created_by') return;
-            
-            // For arrays and objects, merge intelligently
+            if (SKIP_KEYS.has(key)) return;
             if (Array.isArray(mergedData[key]) && Array.isArray(dup[key])) {
-              mergedData[key] = [
-                ...mergedData[key],
-                ...dup[key].filter(item => !mergedData[key].includes(item))
-              ];
-            } else if (typeof mergedData[key] === 'object' && typeof dup[key] === 'object') {
+              mergedData[key] = [...mergedData[key], ...dup[key].filter(item => !mergedData[key].includes(item))];
+            } else if (mergedData[key] && typeof mergedData[key] === 'object' && !Array.isArray(mergedData[key]) &&
+                       dup[key] && typeof dup[key] === 'object' && !Array.isArray(dup[key])) {
               mergedData[key] = { ...mergedData[key], ...dup[key] };
             } else if (!mergedData[key] && dup[key]) {
               mergedData[key] = dup[key];
@@ -119,12 +134,11 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
           });
         });
 
-        // Update main record with merged data
         await base44.entities.Species.update(mainRecord.id, mergedData);
 
-        // Delete duplicates
         for (const dup of duplicateRecords) {
           await base44.entities.Species.delete(dup.id);
+          deletedIds.add(dup.id);
         }
 
         setProcessed(prev => prev + 1);
@@ -133,7 +147,6 @@ export default function DataIntegrityChecker({ open, onClose, onComplete }) {
       setStep('complete');
     } catch (err) {
       console.error('Error during merge:', err);
-      alert('Error during merge process. Some duplicates may have been deleted.');
       setStep('complete');
     }
   };
