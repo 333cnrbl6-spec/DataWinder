@@ -54,7 +54,7 @@ export default function SmartDropZone({ onImported }) {
       let fileToProcess = file;
       let extractedFrom = null;
       
-      // If ZIP file, unzip and get first extractable file
+      // If ZIP file, unzip and get first supported extractable file
       if (file.name.endsWith('.zip') || file.type === 'application/zip') {
         const zip = new JSZip();
         await zip.loadAsync(file);
@@ -62,16 +62,19 @@ export default function SmartDropZone({ onImported }) {
         const files = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
         if (files.length === 0) throw new Error('ZIP file is empty or contains no valid files');
         
-        const firstFile = files[0];
-        const blob = await firstFile.async('blob');
+        // Prioritize supported file formats
+        const supportedExts = ['csv', 'xlsx', 'xls', 'json', 'txt'];
+        let fileToExtract = files.find(f => supportedExts.includes(f.name.split('.').pop().toLowerCase())) || files[0];
+        
+        const blob = await fileToExtract.async('blob');
         // Infer MIME type from file extension
-        const ext = firstFile.name.split('.').pop().toLowerCase();
+        const ext = fileToExtract.name.split('.').pop().toLowerCase();
         const mimeTypes = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json', txt: 'text/plain' };
         const mimeType = mimeTypes[ext] || blob.type || 'application/octet-stream';
         
-        fileToProcess = new File([blob], firstFile.name, { type: mimeType });
+        fileToProcess = new File([blob], fileToExtract.name, { type: mimeType });
         extractedFrom = file.name;
-        setFileInfo({ name: firstFile.name, size: blob.size, type: mimeType, extractedFrom });
+        setFileInfo({ name: fileToExtract.name, size: blob.size, type: mimeType, extractedFrom });
       }
       
       // Upload file first to get URL
