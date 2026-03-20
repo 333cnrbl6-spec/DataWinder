@@ -364,7 +364,7 @@ export default function ClimateProjections() {
       const existing = await base44.entities.ClimateDataset.list();
       const existingNames = new Set(existing.map(e => e.name));
       const toSave = sourcesToSave.filter(s => !existingNames.has(s.name));
-      const alreadyExist = selectedSources.length - toSave.length;
+      const alreadyExist = sourcesToSave.length - toSave.length;
 
       if (toSave.length > 0) {
         await base44.entities.ClimateDataset.bulkCreate(toSave.map(s => ({
