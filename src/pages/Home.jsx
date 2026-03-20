@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import TaxonomicSearch from '@/components/species/TaxonomicSearch';
 import SpeciesGrid from '@/components/species/SpeciesGrid';
 import MapView from '@/components/species/MapView';
+import OccurrenceSourceMap from '@/components/species/OccurrenceSourceMap';
 import SelectionBar from '@/components/species/SelectionBar';
 import DownloadPanel from '@/components/species/DownloadPanel';
 import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
