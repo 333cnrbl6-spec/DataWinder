@@ -1694,6 +1694,23 @@ export default function DataManagement() {
           refetchSpecies();
         }}
       />
+
+      {/* Duplicate Reviews Modal */}
+      {reviewingDuplicateId && duplicateReviews.length > 0 && (
+        <DuplicateReviewModal
+          review={duplicateReviews.find(r => r.id === reviewingDuplicateId)}
+          onClose={() => setReviewingDuplicateId(null)}
+          onMerge={async (reviewId) => {
+            setReviewingDuplicateId(null);
+            setDuplicateReviews([]);
+            refetchSpecies();
+          }}
+          onDismiss={() => {
+            setReviewingDuplicateId(null);
+            setDuplicateReviews([]);
+          }}
+        />
+      )}
     </div>
   );
 }
