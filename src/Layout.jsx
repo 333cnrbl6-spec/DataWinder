@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
@@ -22,11 +22,8 @@ const NAV_ITEMS = [
   { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
 ];
 
-const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0d5777eaa_generated_image.png";
-
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
 
 
