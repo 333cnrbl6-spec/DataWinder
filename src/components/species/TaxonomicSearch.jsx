@@ -469,17 +469,22 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
             </p>
             
-            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
-               <input
-                 id="include-inat"
-                 name="include-inat"
-                 type="checkbox"
-                 checked={includeINat}
-                 onChange={(e) => setIncludeINat(e.target.checked)}
-                 className="w-4 h-4"
-               />
-               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
-             </label>
+            <div className="space-y-2 mb-4">
+              <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+                <input type="checkbox" checked={includeINat} onChange={(e) => setIncludeINat(e.target.checked)} className="w-4 h-4" />
+                <span className="text-sm text-slate-700 font-medium">Include iNaturalist Observations</span>
+              </label>
+              <label className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer border border-blue-200">
+                <input type="checkbox" checked={includeGBIF} onChange={(e) => setIncludeGBIF(e.target.checked)} className="w-4 h-4" />
+                <span className="text-sm text-slate-700 font-medium">Include GBIF Occurrences</span>
+              </label>
+              {speciesLinkApiKey && (
+                <label className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg cursor-pointer border border-emerald-200">
+                  <input type="checkbox" checked={includeSpeciesLink} onChange={(e) => setIncludeSpeciesLink(e.target.checked)} className="w-4 h-4" />
+                  <span className="text-sm text-slate-700 font-medium">Include speciesLink Specimens</span>
+                </label>
+              )}
+            </div>
 
             <div className="flex gap-3">
               <Button
