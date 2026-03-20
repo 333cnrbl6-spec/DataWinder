@@ -21,8 +21,19 @@ const NAV_ITEMS = [
   { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
 ];
 
+const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0d5777eaa_generated_image.png";
+
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const navigate = useNavigate();
+
+  // Show tooltip after a short delay on mount
+  useEffect(() => {
+    const t = setTimeout(() => setShowTooltip(true), 2000);
+    const t2 = setTimeout(() => setShowTooltip(false), 7000);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
