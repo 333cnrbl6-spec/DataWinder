@@ -74,7 +74,10 @@ export default function SmartDropZone({ onImported }) {
         setFileInfo({ name: firstFile.name, size: blob.size, type: mimeType, extractedFrom });
       }
       
-      // Ask AI what this data is (pass file directly, not uploaded URL)
+      // Upload file first to get URL
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToProcess });
+
+      // Ask AI what this data is
       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
         prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}". 
       Examine the file content and determine:
@@ -84,7 +87,7 @@ export default function SmartDropZone({ onImported }) {
       4. Key fields you detected in the data
 
       Respond with JSON only.`,
-        file_urls: [fileToProcess], // Pass file directly
+        file_urls: [file_url],
         response_json_schema: {
           type: 'object',
           properties: {
@@ -97,7 +100,7 @@ export default function SmartDropZone({ onImported }) {
         }
       });
 
-      // Also extract structured data (pass file directly)
+      // Extract structured data
       const entitySchema = {
         Species: { type: 'object', properties: { scientific_name: { type: 'string' }, common_name: { type: 'string' }, kingdom: { type: 'string' }, iucn_status: { type: 'string' } } },
         ClimateDataset: { type: 'object', properties: { name: { type: 'string' }, source: { type: 'string' }, variable_category: { type: 'string' }, description: { type: 'string' } } },
@@ -108,7 +111,7 @@ export default function SmartDropZone({ onImported }) {
       const targetSchema = entitySchema[aiAnalysis.suggested_entity] || entitySchema['Species'];
 
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileToProcess, // Pass file directly instead of uploaded URL
+        file_url,
         json_schema: {
           type: 'object',
           properties: {
