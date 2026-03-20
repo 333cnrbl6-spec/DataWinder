@@ -7,16 +7,21 @@ import AssistantPanel from '@/components/AssistantPanel';
 
 const NAV_CATEGORIES = [
   {
-    label: 'Search & Data',
+    label: 'Species Search',
+    page: 'Home',
     icon: Search,
+    standalone: true
+  },
+  {
+    label: 'Species Management',
+    icon: Database,
     items: [
-      { label: 'Species Search', page: 'Home', icon: Search },
       { label: 'My Data', page: 'SavedData', icon: FolderOpen },
       { label: 'Data Management', page: 'DataManagement', icon: Database },
     ]
   },
   {
-    label: 'Data Preparation',
+    label: 'Data Tidying',
     icon: PackageOpen,
     items: [
       { label: 'Data Prep', page: 'DataPreparation', icon: PackageOpen },
