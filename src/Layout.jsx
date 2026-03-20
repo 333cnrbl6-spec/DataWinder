@@ -37,7 +37,7 @@ export default function Layout({ children, currentPageName }) {
               className="flex items-center gap-2.5 shrink-0 group"
             >
               <div className="w-8 h-8 bg-bangor-red rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity">
-                <Leaf className="w-4 h-4 text-bangor-sun" />
+                <Leaf className="w-4 h-4 text-white" />
               </div>
               <div className="hidden sm:block leading-tight">
                 <div className="text-sm font-bold text-bangor-red tracking-tight">DataWinder</div>
