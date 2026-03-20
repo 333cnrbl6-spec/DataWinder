@@ -4,6 +4,23 @@ import { Send, X, MessageCircle, RotateCcw } from "lucide-react";
 import FAQMessage from "@/components/faq/FAQMessage";
 import FAQSuggestions from "@/components/faq/FAQSuggestions";
 
+const PAGE_LABELS = {
+  Home: "Species Search",
+  SavedData: "My Data",
+  DataManagement: "Data Management",
+  ArcGISTools: "ArcGIS Tools",
+  ClimateProjections: "Climate Data",
+  MAXENTModeler: "MAXENT Modeller",
+  DataPreparation: "Data Prep",
+  VariableSelector: "Variable Filter",
+  ModelReadinessCheck: "QC Checklist",
+  ModelPerformance: "Model Performance",
+  MaxentResultsMap: "Results Map",
+  MaxentBatchSubmit: "Batch Submit",
+  ClimateScenarioComparison: "Scenario Compare",
+  Community: "Community",
+};
+
 export default function FAQBot() {
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -14,6 +31,10 @@ export default function FAQBot() {
   const inputRef = useRef(null);
 
   const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0ef2/0d5777eaa_generated_image.png";
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromPage = urlParams.get("from");
+  const fromPageLabel = fromPage ? (PAGE_LABELS[fromPage] ?? fromPage) : null;
 
   useEffect(() => {
     startConversation();
@@ -38,6 +59,14 @@ export default function FAQBot() {
     });
     setConversation(conv);
     setMessages(conv.messages ?? []);
+
+    // If user arrived from a specific page, send a silent context primer
+    if (fromPage && PAGE_LABELS[fromPage]) {
+      await base44.agents.addMessage(conv, {
+        role: "user",
+        content: `[CONTEXT: The user is currently on the "${PAGE_LABELS[fromPage]}" page. Please greet them and proactively offer the most useful tip or next step for that page. Keep it brief and friendly.]`,
+      });
+    }
   }
 
   async function sendMessage(text) {
@@ -114,7 +143,10 @@ export default function FAQBot() {
                 )}
               </div>
               <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm bg-white border border-slate-200 text-slate-700 shadow-sm">
-                👋 Hello! I'm the DataWinder FAQ assistant. I can help you with species search, climate data, MAXENT modelling, data preparation, and more. What would you like to know?
+                {fromPageLabel
+              ? `👋 Hello! I'm your DataWinder assistant. I can see you've come from the ${fromPageLabel} page — loading a helpful tip for you…`
+              : "👋 Hello! I'm the DataWinder assistant. I can help you with species search, climate data, MAXENT modelling, data preparation, and more. What would you like to know?"
+            }
               </div>
             </div>
           )}
