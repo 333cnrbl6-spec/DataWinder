@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const CLIENT_ID = Deno.env.get("MENDELEY_CLIENT_ID");
 const CLIENT_SECRET = Deno.env.get("MENDELEY_CLIENT_SECRET");
-const REDIRECT_URI = "https://preview-sandbox--69821d606837970a4a3c0ef2.base44.app/MendeleyConnect";
+const REDIRECT_URI = Deno.env.get("MENDELEY_REDIRECT_URI") || "https://preview-sandbox--69821d606837970a4a3c0ef2.base44.app/MendeleyConnect";
 
 Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
@@ -24,18 +24,25 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'exchange_code') {
+        // Mendeley requires HTTP Basic Auth for client credentials
+        const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
         const resp = await fetch('https://api.mendeley.com/oauth/token', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${credentials}`,
+            },
             body: new URLSearchParams({
                 grant_type: 'authorization_code',
                 code,
                 redirect_uri: REDIRECT_URI,
-                client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
             }),
         });
         const data = await resp.json();
+        if (!resp.ok) {
+            console.error('Mendeley token error:', JSON.stringify(data));
+            return Response.json({ error: data.error_description || data.error || 'Token exchange failed', details: data }, { status: resp.status });
+        }
         return Response.json(data);
     }
 
@@ -47,7 +54,7 @@ Deno.serve(async (req) => {
         });
         const data = await resp.json();
         const total = resp.headers.get('Mendeley-Count') || 0;
-        return Response.json({ results: data, total: parseInt(total) });
+        return Response.json({ results: Array.isArray(data) ? data : [], total: parseInt(total) });
     }
 
     if (action === 'get_library') {
@@ -58,7 +65,7 @@ Deno.serve(async (req) => {
         });
         const data = await resp.json();
         const total = resp.headers.get('Mendeley-Count') || 0;
-        return Response.json({ results: data, total: parseInt(total) });
+        return Response.json({ results: Array.isArray(data) ? data : [], total: parseInt(total) });
     }
 
     if (action === 'get_paper_details') {
