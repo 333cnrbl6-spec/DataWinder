@@ -15,6 +15,8 @@ import MaxentBatchSubmit from './pages/MaxentBatchSubmit';
 import ClimateScenarioComparison from './pages/ClimateScenarioComparison';
 import Community from './pages/Community';
 import FAQBot from './pages/FAQBot';
+import LiteratureLibrary from './pages/LiteratureLibrary';
+import MendeleyConnect from './pages/MendeleyConnect';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
