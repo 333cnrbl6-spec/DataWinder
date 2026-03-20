@@ -1,5 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+const getMimeTypeFromFilename = (filename) => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  const mimeMap = {
+    'pdf': 'application/pdf',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'zip': 'application/zip',
+    'csv': 'text/csv',
+    'shp': 'application/x-shapefile',
+    'dbf': 'application/x-dbf'
+  };
+  return mimeMap[ext] || 'application/octet-stream';
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -31,12 +45,14 @@ Deno.serve(async (req) => {
         return null;
       }
       const bytes = await res.arrayBuffer();
-      result.logs.push(`Downloaded: ${bytes.byteLength} bytes`);
-      if (bytes.byteLength < 500) {
-        result.logs.push(`Skipped: file too small (likely an error page)`);
-        return null;
-      }
-      const file = new File([bytes], filename, { type: ct });
+       result.logs.push(`Downloaded: ${bytes.byteLength} bytes`);
+       if (bytes.byteLength < 100) {
+         result.logs.push(`Skipped: file too small (likely an error page)`);
+         return null;
+       }
+       // Use explicit MIME type from extension when content-type is unreliable
+       const mimeType = ct || getMimeTypeFromFilename(filename);
+       const file = new File([bytes], filename, { type: mimeType });
       const { file_uri } = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file });
       result.logs.push(`Stored: ${file_uri}`);
       return file_uri;
