@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
   { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
   { label: 'Community', page: 'Community', icon: Users },
+  { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
 ];
 
 export default function Layout({ children, currentPageName }) {

@@ -14,6 +14,7 @@ import MaxentResultsMap from './pages/MaxentResultsMap';
 import MaxentBatchSubmit from './pages/MaxentBatchSubmit';
 import ClimateScenarioComparison from './pages/ClimateScenarioComparison';
 import Community from './pages/Community';
+import FAQBot from './pages/FAQBot';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
