@@ -81,6 +81,17 @@ export default function ArcGISTools() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Missing Range Data Prompt */}
+        {allSpecies.length > 0 && speciesWithRangeData.length < allSpecies.length && (
+          <MissingRangeDataPrompt 
+            speciesCount={allSpecies.length - speciesWithRangeData.length}
+            onDataReady={() => {
+              // Refetch species to pick up newly uploaded range data
+              window.location.reload();
+            }}
+          />
+        )}
+
         {/* ArcGIS Map Viewer */}
         <div className="mb-6">
           <Card className="shadow-lg border-blue-200">
