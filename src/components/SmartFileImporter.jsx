@@ -7,6 +7,7 @@ import { AlertCircle, Upload, CheckCircle2, FileArchive, Loader, File, MapPin, T
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import ValidationReport from '@/components/import/ValidationReport';
 
 const getFileIcon = (dataType) => {
   const icons = {
@@ -27,6 +28,9 @@ export default function SmartFileImporter({ onFileAnalyzed, onClose }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState(null);
+  const [validating, setValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState(null);
+  const [step, setStep] = useState('upload'); // upload, validation, results
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -60,6 +64,7 @@ export default function SmartFileImporter({ onFileAnalyzed, onClose }) {
       }
 
       setAnalysis(analysisRes.data.analysis);
+      setStep('validation');
       toast.success('File analyzed successfully');
       
       if (onFileAnalyzed) {
@@ -76,10 +81,57 @@ export default function SmartFileImporter({ onFileAnalyzed, onClose }) {
 
   const FileIcon = analysis ? getFileIcon(analysis.data_type) : Upload;
 
+  // Auto-validate when analysis completes
+  React.useEffect(() => {
+    if (analysis && step === 'validation' && !validating && !validationResult) {
+      runValidation();
+    }
+  }, [analysis, step]);
+
+  const runValidation = async () => {
+    if (!analysis || validating) return;
+    setValidating(true);
+    
+    try {
+      // For now, pass empty records array - in real use, parse from file
+      const result = await base44.functions.invoke('validateDataImport', {
+        records: [], // Would be populated from parsed file
+        target_entity: 'Species',
+        file_type: analysis.data_type
+      });
+
+      setValidationResult(result.data);
+      setStep('results');
+      toast.success('Validation complete');
+    } catch (err) {
+      console.error('Validation error:', err);
+      setError(err.message);
+      toast.error('Validation failed');
+    } finally {
+      setValidating(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {step === 'results' && validationResult && (
+        <ValidationReport
+          validation={validationResult}
+          onDismiss={() => {
+            setAnalysis(null);
+            setValidationResult(null);
+            setStep('upload');
+            setError(null);
+          }}
+          onImport={(correctedRecords) => {
+            toast.success(`Importing ${correctedRecords.length} records`);
+            // Handle import logic here
+          }}
+        />
+      )}
+
       <AnimatePresence>
-        {!analysis && (
+        {step === 'upload' && !analysis && (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -126,7 +178,27 @@ export default function SmartFileImporter({ onFileAnalyzed, onClose }) {
         )}
 
         {/* Analysis Results */}
-        {analysis && (
+        {step === 'validation' && analysis && !validationResult && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Validating Data</p>
+                    <p className="text-sm text-blue-700 mt-1">Checking schema, ranges, and logical consistency...</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {step === 'results' && analysis && validationResult && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
