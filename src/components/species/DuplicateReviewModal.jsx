@@ -20,7 +20,7 @@ const COMPARE_FIELDS = [
   { key: 'gbif_id', label: 'GBIF ID' },
 ];
 
-export default function DuplicateReviewModal({ review, onClose, onMerge, onDismiss }) {
+export default function DuplicateReviewModal({ review, onClose, onMerge, onDismiss, onNextReview }) {
   const [selectedCanonical, setSelectedCanonical] = useState(review.ai_analysis?.suggested_canonical_id);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -64,6 +64,7 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
 
       toast.success(`Merged into "${masterSpeciesData?.scientific_name}"`);
       onMerge(review.id, recordsToDelete);
+      onNextReview?.();
     } catch (error) {
       console.error('Merge error:', error);
       toast.error('Failed to merge records: ' + error.message);
@@ -77,6 +78,7 @@ export default function DuplicateReviewModal({ review, onClose, onMerge, onDismi
     try {
       await base44.entities.PendingSpeciesReview.update(review.id, { status: 'dismissed' });
       onDismiss(review.id);
+      onNextReview?.();
     } catch (error) {
       toast.error('Failed to dismiss review');
     } finally {
