@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import JSZip from 'npm:jszip@3.10.1';
 
 // Haversine distance in km between two lat/lon points
