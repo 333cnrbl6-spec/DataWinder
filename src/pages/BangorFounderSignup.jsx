@@ -181,6 +181,16 @@ export default function BangorFounderSignup() {
                 </ul>
               </div>
 
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                <h4 className="font-bold text-amber-900 mb-3">Why Your Feedback Matters</h4>
+                <p className="text-sm text-amber-800 mb-3">
+                  Every piece of feedback—whether from neurodivergent or neurotypical researchers—helps us build simpler, more accessible solutions for <em>everyone</em>.
+                </p>
+                <p className="text-xs text-amber-700 italic">
+                  DataWinder was designed by someone who experienced neurodiversity firsthand, with support systems like study access programmes. This SaaS is built on the principle that accessibility and clarity benefit all researchers. We need your voice—different perspectives make us better.
+                </p>
+              </div>
+
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
                 <h4 className="font-bold text-slate-900 mb-3">Timeline</h4>
                 <p className="text-sm text-slate-600">
