@@ -14,6 +14,7 @@ import ModelPerformance from './pages/ModelPerformance';
 import MaxentResultsMap from './pages/MaxentResultsMap';
 import MaxentBatchSubmit from './pages/MaxentBatchSubmit';
 import MaxentInterpretation from './pages/MaxentInterpretation';
+import ThreatAssessment from './pages/ThreatAssessment';
 import ClimateScenarioComparison from './pages/ClimateScenarioComparison';
 import Community from './pages/Community';
 import FAQBot from './pages/FAQBot';
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
       <Route path="/MaxentResultsMap" element={<LayoutWrapper currentPageName="MaxentResultsMap"><MaxentResultsMap /></LayoutWrapper>} />
       <Route path="/MaxentBatchSubmit" element={<LayoutWrapper currentPageName="MaxentBatchSubmit"><MaxentBatchSubmit /></LayoutWrapper>} />
       <Route path="/MaxentInterpretation" element={<LayoutWrapper currentPageName="MaxentInterpretation"><MaxentInterpretation /></LayoutWrapper>} />
+      <Route path="/ThreatAssessment" element={<LayoutWrapper currentPageName="ThreatAssessment"><ThreatAssessment /></LayoutWrapper>} />
       <Route path="/ClimateScenarioComparison" element={<LayoutWrapper currentPageName="ClimateScenarioComparison"><ClimateScenarioComparison /></LayoutWrapper>} />
       <Route path="/Community" element={<LayoutWrapper currentPageName="Community"><Community /></LayoutWrapper>} />
       <Route path="/FAQBot" element={<LayoutWrapper currentPageName="FAQBot"><FAQBot /></LayoutWrapper>} />
