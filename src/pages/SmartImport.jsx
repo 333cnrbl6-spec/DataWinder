@@ -131,6 +131,7 @@ export default function SmartImport() {
     setImportableFiles([]);
     setTextFiles([]);
     setGeospatialFiles([]);
+    setClimateLayerFiles([]);
     setUnknownFiles([]);
     setImportSummary([]);
   };
