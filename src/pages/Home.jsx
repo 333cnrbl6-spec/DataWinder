@@ -694,7 +694,7 @@ export default function Home() {
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Search & Results */}
-          <div className="space-y-6">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <SearchPanel onSearch={handleSearch} isLoading={isLoading} />
             
             {/* Search Results */}
@@ -717,7 +717,7 @@ export default function Home() {
 
             {/* Info Banner when no results */}
             {!species.length && !isLoading && !error && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              <div className="space-y-4">
                 <Alert className="bg-bangor-red/5 border-bangor-red/20">
                   <Info className="h-4 w-4 text-bangor-red" />
                   <AlertTitle className="text-bangor-red">How It Works</AlertTitle>
@@ -730,10 +730,10 @@ export default function Home() {
                        <li><span className="font-semibold">Review & Prepare</span> — Select, compare, map occurrences, flag outliers, organize into projects, add research notes, and export prepared datasets.</li>
                        <li><span className="font-semibold">Model & Analyze</span> — Run MAXENT species distribution models with curated occurrence data and climate scenarios. Interpret results, compare projections, and assess conservation threats.</li>
                      </ol>
-                  </AlertDescription>
+                   </AlertDescription>
                 </Alert>
 
-                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/20 text-xs text-slate-600 space-y-3">
+                <div className="p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/20 text-xs text-slate-600 space-y-3">
                    <div>
                      <p className="mb-1 font-semibold text-slate-700">Integrated Data Sources</p>
                      <ul className="space-y-1">
@@ -750,14 +750,14 @@ export default function Home() {
                    </div>
                  </div>
 
-                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/10 flex items-start gap-3">
+                <div className="p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/10 flex items-start gap-3">
                   <Leaf className="w-4 h-4 text-bangor-red mt-0.5 shrink-0" />
                   <p className="text-xs text-slate-600 italic">
                     Built by conservation researchers for conservation researchers. Supporting biodiversity science worldwide.
                   </p>
                 </div>
 
-                <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 shadow-sm">
                   <h3 className="text-sm font-semibold text-bangor-red mb-4">IUCN Red List Categories</h3>
                   <div className="flex flex-wrap gap-3">
                     {Object.entries(statusConfig).map(([code, config]) => (
@@ -768,7 +768,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Error Alert */}
