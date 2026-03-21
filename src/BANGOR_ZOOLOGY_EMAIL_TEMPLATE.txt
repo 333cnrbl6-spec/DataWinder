@@ -4,6 +4,10 @@ SUBJECT: Free DataWinder Founder Access for Bangor Zoology Researchers
 
 Dear Bangor Zoology Researcher,
 
+IMPORTANT: This is not an official Bangor University project. DataWinder is an independent initiative created by someone currently studying Zoology at Bangor who received study support and achieved an upper second (2:1) degree despite neurodiversity. This platform exists because collaborative feedback from peers like you is essential for meaningful development.
+
+---
+
 We are building DataWinder—a pioneering web-based platform for species distribution modelling and conservation assessment that integrates IUCN, iNaturalist, GBIF, and speciesLink occurrence data with climate projections and MAXENT modeling.
 
 We want your feedback to shape its future, and we're offering Bangor University researchers something special.
