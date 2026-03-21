@@ -64,6 +64,7 @@ const NAV_CATEGORIES = [
     items: [
       { label: 'Community', page: 'Community', icon: Users },
       { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
+      { label: 'About & Help', page: 'About', icon: MessageCircle },
     ]
   },
 ];
