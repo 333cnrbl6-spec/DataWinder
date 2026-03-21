@@ -531,13 +531,13 @@ export default function SmartImport() {
             <Button variant="outline" onClick={reset} className="gap-1">
               <X className="w-4 h-4" /> Start Over
             </Button>
-            {importableFiles.length > 0 && totalImportable > 0 && (
+            {(totalImportable > 0 || climateLayerFiles.length > 0) && (
               <Button
                 className="flex-1 bg-bangor-red hover:bg-bangor-red/90 text-white gap-2"
                 onClick={handleImportAll}
               >
                 <Database className="w-4 h-4" />
-                Import {totalImportable} records into database
+                Import {totalImportable + climateLayerFiles.length} records into database
                 <ChevronRight className="w-4 h-4" />
               </Button>
             )}
