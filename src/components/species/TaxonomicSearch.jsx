@@ -25,6 +25,10 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [includeGBIF, setIncludeGBIF] = useState(false);
+  const [includeSpeciesLink, setIncludeSpeciesLink] = useState(false);
+  const [speciesLinkApiKey, setSpeciesLinkApiKey] = useState('');
+  const [higherTaxonBehavior, setHigherTaxonBehavior] = useState('manual');
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -53,17 +57,36 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    // If not species level with selected species, search those specific species
-    if (level !== 'species' && selectedSpecies.length > 0) {
-      onSearch({ 
-        level: 'species', 
-        terms: selectedSpecies, 
-        iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF,
-        includeSpeciesLink,
-        speciesLinkApiKey
-      });
+    if (level !== 'species') {
+      if (higherTaxonBehavior === 'auto-expand') {
+        const validTerms = searchTerms.filter(t => t.trim());
+        if (validTerms.length > 0) {
+          onSearch({ 
+            level, 
+            terms: validTerms, 
+            iucnToken,
+            includeINaturalist: includeINat,
+            includeGBIF,
+            includeSpeciesLink,
+            speciesLinkApiKey,
+            autoExpand: true
+          });
+        }
+      } else {
+        if (selectedSpecies.length === 0) {
+          alert(`Please select individual species from the ${level}. Or enable "Auto-expand all species" in settings.`);
+          return;
+        }
+        onSearch({ 
+          level: 'species', 
+          terms: selectedSpecies, 
+          iucnToken,
+          includeINaturalist: includeINat,
+          includeGBIF,
+          includeSpeciesLink,
+          speciesLinkApiKey
+        });
+      }
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
@@ -355,8 +378,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </Button>
         </div>
 
-        {/* Species Selection for non-species levels */}
-        {level !== 'species' && familySpecies.length > 0 && (
+        {/* Species Selection for non-species levels (hidden if auto-expand) */}
+        {level !== 'species' && familySpecies.length > 0 && higherTaxonBehavior !== 'auto-expand' && (
           <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-slate-700">
@@ -417,7 +440,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
+          disabled={isLoading || (level !== 'species' && higherTaxonBehavior === 'manual' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0 && higherTaxonBehavior !== 'auto-expand')}
           className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
