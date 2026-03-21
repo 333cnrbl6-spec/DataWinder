@@ -107,13 +107,16 @@ Deno.serve(async (req) => {
       // Validate all MaxentRun records
       const allRuns = await base44.entities.MaxentRun.list('-updated_date', 100);
       
-      results = allRuns.map(run => ({
-        id: run.id,
-        species_name: run.data.species_name,
-        name: run.data.name,
-        status: run.data.status,
-        ...validateRun(run.data)
-      }));
+      results = allRuns.map(run => {
+        const runData = run.data || run;
+        return {
+          id: run.id,
+          species_name: runData.species_name || 'Unknown',
+          name: runData.name || 'Unnamed',
+          status: runData.status || 'unknown',
+          ...validateRun(runData)
+        };
+      });
     } else {
       // Validate single run
       const runs = await base44.entities.MaxentRun.list('-updated_date', 1);
@@ -125,12 +128,13 @@ Deno.serve(async (req) => {
         }, { status: 404 });
       }
 
+      const runData = run.data || run;
       results = [{
         id: run.id,
-        species_name: run.data.species_name,
-        name: run.data.name,
-        status: run.data.status,
-        ...validateRun(run.data)
+        species_name: runData.species_name || 'Unknown',
+        name: runData.name || 'Unnamed',
+        status: runData.status || 'unknown',
+        ...validateRun(runData)
       }];
     }
 
