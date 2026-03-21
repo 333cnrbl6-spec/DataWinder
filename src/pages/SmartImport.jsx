@@ -275,7 +275,11 @@ export default function SmartImport() {
         const { file_url } = await base44.integrations.Core.UploadFile({ file: cleanFile });
         const aiAnalysis = await base44.integrations.Core.InvokeLLM({
           prompt: `You are a biodiversity data analyst. A user uploaded a file named "${name}". 
-Hints: if the filename contains "inat" or "inaturalist" it is iNaturalist observation data → suggest "Species". If it contains "gbif" it is GBIF occurrence data → suggest "Species". If it contains "iucn" it is IUCN species data → suggest "Species".
+Hints:
+- If the filename contains "inat", "inaturalist", "observations", "occurrences", "gbif", "specieslink" → suggest "Species" (these are occurrence/observation records to be stored on the Species entity as observations array)
+- If the filename contains "iucn" or has fields like scientific_name, taxon, kingdom, iucn_status → suggest "Species"
+- If the filename contains "climate", "worldclim", "chelsa", "bio", "bioclim" → suggest "ClimateDataset"
+- If the file has a list of species names → suggest "SpeciesList"
 Determine: 1. What data it contains 2. Best entity match from: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch 3. Brief reasoning 4. Key fields detected. Respond JSON only.`,
           file_urls: [file_url],
           response_json_schema: {
