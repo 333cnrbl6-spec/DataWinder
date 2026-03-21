@@ -114,23 +114,27 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
         })
       );
 
-      // Download binary files (PDFs, range maps)
+      // Automatically fetch all range data formats (GeoJSON, shapefiles, CSV) and PDFs
       for (const species of detailedSpecies) {
         if (species.iucn_id) {
           try {
             const dlResult = await base44.functions.invoke('downloadIUCNFiles', {
               scientific_name: species.scientific_name,
               assessment_id: species.assessment_id,
+              iucn_id: species.iucn_id,
               range_map_jpg_url: species.range_map_jpg_url,
               range_data_shp_url: species.range_data_shp_url,
-              range_data_csv_url: species.range_data_csv_url && species.range_data_csv_url !== 'available' ? species.range_data_csv_url : null
+              range_data_csv_url: species.range_data_csv_url
             });
             
             if (dlResult.data?.status === 'success') {
+              // Store all downloaded file URIs to species record
               if (dlResult.data.assessment_pdf_file_uri) species.assessment_pdf_file_uri = dlResult.data.assessment_pdf_file_uri;
               if (dlResult.data.range_map_jpg_file_uri) species.range_map_jpg_file_uri = dlResult.data.range_map_jpg_file_uri;
               if (dlResult.data.range_shp_file_uri) species.range_shp_file_uri = dlResult.data.range_shp_file_uri;
               if (dlResult.data.range_csv_file_uri) species.range_csv_file_uri = dlResult.data.range_csv_file_uri;
+              if (dlResult.data.range_geojson_file_uri) species.range_geojson_file_uri = dlResult.data.range_geojson_file_uri;
+              if (dlResult.data.range_data_geojson) species.range_data_geojson = dlResult.data.range_data_geojson;
             }
           } catch (e) {
             console.warn(`IUCN file download skipped for ${species.scientific_name}:`, e.message);
@@ -277,14 +281,20 @@ const fetchIUCNSpeciesDetails = async (sp, term) => {
       assessment_pdf_url: assessmentId ? `https://www.iucnredlist.org/documents/redlist/assessments/en/${assessmentId}.pdf` : null,
       range_map_jpg_url: sisId ? `https://www.iucnredlist.org/content/application/cms/calc/output_map_png.png?sis_id=${sisId}` : null,
       range_data_shp_url: sisId ? `https://www.iucnredlist.org/species/spatial-data/${sisId}` : null,
-      range_data_csv_url: null,
+      range_data_csv_url: sisId ? `https://www.iucnredlist.org/species/range-points/${sisId}` : null,
       range_data_geojson: null,
       search_summary_json: searchSummary,
       search_results_csv_url: `https://www.iucnredlist.org/search/export?query=${encodeURIComponent(term)}&searchType=species`,
       all_images_urls: allImages,
       dataset_name: term,
       data_source: 'IUCN Red List',
-      search_summary_file_uri: searchSummaryFileUri
+      search_summary_file_uri: searchSummaryFileUri,
+      // Range file URIs will be populated by downloadIUCNRangeData
+      range_geojson_file_uri: null,
+      range_shp_file_uri: null,
+      range_csv_file_uri: null,
+      range_map_jpg_file_uri: null,
+      assessment_pdf_file_uri: null
     };
   } catch (err) {
     console.error(`Error fetching comprehensive details:`, err);
