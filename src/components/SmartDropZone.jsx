@@ -168,14 +168,19 @@ export default function SmartDropZone({ onImported }) {
   const handleImport = async () => {
     if (!selectedEntity || parsedRows.length === 0) return;
     setStep('importing');
+    startTicking(4000);
     try {
       const entity = base44.entities[selectedEntity];
       if (!entity) throw new Error(`Unknown entity: ${selectedEntity}`);
       await entity.bulkCreate(parsedRows);
+      stopTicking();
+      playSuccess();
       setImportCount(parsedRows.length);
       setStep('done');
       onImported && onImported(selectedEntity, parsedRows.length);
     } catch (e) {
+      stopTicking();
+      playError();
       setErrorMsg(e.message || 'Import failed');
       setStep('error');
     }
