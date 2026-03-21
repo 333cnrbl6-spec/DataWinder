@@ -97,7 +97,7 @@ export default function Home() {
     setOnboardingChecked(true);
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '' }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '', autoExpand = false }) => {
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -121,14 +121,15 @@ export default function Home() {
       const allSpeciesMap = {};
 
       // Search IUCN for each term if token available
-      if (iucnToken) {
-        for (const term of terms) {
-          try {
-            const searchResult = await base44.functions.invoke('fetchIUCNData', {
-              term,
-              endpoint: 'taxa',
-              level
-            });
+       if (iucnToken) {
+         for (const term of terms) {
+           try {
+             const searchResult = await base44.functions.invoke('fetchIUCNData', {
+               term,
+               endpoint: 'taxa',
+               level,
+               autoExpand
+             });
 
             if (searchResult.data.status === 'error') {
               console.error(`IUCN API error for ${term}:`, searchResult.data.message);
@@ -1332,6 +1333,7 @@ export default function Home() {
                   {searchInfo?.iucnToken && <p>• Fetching from IUCN Red List</p>}
                   {searchInfo?.includeINaturalist && <p>• Fetching from iNaturalist</p>}
                   {searchInfo?.includeGBIF && <p>• Fetching from GBIF</p>}
+                  {searchInfo?.includeSpeciesLink && <p>• Fetching from speciesLink</p>}
                 </div>
               </div>
             )}
