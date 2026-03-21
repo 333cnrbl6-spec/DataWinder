@@ -16,6 +16,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'species_list is required and must be a non-empty array' }, { status: 400 });
     }
 
+    if (!layer_ids || !Array.isArray(layer_ids) || layer_ids.length === 0) {
+      return Response.json({ error: 'layer_ids is required and must be a non-empty array' }, { status: 400 });
+    }
+
     const MAXENT_API_URL = Deno.env.get('MAXENT_API_URL');
     const MAXENT_API_KEY = Deno.env.get('MAXENT_API_KEY');
 

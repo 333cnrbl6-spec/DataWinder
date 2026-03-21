@@ -19,9 +19,13 @@ Deno.serve(async (req) => {
 
     const url = `https://specieslink.net/ws/1.0/search?scientificname=${encodeURIComponent(scientificName)}&coordinates=yes&limit=${limit}&apikey=${apiKey}`;
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
     const res = await fetch(url, {
-      headers: { 'Accept': 'application/json' }
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       return Response.json({ status: 'error', message: `speciesLink API error: ${res.status}` }, { status: 500 });

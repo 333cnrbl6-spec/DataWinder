@@ -30,8 +30,19 @@ Deno.serve(async (req) => {
       order_name: sp.order_name
     }));
 
+    // Limit to first 1000 species for LLM safety
+    const speciesForAnalysis = allSpecies.slice(0, 1000);
+    if (allSpecies.length > 1000) {
+      return Response.json({
+        status: 'warning',
+        message: `Database contains ${allSpecies.length} species. Analyzing first 1000 for performance.`,
+        analyzed_count: 1000,
+        total_count: allSpecies.length
+      }, { status: 206 });
+    }
+
     // Call LLM to identify duplicates
-    const analysisPrompt = `You are an expert taxonomist specializing in primate taxonomy, particularly Callitrichidae. Deeply analyze each of these ${allSpecies.length} species records for potential duplicates, taxonomic conflicts, and data inconsistencies.
+    const analysisPrompt = `You are an expert taxonomist specializing in primate taxonomy, particularly Callitrichidae. Deeply analyze each of these ${speciesForAnalysis.length} species records for potential duplicates, taxonomic conflicts, and data inconsistencies.
 
 For each species, examine:
 - Scientific name validity against accepted taxonomy (WoRMS, ITIS, IOC World Bird List for comparative standards)
@@ -41,7 +52,18 @@ For each species, examine:
 - IUCN status history for inconsistencies
 
 Species data to analyze:
-${JSON.stringify(speciesSummary, null, 2)}
+${JSON.stringify(speciesForAnalysis.map(sp => ({
+       id: sp.id,
+       scientific_name: sp.scientific_name,
+       common_name: sp.common_name,
+       family: sp.family,
+       genus: sp.genus,
+       iucn_status: sp.iucn_status,
+       kingdom: sp.kingdom,
+       phylum: sp.phylum,
+       class_name: sp.class_name,
+       order_name: sp.order_name
+     })), null, 2)}
 
 Provide detailed taxonomic reasoning referencing:
 1. Current accepted taxonomic standards

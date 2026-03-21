@@ -19,24 +19,21 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Fetch the MaxentRun - use direct ID lookup
-    let run;
-    try {
-      run = await base44.entities.MaxentRun.list('-updated_date', 1);
-      // Filter to the specific run
-      run = run.filter(r => r.id === maxentRunId);
-    } catch (e) {
-      // Fallback: try direct fetch
-      run = [];
-    }
-    if (!run || run.length === 0) {
+    // Fetch the MaxentRun by ID
+    const runs = await base44.entities.MaxentRun.filter(
+      { id: maxentRunId },
+      null,
+      1
+    );
+
+    if (!runs || runs.length === 0) {
       return Response.json({ 
         status: 'error', 
         message: 'MaxentRun not found' 
       }, { status: 404 });
     }
 
-    const maxentRun = run[0];
+    const maxentRun = runs[0];
 
     // Parse results if they exist
     if (!maxentRun.results || typeof maxentRun.results !== 'object') {
@@ -60,16 +57,6 @@ Deno.serve(async (req) => {
           permutation_importance: contrib.permutation_importance || 0,
           gain: contrib.gain || 0,
           contribution_percent: contrib.percent_contribution || 0
-        });
-      });
-    } else if (results.layers && Array.isArray(results.layers)) {
-      // Fallback: estimate from layer metadata
-      results.layers.forEach((layer, idx) => {
-        featureImportance.push({
-          variable: layer.name || `Layer_${idx}`,
-          permutation_importance: Math.random() * 100, // Placeholder
-          gain: Math.random() * 100,
-          contribution_percent: Math.random() * 100
         });
       });
     }

@@ -64,7 +64,53 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+  });
+
+  function identifyDataGaps(species) {
+  const gaps = [];
+
+  // Check for missing common names
+  const withCommonName = species.filter(s => s.common_name);
+  if (withCommonName.length > 0 && withCommonName.length < species.length) {
+   gaps.push({
+     field: 'common_name',
+     available: withCommonName.length,
+     missing: species.length - withCommonName.length
+   });
+  }
+
+  // Check for missing IUCN status
+  const withIUCN = species.filter(s => s.iucn_status && s.iucn_status !== 'NE');
+  if (withIUCN.length > 0 && withIUCN.length < species.length) {
+   gaps.push({
+     field: 'iucn_status',
+     available: withIUCN.length,
+     missing: species.length - withIUCN.length
+   });
+  }
+
+  // Check for missing iNaturalist data
+  const withINat = species.filter(s => s.inat_taxon_id);
+  if (withINat.length > 0 && withINat.length < species.length) {
+   gaps.push({
+     field: 'iNaturalist',
+     available: withINat.length,
+     missing: species.length - withINat.length
+   });
+  }
+
+  // Check for missing GBIF data
+  const withGBIF = species.filter(s => s.gbif_id);
+  if (withGBIF.length > 0 && withGBIF.length < species.length) {
+   gaps.push({
+     field: 'GBIF',
+     available: withGBIF.length,
+     missing: species.length - withGBIF.length
+   });
+  }
+
+  return gaps;
+  }
 
 function identifyDataGaps(species) {
   const gaps = [];

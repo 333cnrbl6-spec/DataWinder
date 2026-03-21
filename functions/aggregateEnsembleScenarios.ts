@@ -75,8 +75,13 @@ Deno.serve(async (req) => {
           )
         : 0;
 
-      // Estimate suitable area (very simplified - in practice would use actual raster data)
-      const mean_suitable_area = (Math.random() * 2000 + 1000); // Placeholder
+      // Estimate suitable area from occurrence count as proxy
+      const occurrenceSizes = runsForPeriod
+        .map(r => r.occurrence_count || 100)
+        .filter(o => o > 0);
+      const mean_suitable_area = occurrenceSizes.length > 0
+        ? occurrenceSizes.reduce((a, b) => a + b, 0) / occurrenceSizes.length * 10
+        : 1000;
       const std_suitable_area = mean_suitable_area * 0.15;
 
       scenarios[period] = {
@@ -97,7 +102,9 @@ Deno.serve(async (req) => {
     // Calculate refugia (areas stable across scenarios)
     const refugia = {
       definition: 'Areas predicted suitable in current AND 2050 AND 2070 scenarios',
-      estimated_percent_of_current_range: Math.max(5, Math.random() * 40 + 10), // Placeholder
+      estimated_percent_of_current_range: scenarios['current'] && scenarios['2070']
+        ? Math.max(5, Math.min(100, ((scenarios['2070']?.mean_suitable_area_km2 || 0) / (scenarios['current']?.mean_suitable_area_km2 || 1)) * 100))
+        : null,
       primary_locations: 'Requires detailed spatial overlap analysis'
     };
 
