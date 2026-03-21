@@ -15,8 +15,29 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing records or target_entity' }, { status: 400 });
     }
 
-    // Get entity schema
-    const schema = await base44.entities[target_entity].schema();
+    // Inline schema properties for supported entities (schema() not available in backend)
+    const entitySchemas = {
+      Species: {
+        properties: {
+          iucn_status: { type: 'string', enum: ['LC', 'NT', 'VU', 'EN', 'CR', 'EW', 'EX', 'DD', 'NE'] },
+          population_trend: { type: 'string', enum: ['increasing', 'stable', 'decreasing', 'unknown'] },
+          iucn_id: { type: 'number' },
+          assessment_id: { type: 'number' },
+          observation_count: { type: 'number' },
+          gbif_occurrence_count: { type: 'number' },
+          specieslink_occurrence_count: { type: 'number' },
+          gbif_id: { type: 'number' },
+          inat_taxon_id: { type: 'number' },
+        }
+      },
+      IUCNTaxonomy: { properties: {} },
+      ClimateDataset: {
+        properties: {
+          source: { type: 'string', enum: ['WorldClim', 'CHELSA', 'ERA5', 'MODIS', 'ESA CCI', 'CGIAR', 'TerraClimate', 'ISIMIP', 'CMIP6/ESGF', 'Other'] }
+        }
+      }
+    };
+    const schema = entitySchemas[target_entity] || { properties: {} };
 
     // Validation rules
     const validationRules = {
