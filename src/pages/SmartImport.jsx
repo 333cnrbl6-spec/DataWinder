@@ -152,11 +152,13 @@ export default function SmartImport() {
           const uint8 = await entry.async('uint8array');
           const ext = getFileExt(entry.name);
           const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
-          const fileName = entry.name.split('/').pop();
+          // Sanitise filename: strip path, replace special chars, keep extension
+          const rawFileName = entry.name.split('/').pop();
+          const safeFileName = `data_${Date.now()}.${ext}`;
           const blob = new Blob([uint8], { type: mime });
-          Object.defineProperty(blob, 'name', { value: fileName });
+          Object.defineProperty(blob, 'name', { value: safeFileName });
           Object.defineProperty(blob, 'lastModified', { value: Date.now() });
-          return { name: entry.name, rawFile: blob };
+          return { name: rawFileName, rawFile: blob };
         })
       );
 
