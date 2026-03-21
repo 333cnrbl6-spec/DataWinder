@@ -257,11 +257,18 @@ export default function SmartImport() {
   const analyseAndSetImportable = async (rawFiles) => {
     const results = await Promise.all(
       rawFiles.map(async ({ name, rawFile }) => {
-        // Sanitise: always create a new File with a clean name — native File.name is immutable
+        // Always upload using a FormData so the SDK receives a proper multipart file
         const ext = getFileExt(name);
         const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
         const safeFileName = `data_${Date.now()}.${ext}`;
-        const cleanFile = new File([await rawFile.arrayBuffer()], safeFileName, { type: mime });
+        // Read as ArrayBuffer first to ensure we have the raw bytes
+        const bytes = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(rawFile);
+        });
+        const cleanFile = new File([bytes], safeFileName, { type: mime });
 
         const { file_url } = await base44.integrations.Core.UploadFile({ file: cleanFile });
         const aiAnalysis = await base44.integrations.Core.InvokeLLM({
