@@ -63,22 +63,41 @@ Deno.serve(async (req) => {
         // ── STEP 1: IUCN Search ──
          let iucnData = [];
          try {
-           const searchRes = await base44.functions.invoke('fetchIUCNData', {
-             endpoint: 'taxa',
-             term: testCase.name,
-             level: testCase.level
+           const token = Deno.env.get('IUCN_API_KEY');
+           const BASE = 'https://api.iucnredlist.org/api/v4';
+           let apiUrl = '';
+
+           if (testCase.level === 'family') {
+             apiUrl = `${BASE}/taxa/family/${encodeURIComponent(testCase.name)}`;
+           } else if (testCase.level === 'order') {
+             apiUrl = `${BASE}/taxa/order/${encodeURIComponent(testCase.name)}`;
+           } else if (testCase.level === 'class') {
+             apiUrl = `${BASE}/taxa/class/${encodeURIComponent(testCase.name)}`;
+           } else if (testCase.level === 'species') {
+             const parts = testCase.name.split(' ');
+             apiUrl = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1] || '')}`;
+           }
+
+           const response = await fetch(apiUrl, {
+             headers: {
+               'Authorization': `Bearer ${token}`,
+               'Accept': 'application/json'
+             }
            });
-          
-          if (searchRes.data?.status === 'success' && Array.isArray(searchRes.data.data)) {
-            iucnData = searchRes.data.data.slice(0, 3); // Limit to 3 per scenario for test speed
-            caseResult.checks.iucn_search = { passed: true, count: iucnData.length };
-          } else {
-            caseResult.checks.iucn_search = { passed: true, count: 0, note: 'No IUCN results' };
-          }
-        } catch (e) {
-          caseResult.checks.iucn_search = { passed: false, error: e.message };
-          caseResult.errors.push(`IUCN search failed: ${e.message}`);
-        }
+
+           if (response.ok) {
+             const json = await response.json();
+             if (json.assessments) {
+               iucnData = json.assessments.slice(0, 3);
+             }
+             caseResult.checks.iucn_search = { passed: true, count: iucnData.length };
+           } else {
+             caseResult.checks.iucn_search = { passed: false, error: `HTTP ${response.status}` };
+           }
+         } catch (e) {
+           caseResult.checks.iucn_search = { passed: false, error: e.message };
+           caseResult.errors.push(`IUCN search failed: ${e.message}`);
+         }
 
         // ── STEP 2: Validate Range Data ──
         const rangeDataValidation = {
