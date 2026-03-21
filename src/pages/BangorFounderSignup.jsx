@@ -81,7 +81,7 @@ export default function BangorFounderSignup() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-bangor-red">DataWinder</h1>
-              <p className="text-sm text-slate-500">Bangor University Founder Program</p>
+              <p className="text-sm text-slate-500">Independent initiative by a Bangor Zoology researcher</p>
             </div>
           </div>
         </div>
