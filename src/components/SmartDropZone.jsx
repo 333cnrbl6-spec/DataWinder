@@ -101,12 +101,14 @@ export default function SmartDropZone({ onImported }) {
         const geospatialFiles = files.filter(f => GEOSPATIAL_EXTS.includes(getFileExt(f.name)));
         
         if (!importableFile && geospatialFiles.length > 0) {
-          // ZIP contains only geospatial/raster data — inform user
-          setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatialArchive: true, fileList: files.map(f => f.name) });
-          stopTicking();
-          setStep('geospatial');
-          return;
-        }
+            // ZIP contains only geospatial/raster data — upload and inform user
+            const uploadedFile = await base44.integrations.Core.UploadFile({ file });
+            setFileUrl(uploadedFile.file_url);
+            setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatialArchive: true, fileList: files.map(f => f.name) });
+            stopTicking();
+            setStep('geospatial');
+            return;
+          }
         
         const fileToExtract = importableFile || files[0];
         const blob = await fileToExtract.async('blob');
