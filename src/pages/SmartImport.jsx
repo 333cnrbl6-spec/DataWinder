@@ -201,11 +201,12 @@ export default function SmartImport() {
   };
 
   const handleImportAll = async () => {
+    const filesToImport = importableFiles; // capture current state before async ops
     setPhase('importing');
     startTicking(4000);
     const summary = [];
     try {
-      for (const f of importableFiles) {
+      for (const f of filesToImport) {
         if (!f.selectedEntity || f.rows.length === 0) continue;
         const entity = base44.entities[f.selectedEntity];
         if (!entity) continue;
