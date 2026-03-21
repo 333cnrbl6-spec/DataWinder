@@ -160,6 +160,17 @@ export default function BangorFounderSignup() {
                 </ul>
               </div>
 
+              {/* Mission Statement */}
+              <div className="bg-slate-900 text-white rounded-xl p-6 mb-8">
+                <h3 className="font-bold mb-3">Our Design Philosophy</h3>
+                <p className="text-sm leading-relaxed mb-3">
+                  DataWinder is designed for researchers of all neurological backgrounds. Our creator understands neurodiversity firsthand—study support, accessibility needs, different ways of thinking are strengths, not obstacles.
+                </p>
+                <p className="text-sm leading-relaxed">
+                  <strong>We need everyone</strong> to help us build this. Your feedback—whether you're neurodivergent or not—helps us create simpler, clearer solutions that work for all researchers. Complex features are fine. Complex interfaces are not.
+                </p>
+              </div>
+
               {/* CTA */}
               <Button
                 onClick={() => setStep('signup')}
