@@ -455,16 +455,26 @@ export default function SmartImport() {
                       <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span className="text-sm text-slate-700 truncate">{f.name}</span>
                     </div>
-                    <a href={f.url} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline" className="text-xs gap-1 shrink-0">
-                        <Download className="w-3 h-3" /> View
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <a href={f.url} target="_blank" rel="noopener noreferrer">
+                        <Button size="sm" variant="outline" className="text-xs gap-1">
+                          <Download className="w-3 h-3" /> View
+                        </Button>
+                      </a>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs gap-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                        onClick={() => { window.location.href = '/LiteratureLibrary'; }}
+                      >
+                        <FileText className="w-3 h-3" /> Literature Library
                       </Button>
-                    </a>
+                    </div>
                   </div>
                 ))}
               </div>
               <div className="px-4 py-2 bg-blue-50/50 border-t border-blue-100">
-                <p className="text-xs text-blue-600">These files have been uploaded to secure storage. Copy the links above to reference them.</p>
+                <p className="text-xs text-blue-600">Files are in secure storage. Open in Literature Library to attach them to species research.</p>
               </div>
             </section>
           )}
