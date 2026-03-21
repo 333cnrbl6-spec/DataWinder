@@ -13,7 +13,7 @@ import JSZip from 'jszip';
 // File types that can be parsed into database records
 const IMPORTABLE_EXTS = ['csv', 'xlsx', 'xls', 'json'];
 // Geospatial/binary — inform user, can't auto-import
-const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'geojson', 'kml', 'kmz'];
+const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'prj', 'shx', 'geojson', 'kml', 'kmz'];
 // Text/document files — upload and store as files
 const TEXT_EXTS = ['txt', 'pdf', 'doc', 'docx', 'md'];
 
