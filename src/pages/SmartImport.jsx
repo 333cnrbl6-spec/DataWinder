@@ -283,7 +283,8 @@ export default function SmartImport() {
   };
 
   const handleImportAll = async () => {
-    const filesToImport = importableFiles; // capture current state before async ops
+    const filesToImport = importableFiles;
+    const climatesToImport = climateLayerFiles;
     setPhase('importing');
     startTicking(4000);
     const summary = [];
@@ -294,6 +295,10 @@ export default function SmartImport() {
         if (!entity) continue;
         await entity.bulkCreate(f.rows);
         summary.push({ name: f.name, entity: f.selectedEntity, count: f.rows.length });
+      }
+      if (climatesToImport.length > 0) {
+        await base44.entities.ClimateDataset.bulkCreate(climatesToImport.map(c => c.record));
+        summary.push({ name: `${climatesToImport.length} climate layer(s)`, entity: 'ClimateDataset', count: climatesToImport.length });
       }
       stopTicking();
       playSuccess();
