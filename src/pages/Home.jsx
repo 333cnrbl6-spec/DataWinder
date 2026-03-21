@@ -996,8 +996,12 @@ export default function Home() {
         ...sp,
         is_new: !savedSpeciesScientificNames.has(sp.scientific_name)
       })));
+      stopTicking();
+      playSuccess();
     } catch (err) {
       console.error('Search error:', err);
+      stopTicking();
+      playError();
       setError('Failed to fetch data. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
