@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { fetchIUCNSpecies } from '@/hooks/useIUCNSearch';
+import { validateOnboardingComplete, createCommunityMember, completeOnboarding } from '@/lib/onboardingValidator';
 import { generateMaxentCSV, generateArcGISGeoJSON, generateCompleteDatasetCSV, downloadFile, parseUploadedFile, importSpeciesRecords } from '@/lib/speciesDataHandlers';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -94,9 +95,18 @@ export default function Home() {
     fetchSavedSpecies();
     }, []);
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    setOnboardingChecked(true);
+  const handleOnboardingComplete = async (communityData) => {
+    try {
+      // Create/update CommunityMember record
+      await createCommunityMember(base44, communityData);
+      // Mark onboarding as complete in user profile
+      await completeOnboarding(base44);
+      setShowOnboarding(false);
+      setOnboardingChecked(true);
+    } catch (error) {
+      console.error('Failed to complete onboarding:', error);
+      toast.error('Onboarding failed. Please try again.');
+    }
   };
 
   const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '', autoExpand = false }) => {
