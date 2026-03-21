@@ -83,7 +83,7 @@ export default function MAXENTModeler() {
       climate_dataset_names: selectedLayers.map(l => l.name),
       occurrence_count: occurrenceCount,
       parameters,
-      status: detectedMaxentPath ? 'running' : 'submitted',
+      status: 'submitted',
     });
 
     // Generate occurrence CSV for local MAXENT execution
