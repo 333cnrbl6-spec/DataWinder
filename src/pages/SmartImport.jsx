@@ -315,7 +315,7 @@ export default function SmartImport() {
   };
 
   const totalImportable = importableFiles.reduce((s, f) => s + f.rows.length, 0);
-  const hasAnything = importableFiles.length > 0 || textFiles.length > 0 || geospatialFiles.length > 0;
+  const hasAnything = importableFiles.length > 0 || textFiles.length > 0 || geospatialFiles.length > 0 || climateLayerFiles.length > 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
