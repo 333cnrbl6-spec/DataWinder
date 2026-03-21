@@ -25,8 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [includeGBIF, setIncludeGBIF] = useState(true);
-  const [includeSpeciesLink, setIncludeSpeciesLink] = useState(true);
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -61,9 +59,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         level: 'species', 
         terms: selectedSpecies, 
         iucnToken,
-        includeINaturalist: includeINat,
-        includeGBIF,
-        includeSpeciesLink
+        includeINaturalist: includeINat
       });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
@@ -72,9 +68,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat,
-          includeGBIF,
-          includeSpeciesLink
+          includeINaturalist: includeINat
         });
       }
     }
@@ -151,7 +145,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
       
       <p className="text-sm text-slate-500 mb-4">
-        Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
+        Search across multiple biodiversity databases simultaneously. Select which data sources to include—IUCN Red List for conservation status, iNaturalist for citizen observations, GBIF for specimen occurrences, and SpeciesLink for museum records.
       </p>
 
       {/* IUCN Credentials */}
@@ -243,53 +237,14 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* Data Sources Selection */}
-       <div className="mb-6 space-y-3">
-         <h3 className="text-sm font-medium text-slate-700">Data Sources</h3>
-         <div className="space-y-2">
-           {/* iNaturalist */}
-           <label className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition">
-             <input
-               type="checkbox"
-               checked={includeINat}
-               onChange={(e) => setIncludeINat(e.target.checked)}
-               className="w-4 h-4"
-             />
-             <div className="flex-1">
-               <span className="text-sm font-medium text-slate-900">iNaturalist</span>
-               <span className="text-xs text-slate-500 block">Observation records & occurrence data</span>
-             </div>
-           </label>
-
-           {/* GBIF */}
-           <label className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition">
-             <input
-               type="checkbox"
-               checked={includeGBIF}
-               onChange={(e) => setIncludeGBIF(e.target.checked)}
-               className="w-4 h-4"
-             />
-             <div className="flex-1">
-               <span className="text-sm font-medium text-slate-900">GBIF</span>
-               <span className="text-xs text-slate-500 block">Specimens, observations & occurrences</span>
-             </div>
-           </label>
-
-           {/* SpeciesLink */}
-           <label className="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-100 transition">
-             <input
-               type="checkbox"
-               checked={includeSpeciesLink}
-               onChange={(e) => setIncludeSpeciesLink(e.target.checked)}
-               className="w-4 h-4"
-             />
-             <div className="flex-1">
-               <span className="text-sm font-medium text-slate-900">SpeciesLink</span>
-               <span className="text-xs text-slate-500 block">Museum & herbarium specimens</span>
-             </div>
-           </label>
-         </div>
-       </div>
+      {/* iNaturalist */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
+        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-bangor-sun" />
+          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -441,47 +396,21 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           >
             <h3 className="text-lg font-semibold text-slate-900 mb-3">Add Species to Dataset?</h3>
             <p className="text-sm text-slate-600 mb-4">
-               You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label} from:
-             </p>
-
-             <div className="mb-4 space-y-2">
-               <label className="flex items-center gap-2 p-2 rounded cursor-pointer border border-slate-200 hover:bg-slate-50">
-                 <input
-                   type="checkbox"
-                   checked={true}
-                   disabled
-                   className="w-4 h-4"
-                 />
-                 <span className="text-sm text-slate-700 font-medium">IUCN Red List (Always Included)</span>
-               </label>
-               <label className="flex items-center gap-2 p-2 rounded cursor-pointer border border-emerald-200 hover:bg-emerald-50">
-                 <input
-                   type="checkbox"
-                   checked={includeINat}
-                   onChange={(e) => setIncludeINat(e.target.checked)}
-                   className="w-4 h-4"
-                 />
-                 <span className="text-sm text-slate-700 font-medium">iNaturalist Observations</span>
-               </label>
-               <label className="flex items-center gap-2 p-2 rounded cursor-pointer border border-blue-200 hover:bg-blue-50">
-                 <input
-                   type="checkbox"
-                   checked={includeGBIF}
-                   onChange={(e) => setIncludeGBIF(e.target.checked)}
-                   className="w-4 h-4"
-                 />
-                 <span className="text-sm text-slate-700 font-medium">GBIF Occurrences</span>
-               </label>
-               <label className="flex items-center gap-2 p-2 rounded cursor-pointer border border-purple-200 hover:bg-purple-50">
-                 <input
-                   type="checkbox"
-                   checked={includeSpeciesLink}
-                   onChange={(e) => setIncludeSpeciesLink(e.target.checked)}
-                   className="w-4 h-4"
-                 />
-                 <span className="text-sm text-slate-700 font-medium">SpeciesLink Specimens</span>
-               </label>
-             </div>
+              You're about to fetch data for {level !== 'species' && selectedSpecies.length > 0 ? selectedSpecies.length : searchTerms.filter(t => t.trim()).length} {level !== 'species' && selectedSpecies.length > 0 ? 'species' : currentLevel?.label}. 
+              This will download comprehensive data from IUCN Red List{includeINat ? ' and iNaturalist' : ''}.
+            </p>
+            
+            <label className="flex items-center gap-2 mb-4 p-3 bg-bangor-sun/10 rounded-lg cursor-pointer border border-bangor-sun/20">
+               <input
+                 id="include-inat"
+                 name="include-inat"
+                 type="checkbox"
+                 checked={includeINat}
+                 onChange={(e) => setIncludeINat(e.target.checked)}
+                 className="w-4 h-4"
+               />
+               <span className="text-sm text-slate-700 font-medium">Also Include iNaturalist Observation Data</span>
+             </label>
 
             <div className="flex gap-3">
               <Button

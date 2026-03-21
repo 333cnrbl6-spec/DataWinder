@@ -90,7 +90,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div className="hidden sm:block leading-tight">
                 <div className="text-sm font-bold text-bangor-red tracking-tight">DataWinder</div>
-                <div className="text-xs text-slate-400 font-normal">Species Distribution Tools</div>
+                <div className="text-xs text-slate-400 font-normal">Multi-Source Species Research Platform</div>
               </div>
             </Link>
 
@@ -237,7 +237,7 @@ export default function Layout({ children, currentPageName }) {
                 <div className="w-5 h-5 bg-bangor-red rounded flex items-center justify-center">
                   <Leaf className="w-3 h-3 text-white" />
                 </div>
-                <span>© {new Date().getFullYear()} DataWinder — Species Distribution Modelling Platform</span>
+                <span>© {new Date().getFullYear()} DataWinder — Multi-Source Biodiversity Research Platform</span>
               </div>
               <span className="italic">Data for research purposes only. Always cite original sources.</span>
             </div>

@@ -1268,26 +1268,31 @@ export default function Home() {
                   <AlertDescription className="text-slate-700 space-y-2">
                     <p>DataWinder is a species distribution modelling toolkit built for ecological research. Use the workflow below to build, analyse, and model species data:</p>
                     <ol className="list-decimal list-inside space-y-1 text-sm">
-                      <li><span className="font-semibold">Search</span> — Query by species, genus, family, order, or class across IUCN Red List, iNaturalist, and GBIF simultaneously.</li>
-                      <li><span className="font-semibold">Enrich</span> — Pull conservation status, population trends, habitat & threat data from IUCN; citizen science observations from iNaturalist; and georeferenced occurrence records from GBIF.</li>
-                      <li><span className="font-semibold">Review & Compare</span> — Select species, compare side-by-side, add personal research notes, and organise into custom lists.</li>
-                      <li><span className="font-semibold">Export</span> — Download occurrence data formatted for MAXENT, GeoJSON ranges for ArcGIS, or a full species dataset as CSV.</li>
-                      <li><span className="font-semibold">Model</span> — Use the MAXENT Modeller to configure and run habitat suitability models using your curated species and climate layer selections.</li>
-                    </ol>
+                       <li><span className="font-semibold">Search Multi-Source</span> — Query IUCN Red List, iNaturalist, GBIF, and SpeciesLink simultaneously by species, genus, family, order, or class.</li>
+                       <li><span className="font-semibold">Aggregate & Enrich</span> — Automatically merge conservation status (IUCN), citizen observations (iNaturalist), specimen records (GBIF), museum collections (SpeciesLink), and geographic ranges into unified species records.</li>
+                       <li><span className="font-semibold">Smart Import</span> — Upload any file type (CSV, Excel, GeoJSON, Shapefile, KML, TIF, ZIP). AI detects the content and routes tabular data to database or geospatial files to archives for spatial analysis.</li>
+                       <li><span className="font-semibold">Review & Prepare</span> — Select, compare, map occurrences, flag outliers, organize into projects, add research notes, and export prepared datasets.</li>
+                       <li><span className="font-semibold">Model & Analyze</span> — Run MAXENT species distribution models with curated occurrence data and climate scenarios. Interpret results, compare projections, and assess conservation threats.</li>
+                     </ol>
                   </AlertDescription>
                 </Alert>
 
-                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/20 text-xs text-slate-600">
-                  <p className="mb-1 font-semibold text-slate-700">Academic Data Sources:</p>
-                  <p className="italic">• IUCN 2025. IUCN Red List of Threatened Species. Version 2025-2 www.iucnredlist.org</p>
-                  <p className="italic">• iNaturalist. Citizen science biodiversity observations. www.inaturalist.org</p>
-                  <p className="italic">• GBIF. Global Biodiversity Information Facility. www.gbif.org</p>
-                  <p className="text-slate-500 mt-2">Integrate conservation status, occurrence records, specimen data, and genomic references.</p>
-                  <div className="mt-3 pt-3 border-t border-bangor-red/10">
-                    <p className="text-xs text-slate-500 mb-2 font-medium">Data & Tool Partners:</p>
-                    <DataSourceBadges size="xs" />
-                  </div>
-                </div>
+                <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/20 text-xs text-slate-600 space-y-3">
+                   <div>
+                     <p className="mb-1 font-semibold text-slate-700">Integrated Data Sources</p>
+                     <ul className="space-y-1">
+                       <li className="italic">• <strong>IUCN Red List</strong> — Conservation status, population trends, threats, habitats, assessments</li>
+                       <li className="italic">• <strong>iNaturalist</strong> — Citizen-contributed observations, photos, occurrences with coordinates</li>
+                       <li className="italic">• <strong>GBIF</strong> — Specimen records, museum/herbarium databases, research occurrences</li>
+                       <li className="italic">• <strong>SpeciesLink</strong> — Brazilian & Latin American museum collections, herbarium specimens</li>
+                       <li className="italic">• <strong>User Files</strong> — CSV, Excel, GeoJSON, Shapefiles, KML, TIF, ZIP archives (auto-routed)</li>
+                     </ul>
+                   </div>
+                   <div className="pt-3 border-t border-bangor-red/10">
+                     <p className="text-xs text-slate-500 mb-2 font-medium">Technology Partners:</p>
+                     <DataSourceBadges size="xs" />
+                   </div>
+                 </div>
 
                 <div className="mt-4 p-4 bg-gradient-to-r from-bangor-red/5 to-slate-50 rounded-lg border border-bangor-red/10 flex items-start gap-3">
                   <Leaf className="w-4 h-4 text-bangor-red mt-0.5 shrink-0" />
