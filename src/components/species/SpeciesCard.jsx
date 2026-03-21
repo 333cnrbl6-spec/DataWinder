@@ -284,6 +284,22 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
               </div>
             )}
 
+            {/* Range Data Availability */}
+            {(species.range_geojson_file_uri || species.range_shp_file_uri || species.range_csv_file_uri || species.range_map_jpg_file_uri) && (
+              <div className="bg-blue-50 rounded-xl p-3.5 border border-blue-100">
+                <div className="flex items-center gap-1 mb-2">
+                  <Map className="w-4 h-4 text-blue-600" />
+                  <h4 className="text-sm font-semibold text-blue-800">Range Data</h4>
+                </div>
+                <div className="flex flex-wrap gap-1.5 text-xs text-blue-700">
+                  {species.range_geojson_file_uri && <span className="px-2 py-0.5 bg-blue-100 rounded">GeoJSON</span>}
+                  {species.range_shp_file_uri && <span className="px-2 py-0.5 bg-blue-100 rounded">Shapefile</span>}
+                  {species.range_csv_file_uri && <span className="px-2 py-0.5 bg-blue-100 rounded">Points CSV</span>}
+                  {species.range_map_jpg_file_uri && <span className="px-2 py-0.5 bg-blue-100 rounded">Map JPG</span>}
+                </div>
+              </div>
+            )}
+
             {/* Observations */}
             {(species.observation_count > 0 || species.gbif_occurrence_count > 0 || species.specieslink_occurrence_count > 0) && (
               <div className="grid grid-cols-2 gap-3">
@@ -370,11 +386,17 @@ export default function SpeciesCard({ species, selected, onSelect, onEnrichWithI
                   </Button>
                 )}
                 {species.range_shp_file_uri && (
-                  <Button size="sm" variant="outline" className="text-xs h-7"
-                    onClick={() => downloadFile(species.range_shp_file_uri, `${safeName}_range.zip`)}>
-                    <Download className="w-3 h-3 mr-1" /> Range SHP (stored)
-                  </Button>
-                )}
+                    <Button size="sm" variant="outline" className="text-xs h-7"
+                      onClick={() => downloadFile(species.range_shp_file_uri, `${safeName}_range.zip`)}>
+                      <Download className="w-3 h-3 mr-1" /> Range SHP (stored)
+                    </Button>
+                  )}
+                  {species.range_geojson_file_uri && (
+                    <Button size="sm" variant="outline" className="text-xs h-7"
+                      onClick={() => downloadFile(species.range_geojson_file_uri, `${safeName}_range.geojson`)}>
+                      <Map className="w-3 h-3 mr-1" /> Range GeoJSON (stored)
+                    </Button>
+                  )}
                 {!species.inat_taxon_id && onEnrichWithINaturalist && (
                   <Button size="sm" className="text-xs h-7 bg-amber-500 hover:bg-amber-600 text-white"
                     onClick={() => { setShowModal(false); onEnrichWithINaturalist(species); }}>
