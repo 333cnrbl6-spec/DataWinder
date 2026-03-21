@@ -15,6 +15,12 @@ export default function BangorMicrosoftLogin() {
         const user = await base44.auth.me();
         if (user) {
           setIsAuthenticated(true);
+          // Process Bangor login (grant Founding Member status if applicable)
+          try {
+            await base44.functions.invoke('processBangorLogin', {});
+          } catch (e) {
+            console.error('Error processing Bangor login:', e);
+          }
           // Redirect to home after a brief delay
           setTimeout(() => {
             window.location.href = '/Home';
