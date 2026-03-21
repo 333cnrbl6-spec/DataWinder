@@ -265,9 +265,9 @@ export default function SmartDropZone({ onImported }) {
            onChange={(e) => handleFile(e.target.files[0])} />
         <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragging ? 'text-bangor-red' : 'text-slate-400'}`} />
         <p className="text-sm font-semibold text-slate-600">
-          {dragging ? 'Release to analyse & import' : 'Drag & drop a file to import'}
-        </p>
-        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · Shapefiles · GeoJSON · KML · ZIP — DataWinder handles all file types</p>
+           {dragging ? 'Release to smart analyse & import' : 'Drag & drop any file to smart import'}
+         </p>
+         <p className="text-xs text-slate-400 mt-1">Supported: CSV · Excel · JSON · GeoJSON · Shapefile · KML · GeoTIFF · ZIP · All formats</p>
       </div>
 
       {/* Smart Import Modal */}
