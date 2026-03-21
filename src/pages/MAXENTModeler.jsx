@@ -458,16 +458,16 @@ pause`;
 
                   {/* How it works notice */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3">
-                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-blue-900">What happens when you click Submit?</p>
-                      <p className="text-sm text-blue-700 mt-1 leading-relaxed">
-                        Your model configuration and occurrence data will be packaged and saved.
-                        The run will be sent to the external MAXENT processing service (once connected).
-                        You can track the status of this run in the Run History at the top of this page.
-                      </p>
-                    </div>
-                  </div>
+                     <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                     <div>
+                       <p className="text-sm font-semibold text-blue-900">What happens when you click Submit?</p>
+                       <p className="text-sm text-blue-700 mt-1 leading-relaxed">
+                         DataWinder will generate a <strong>ready-to-run ZIP package</strong> containing your occurrence CSV and a batch script pre-configured with your parameters.
+                         Download it, place your climate layers in a <code className="bg-blue-100 px-1 rounded text-xs">layers/</code> subfolder alongside <code className="bg-blue-100 px-1 rounded text-xs">maxent.jar</code>, then run the included script.
+                         The run record is also saved to your history.
+                       </p>
+                     </div>
+                   </div>
 
                 </CardContent>
               </Card>
