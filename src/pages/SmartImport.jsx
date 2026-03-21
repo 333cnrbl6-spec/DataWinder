@@ -146,9 +146,20 @@ export default function SmartImport() {
       // ── Single non-ZIP file ──────────────────────────────────────────────
       if (!file.name.endsWith('.zip') && file.type !== 'application/zip') {
         const cls = classifyFile(file.name);
-        if (cls === 'geospatial') {
+        if (cls === 'importable') {
+          await analyseAndSetImportable([{ name: file.name, rawFile: file }]);
           stopTicking();
-          setGeospatialFiles([{ name: file.name }]);
+          setPhase('results');
+          return;
+        }
+        if (cls === 'geospatial') {
+          const parsed = parseGeospatialLayer(file.name);
+          if (parsed.type === 'climate') {
+            setClimateLayerFiles([{ name: file.name, record: parsed.record }]);
+          } else {
+            setGeospatialFiles([{ name: file.name }]);
+          }
+          stopTicking();
           setPhase('results');
           return;
         }
@@ -159,13 +170,9 @@ export default function SmartImport() {
           setPhase('results');
           return;
         }
-        if (cls === 'importable') {
-          await analyseAndSetImportable([{ name: file.name, rawFile: file }]); // native File obj — safe
-          stopTicking();
-          setPhase('results');
-          return;
-        }
-        throw new Error(`Unsupported file type: ${getFileExt(file.name)}`);
+        setUnknownFiles([{ name: file.name }]);
+        stopTicking();
+        setPhase('results');
       }
 
       // ── ZIP file ─────────────────────────────────────────────────────────
