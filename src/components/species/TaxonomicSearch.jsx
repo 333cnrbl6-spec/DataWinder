@@ -95,15 +95,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       setFamilySpecies([]);
       setSelectedSpecies([]);
       try {
-        const result = await base44.functions.fetchIUCNData({
+        const result = await base44.functions.invoke('fetchIUCNData', {
           level: level,
           term: value.trim(),
           endpoint: 'taxa',
           iucnToken: iucnToken
         });
 
-        if (result.status === 'success' && result.data?.result && result.data.result.length > 0) {
-          setFamilySpecies(result.data.result);
+        if (result?.data?.status === 'success' && result?.data?.data?.result && result?.data?.data?.result?.length > 0) {
+          setFamilySpecies(result.data.data.result);
         }
       } catch (err) {
         console.error('Error fetching species:', err);
@@ -145,7 +145,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       </div>
       
       <p className="text-sm text-slate-500 mb-4">
-        Search across multiple biodiversity databases simultaneously. Select which data sources to include—IUCN Red List for conservation status, iNaturalist for citizen observations, GBIF for specimen occurrences, and SpeciesLink for museum records.
+        Search for species by taxonomic group. Data will be fetched from IUCN Red List and iNaturalist.
       </p>
 
       {/* IUCN Credentials */}
@@ -240,10 +240,18 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
       {/* iNaturalist */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
+        <label className="flex items-center gap-2 p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg cursor-pointer">
+          <input
+            id="include-inat-checkbox"
+            name="include-inat-checkbox"
+            type="checkbox"
+            checked={includeINat}
+            onChange={(e) => setIncludeINat(e.target.checked)}
+            className="w-4 h-4"
+          />
           <Sparkles className="w-4 h-4 text-bangor-sun" />
-          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
-        </div>
+          <span className="text-xs text-bangor-sun font-medium">Include iNaturalist Observations</span>
+        </label>
       </div>
 
       <div className="space-y-3">

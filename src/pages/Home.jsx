@@ -109,7 +109,9 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '', autoExpand = false }) => {
+  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '', autoExpand = false, includeGBIF: unused_gbif = false }) => {
+    // Extract actual params correctly
+    const { level: searchLevel, terms: searchTerms, iucnToken: token, includeINaturalist: useINat, includeGBIF: useGBIF, includeSpeciesLink: useSL, speciesLinkApiKey: slKey } = arguments[0];
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -121,19 +123,19 @@ export default function Home() {
     setSelectedIds([]);
     startTicking(4000);
     setSearchInfo({ 
-      level, 
-      terms: terms.join(', '),
-      includeINaturalist,
-      includeGBIF,
-      includeSpeciesLink,
-      iucnToken: !!iucnToken
+      level: searchLevel, 
+      terms: searchTerms.join(', '),
+      includeINaturalist: useINat,
+      includeGBIF: useGBIF,
+      includeSpeciesLink: useSL,
+      iucnToken: !!token
     });
 
     try {
       // Fetch all species data from IUCN using refactored hook
       let allSpeciesMap = {};
       try {
-        allSpeciesMap = await fetchIUCNSpecies(terms, level, autoExpand, iucnToken);
+        allSpeciesMap = await fetchIUCNSpecies(searchTerms, searchLevel, autoExpand, token);
       } catch (err) {
         setError(err.message || 'Failed to fetch IUCN data');
         stopTicking();
@@ -143,8 +145,8 @@ export default function Home() {
       }
 
       // Search iNaturalist if enabled
-      if (includeINaturalist) {
-        for (const term of terms) {
+      if (useINat) {
+        for (const term of searchTerms) {
           try {
             let iNatTaxa = [];
 
@@ -260,20 +262,20 @@ export default function Home() {
       }
 
       // Search GBIF if enabled
-      if (includeGBIF) {
+      if (useGBIF) {
         // For higher taxonomic searches, search once per term
-        if (level && level !== 'species') {
-          for (const term of terms) {
+        if (searchLevel && searchLevel !== 'species') {
+          for (const term of searchTerms) {
             try {
               const gbifResult = await base44.functions.invoke('fetchGBIFData', {
                 scientificName: term.trim(),
                 level: level
               });
 
-              if (gbifResult.data.status === 'success') {
-                const gbifSpeciesList = Array.isArray(gbifResult.data.data) 
+              if (gbifResult?.data?.status === 'success') {
+                const gbifSpeciesList = Array.isArray(gbifResult?.data?.data) 
                   ? gbifResult.data.data 
-                  : [gbifResult.data.data];
+                  : [gbifResult?.data?.data];
 
                 for (const gbifData of gbifSpeciesList) {
                   // Create CSV of GBIF occurrences
@@ -341,7 +343,7 @@ export default function Home() {
           // For species-level searches, query each scientific name
           const scientificNames = Object.keys(allSpeciesMap).length > 0 
             ? Object.keys(allSpeciesMap)
-            : terms.filter(t => t.trim());
+            : searchTerms.filter(t => t.trim());
 
           for (const scientificName of scientificNames) {
             try {
@@ -350,8 +352,8 @@ export default function Home() {
                 level: 'species'
               });
 
-              if (gbifResult.data.status === 'success') {
-                const gbifData = gbifResult.data.data;
+              if (gbifResult?.data?.status === 'success') {
+                const gbifData = gbifResult?.data?.data;
 
                 // Create CSV of GBIF occurrences
                 let gbifOccurrencesCsvFileUri = null;
@@ -417,16 +419,16 @@ export default function Home() {
       }
 
       // Search speciesLink if enabled
-      if (includeSpeciesLink && speciesLinkApiKey) {
+      if (useSL && slKey) {
         const namesToSearch = Object.keys(allSpeciesMap).length > 0
           ? Object.keys(allSpeciesMap)
-          : terms.filter(t => t.trim());
+          : searchTerms.filter(t => t.trim());
 
         for (const scientificName of namesToSearch) {
           try {
             const slResult = await base44.functions.invoke('fetchSpeciesLinkData', {
               scientificName,
-              apiKey: speciesLinkApiKey,
+              apiKey: slKey,
               limit: 200
             });
 
@@ -531,7 +533,7 @@ export default function Home() {
 
       const allSpecies = Object.values(allSpeciesMap);
 
-      if (allSpecies.length === 0) {
+      if (!allSpecies || allSpecies.length === 0) {
         stopTicking();
         playError();
         setError('No species found for the search terms.');
