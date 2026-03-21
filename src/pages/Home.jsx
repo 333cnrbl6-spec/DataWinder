@@ -144,19 +144,17 @@ export default function Home() {
             let speciesList = [];
 
             if (searchData.assessments && searchData.assessments.length > 0) {
-              // Higher-taxon search: get latest assessment per unique taxon
+              // Higher-taxon search: get latest assessment per unique taxon/species
+              // IMPORTANT: Expand each assessment to individual species (don't return bulk aggregate)
               const latestMap = {};
               for (const a of searchData.assessments) {
-                if (a.latest) latestMap[a.sis_taxon_id] = a;
-              }
-              // Fallback: most recent year per taxon
-              if (Object.keys(latestMap).length === 0) {
-                for (const a of searchData.assessments) {
-                  if (!latestMap[a.sis_taxon_id] || a.year_published > latestMap[a.sis_taxon_id].year_published) {
-                    latestMap[a.sis_taxon_id] = a;
-                  }
+                // Key by SIS taxon ID to get unique species
+                const key = a.sis_taxon_id || a.taxon_id;
+                if (!latestMap[key] || a.latest || (a.year_published > (latestMap[key].year_published || 0))) {
+                  latestMap[key] = a;
                 }
               }
+              // Return one entry per species (not aggregate)
               speciesList = Object.values(latestMap);
             } else if (searchData.taxon) {
               // Species-level search: response is {taxon:{...}, assessments:[...]}
