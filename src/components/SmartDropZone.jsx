@@ -42,6 +42,9 @@ export default function SmartDropZone({ onImported }) {
   const [parsedRows, setParsedRows] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [importCount, setImportCount] = useState(0);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [archiveName, setArchiveName] = useState('');
+  const [archiveDesc, setArchiveDesc] = useState('');
   const inputRef = useRef();
   const { playSuccess, playError, startTicking, stopTicking } = useSearchSounds();
 
@@ -53,6 +56,9 @@ export default function SmartDropZone({ onImported }) {
     setParsedRows([]);
     setErrorMsg('');
     setImportCount(0);
+    setFileUrl(null);
+    setArchiveName('');
+    setArchiveDesc('');
   };
 
   const handleFile = async (file) => {
@@ -160,6 +166,7 @@ export default function SmartDropZone({ onImported }) {
       setParsedRows(rows);
       setAiResult(aiAnalysis);
       setSelectedEntity(aiAnalysis.suggested_entity);
+      setFileUrl(uploadedFile.file_url);
       stopTicking();
       setStep('confirm');
     } catch (e) {
@@ -187,6 +194,30 @@ export default function SmartDropZone({ onImported }) {
       stopTicking();
       playError();
       setErrorMsg(e.message || 'Import failed');
+      setStep('error');
+    }
+  };
+
+  const handleArchiveGeospatial = async () => {
+    if (!archiveName.trim() || !fileUrl) return;
+    setStep('importing');
+    startTicking(3000);
+    try {
+      await base44.entities.ExportedFile.create({
+        name: archiveName,
+        description: archiveDesc || `Geospatial file: ${fileInfo?.name}`,
+        file_uri: fileUrl,
+        file_type: fileInfo?.name?.split('.').pop().toUpperCase() || 'FILE',
+        data_types: ['Geospatial', 'Reference']
+      });
+      stopTicking();
+      playSuccess();
+      setStep('done');
+      onImported && onImported('ExportedFile', 1);
+    } catch (e) {
+      stopTicking();
+      playError();
+      setErrorMsg(e.message || 'Failed to archive file');
       setStep('error');
     }
   };
@@ -339,40 +370,67 @@ export default function SmartDropZone({ onImported }) {
             </div>
           )}
 
-          {/* Geospatial / raster file — can't auto-import but archived */}
+          {/* Geospatial / raster file — archive option */}
           {step === 'geospatial' && (
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Info className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="text-center space-y-2">
-                <p className="font-bold text-slate-700">Geospatial / Raster File</p>
-                <p className="text-sm text-slate-600">
-                  <strong>{fileInfo?.name}</strong> is a geospatial or raster file (e.g. GeoTIFF, Shapefile, KML). 
-                  These are kept as reference files for spatial analysis.
-                </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left mt-2">
-                  <p className="text-xs font-semibold text-blue-800 mb-1">You can use this file with:</p>
-                  <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
-                    <li><strong>ArcGIS Tools</strong> — vector/raster spatial operations</li>
-                    <li><strong>Climate Data</strong> — register climate layers</li>
-                    <li><strong>MaxEnt Modeler</strong> — background environmental data</li>
-                    <li>Convert to CSV for tabular import of occurrence records</li>
-                  </ul>
-                </div>
-                {fileInfo?.fileList && (
-                  <div className="mt-2 text-left">
-                    <p className="text-xs text-slate-500 mb-1">Files in archive:</p>
-                    <div className="max-h-24 overflow-y-auto space-y-0.5">
-                      {fileInfo.fileList.slice(0, 8).map((f, i) => (
-                        <p key={i} className="text-xs text-slate-400 font-mono">{f}</p>
-                      ))}
-                      {fileInfo.fileList.length > 8 && <p className="text-xs text-slate-400">+{fileInfo.fileList.length - 8} more</p>}
-                    </div>
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Geospatial File Detected</p>
+                    <p className="text-sm text-blue-700 mt-1"><strong>{fileInfo?.name}</strong> is a reference file (GeoTIFF, Shapefile, KML, etc.)</p>
+                    <p className="text-xs text-blue-600 mt-2">You can store it for later use in spatial analysis, or discard it.</p>
                   </div>
-                )}
+                </div>
               </div>
-              <Button variant="outline" onClick={() => { reset(); setOpen(false); }}>Close</Button>
+
+              {/* Archive Option */}
+              <div className="space-y-3 border-t pt-4">
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 mb-1.5 block">Archive this file?</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 'Coral Range Map 2024'" 
+                    value={archiveName} 
+                    onChange={(e) => setArchiveName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-bangor-red focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-600 mb-1.5 block">Description (optional)</label>
+                  <textarea 
+                    placeholder="What is this file for? (e.g. species range boundary, climate baseline)" 
+                    value={archiveDesc} 
+                    onChange={(e) => setArchiveDesc(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-bangor-red focus:border-transparent resize-none h-20"
+                  />
+                </div>
+              </div>
+
+              {fileInfo?.fileList && (
+                <div className="text-left bg-slate-50 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">Files in archive ({fileInfo.fileList.length}):</p>
+                  <div className="max-h-20 overflow-y-auto space-y-0.5">
+                    {fileInfo.fileList.slice(0, 5).map((f, i) => (
+                      <p key={i} className="text-xs text-slate-500 font-mono">{f}</p>
+                    ))}
+                    {fileInfo.fileList.length > 5 && <p className="text-xs text-slate-400">+{fileInfo.fileList.length - 5} more</p>}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => { reset(); setOpen(false); }}>
+                  Don't Archive
+                </Button>
+                <Button
+                  className="flex-1 bg-bangor-red hover:bg-bangor-red/90 text-white"
+                  disabled={!archiveName.trim()}
+                  onClick={handleArchiveGeospatial}
+                >
+                  Save & Archive
+                </Button>
+              </div>
             </div>
           )}
 
