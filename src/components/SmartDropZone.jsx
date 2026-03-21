@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useSearchSounds } from '@/hooks/useSearchSounds';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2, X, Database, Sparkles, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
