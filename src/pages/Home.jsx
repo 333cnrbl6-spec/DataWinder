@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchSounds } from '@/hooks/useSearchSounds';
 import { base44 } from '@/api/base44Client';
 import { AlertCircle, Info, Database, Map, FileSpreadsheet, Layers, Grid3x3, FolderOpen, Upload, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
