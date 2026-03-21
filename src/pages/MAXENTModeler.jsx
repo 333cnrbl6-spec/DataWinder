@@ -55,25 +55,11 @@ export default function MAXENTModeler() {
     queryFn: () => base44.entities.MaxentRun.list('-created_date', 50),
   });
 
-  // Auto-detect MAXENT on mount
+  // Note: MAXENT detection runs server-side (Deno Deploy) and cannot scan the user's local machine.
+  // The app generates a ready-to-run package (occurrence CSV + batch script) for local execution.
   useEffect(() => {
-    const detectMaxent = async () => {
-      setIsDetecting(true);
-      try {
-        const response = await base44.functions.invoke('detectMaxentLocation', { action: 'detect' });
-        if (response.data?.detection?.path) {
-          setDetectedMaxentPath(response.data.detection.path);
-          setMaxentStatus('found');
-        } else {
-          setMaxentStatus('not_found');
-        }
-      } catch (err) {
-        console.error('Detection failed:', err);
-        setMaxentStatus('error');
-      }
-      setIsDetecting(false);
-    };
-    detectMaxent();
+    setMaxentStatus('not_found');
+    setIsDetecting(false);
   }, []);
 
   const canProceedFromStep = () => {
