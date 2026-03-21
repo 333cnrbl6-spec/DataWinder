@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     yPosition += 7;
     setFont('normal', 10);
     const importantText = doc.splitTextToSize(
-      'This is not an official Bangor University project. DataWinder is an independent initiative created by someone currently studying Zoology at Bangor who received study support and achieved an upper second (2:1) degree despite neurodiversity. This platform exists because collaborative feedback from peers like you is essential for meaningful development.',
+      'This is not an official Bangor University project. DataWinder is an independent initiative created by a Zoology graduate who encountered barriers while pursuing a Masters by Research. This platform exists because collaborative feedback from peers like you is essential for meaningful development.',
       contentWidth - 6
     );
     doc.text(importantText, margin + 3, yPosition);
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
     addText('WHY YOUR COLLABORATION MATTERS', 'heading', 10);
     addText('This project only works because of peer input and honest feedback from researchers like you.', 'normal', 10);
     
-    addText('The creator of DataWinder experienced neurodiversity while studying Zoology at Bangor. With institutional support, they achieved a strong academic result and learned that different perspectives aren\'t limitations—they\'re assets. That insight is central to this work: accessibility and clarity benefit all researchers.', 'normal', 10);
+    addText('The creator of DataWinder is a Zoology graduate who faced barriers when pursuing Masters-level research. Those experiences revealed the need for tools that work intuitively for all researchers—tools that don\'t add friction, that clarify complexity, and that support different working styles. That insight is central to this work: accessibility and clarity benefit all researchers.', 'normal', 10);
 
     addText('Collaboration is not optional for this project. It\'s essential. We need:', 'normal', 8);
 
@@ -270,7 +270,7 @@ Deno.serve(async (req) => {
     doc.text('DataWinder', margin, yPosition);
     yPosition += 5;
     setFont('normal', 9);
-    doc.text('An independent initiative by a Bangor Zoology researcher', margin, yPosition);
+    doc.text('An independent initiative by a Zoology graduate', margin, yPosition);
 
     yPosition += 15;
     addDivider();
@@ -279,8 +279,8 @@ Deno.serve(async (req) => {
     addText('IMPORTANT REMINDERS', 'subheading', 8);
     const reminders = [
       'This is NOT an official Bangor University project',
-      'This is an independent initiative created by a Bangor Zoology student',
-      'Institutional support enabled the creator to succeed despite neurodiversity—that shaped this vision',
+      'This is an independent initiative created by a Zoology graduate',
+      'Experience overcoming research barriers shaped the vision for this tool',
       'This tool only succeeds through collaboration and peer feedback',
       'Your voice directly shapes what gets built'
     ];
