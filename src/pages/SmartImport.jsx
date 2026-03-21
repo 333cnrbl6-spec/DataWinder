@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useSearchSounds } from '@/hooks/useSearchSounds';
 import {
   Upload, FileText, CheckCircle, AlertCircle, Loader2,
-  Database, Sparkles, Info, File, FileArchive, MapPin,
+  Database, Sparkles, Info, FileQuestion, FileArchive, MapPin,
   CloudRain, ChevronRight, X, Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
