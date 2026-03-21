@@ -116,6 +116,7 @@ export default function SmartImport() {
   const [importableFiles, setImportableFiles] = useState([]); // { name, file (File obj), analysis, rows, selectedEntity }
   const [textFiles, setTextFiles] = useState([]);             // { name, url, uploaded }
   const [geospatialFiles, setGeospatialFiles] = useState([]); // { name }
+  const [climateLayerFiles, setClimateLayerFiles] = useState([]); // { name, record } — auto-detected climate layers
   const [unknownFiles, setUnknownFiles] = useState([]);
 
   const [importSummary, setImportSummary] = useState([]);
