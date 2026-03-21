@@ -254,6 +254,7 @@ export default function BenchmarkTester() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detailed Test Results</DialogTitle>
+            <p className="sr-only">Detailed breakdown of benchmark test results</p>
           </DialogHeader>
           
           <div className="space-y-4">
