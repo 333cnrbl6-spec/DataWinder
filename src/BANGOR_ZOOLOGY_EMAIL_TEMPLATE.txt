@@ -121,15 +121,27 @@ QUESTIONS?
 
 ════════════════════════════════════════════════════════════════
 
-This is a unique opportunity. DataWinder will become essential infrastructure for conservation research. Help us build something that truly works for practicing zoologists.
+This is a unique opportunity. DataWinder will only become what it needs to be through collaboration with researchers like you. Help us build something that actually works for practicing zoologists.
 
-We believe this platform can transform how we approach biodiversity assessment. Your feedback is how we get there.
+We believe this platform can transform how we approach biodiversity assessment. But that transformation only happens through genuine peer input and diverse perspectives.
 
 With warm regards,
 
-DataWinder Development Team
-Bangor University
+DataWinder
+An independent initiative by a Bangor Zoology researcher
+
+---
+
+IMPORTANT REMINDERS:
+
+• This is NOT an official Bangor University project
+• This is an independent initiative created by a Bangor Zoology student
+• Institutional support enabled the creator to succeed despite neurodiversity—that shaped this vision
+• This tool only succeeds through collaboration and peer feedback
+• Your voice directly shapes what gets built
+
+---
 
 P.S. Your membership expires in 1 year from signup. After 12 months, we'll reach out to discuss next steps. For now, focus on testing, breaking things, and telling us what you need.
 
-P.P.S. Whether you're a field biologist, modeller, conservation planner, or all three—we built this for you. Different approaches and perspectives aren't obstacles; they're exactly what we need.
+P.P.S. Whether you're a field biologist, modeller, conservation planner, or all three—we built this for you. Different approaches, different needs, different perspectives—that's exactly what makes this better for everyone.
