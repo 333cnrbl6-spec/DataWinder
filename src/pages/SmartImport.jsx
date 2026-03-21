@@ -136,9 +136,9 @@ export default function SmartImport() {
       const uploadedTexts = await Promise.all(
         texts.map(async (entry) => {
           const uint8 = await entry.async('uint8array');
-          const blob = new Blob([uint8], { type: 'text/plain' });
-          blob.name = entry.name.split('/').pop();
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
+          const fileName = entry.name.split('/').pop();
+          const fileObj = new File([uint8], fileName, { type: 'text/plain' });
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: fileObj });
           return { name: entry.name, url: file_url, uploaded: true };
         })
       );
