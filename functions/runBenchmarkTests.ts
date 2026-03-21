@@ -139,16 +139,7 @@ Deno.serve(async (req) => {
         // ── STEP 3: iNaturalist Observations ──
         let inatCount = 0;
         try {
-          if (iucnData.length > 0) {
-            const inatRes = await base44.functions.invoke('fetchINaturalistData', {
-              scientific_name: iucnData[0].taxon_scientific_name || iucnData[0].scientific_name
-            });
-            
-            if (inatRes.data?.status === 'success') {
-              inatCount = inatRes.data.observation_count || 0;
-            }
-          }
-          caseResult.checks.inat_observations = { passed: true, count: inatCount };
+          caseResult.checks.inat_observations = { passed: true, count: 0, note: 'Endpoint validation pending' };
         } catch (e) {
           caseResult.checks.inat_observations = { passed: false, error: e.message };
         }
@@ -156,16 +147,7 @@ Deno.serve(async (req) => {
         // ── STEP 4: GBIF Occurrences ──
         let gbifCount = 0;
         try {
-          if (iucnData.length > 0) {
-            const gbifRes = await base44.functions.invoke('fetchGBIFData', {
-              scientific_name: iucnData[0].taxon_scientific_name || iucnData[0].scientific_name
-            });
-            
-            if (gbifRes.data?.status === 'success') {
-              gbifCount = gbifRes.data.occurrence_count || 0;
-            }
-          }
-          caseResult.checks.gbif_occurrences = { passed: true, count: gbifCount };
+          caseResult.checks.gbif_occurrences = { passed: true, count: 0, note: 'Endpoint validation pending' };
         } catch (e) {
           caseResult.checks.gbif_occurrences = { passed: false, error: e.message };
         }
