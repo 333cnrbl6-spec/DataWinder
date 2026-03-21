@@ -43,11 +43,7 @@ export default function MAXENTModeler() {
   const [lastRun, setLastRun] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showMaxentSetup, setShowMaxentSetup] = useState(false);
-  const [maxentChoice, setMaxentChoice] = useState(null);
-  const [maxentTermsAccepted, setMaxentTermsAccepted] = useState(false);
   const [maxentStatus, setMaxentStatus] = useState(null);
-  const [detectedMaxentPath, setDetectedMaxentPath] = useState(null);
-  const [customMaxentPath, setCustomMaxentPath] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
 
   const { data: runs = [], refetch: refetchRuns } = useQuery({
