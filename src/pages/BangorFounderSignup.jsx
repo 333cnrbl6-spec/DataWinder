@@ -81,7 +81,7 @@ export default function BangorFounderSignup() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-bangor-red">DataWinder</h1>
-              <p className="text-sm text-slate-500">Independent initiative by a Bangor Zoology researcher</p>
+              <p className="text-sm text-slate-500">Independent initiative by a Zoology graduate</p>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function BangorFounderSignup() {
             <div className="md:col-span-3 bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
               <p className="text-sm text-blue-900 font-semibold">⚠️ Important Notice</p>
               <p className="text-sm text-blue-800 mt-1">
-                DataWinder is <strong>not an official Bangor University project</strong>. It's an independent initiative created by someone currently studying Zoology at Bangor. This platform exists because collaboration and peer feedback are essential for development. Your input matters.
+                DataWinder is <strong>not an official Bangor University project</strong>. It's an independent initiative created by a Zoology graduate who faced barriers during Masters-level research. This platform exists because collaboration and peer feedback are essential for development. Your input matters.
               </p>
             </div>
 
