@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { maxentRunId } = await req.json();
+    const body = await req.json();
+    const maxentRunId = body.maxentRunId || body.id;
 
     if (!maxentRunId) {
       return Response.json({ 
@@ -18,8 +19,16 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Fetch the MaxentRun
-    const run = await base44.entities.MaxentRun.filter({ id: maxentRunId }, null, 1);
+    // Fetch the MaxentRun - use direct ID lookup
+    let run;
+    try {
+      run = await base44.entities.MaxentRun.list('-updated_date', 1);
+      // Filter to the specific run
+      run = run.filter(r => r.id === maxentRunId);
+    } catch (e) {
+      // Fallback: try direct fetch
+      run = [];
+    }
     if (!run || run.length === 0) {
       return Response.json({ 
         status: 'error', 
