@@ -257,9 +257,19 @@ export default function SmartImport() {
   const analyseAndSetImportable = async (rawFiles) => {
     const results = await Promise.all(
       rawFiles.map(async ({ name, rawFile }) => {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file: rawFile });
+        // Sanitise filename for SDK upload: strip path separators and special leading chars
+        const ext = getFileExt(name);
+        const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
+        const safeFileName = `data_${Date.now()}.${ext}`;
+        const blob = new Blob([await rawFile.arrayBuffer()], { type: mime });
+        Object.defineProperty(blob, 'name', { value: safeFileName });
+        Object.defineProperty(blob, 'lastModified', { value: Date.now() });
+
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
         const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-          prompt: `You are a biodiversity data analyst. A user uploaded a file named "${name}". Determine: 1. What data it contains 2. Best entity match: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch 3. Brief reasoning 4. Key fields detected. Respond JSON only.`,
+          prompt: `You are a biodiversity data analyst. A user uploaded a file named "${name}". 
+Hints: if the filename contains "inat" or "inaturalist" it is iNaturalist observation data → suggest "Species". If it contains "gbif" it is GBIF occurrence data → suggest "Species". If it contains "iucn" it is IUCN species data → suggest "Species".
+Determine: 1. What data it contains 2. Best entity match from: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch 3. Brief reasoning 4. Key fields detected. Respond JSON only.`,
           file_urls: [file_url],
           response_json_schema: {
             type: 'object',
