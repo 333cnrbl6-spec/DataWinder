@@ -58,6 +58,7 @@ export default function SmartDropZone({ onImported }) {
     setOpen(true);
     setStep('analysing');
     setFileInfo({ name: file.name, size: file.size, type: file.type });
+    startTicking(4000);
 
     try {
       let fileToProcess = file;
