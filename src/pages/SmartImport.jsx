@@ -240,7 +240,7 @@ export default function SmartImport() {
         importables.map(async (entry) => {
           const uint8 = await entry.async('uint8array');
           const ext = getFileExt(entry.name);
-          const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
+          const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json', dbf: 'application/octet-stream' }[ext] || 'application/octet-stream';
           const rawFileName = entry.name.split('/').pop();
           const safeFileName = `data_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
           const cleanFile = new File([uint8], safeFileName, { type: mime });
