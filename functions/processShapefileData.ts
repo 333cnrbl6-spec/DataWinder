@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 // Minimal shapefile parser: extracts bounds and basic geometry
 const parseShapefileFromZip = async (zipBytes) => {
