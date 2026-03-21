@@ -265,7 +265,7 @@ export default function SmartImport() {
       rawFiles.map(async ({ name, rawFile }) => {
         // If rawFile is already a proper File (from ZIP path), use it directly; otherwise read via FileReader
         const ext = getFileExt(name);
-        const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
+        const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json', dbf: 'application/octet-stream' }[ext] || 'application/octet-stream';
         const safeFileName = `data_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
         let cleanFile;
         if (rawFile instanceof File) {
