@@ -14,6 +14,14 @@ const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'kml'
 // File types that can be stored/archived
 const ARCHIVABLE_EXTS = ['zip', 'tar', 'gz', 'rar', '7z'];
 
+// Datasource-specific patterns
+const DATASOURCE_PATTERNS = {
+  inat: /inat|naturalist/i,
+  gbif: /gbif|occurrence/i,
+  specieslink: /specieslink|museum|herbarium/i,
+  iucn: /iucn|redlist|assessment/i
+};
+
 const getFileExt = (name) => name.split('.').pop().toLowerCase();
 
 const ENTITY_OPTIONS = [
@@ -61,11 +69,19 @@ export default function SmartDropZone({ onImported }) {
     setArchiveDesc('');
   };
 
+  const detectDatasource = (fileName) => {
+    for (const [source, pattern] of Object.entries(DATASOURCE_PATTERNS)) {
+      if (pattern.test(fileName)) return source;
+    }
+    return null;
+  };
+
   const handleFile = async (file) => {
     if (!file) return;
     setOpen(true);
     setStep('analysing');
-    setFileInfo({ name: file.name, size: file.size, type: file.type });
+    const datasource = detectDatasource(file.name);
+    setFileInfo({ name: file.name, size: file.size, type: file.type, datasource });
     startTicking(4000);
 
     try {
@@ -116,16 +132,17 @@ export default function SmartDropZone({ onImported }) {
        const uploadedFile = await base44.integrations.Core.UploadFile({ file: fileToProcess });
 
       // Ask AI what this data is
-       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-         prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}". 
-       Examine the file content and determine:
-       1. What type of data it contains (species records, climate data, occurrence records, geospatial data, etc.)
-       2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, or SavedSearch
-       3. A brief 1-sentence explanation of your reasoning
-       4. Key fields you detected in the data
-       5. Whether this is tabular data that can be imported vs. geospatial/binary data for reference
+      const sourceInfo = fileInfo?.datasource ? `\nData Source: ${fileInfo.datasource.toUpperCase()}.` : '';
+      const aiAnalysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}".${sourceInfo}
+      Examine the file content and determine:
+      1. What type of data it contains (species records, occurrence records from iNaturalist/GBIF/SpeciesLink, climate data, geospatial data, etc.)
+      2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch, or other
+      3. A brief 1-sentence explanation of your reasoning
+      4. Key fields you detected in the data
+      5. Whether this is tabular data that can be imported vs. reference data
 
-       Respond with JSON only.`,
+      Respond with JSON only.`,
          file_urls: [uploadedFile.file_url],
         response_json_schema: {
           type: 'object',
