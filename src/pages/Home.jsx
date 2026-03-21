@@ -912,143 +912,40 @@ export default function Home() {
                   <h3 className="text-sm font-semibold text-slate-700 mb-3">Export Data</h3>
                   <div className="space-y-2">
                     <Button
-                      onClick={() => {
-                        const maxentData = allSpecies
-                          .filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)
-                          .flatMap(sp => {
-                            const occurrences = [
-                              ...(sp.observations || []).map(obs => ({
-                                species: sp.scientific_name,
-                                longitude: obs.longitude,
-                                latitude: obs.latitude,
-                                date: obs.observed_on || '',
-                                source: 'iNaturalist'
-                              })),
-                              ...(sp.gbif_occurrences || []).map(occ => ({
-                                species: sp.scientific_name,
-                                longitude: occ.longitude,
-                                latitude: occ.latitude,
-                                date: occ.eventDate || '',
-                                source: 'GBIF'
-                              }))
-                            ];
-                            return occurrences;
-                          });
-
-                        const csv = [
-                          'species,longitude,latitude,date,source',
-                          ...maxentData.map(row => 
-                            `"${row.species}",${row.longitude},${row.latitude},${row.date},${row.source}`
-                          )
-                        ].join('\n');
-
-                        const blob = new Blob([csv], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `maxent_occurrences_${Date.now()}.csv`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                      }}
-                      className="w-full justify-start bg-emerald-600 hover:bg-emerald-700"
-                      disabled={!allSpecies.some(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)}
-                    >
-                      <Layers className="w-4 h-4 mr-2" />
-                      Export for MAXENT (Occurrence Data)
-                    </Button>
+                       onClick={() => {
+                         const csv = generateMaxentCSV(allSpecies);
+                         downloadFile(csv, `maxent_occurrences_${Date.now()}.csv`);
+                       }}
+                       className="w-full justify-start bg-emerald-600 hover:bg-emerald-700"
+                       disabled={!allSpecies.some(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)}
+                     >
+                       <Layers className="w-4 h-4 mr-2" />
+                       Export for MAXENT (Occurrence Data)
+                     </Button>
                     
                     <Button
-                      onClick={() => {
-                        const features = allSpecies
-                          .filter(sp => sp.range_data_geojson)
-                          .map(sp => ({
-                            type: 'Feature',
-                            properties: {
-                              scientific_name: sp.scientific_name,
-                              common_name: sp.common_name,
-                              iucn_status: sp.iucn_status,
-                              population_trend: sp.population_trend,
-                              family: sp.family,
-                              order: sp.order_name,
-                              class: sp.class_name
-                            },
-                            geometry: sp.range_data_geojson.type === 'FeatureCollection' 
-                              ? sp.range_data_geojson.features[0]?.geometry 
-                              : sp.range_data_geojson.geometry
-                          }))
-                          .filter(f => f.geometry);
-
-                        const geojson = {
-                          type: 'FeatureCollection',
-                          features
-                        };
-
-                        const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `arcgis_species_ranges_${Date.now()}.geojson`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                      }}
-                      className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-                      disabled={!allSpecies.some(sp => sp.range_data_geojson)}
-                    >
-                      <Map className="w-4 h-4 mr-2" />
-                      Export for ArcGIS (GeoJSON Ranges)
-                    </Button>
+                       onClick={() => {
+                         const geojson = generateArcGISGeoJSON(allSpecies);
+                         downloadFile(JSON.stringify(geojson, null, 2), `arcgis_species_ranges_${Date.now()}.geojson`, 'application/geo+json');
+                       }}
+                       className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+                       disabled={!allSpecies.some(sp => sp.range_data_geojson)}
+                     >
+                       <Map className="w-4 h-4 mr-2" />
+                       Export for ArcGIS (GeoJSON Ranges)
+                     </Button>
                     
                     <Button
-                      onClick={() => {
-                        const data = allSpecies.map(sp => ({
-                          scientific_name: sp.scientific_name,
-                          common_name: sp.common_name,
-                          iucn_status: sp.iucn_status,
-                          population_trend: sp.population_trend,
-                          kingdom: sp.kingdom,
-                          phylum: sp.phylum,
-                          class: sp.class_name,
-                          order: sp.order_name,
-                          family: sp.family,
-                          genus: sp.genus,
-                          countries: sp.geographic_distribution?.countries?.join('; ') || '',
-                          country_count: sp.geographic_distribution?.countries?.length || 0,
-                          habitat: sp.habitat,
-                          threats: sp.threats,
-                          conservation_actions: sp.conservation_actions,
-                          observation_count: (sp.observation_count || 0) + (sp.gbif_occurrence_count || 0),
-                          assessment_date: sp.assessment_date
-                        }));
-
-                        const headers = Object.keys(data[0] || {}).join(',');
-                        const rows = data.map(row => 
-                          Object.values(row).map(val => {
-                            const value = String(val || '').replace(/"/g, '""');
-                            return value.includes(',') || value.includes('"') ? `"${value}"` : value;
-                          }).join(',')
-                        );
-                        const csv = [headers, ...rows].join('\n');
-
-                        const blob = new Blob([csv], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `species_database_${Date.now()}.csv`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                      }}
-                      className="w-full justify-start bg-green-600 hover:bg-green-700"
-                      disabled={allSpecies.length === 0}
-                    >
-                      <FileSpreadsheet className="w-4 h-4 mr-2" />
-                      Export Complete Dataset (Excel/CSV)
-                    </Button>
+                       onClick={() => {
+                         const csv = generateCompleteDatasetCSV(allSpecies);
+                         downloadFile(csv, `species_database_${Date.now()}.csv`);
+                       }}
+                       className="w-full justify-start bg-green-600 hover:bg-green-700"
+                       disabled={allSpecies.length === 0}
+                     >
+                       <FileSpreadsheet className="w-4 h-4 mr-2" />
+                       Export Complete Dataset (Excel/CSV)
+                     </Button>
                   </div>
                 </div>
 
