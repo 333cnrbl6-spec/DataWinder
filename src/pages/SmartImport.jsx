@@ -469,6 +469,31 @@ export default function SmartImport() {
             </section>
           )}
 
+          {/* Climate layer files — auto-detected, importable as ClimateDataset records */}
+          {climateLayerFiles.length > 0 && (
+            <section className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 flex items-center gap-2">
+                <CloudRain className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold text-blue-800 text-sm">Climate Layers — Ready to Import</span>
+                <Badge className="ml-auto bg-blue-100 text-blue-700 border-blue-200">{climateLayerFiles.length} layer{climateLayerFiles.length > 1 ? 's' : ''}</Badge>
+              </div>
+              <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto">
+                {climateLayerFiles.map((f, idx) => (
+                  <div key={idx} className="px-4 py-2.5 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-slate-700 truncate">{f.record.name}</p>
+                      <p className="text-[11px] text-slate-400 font-mono truncate">{f.name}</p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0 text-[10px]">{f.record.variable_category}</Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="px-4 py-2 bg-blue-50/50 border-t border-blue-100">
+                <p className="text-xs text-blue-700">Each TIF will be registered as a <strong>ClimateDataset</strong> record, ready to use in MAXENT modelling and variable selection.</p>
+              </div>
+            </section>
+          )}
+
           {/* Geospatial files */}
           {geospatialFiles.length > 0 && (
             <section className="bg-white border border-slate-200 rounded-xl overflow-hidden">
