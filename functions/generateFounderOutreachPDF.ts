@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
 
     const benefits = [
       'Full platform access — all features, unlimited species, unlimited analyses',
-      '1-year complimentary membership (no charge)',
+      'Complimentary membership extended through your graduation, Masters completion, or PhD',
       'Recognized as a Founder Member and early tester',
       'Direct input into our development roadmap',
       'Early-adopter advantage before wider release'
