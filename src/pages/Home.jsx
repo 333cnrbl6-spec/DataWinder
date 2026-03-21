@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { fetchIUCNSpecies } from '@/hooks/useIUCNSearch';
+import { generateMaxentCSV, generateArcGISGeoJSON, generateCompleteDatasetCSV, downloadFile, parseUploadedFile, importSpeciesRecords } from '@/lib/speciesDataHandlers';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
