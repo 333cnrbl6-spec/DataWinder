@@ -633,7 +633,7 @@ Determine: 1. What data it contains 2. Best entity match from: Species, ClimateD
           {unknownFiles.length > 0 && (
             <section className="bg-white border border-slate-200 rounded-xl overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center gap-2">
-                <File className="w-4 h-4 text-slate-400" />
+                <FileQuestion className="w-4 h-4 text-slate-400" />
                 <span className="font-semibold text-slate-600 text-sm">Unrecognised Files</span>
                 <Badge className="ml-auto bg-slate-100 text-slate-500 border-slate-200">{unknownFiles.length} file{unknownFiles.length > 1 ? 's' : ''}</Badge>
               </div>
