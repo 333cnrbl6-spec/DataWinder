@@ -402,6 +402,11 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                                 <Image className="w-3 h-3" /> Range Map (JPG)
                               </span>
                             )}
+                            {(sp.range_data_geojson || sp.range_geojson_file_uri) && (
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                <FileJson className="w-3 h-3" /> Range GeoJSON
+                              </span>
+                            )}
                           </div>
                         </div>
                       );
