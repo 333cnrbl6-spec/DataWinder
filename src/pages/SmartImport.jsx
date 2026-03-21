@@ -211,34 +211,29 @@ export default function SmartImport() {
       setClimateLayerFiles(climateLayers);
       setUnknownFiles(unknowns.map(f => ({ name: f.name })));
 
-      // Upload text files
-      const uploadedTexts = await Promise.all(
-        texts.map(async (entry) => {
-          const uint8 = await entry.async('uint8array');
-          const ext = getFileExt(entry.name);
-          const safeFileName = `doc_${Date.now()}.${ext}`;
-          const blob = new Blob([uint8], { type: 'text/plain' });
-          Object.defineProperty(blob, 'name', { value: safeFileName });
-          Object.defineProperty(blob, 'lastModified', { value: Date.now() });
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
-          return { name: entry.name, url: file_url, uploaded: true };
-        })
-      );
+      // Upload text files (sequential to avoid timestamp collisions)
+      const uploadedTexts = [];
+      for (const entry of texts) {
+        const uint8 = await entry.async('uint8array');
+        const ext = getFileExt(entry.name);
+        const mime = ext === 'pdf' ? 'application/pdf' : 'text/plain';
+        const safeFileName = `doc_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+        const cleanFile = new File([uint8], safeFileName, { type: mime });
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: cleanFile });
+        uploadedTexts.push({ name: entry.name.split('/').pop(), url: file_url, uploaded: true });
+      }
       setTextFiles(uploadedTexts);
 
-      // Convert importable ZIP entries to named Blobs for upload
+      // Convert importable ZIP entries to proper File objects
       const importableRaw = await Promise.all(
         importables.map(async (entry) => {
           const uint8 = await entry.async('uint8array');
           const ext = getFileExt(entry.name);
-          const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
-          // Sanitise filename: strip path, replace special chars, keep extension
+          const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
           const rawFileName = entry.name.split('/').pop();
-          const safeFileName = `data_${Date.now()}.${ext}`;
-          const blob = new Blob([uint8], { type: mime });
-          Object.defineProperty(blob, 'name', { value: safeFileName });
-          Object.defineProperty(blob, 'lastModified', { value: Date.now() });
-          return { name: rawFileName, rawFile: blob };
+          const safeFileName = `data_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+          const cleanFile = new File([uint8], safeFileName, { type: mime });
+          return { name: rawFileName, rawFile: cleanFile };
         })
       );
 
