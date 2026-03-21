@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { endpoint, term, level, skipCache } = await req.json();
+        const { endpoint, term, level, skipCache, autoExpand } = await req.json();
 
         const BASE = 'https://api.iucnredlist.org/api/v4';
         const token = Deno.env.get('IUCN_API_KEY') || user.iucn_api_token;
