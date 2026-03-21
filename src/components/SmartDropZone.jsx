@@ -1,10 +1,17 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, X, Database, Sparkles } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2, X, Database, Sparkles, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import JSZip from 'jszip';
+
+// File types that can be parsed into database records
+const IMPORTABLE_EXTS = ['csv', 'xlsx', 'xls', 'json', 'txt'];
+// File types that are geospatial/binary — inform user but can't auto-import
+const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'geojson', 'kml', 'kmz'];
+
+const getFileExt = (name) => name.split('.').pop().toLowerCase();
 
 const ENTITY_OPTIONS = [
   { key: 'Species', label: 'Species Record', description: 'Taxonomic & conservation data', color: 'green' },
@@ -62,19 +69,34 @@ export default function SmartDropZone({ onImported }) {
         const files = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
         if (files.length === 0) throw new Error('ZIP file is empty or contains no valid files');
         
-        // Prioritize supported file formats
-        const supportedExts = ['csv', 'xlsx', 'xls', 'json', 'txt'];
-        let fileToExtract = files.find(f => supportedExts.includes(f.name.split('.').pop().toLowerCase())) || files[0];
+        // Prioritize importable file formats; if none found, check if it's all geospatial
+        const importableFile = files.find(f => IMPORTABLE_EXTS.includes(getFileExt(f.name)));
+        const geospatialFiles = files.filter(f => GEOSPATIAL_EXTS.includes(getFileExt(f.name)));
         
+        if (!importableFile && geospatialFiles.length > 0) {
+          // ZIP contains only geospatial/raster data — inform user
+          setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatialArchive: true, fileList: files.map(f => f.name) });
+          setStep('geospatial');
+          return;
+        }
+        
+        const fileToExtract = importableFile || files[0];
         const blob = await fileToExtract.async('blob');
-        // Infer MIME type from file extension
-        const ext = fileToExtract.name.split('.').pop().toLowerCase();
+        const ext = getFileExt(fileToExtract.name);
         const mimeTypes = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json', txt: 'text/plain' };
         const mimeType = mimeTypes[ext] || blob.type || 'application/octet-stream';
         
         fileToProcess = new File([blob], fileToExtract.name, { type: mimeType });
         extractedFrom = file.name;
         setFileInfo({ name: fileToExtract.name, size: blob.size, type: mimeType, extractedFrom });
+      } else {
+        // Single file — check if it's a non-importable geospatial type
+        const ext = getFileExt(file.name);
+        if (GEOSPATIAL_EXTS.includes(ext)) {
+          setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatial: true });
+          setStep('geospatial');
+          return;
+        }
       }
       
       // Upload file first to get URL
@@ -175,13 +197,13 @@ export default function SmartDropZone({ onImported }) {
           }`}
       >
         <input ref={inputRef} type="file" className="hidden"
-          accept=".csv,.xlsx,.xls,.json,.txt,.zip"
+          accept=".csv,.xlsx,.xls,.json,.txt,.zip,.tif,.tiff,.asc,.shp,.geojson,.kml"
           onChange={(e) => handleFile(e.target.files[0])} />
         <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragging ? 'text-bangor-red' : 'text-slate-400'}`} />
         <p className="text-sm font-semibold text-slate-600">
           {dragging ? 'Release to analyse & import' : 'Drag & drop a file to import'}
         </p>
-        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · TXT · ZIP — AI will identify where your data belongs</p>
+        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · ZIP — AI will identify where your data belongs</p>
       </div>
 
       {/* Smart Import Modal */}
@@ -298,6 +320,42 @@ export default function SmartDropZone({ onImported }) {
               <Button className="bg-bangor-red hover:bg-bangor-red/90 text-white" onClick={() => { reset(); setOpen(false); }}>
                 Done
               </Button>
+            </div>
+          )}
+
+          {/* Geospatial / raster file — can't auto-import */}
+          {step === 'geospatial' && (
+            <div className="flex flex-col items-center gap-4 py-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Info className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="font-bold text-slate-700">Geospatial / Raster File Detected</p>
+                <p className="text-sm text-slate-600">
+                  <strong>{fileInfo?.name}</strong> is a geospatial or raster file (e.g. GeoTIFF, Shapefile). 
+                  These files cannot be imported directly into the species database.
+                </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left mt-2">
+                  <p className="text-xs font-semibold text-blue-800 mb-1">What to do instead:</p>
+                  <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                    <li>Use <strong>ArcGIS Tools</strong> to work with raster/vector layers</li>
+                    <li>Use <strong>Climate Data</strong> to register climate datasets</li>
+                    <li>To import occurrence data, convert to CSV first</li>
+                  </ul>
+                </div>
+                {fileInfo?.fileList && (
+                  <div className="mt-2 text-left">
+                    <p className="text-xs text-slate-500 mb-1">Files in archive:</p>
+                    <div className="max-h-24 overflow-y-auto space-y-0.5">
+                      {fileInfo.fileList.slice(0, 8).map((f, i) => (
+                        <p key={i} className="text-xs text-slate-400 font-mono">{f}</p>
+                      ))}
+                      {fileInfo.fileList.length > 8 && <p className="text-xs text-slate-400">+{fileInfo.fileList.length - 8} more</p>}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Button variant="outline" onClick={() => { reset(); setOpen(false); }}>Close</Button>
             </div>
           )}
 
