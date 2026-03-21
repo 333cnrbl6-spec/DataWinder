@@ -25,7 +25,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
-  const [higherTaxonBehavior, setHigherTaxonBehavior] = useState('manual'); // 'manual' | 'auto-expand'
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -54,30 +53,17 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    if (level !== 'species') {
-      if (higherTaxonBehavior === 'auto-expand') {
-        const validTerms = searchTerms.filter(t => t.trim());
-        if (validTerms.length > 0) {
-          onSearch({ 
-            level, 
-            terms: validTerms, 
-            iucnToken,
-            includeINaturalist: includeINat,
-            autoExpand: true
-          });
-        }
-      } else {
-        if (selectedSpecies.length === 0) {
-          alert(`Please select individual species from the ${level}. Or enable "Auto-expand all species" in settings.`);
-          return;
-        }
-        onSearch({ 
-          level: 'species', 
-          terms: selectedSpecies, 
-          iucnToken,
-          includeINaturalist: includeINat
-        });
-      }
+    // If not species level with selected species, search those specific species
+    if (level !== 'species' && selectedSpecies.length > 0) {
+      onSearch({ 
+        level: 'species', 
+        terms: selectedSpecies, 
+        iucnToken,
+        includeINaturalist: includeINat,
+        includeGBIF,
+        includeSpeciesLink,
+        speciesLinkApiKey
+      });
     } else {
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
@@ -85,7 +71,10 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           level, 
           terms: validTerms, 
           iucnToken,
-          includeINaturalist: includeINat
+          includeINaturalist: includeINat,
+          includeGBIF,
+          includeSpeciesLink,
+          speciesLinkApiKey
         });
       }
     }
@@ -254,47 +243,59 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         )}
       </div>
 
-      {/* iNaturalist */}
+      {/* Data Source Options */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">iNaturalist</h3>
-        <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-bangor-sun" />
-          <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
-        </div>
-      </div>
-
-      {/* Higher-Taxon Behavior Preference */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-700 mb-2">Search Preference</h3>
+        <h3 className="text-sm font-medium text-slate-700 mb-3">Data Sources</h3>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100">
+          <label className="flex items-center gap-3 p-3 bg-bangor-sun/10 rounded-lg border border-bangor-sun/20 cursor-pointer">
             <input
-              type="radio"
-              name="taxon-behavior"
-              value="manual"
-              checked={higherTaxonBehavior === 'manual'}
-              onChange={(e) => setHigherTaxonBehavior(e.target.value)}
+              type="checkbox"
+              checked={includeINat}
+              onChange={(e) => setIncludeINat(e.target.checked)}
               className="w-4 h-4"
             />
             <div className="flex-1">
-              <div className="text-sm font-medium text-slate-900">Manual Species Selection</div>
-              <div className="text-xs text-slate-500">Select specific species before searching</div>
+              <div className="text-sm font-medium text-slate-900">iNaturalist</div>
+              <div className="text-xs text-slate-500">Citizen science observations (Public API)</div>
             </div>
           </label>
-          <label className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100">
+          
+          <label className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer">
             <input
-              type="radio"
-              name="taxon-behavior"
-              value="auto-expand"
-              checked={higherTaxonBehavior === 'auto-expand'}
-              onChange={(e) => setHigherTaxonBehavior(e.target.value)}
+              type="checkbox"
+              checked={includeGBIF}
+              onChange={(e) => setIncludeGBIF(e.target.checked)}
               className="w-4 h-4"
             />
             <div className="flex-1">
-              <div className="text-sm font-medium text-slate-900">Auto-Expand All Species</div>
-              <div className="text-xs text-slate-500">Automatically fetch every species in the order/class/family</div>
+              <div className="text-sm font-medium text-slate-900">GBIF</div>
+              <div className="text-xs text-slate-500">Global Biodiversity Information (Public API)</div>
             </div>
           </label>
+
+          <label className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeSpeciesLink}
+              onChange={(e) => setIncludeSpeciesLink(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-slate-900">speciesLink</div>
+              <div className="text-xs text-slate-500">Brazilian herbarium & collection data</div>
+            </div>
+          </label>
+
+          {includeSpeciesLink && (
+            <div className="ml-7 p-3 bg-white rounded-lg border border-emerald-200">
+              <Input
+                placeholder="speciesLink API Key (optional)"
+                value={speciesLinkApiKey}
+                onChange={(e) => setSpeciesLinkApiKey(e.target.value)}
+                className="text-xs h-8"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -354,8 +355,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           </Button>
         </div>
 
-        {/* Species Selection for non-species levels (hidden if auto-expand) */}
-        {level !== 'species' && familySpecies.length > 0 && higherTaxonBehavior !== 'auto-expand' && (
+        {/* Species Selection for non-species levels */}
+        {level !== 'species' && familySpecies.length > 0 && (
           <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-slate-700">
@@ -416,7 +417,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
         <Button 
           onClick={handleSearch}
-          disabled={isLoading || (level !== 'species' && higherTaxonBehavior === 'manual' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0 && higherTaxonBehavior !== 'auto-expand')}
+          disabled={isLoading || (level !== 'species' && selectedSpecies.length === 0 && familySpecies.length > 0) || (!searchTerms.some(t => t.trim()) && selectedSpecies.length === 0)}
           className="w-full bg-bangor-red text-white font-semibold"
         >
           {isLoading ? (
