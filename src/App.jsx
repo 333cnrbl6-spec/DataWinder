@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -59,9 +60,10 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Render the main app
+  // Render the main app with error boundary
   return (
-    <Routes>
+    <ErrorBoundary>
+      <Routes>
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
@@ -100,6 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/BenchmarkTester" element={<LayoutWrapper currentPageName="BenchmarkTester"><BenchmarkTester /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 
