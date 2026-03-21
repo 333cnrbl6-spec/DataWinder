@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const getMimeTypeFromFilename = (filename) => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -105,15 +105,19 @@ Deno.serve(async (req) => {
     );
 
     // Range SHP (zipped shapefile) — requires IUCN bulk download account
-    // Attempt anyway in case the URL is a direct download link
-    result.range_shp_file_uri = await downloadAndUpload(
-      range_data_shp_url, `${safeName}_range_data.zip`, null
-    );
+    // Gracefully skip if not accessible (403 Forbidden)
+    if (range_data_shp_url) {
+      result.range_shp_file_uri = await downloadAndUpload(
+        range_data_shp_url, `${safeName}_range_data.zip`, null
+      );
+    }
 
-    // Range CSV
-    result.range_csv_file_uri = await downloadAndUpload(
-      range_data_csv_url, `${safeName}_range_data.csv`, null
-    );
+    // Range CSV — also requires bulk access
+    if (range_data_csv_url) {
+      result.range_csv_file_uri = await downloadAndUpload(
+        range_data_csv_url, `${safeName}_range_data.csv`, null
+      );
+    }
 
     // Determine status based on what succeeded
     const successCount = Object.values(result).filter(v => typeof v === 'string' && v.startsWith('private://')).length;
