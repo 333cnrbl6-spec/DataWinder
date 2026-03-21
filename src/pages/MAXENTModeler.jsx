@@ -90,39 +90,62 @@ export default function MAXENTModeler() {
       status: detectedMaxentPath ? 'running' : 'submitted',
     });
 
-    // Try local execution if MAXENT detected
-    if (detectedMaxentPath || customMaxentPath) {
-      const maxentPath = customMaxentPath || detectedMaxentPath;
-      try {
-        const response = await base44.functions.invoke('runMaxentModel', {
-          action: 'execute',
-          maxentPath,
-          occurrenceFile: `occurrence_${run.id}.csv`,
-          environmentalLayers: selectedLayers.map(l => l.name).join(','),
-          parameters: { ...parameters, outputDir: `./results_${run.id}` },
-        });
-        
-        // If platform constraint detected, fallback to cloud service
-        if (response.data?.status === 'platform_constraint') {
-          console.warn('Local execution not available on this platform. Queuing for cloud service.');
-          // Queue for cloud service instead
-        }
-      } catch (err) {
-        console.warn('Local execution failed, queuing for cloud service:', err);
-      }
-    } else {
-      // Fallback to cloud service
-      try {
-        await base44.functions.invoke('runMaxentModel', {
-          run_id: run.id,
-          species_name: speciesNames,
-          parameters,
-          layer_names: selectedLayers.map(l => l.name),
-          occurrence_count: occurrenceCount,
-        });
-      } catch {
-        // Non-critical — run is already saved regardless
-      }
+    // Generate occurrence CSV for local MAXENT execution
+    const allOccurrences = selectedSpecies.flatMap(sp => [
+      ...(sp.observations || []).map(obs => ({
+        species: sp.scientific_name,
+        longitude: obs.longitude,
+        latitude: obs.latitude,
+      })),
+      ...(sp.gbif_occurrences || []).map(occ => ({
+        species: sp.scientific_name,
+        longitude: occ.longitude,
+        latitude: occ.latitude,
+      })),
+    ]).filter(o => o.latitude && o.longitude);
+
+    const csvContent = [
+      'species,longitude,latitude',
+      ...allOccurrences.map(o => `"${o.species}",${o.longitude},${o.latitude}`)
+    ].join('\n');
+
+    // Generate a batch script for running MAXENT
+    const batchScript = `@echo off
+REM DataWinder MAXENT Run Package — ${name}
+REM Run ID: ${run.id}
+REM Species: ${speciesNames}
+REM Generated: ${new Date().toISOString()}
+REM
+REM INSTRUCTIONS:
+REM 1. Place this script in the same folder as maxent.jar
+REM 2. Place occurrence.csv in the same folder
+REM 3. Place environmental layers (.asc files) in a subfolder called "layers"
+REM 4. Run this script — or paste the java command below into your terminal
+REM
+java -jar maxent.jar environmentallayers=layers samplesfile=occurrence.csv outputdirectory=results autorun betamultiplier=${parameters.regularization_multiplier} maximumiterations=${parameters.max_iterations} replicates=${parameters.replicates} outputformat=${parameters.output_type}
+echo Done! Check the "results" folder for model outputs.
+pause`;
+
+    // Package as ZIP for download
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      zip.file('occurrence.csv', csvContent);
+      zip.file('run_maxent.bat', batchScript);
+      zip.file('run_maxent.sh', batchScript.replace(/@echo off\r?\n/, '#!/bin/bash\n').replace(/REM /g, '# '));
+      zip.file('README.txt', `DataWinder MAXENT Run Package\n==============================\nRun ID: ${run.id}\nSpecies: ${speciesNames}\nOccurrences: ${allOccurrences.length}\n\nTo run:\n1. Install Java 8+ and download maxent.jar from https://biodiversityinformatics.amnh.org/open_source/maxent/\n2. Place maxent.jar in this folder\n3. Add your climate layers (.asc format) to a subfolder called "layers/"\n4. Run run_maxent.bat (Windows) or run_maxent.sh (Mac/Linux)\n5. Results will appear in the "results/" folder`);
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `maxent_run_${run.id}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('Could not generate ZIP package:', err);
     }
 
     setLastRun({ ...run, name });
