@@ -203,130 +203,34 @@ pause`;
            </button>
 
           {showMaxentSetup && (
-            <div className={`px-5 pb-5 pt-4 space-y-4 border-t ${maxentStatus === 'found' ? 'border-green-200' : 'border-amber-200'}`}>
-              {/* Option cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button
-                  onClick={() => { setMaxentChoice('local'); setMaxentTermsAccepted(false); }}
-                  className={`text-left p-4 rounded-xl border-2 transition-all bg-white ${maxentChoice === 'local' ? 'border-bangor-red' : 'border-slate-200 hover:border-bangor-red/40'}`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <HardDrive className="w-4 h-4 text-bangor-red" />
-                    <span className="text-sm font-semibold text-slate-800">Local Install</span>
-                    <span className="ml-auto text-xs bg-green-100 text-green-700 font-semibold px-1.5 py-0.5 rounded-full">Best</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-600">
-                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>Fastest — runs on your hardware</span></div>
-                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" /><span>Full control, data stays local</span></div>
-                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 text-red-400 mt-0.5 shrink-0" /><span>Requires Java + ~5 min setup</span></div>
-                  </div>
-                </button>
-
-                {/* Cloud service — coming soon */}
-                <div className="text-left p-4 rounded-xl border-2 border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed select-none">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Wifi className="w-4 h-4 text-slate-400" />
-                    <span className="text-sm font-semibold text-slate-400">Cloud Service</span>
-                    <span className="ml-auto text-xs bg-slate-200 text-slate-500 font-semibold px-1.5 py-0.5 rounded-full">Coming Soon</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-400">
-                    <div className="flex items-start gap-1"><ThumbsUp className="w-3 h-3 mt-0.5 shrink-0" /><span>No installation needed</span></div>
-                    <div className="flex items-start gap-1"><ThumbsDown className="w-3 h-3 mt-0.5 shrink-0" /><span>Slower, data sent to server</span></div>
-                  </div>
+            <div className="px-5 pb-5 pt-4 space-y-4 border-t border-blue-200">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="bg-white rounded-xl border border-blue-200 p-4 space-y-2">
+                  <div className="flex items-center gap-2 font-semibold text-blue-900"><span className="text-lg">1️⃣</span> Build in DataWinder</div>
+                  <p className="text-xs text-slate-600">Select species, climate layers and parameters using this wizard. DataWinder packages your occurrence data automatically.</p>
                 </div>
-
-                <button
-                  onClick={() => { setMaxentChoice('dismiss'); setMaxentTermsAccepted(false); setShowMaxentSetup(false); }}
-                  className="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white transition-all"
-                >
-                  <p className="text-sm font-semibold text-slate-500 mb-1">Dismiss</p>
-                  <p className="text-xs text-slate-400">Continue using the cloud service or set this up another time.</p>
-                </button>
-              </div>
-
-              {/* Local install guide + T&Cs */}
-              {maxentChoice === 'local' && (
-                <div className="space-y-3">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm space-y-3">
-                    <p className="font-semibold text-green-800">Installation Steps (~5 minutes)</p>
-                    <ol className="list-decimal list-inside space-y-1.5 text-slate-700 text-xs">
-                      <li>Ensure <strong>Java 8+</strong> is installed — <a href="https://www.java.com/en/download/" target="_blank" rel="noopener noreferrer" className="text-bangor-red underline">download from java.com</a></li>
-                      <li>Download <strong>maxent.jar</strong> from the AMNH link below</li>
-                      <li>Save to an accessible folder (e.g. <code className="bg-slate-100 px-1 rounded">C:\maxent\</code>)</li>
-                      <li>Double-click <code className="bg-slate-100 px-1 rounded">maxent.jar</code> to launch — no installer needed</li>
-                      <li>In DataWinder's MAXENT settings, point to your <code className="bg-slate-100 px-1 rounded">maxent.jar</code> path</li>
-                    </ol>
-                    <a
-                      href="https://biodiversityinformatics.amnh.org/open_source/maxent/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg text-sm font-semibold"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download MAXENT (AMNH)
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-
-                  <div className="bg-white border border-amber-300 rounded-lg p-4 space-y-2">
-                    <p className="text-sm font-semibold text-amber-800">MAXENT Software — Your Responsibility</p>
-                    <p className="text-xs text-slate-600">MAXENT is published by the American Museum of Natural History. DataWinder is not affiliated with AMNH and accepts no responsibility for the software. By downloading MAXENT you agree to AMNH's terms.</p>
-                    <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-bangor-red underline text-xs">
-                      Read MAXENT terms <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <label className="flex items-start gap-2 cursor-pointer pt-1">
-                      <Checkbox checked={maxentTermsAccepted} onCheckedChange={setMaxentTermsAccepted} className="mt-0.5" />
-                      <span className="text-xs text-slate-700">I accept the MAXENT terms and take responsibility for its installation and use on my device.</span>
-                    </label>
-                    {maxentTermsAccepted && (
-                      <p className="text-xs text-green-700 font-semibold">✓ Thank you. You can now download MAXENT using the link above.</p>
-                    )}
-                  </div>
+                <div className="bg-white rounded-xl border border-blue-200 p-4 space-y-2">
+                  <div className="flex items-center gap-2 font-semibold text-blue-900"><span className="text-lg">2️⃣</span> Download ZIP Package</div>
+                  <p className="text-xs text-slate-600">On submit, a ZIP is downloaded containing your occurrence CSV and a pre-configured run script (Windows + Mac/Linux).</p>
                 </div>
-              )}
-
-              {/* Custom path input (if not auto-detected) */}
-              {maxentStatus !== 'found' && (
-               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                 <div className="flex items-start gap-3">
-                   <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                   <div>
-                     <p className="text-sm font-semibold text-blue-900">Manually Set MAXENT Path</p>
-                     <p className="text-xs text-blue-700 mt-1">If MAXENT is installed in a non-standard location, enter the path below.</p>
-                   </div>
-                 </div>
-                 <div className="flex gap-2">
-                   <Input
-                     placeholder="e.g., /usr/local/maxent/maxent.jar"
-                     value={customMaxentPath}
-                     onChange={e => setCustomMaxentPath(e.target.value)}
-                     className="border-blue-200 text-sm"
-                   />
-                   <Button
-                     onClick={async () => {
-                       const response = await base44.functions.invoke('detectMaxentLocation', {
-                         action: 'verify',
-                         customPath: customMaxentPath
-                       });
-                       if (response.data?.verified) {
-                         setDetectedMaxentPath(customMaxentPath);
-                         setMaxentStatus('found');
-                       } else {
-                         setMaxentStatus('not_found');
-                       }
-                     }}
-                     variant="outline"
-                     size="sm"
-                     className="shrink-0"
-                   >
-                     <Search className="w-4 h-4" />
-                   </Button>
-                 </div>
-               </div>
-              )}
-
+                <div className="bg-white rounded-xl border border-blue-200 p-4 space-y-2">
+                  <div className="flex items-center gap-2 font-semibold text-blue-900"><span className="text-lg">3️⃣</span> Run Locally</div>
+                  <p className="text-xs text-slate-600">Add your climate layers (.asc) to the <code className="bg-slate-100 px-1 rounded">layers/</code> folder alongside <code className="bg-slate-100 px-1 rounded">maxent.jar</code>, then run the script.</p>
+                </div>
               </div>
-              )}
+              <div className="bg-white border border-slate-200 rounded-lg p-4 flex items-start gap-3">
+                <HardDrive className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Need MAXENT?</p>
+                  <p className="text-xs text-slate-600 mt-0.5">Download <strong>maxent.jar</strong> (requires Java 8+) from AMNH — free for academic use.</p>
+                  <a href="https://biodiversityinformatics.amnh.org/open_source/maxent/" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-2 text-xs text-bangor-red font-semibold underline">
+                    <Download className="w-3 h-3" /> Download MAXENT from AMNH <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
               </div>
 
         {/* ── Run History (collapsible) ── */}
