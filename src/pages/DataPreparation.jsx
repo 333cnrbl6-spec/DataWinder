@@ -41,7 +41,7 @@ export default function DataPreparation() {
     queryFn: () => base44.entities.SavedSearch.list('-created_date'),
   });
 
-  const { data: exportedFiles = [], refetch: refetchFiles } = useQuery({
+  const { data: exportedFiles = [] } = useQuery({
     queryKey: ['exportedFiles'],
     queryFn: () => base44.entities.ExportedFile.list('-created_date', 30),
   });
@@ -369,7 +369,7 @@ export default function DataPreparation() {
                 <PackageOpen className="w-5 h-5" />
                 Your Exports ({exportedFiles.length})
               </CardTitle>
-              <Button size="sm" variant="ghost" onClick={() => refetchFiles()} title="Refresh">
+              <Button size="sm" variant="ghost" onClick={() => queryClient.invalidateQueries({ queryKey: ['exportedFiles'] })} title="Refresh">
                 <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
