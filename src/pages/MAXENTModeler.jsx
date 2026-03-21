@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ChevronRight, ChevronLeft, Rocket, CheckCircle, History, Info, Loader2, Download, HardDrive, Wifi, ExternalLink, ChevronDown, ThumbsUp, ThumbsDown, Search, AlertCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Rocket, CheckCircle, History, Info, Loader2, Download, HardDrive, Wifi, ExternalLink, ChevronDown, ThumbsUp, ThumbsDown, Search, AlertCircle, PackageOpen } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import StepIndicator from '@/components/maxent/StepIndicator';
