@@ -61,13 +61,13 @@ Deno.serve(async (req) => {
 
       try {
         // ── STEP 1: IUCN Search ──
-        let iucnData = [];
-        try {
-          const searchRes = await base44.functions.invoke('fetchIUCNData', {
-            endpoint: 'advanced_search',
-            term: testCase.name,
-            taxonomy_level: testCase.level
-          });
+         let iucnData = [];
+         try {
+           const searchRes = await base44.functions.invoke('fetchIUCNData', {
+             endpoint: 'taxa',
+             term: testCase.name,
+             level: testCase.level
+           });
           
           if (searchRes.data?.status === 'success' && Array.isArray(searchRes.data.data)) {
             iucnData = searchRes.data.data.slice(0, 3); // Limit to 3 per scenario for test speed
