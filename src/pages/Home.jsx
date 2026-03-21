@@ -107,6 +107,7 @@ export default function Home() {
     setError(null);
     setSpecies([]);
     setSelectedIds([]);
+    startTicking(4000);
     setSearchInfo({ 
       level, 
       terms: terms.join(', '),
