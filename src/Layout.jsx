@@ -171,7 +171,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Dropdown */}
         {menuOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2 space-y-3">
+          <div className="lg:hidden border-t border-slate-100 bg-white px-3 pb-3 pt-2 space-y-2 max-h-[70vh] overflow-y-auto">
             {NAV_CATEGORIES.map((category) => {
               if (category.standalone) {
                 const isActive = currentPageName === category.page;
