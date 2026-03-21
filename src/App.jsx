@@ -27,6 +27,7 @@ import DataQualityAudit from './pages/DataQualityAudit';
 import About from './pages/About';
 import BenchmarkTester from './pages/BenchmarkTester';
 import BangorFounderSignup from './pages/BangorFounderSignup';
+import BangorMicrosoftLogin from './pages/BangorMicrosoftLogin';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -102,6 +103,7 @@ const AuthenticatedApp = () => {
       <Route path="/About" element={<LayoutWrapper currentPageName="About"><About /></LayoutWrapper>} />
       <Route path="/BenchmarkTester" element={<LayoutWrapper currentPageName="BenchmarkTester"><BenchmarkTester /></LayoutWrapper>} />
       <Route path="/BangorFounderSignup" element={<BangorFounderSignup />} />
+      <Route path="/BangorMicrosoftLogin" element={<BangorMicrosoftLogin />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
