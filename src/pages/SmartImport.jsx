@@ -198,8 +198,8 @@ export default function SmartImport() {
 
       const importables = [], texts = [], geospatials = [], climateLayers = [], unknowns = [];
 
-      // SHP sidecar extensions — only show the .shp, not .dbf/.prj/.shx etc.
-      const SHP_SIDECARS = new Set(['dbf', 'prj', 'shx', 'cpg', 'sbn', 'sbx', 'xml']);
+      // SHP sidecar extensions — skip display/import of these (not useful standalone)
+      const SHP_SIDECARS = new Set(['prj', 'shx', 'cpg', 'sbn', 'sbx']);
 
       for (const entry of entries) {
         const ext = getFileExt(entry.name);
