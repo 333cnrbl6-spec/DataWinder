@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,7 +28,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [includeGBIF, setIncludeGBIF] = useState(true);
   const [includeSpeciesLink, setIncludeSpeciesLink] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadCredentials = async () => {
       try {
         const user = await base44.auth.me();
