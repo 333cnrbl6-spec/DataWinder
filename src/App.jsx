@@ -19,7 +19,7 @@ import FAQBot from './pages/FAQBot';
 import LiteratureLibrary from './pages/LiteratureLibrary';
 import MendeleyConnect from './pages/MendeleyConnect';
 import ProjectDashboard from './pages/ProjectDashboard';
-import SmartImport from './pages/SmartImport.jsx';
+import SmartImport from './pages/SmartImport';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
