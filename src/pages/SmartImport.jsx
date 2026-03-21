@@ -186,17 +186,22 @@ export default function SmartImport() {
       const entries = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
       if (entries.length === 0) throw new Error('ZIP file is empty');
 
-      const importables = [], texts = [], geospatials = [], unknowns = [];
+      const importables = [], texts = [], geospatials = [], climateLayers = [], unknowns = [];
 
       for (const entry of entries) {
         const cls = classifyFile(entry.name);
         if (cls === 'importable') importables.push(entry);
         else if (cls === 'text') texts.push(entry);
-        else if (cls === 'geospatial') geospatials.push(entry);
+        else if (cls === 'geospatial') {
+          const parsed = parseGeospatialLayer(entry.name);
+          if (parsed.type === 'climate') climateLayers.push({ name: entry.name.split('/').pop(), record: parsed.record });
+          else geospatials.push(entry);
+        }
         else unknowns.push(entry);
       }
 
       setGeospatialFiles(geospatials.map(f => ({ name: f.name })));
+      setClimateLayerFiles(climateLayers);
       setUnknownFiles(unknowns.map(f => ({ name: f.name })));
 
       // Upload text files
