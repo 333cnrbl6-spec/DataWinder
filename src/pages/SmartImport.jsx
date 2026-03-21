@@ -482,10 +482,10 @@ export default function SmartImport() {
           {/* Climate layer files — auto-detected, importable as ClimateDataset records */}
           {climateLayerFiles.length > 0 && (
             <section className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-              <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 flex items-center gap-2">
-                <CloudRain className="w-4 h-4 text-blue-600" />
-                <span className="font-semibold text-blue-800 text-sm">Climate Layers — Ready to Import</span>
-                <Badge className="ml-auto bg-blue-100 text-blue-700 border-blue-200">{climateLayerFiles.length} layer{climateLayerFiles.length > 1 ? 's' : ''}</Badge>
+              <div className="bg-teal-50 border-b border-teal-100 px-4 py-3 flex items-center gap-2">
+                <CloudRain className="w-4 h-4 text-teal-600" />
+                <span className="font-semibold text-teal-800 text-sm">Climate Layers — Auto-detected</span>
+                <Badge className="ml-auto bg-teal-100 text-teal-700 border-teal-200">{climateLayerFiles.length} layer{climateLayerFiles.length > 1 ? 's' : ''}</Badge>
               </div>
               <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto">
                 {climateLayerFiles.map((f, idx) => (
@@ -498,8 +498,28 @@ export default function SmartImport() {
                   </div>
                 ))}
               </div>
-              <div className="px-4 py-2 bg-blue-50/50 border-t border-blue-100">
-                <p className="text-xs text-blue-700">Each TIF will be registered as a <strong>ClimateDataset</strong> record, ready to use in MAXENT modelling and variable selection.</p>
+              <div className="px-4 py-3 bg-teal-50/60 border-t border-teal-100 space-y-3">
+                <p className="text-xs text-teal-800">These layers were identified from file naming. Choose how to proceed:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs border-teal-300 text-teal-800 hover:bg-teal-50"
+                    onClick={() => { window.location.href = '/ClimateProjections'; }}
+                  >
+                    <CloudRain className="w-3.5 h-3.5" />
+                    Open in Climate Data
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs border-purple-300 text-purple-800 hover:bg-purple-50"
+                    onClick={() => { window.location.href = '/MAXENTModeler'; }}
+                  >
+                    <Database className="w-3.5 h-3.5" />
+                    Open in MAXENT Modeller
+                  </Button>
+                </div>
               </div>
             </section>
           )}
