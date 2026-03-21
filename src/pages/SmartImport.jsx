@@ -255,18 +255,22 @@ export default function SmartImport() {
   const analyseAndSetImportable = async (rawFiles) => {
     const results = await Promise.all(
       rawFiles.map(async ({ name, rawFile }) => {
-        // Always upload using a FormData so the SDK receives a proper multipart file
+        // If rawFile is already a proper File (from ZIP path), use it directly; otherwise read via FileReader
         const ext = getFileExt(name);
         const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', json: 'application/json' }[ext] || 'application/octet-stream';
-        const safeFileName = `data_${Date.now()}.${ext}`;
-        // Read as ArrayBuffer first to ensure we have the raw bytes
-        const bytes = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsArrayBuffer(rawFile);
-        });
-        const cleanFile = new File([bytes], safeFileName, { type: mime });
+        const safeFileName = `data_${Date.now()}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+        let cleanFile;
+        if (rawFile instanceof File) {
+          cleanFile = rawFile; // already a proper File from ZIP processing
+        } else {
+          const bytes = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(rawFile);
+          });
+          cleanFile = new File([bytes], safeFileName, { type: mime });
+        }
 
         const { file_url } = await base44.integrations.Core.UploadFile({ file: cleanFile });
         const aiAnalysis = await base44.integrations.Core.InvokeLLM({
