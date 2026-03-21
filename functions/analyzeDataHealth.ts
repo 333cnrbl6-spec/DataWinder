@@ -9,16 +9,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all species
-    const allSpecies = await base44.entities.Species.list('', 10000);
+    // Get all species — fetch only lightweight scalar fields to avoid loading
+    // large observation/occurrence arrays (performance + CPU limit risk)
+    const allSpeciesRaw = await base44.entities.Species.list('-created_date', 10000);
+    const allSpecies = allSpeciesRaw.map(sp => ({
+      id: sp.id,
+      scientific_name: sp.scientific_name,
+      common_name: sp.common_name,
+      family: sp.family,
+      iucn_status: sp.iucn_status,
+      population_trend: sp.population_trend,
+      inat_taxon_id: sp.inat_taxon_id,
+      gbif_id: sp.gbif_id,
+      observation_count: sp.observation_count,
+      gbif_occurrence_count: sp.gbif_occurrence_count,
+      specieslink_occurrence_count: sp.specieslink_occurrence_count,
+    }));
 
     // Group by family
     const familyGroups = {};
     allSpecies.forEach(sp => {
       const family = sp.family || 'Unknown';
-      if (!familyGroups[family]) {
-        familyGroups[family] = [];
-      }
+      if (!familyGroups[family]) familyGroups[family] = [];
       familyGroups[family].push(sp);
     });
 
@@ -27,21 +39,13 @@ Deno.serve(async (req) => {
       .map(([family, species]) => {
         const uniqueScientificNames = new Set(species.map(s => s.scientific_name)).size;
         const recordCount = species.length;
-        const duplicationRatio = recordCount / uniqueScientificNames;
-        
+        const duplicationRatio = recordCount / Math.max(uniqueScientificNames, 1);
         return {
           family,
           recordCount,
           uniqueSpecies: uniqueScientificNames,
           duplicationRatio: parseFloat(duplicationRatio.toFixed(2)),
-          species: species.map(s => ({
-            id: s.id,
-            scientific_name: s.scientific_name,
-            common_name: s.common_name,
-            iucn_status: s.iucn_status,
-            inat_taxon_id: s.inat_taxon_id,
-            gbif_id: s.gbif_id
-          }))
+          species
         };
       })
       .sort((a, b) => b.duplicationRatio - a.duplicationRatio);
@@ -52,9 +56,7 @@ Deno.serve(async (req) => {
       const sciNameGroups = {};
       species.forEach(sp => {
         const key = (sp.scientific_name || '').toLowerCase().trim();
-        if (!sciNameGroups[key]) {
-          sciNameGroups[key] = [];
-        }
+        if (!sciNameGroups[key]) sciNameGroups[key] = [];
         sciNameGroups[key].push(sp);
       });
 
@@ -66,9 +68,7 @@ Deno.serve(async (req) => {
           records
         }));
 
-      if (potentialDuplicates.length > 0) {
-        duplicatesByFamily[family] = potentialDuplicates;
-      }
+      if (potentialDuplicates.length > 0) duplicatesByFamily[family] = potentialDuplicates;
     });
 
     return Response.json({
