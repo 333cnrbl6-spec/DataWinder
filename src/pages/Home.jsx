@@ -44,6 +44,7 @@ export default function Home() {
   const [showLogoSelector, setShowLogoSelector] = useState(false);
   const [showSaveSearch, setShowSaveSearch] = useState(false);
   const queryClient = useQueryClient();
+  const { playSuccess, playError, startTicking, stopTicking } = useSearchSounds();
 
   const { data: allSpecies = [], refetch: refetchSpecies } = useQuery({
     queryKey: ['allSpecies'],
