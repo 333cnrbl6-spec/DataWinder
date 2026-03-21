@@ -113,6 +113,16 @@ export default function SmartImport() {
 
       // ── ZIP file ─────────────────────────────────────────────────────────
       setZipName(file.name);
+
+      // Guard against very large ZIPs (> 500 MB) that the browser cannot reliably read
+      const MAX_ZIP_BYTES = 500 * 1024 * 1024;
+      if (file.size > MAX_ZIP_BYTES) {
+        throw new Error(
+          `This ZIP archive is too large to process in the browser (${(file.size / 1024 / 1024).toFixed(0)} MB). ` +
+          `Please extract it first and upload individual files, or use ArcGIS Tools for large geospatial datasets.`
+        );
+      }
+
       const zip = new JSZip();
       await zip.loadAsync(file);
 
