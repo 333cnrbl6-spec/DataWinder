@@ -53,7 +53,7 @@ YOUR FOUNDER OFFER
 Sign up using your @bangor.ac.uk email address and receive:
 
 ✓ Full platform access — all features, unlimited species, unlimited analyses
-✓ 1-year complimentary membership (no charge)
+✓ Complimentary membership extended through your graduation, Masters completion, or PhD
 ✓ Recognized as a Founder Member and early tester
 ✓ Direct input into our development roadmap
 ✓ Early-adopter advantage before wider release
@@ -91,7 +91,7 @@ GETTING STARTED
 2. Click "Claim Your Founder Access"
 3. Enter your @bangor.ac.uk email
 4. Sign up and verify your account
-5. Your 1-year founder membership activates immediately
+5. Your founder membership activates immediately and extends through your graduation, Masters, or PhD
 
 Once you're in, explore:
 → Home: Species Search & Selection
@@ -142,6 +142,6 @@ IMPORTANT REMINDERS:
 
 ---
 
-P.S. Your membership expires in 1 year from signup. After 12 months, we'll reach out to discuss next steps. For now, focus on testing, breaking things, and telling us what you need.
+P.S. Your membership extends through your graduation, Masters completion, or PhD. Just let us know when you've completed your studies, and we can discuss next steps. For now, focus on testing, breaking things, and telling us what you need.
 
 P.P.S. Whether you're a field biologist, modeller, conservation planner, or all three—we built this for you. Different approaches, different needs, different perspectives—that's exactly what makes this better for everyone.

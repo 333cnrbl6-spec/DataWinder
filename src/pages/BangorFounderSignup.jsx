@@ -32,13 +32,10 @@ export default function BangorFounderSignup() {
 
   const grantFounderAccess = async (user) => {
     try {
-      // Update user with founder status and 1-year expiry
-      const expiryDate = new Date();
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-      
+      // Update user with founder status extended indefinitely until graduation/completion
       await base44.auth.updateMe({
         membership_tier: 'Founding Member',
-        founder_membership_expires: expiryDate.toISOString(),
+        founder_membership_extends_to: 'graduation_or_degree_completion',
         founder_activated_date: new Date().toISOString()
       });
     } catch (e) {
@@ -151,7 +148,7 @@ export default function BangorFounderSignup() {
                   </li>
                   <li className="flex gap-3 text-slate-700">
                     <span className="text-bangor-red font-bold">✓</span>
-                    <span>1 year of complimentary membership</span>
+                    <span>Complimentary membership through your graduation, Masters, or PhD</span>
                   </li>
                   <li className="flex gap-3 text-slate-700">
                     <span className="text-bangor-red font-bold">✓</span>
@@ -212,9 +209,9 @@ export default function BangorFounderSignup() {
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
                 <h4 className="font-bold text-slate-900 mb-3">Timeline</h4>
-                <p className="text-sm text-slate-600">
-                  Your 1-year founder membership begins on signup. After 12 months, we'll reach out to discuss continued access.
-                </p>
+                  <p className="text-sm text-slate-600">
+                    Your founder membership extends through your graduation, Masters completion, or PhD. Just let us know when you finish your degree and we'll discuss next steps.
+                  </p>
               </div>
 
               <div className="text-center text-xs text-slate-500">
@@ -296,9 +293,9 @@ export default function BangorFounderSignup() {
               <CheckCircle className="w-8 h-8 text-emerald-600" />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome, Founder!</h2>
-            <p className="text-slate-600 mb-6">
-              Your 1-year membership is active. You now have full access to DataWinder.
-            </p>
+             <p className="text-slate-600 mb-6">
+               Your membership is active through your graduation, Masters, or PhD. You now have full access to DataWinder.
+             </p>
             <Button
               onClick={() => window.location.href = '/Home'}
               className="w-full bg-bangor-red hover:bg-bangor-red/90 text-white font-semibold"
