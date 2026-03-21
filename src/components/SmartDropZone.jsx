@@ -41,6 +41,7 @@ export default function SmartDropZone({ onImported }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [importCount, setImportCount] = useState(0);
   const inputRef = useRef();
+  const { playSuccess, playError, startTicking, stopTicking } = useSearchSounds();
 
   const reset = () => {
     setStep('idle');
