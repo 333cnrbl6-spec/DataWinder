@@ -103,7 +103,7 @@ export default function SmartImport() {
           return;
         }
         if (cls === 'importable') {
-          await analyseAndSetImportable([{ name: file.name, rawFile: file }]);
+          await analyseAndSetImportable([{ name: file.name, rawFile: file }]); // native File obj — safe
           stopTicking();
           setPhase('results');
           return;
@@ -136,20 +136,21 @@ export default function SmartImport() {
       const uploadedTexts = await Promise.all(
         texts.map(async (entry) => {
           const blob = await entry.async('blob');
-          const f = new File([blob], entry.name, { type: 'text/plain' });
+          const f = blob.slice(0, blob.size, 'text/plain');
           const { file_url } = await base44.integrations.Core.UploadFile({ file: f });
           return { name: entry.name, url: file_url, uploaded: true };
         })
       );
       setTextFiles(uploadedTexts);
 
-      // Convert importable ZIP entries to File objects
+      // Convert importable ZIP entries to Blob objects for upload
       const importableRaw = await Promise.all(
         importables.map(async (entry) => {
           const blob = await entry.async('blob');
           const ext = getFileExt(entry.name);
           const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
-          return { name: entry.name, rawFile: new File([blob], entry.name, { type: mime }) };
+          const namedBlob = blob.slice(0, blob.size, mime);
+          return { name: entry.name, rawFile: namedBlob };
         })
       );
 
