@@ -26,6 +26,7 @@ import SmartImport from './pages/SmartImport';
 import DataQualityAudit from './pages/DataQualityAudit';
 import About from './pages/About';
 import BenchmarkTester from './pages/BenchmarkTester';
+import BangorFounderSignup from './pages/BangorFounderSignup';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
