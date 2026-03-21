@@ -39,8 +39,13 @@ const dataFields = [
   { key: 'image_url', label: 'Image URL' },
   { key: 'assessment_pdf_url', label: 'IUCN Assessment PDF' },
   { key: 'range_map_jpg_url', label: 'IUCN Range Map (JPG)' },
+  { key: 'range_map_jpg_file_uri', label: 'Range Map JPG (stored)' },
   { key: 'range_data_shp_url', label: 'IUCN Range Polygons (SHP)' },
+  { key: 'range_shp_file_uri', label: 'Range Polygons SHP (stored)' },
   { key: 'range_data_csv_url', label: 'IUCN Range Points (CSV)' },
+  { key: 'range_csv_file_uri', label: 'Range Points CSV (stored)' },
+  { key: 'range_data_geojson', label: 'Range GeoJSON (in-memory)' },
+  { key: 'range_geojson_file_uri', label: 'Range GeoJSON (stored)' },
   { key: 'search_results_csv_url', label: 'IUCN Search Results (CSV)' },
   { key: 'search_summary_json', label: 'IUCN Search Summary (JSON)' },
   { key: 'all_images_urls', label: 'All Species Images' }
@@ -57,6 +62,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
       const res = await base44.functions.invoke('downloadIUCNFiles', {
         scientific_name: species.scientific_name,
         assessment_id: species.assessment_id,
+        iucn_id: species.iucn_id,
         range_map_jpg_url: species.range_map_jpg_url,
         range_data_shp_url: species.range_data_shp_url,
         range_data_csv_url: species.range_data_csv_url,
@@ -69,6 +75,8 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
         if (res.data.range_map_jpg_file_uri) updates.range_map_jpg_file_uri = res.data.range_map_jpg_file_uri;
         if (res.data.range_shp_file_uri) updates.range_shp_file_uri = res.data.range_shp_file_uri;
         if (res.data.range_csv_file_uri) updates.range_csv_file_uri = res.data.range_csv_file_uri;
+        if (res.data.range_geojson_file_uri) updates.range_geojson_file_uri = res.data.range_geojson_file_uri;
+        if (res.data.range_data_geojson) updates.range_data_geojson = res.data.range_data_geojson;
         if (Object.keys(updates).length > 0) {
           await base44.entities.Species.update(species.id, updates);
         }
@@ -81,7 +89,7 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
   };
 
   const [selectedFields, setSelectedFields] = useState(
-    dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'population_details', 'status_history', 'geographic_distribution', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
+   dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'population_details', 'status_history', 'geographic_distribution', 'family', 'genus', 'range_description', 'range_map_jpg_file_uri', 'range_shp_file_uri', 'range_csv_file_uri', 'range_geojson_file_uri'].includes(f.key)).map(f => f.key)
   );
   const [format, setFormat] = useState('csv');
   const [saveLocation, setSaveLocation] = useState('');
@@ -138,8 +146,15 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
           iucn_id: sp.iucn_id,
           image_url: sp.image_url,
           assessment_pdf_url: sp.assessment_pdf_url,
+          assessment_pdf_file_uri: sp.assessment_pdf_file_uri,
           range_map_jpg_url: sp.range_map_jpg_url,
-          range_data_shp_url: sp.range_data_shp_url
+          range_map_jpg_file_uri: sp.range_map_jpg_file_uri,
+          range_data_shp_url: sp.range_data_shp_url,
+          range_shp_file_uri: sp.range_shp_file_uri,
+          range_data_csv_url: sp.range_data_csv_url,
+          range_csv_file_uri: sp.range_csv_file_uri,
+          range_data_geojson: sp.range_data_geojson,
+          range_geojson_file_uri: sp.range_geojson_file_uri
         }));
 
         await base44.entities.Species.bulkCreate(speciesToSave);
