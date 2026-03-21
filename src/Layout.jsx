@@ -84,22 +84,22 @@ export default function Layout({ children, currentPageName }) {
 
       {/* ── Global Navigation ── */}
       <nav className="bg-white border-b-4 border-bangor-red sticky top-0 z-50 shadow-md backdrop-blur-sm">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+        <div className="max-w-screen-2xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-12 sm:h-14">
 
-            {/* Brand Mark */}
-            <Link
-              to="/Home"
-              className="flex items-center gap-2.5 shrink-0 group"
-            >
-              <div className="w-8 h-8 bg-bangor-red rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity">
-                <Leaf className="w-4 h-4 text-white" />
-              </div>
-              <div className="hidden sm:block leading-tight">
-                <div className="text-sm font-bold text-bangor-red tracking-tight">DataWinder</div>
-                <div className="text-xs text-slate-400 font-normal">Multi-Source Species Research Platform</div>
-              </div>
-            </Link>
+           {/* Brand Mark */}
+           <Link
+             to="/Home"
+             className="flex items-center gap-2 xs:gap-2.5 shrink-0 group"
+           >
+             <div className="w-7 xs:w-8 h-7 xs:h-8 bg-bangor-red rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity">
+               <Leaf className="w-3.5 xs:w-4 h-3.5 xs:h-4 text-white" />
+             </div>
+             <div className="hidden xs:block sm:flex sm:flex-col leading-tight">
+               <div className="text-xs xs:text-sm font-bold text-bangor-red tracking-tight">DataWinder</div>
+               <div className="hidden xs:block text-xs text-slate-400 font-normal">Multi-Source Biodiversity</div>
+             </div>
+           </Link>
 
             {/* Desktop Navigation */}
             <NavigationMenu className="hidden lg:flex">
@@ -161,10 +161,10 @@ export default function Layout({ children, currentPageName }) {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
+              className="lg:hidden p-1.5 xs:p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
               aria-label="Toggle navigation menu"
             >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {menuOpen ? <X className="w-4 xs:w-5 h-4 xs:h-5" /> : <Menu className="w-4 xs:w-5 h-4 xs:h-5" />}
             </button>
           </div>
         </div>
@@ -236,17 +236,17 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* ── Footer ── */}
-      <footer className="bg-white border-t border-slate-200 py-5 mt-auto">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+      <footer className="bg-white border-t border-slate-200 py-3 xs:py-4 sm:py-5 mt-auto">
+        <div className="max-w-screen-2xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-2 xs:gap-3">
+            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1 xs:gap-2 text-xs text-slate-400">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-bangor-red rounded flex items-center justify-center">
-                  <Leaf className="w-3 h-3 text-white" />
+                <div className="w-4 xs:w-5 h-4 xs:h-5 bg-bangor-red rounded flex items-center justify-center flex-shrink-0">
+                  <Leaf className="w-2.5 xs:w-3 h-2.5 xs:h-3 text-white" />
                 </div>
-                <span>© {new Date().getFullYear()} DataWinder — Multi-Source Biodiversity Research Platform</span>
+                <span className="text-xs">© {new Date().getFullYear()} DataWinder</span>
               </div>
-              <span className="italic">Data for research purposes only. Always cite original sources.</span>
+              <span className="italic text-xs">Always cite sources.</span>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <span className="text-xs text-slate-400 shrink-0">Powered by:</span>
