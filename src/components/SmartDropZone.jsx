@@ -8,9 +8,11 @@ import { base44 } from '@/api/base44Client';
 import JSZip from 'jszip';
 
 // File types that can be parsed into database records
-const IMPORTABLE_EXTS = ['csv', 'xlsx', 'xls', 'json', 'txt'];
-// File types that are geospatial/binary — inform user but can't auto-import
-const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'geojson', 'kml', 'kmz'];
+const IMPORTABLE_EXTS = ['csv', 'xlsx', 'xls', 'json', 'txt', 'geojson'];
+// File types that are geospatial/binary — inform user, store for later use
+const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'kml', 'kmz'];
+// File types that can be stored/archived
+const ARCHIVABLE_EXTS = ['zip', 'tar', 'gz', 'rar', '7z'];
 
 const getFileExt = (name) => name.split('.').pop().toLowerCase();
 
@@ -104,20 +106,21 @@ export default function SmartDropZone({ onImported }) {
         }
       }
 
-      // Upload file first to get URL
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToProcess });
+      // Upload file first to get URL (supports all file types)
+       const uploadedFile = await base44.integrations.Core.UploadFile({ file: fileToProcess });
 
       // Ask AI what this data is
-      const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}". 
-      Examine the file content and determine:
-      1. What type of data it contains (species records, climate data, occurrence records, etc.)
-      2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, or SavedSearch
-      3. A brief 1-sentence explanation of your reasoning
-      4. Key fields you detected in the data
+       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
+         prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}". 
+       Examine the file content and determine:
+       1. What type of data it contains (species records, climate data, occurrence records, geospatial data, etc.)
+       2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, or SavedSearch
+       3. A brief 1-sentence explanation of your reasoning
+       4. Key fields you detected in the data
+       5. Whether this is tabular data that can be imported vs. geospatial/binary data for reference
 
-      Respond with JSON only.`,
-        file_urls: [file_url],
+       Respond with JSON only.`,
+         file_urls: [uploadedFile.file_url],
         response_json_schema: {
           type: 'object',
           properties: {
@@ -141,7 +144,7 @@ export default function SmartDropZone({ onImported }) {
       const targetSchema = entitySchema[aiAnalysis.suggested_entity] || entitySchema['Species'];
 
       const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
+        file_url: uploadedFile.file_url,
         json_schema: {
           type: 'object',
           properties: {
@@ -210,13 +213,13 @@ export default function SmartDropZone({ onImported }) {
           }`}
       >
         <input ref={inputRef} type="file" className="hidden"
-          accept=".csv,.xlsx,.xls,.json,.txt,.zip,.tif,.tiff,.asc,.shp,.geojson,.kml"
-          onChange={(e) => handleFile(e.target.files[0])} />
+           accept=".csv,.xlsx,.xls,.json,.txt,.zip,.tif,.tiff,.asc,.shp,.dbf,.prj,.shx,.geojson,.kml,.kmz,.tar,.gz,.rar,.7z"
+           onChange={(e) => handleFile(e.target.files[0])} />
         <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${dragging ? 'text-bangor-red' : 'text-slate-400'}`} />
         <p className="text-sm font-semibold text-slate-600">
           {dragging ? 'Release to analyse & import' : 'Drag & drop a file to import'}
         </p>
-        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · ZIP — DataWinder will identify where your data belongs</p>
+        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · Shapefiles · GeoJSON · KML · ZIP — DataWinder handles all file types</p>
       </div>
 
       {/* Smart Import Modal */}
@@ -336,24 +339,25 @@ export default function SmartDropZone({ onImported }) {
             </div>
           )}
 
-          {/* Geospatial / raster file — can't auto-import */}
+          {/* Geospatial / raster file — can't auto-import but archived */}
           {step === 'geospatial' && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <Info className="w-6 h-6 text-blue-600" />
               </div>
               <div className="text-center space-y-2">
-                <p className="font-bold text-slate-700">Geospatial / Raster File Detected</p>
+                <p className="font-bold text-slate-700">Geospatial / Raster File</p>
                 <p className="text-sm text-slate-600">
-                  <strong>{fileInfo?.name}</strong> is a geospatial or raster file (e.g. GeoTIFF, Shapefile). 
-                  These files cannot be imported directly into the species database.
+                  <strong>{fileInfo?.name}</strong> is a geospatial or raster file (e.g. GeoTIFF, Shapefile, KML). 
+                  These are kept as reference files for spatial analysis.
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left mt-2">
-                  <p className="text-xs font-semibold text-blue-800 mb-1">What to do instead:</p>
+                  <p className="text-xs font-semibold text-blue-800 mb-1">You can use this file with:</p>
                   <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
-                    <li>Use <strong>ArcGIS Tools</strong> to work with raster/vector layers</li>
-                    <li>Use <strong>Climate Data</strong> to register climate datasets</li>
-                    <li>To import occurrence data, convert to CSV first</li>
+                    <li><strong>ArcGIS Tools</strong> — vector/raster spatial operations</li>
+                    <li><strong>Climate Data</strong> — register climate layers</li>
+                    <li><strong>MaxEnt Modeler</strong> — background environmental data</li>
+                    <li>Convert to CSV for tabular import of occurrence records</li>
                   </ul>
                 </div>
                 {fileInfo?.fileList && (
