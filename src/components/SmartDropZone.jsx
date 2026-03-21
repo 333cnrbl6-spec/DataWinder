@@ -155,8 +155,11 @@ export default function SmartDropZone({ onImported }) {
       setParsedRows(rows);
       setAiResult(aiAnalysis);
       setSelectedEntity(aiAnalysis.suggested_entity);
+      stopTicking();
       setStep('confirm');
     } catch (e) {
+      stopTicking();
+      playError();
       setErrorMsg(e.message || 'Failed to analyse file');
       setStep('error');
     }
