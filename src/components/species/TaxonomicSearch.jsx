@@ -53,8 +53,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    // If not species level with selected species, search those specific species
-    if (level !== 'species' && selectedSpecies.length > 0) {
+    // CRITICAL: For higher-order searches (order, class, family, genus), MUST expand to individual species
+    // Don't pass the order/class name itself—force species selection first
+    if (level !== 'species') {
+      if (selectedSpecies.length === 0) {
+        // No species selected—can't proceed with order/class/family search
+        alert(`Please select individual species from the ${level}. Higher-level searches must be expanded to species-level results.`);
+        return;
+      }
+      // Search selected species at species level
       onSearch({ 
         level: 'species', 
         terms: selectedSpecies, 
@@ -62,6 +69,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         includeINaturalist: includeINat
       });
     } else {
+      // Species-level search—direct pass-through
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
         onSearch({ 
@@ -221,40 +229,15 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               </div>
             </div>
           </div>
-        ) : showIucnInput ? (
-          <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
-            <p className="text-xs text-bangor-sun/80 mb-2">Paste your new IUCN API token below:</p>
-            <div className="flex gap-2">
-              <Input
-                id="iucn-api-token-change"
-                name="iucn-api-token-change"
-                value={iucnToken}
-                onChange={(e) => setIucnToken(e.target.value)}
-                placeholder="Paste your IUCN API token here"
-                className="text-xs h-8"
-              />
-              <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
-                Save
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowIucnInput(false)}
-                className="text-xs h-8"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
         ) : (
           <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-bangor-sun" />
-              <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
-            </div>
-            <button
-              onClick={() => setShowIucnInput(true)}
-              className="text-xs text-bangor-sun underline font-medium"
+             <div className="flex items-center gap-2">
+               <Key className="w-4 h-4 text-bangor-sun" />
+               <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
+             </div>
+             <button
+               onClick={() => setShowIucnInput(true)}
+               className="text-xs text-bangor-sun underline font-medium"
             >
               Change
             </button>
@@ -490,8 +473,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         {/* Marine Mammals */}
         <button
           onClick={() => {
-            setLevel('family');
-            setSearchTerms(['Cetaceae', 'Sirenia', 'Odobenidae']);
+            setLevel('order');
+            setSearchTerms(['Cetacea']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
