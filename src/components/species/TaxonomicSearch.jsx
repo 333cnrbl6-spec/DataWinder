@@ -47,31 +47,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
     }
   };
 
-  const validateToken = async () => {
-    if (!iucnToken) {
-      console.warn('No IUCN token provided');
-      return false;
-    }
-    try {
-      const response = await fetch('https://api.iucnredlist.org/api/v4/countries', {
-        headers: { 'Authorization': `Bearer ${iucnToken}` }
-      });
-      return response.status === 200;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleSearch = async () => {
-    if (level !== 'species' && !searchTerms.some(t => t.trim())) {
-      console.warn('No search terms provided');
-      return;
-    }
-    const tokenValid = await validateToken();
-    if (!tokenValid) {
-      alert('IUCN API token is invalid. Please verify your token and try again.');
-      return;
-    }
+  const handleSearch = () => {
     setShowConfirmDialog(true);
   };
 
@@ -245,15 +221,40 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
               </div>
             </div>
           </div>
+        ) : showIucnInput ? (
+          <div className="p-4 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg">
+            <p className="text-xs text-bangor-sun/80 mb-2">Paste your new IUCN API token below:</p>
+            <div className="flex gap-2">
+              <Input
+                id="iucn-api-token-change"
+                name="iucn-api-token-change"
+                value={iucnToken}
+                onChange={(e) => setIucnToken(e.target.value)}
+                placeholder="Paste your IUCN API token here"
+                className="text-xs h-8"
+              />
+              <Button size="sm" onClick={saveIucnToken} className="text-xs h-8 bg-bangor-red text-white font-medium rounded-md">
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowIucnInput(false)}
+                className="text-xs h-8"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center justify-between">
-             <div className="flex items-center gap-2">
-               <Key className="w-4 h-4 text-bangor-sun" />
-               <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
-             </div>
-             <button
-               onClick={() => setShowIucnInput(true)}
-               className="text-xs text-bangor-sun underline font-medium"
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-bangor-sun" />
+              <span className="text-xs text-bangor-sun font-medium">IUCN Token Configured</span>
+            </div>
+            <button
+              onClick={() => setShowIucnInput(true)}
+              className="text-xs text-bangor-sun underline font-medium"
             >
               Change
             </button>
@@ -383,12 +384,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
           <div className="flex items-center justify-center py-4 text-sm text-slate-500">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Loading species list...
-          </div>
-        )}
-
-        {!iucnToken && level !== 'species' && searchTerms.some(t => t.trim()) && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800">
-            ⚠️ Add your IUCN API token above to browse species within taxonomic groups.
           </div>
         )}
 
