@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, Zap } from 'lucide-react';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
@@ -65,6 +65,13 @@ const NAV_CATEGORIES = [
       { label: 'Community', page: 'Community', icon: Users },
       { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
       { label: 'About & Help', page: 'About', icon: MessageCircle },
+    ]
+  },
+  {
+    label: 'Testing & QA',
+    icon: Zap,
+    items: [
+      { label: 'Benchmark Tests', page: 'BenchmarkTester', icon: Zap },
     ]
   },
 ];
