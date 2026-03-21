@@ -164,7 +164,10 @@ export default function SmartImport() {
           return;
         }
         if (cls === 'text') {
-          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          const ext = getFileExt(file.name);
+          const mime = ext === 'pdf' ? 'application/pdf' : 'text/plain';
+          const cleanFile = new File([await file.arrayBuffer()], `doc_${Date.now()}.${ext}`, { type: mime });
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: cleanFile });
           stopTicking();
           setTextFiles([{ name: file.name, url: file_url, uploaded: true }]);
           setPhase('results');
