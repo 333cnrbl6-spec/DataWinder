@@ -60,13 +60,20 @@ Sign up using your @bangor.ac.uk email address and receive:
 
 ════════════════════════════════════════════════════════════════
 
-WHY WE NEED YOUR FEEDBACK
+WHY YOUR COLLABORATION MATTERS
 
-Every piece of feedback—whether you're neurodivergent or neurotypical—helps us build simpler, more accessible solutions for all researchers.
+This project only works because of peer input and honest feedback from researchers like you.
 
-DataWinder was designed by someone who experienced neurodiversity firsthand. This platform is built on the principle that accessibility and clarity benefit everyone. We need your voice—different perspectives, different ways of working, different needs—make us better.
+The creator of DataWinder experienced neurodiversity while studying Zoology at Bangor. With institutional support, they achieved a strong academic result and learned that different perspectives aren't limitations—they're assets. That insight is central to this work: accessibility and clarity benefit all researchers.
 
-In exchange for free access, we value your honest feedback:
+Collaboration is not optional for this project. It's essential. We need:
+
+• Your honest observations about what works and what doesn't
+• Real feedback from people doing the work, not just theory
+• Input from researchers with different backgrounds, learning styles, and working approaches
+• Peer review and suggestions that push the tool forward
+
+In exchange for free access, we value your genuine feedback:
 
 • Does the platform solve your research problems?
 • What features are missing or could work better?
