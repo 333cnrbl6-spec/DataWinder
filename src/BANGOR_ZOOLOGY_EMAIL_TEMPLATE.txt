@@ -1,0 +1,124 @@
+SUBJECT: Free DataWinder Founder Access for Bangor Zoology Researchers
+
+---
+
+Dear Bangor Zoology Researcher,
+
+We are building DataWinder—a pioneering web-based platform for species distribution modelling and conservation assessment that integrates IUCN, iNaturalist, GBIF, and speciesLink occurrence data with climate projections and MAXENT modeling.
+
+We want your feedback to shape its future, and we're offering Bangor University researchers something special.
+
+════════════════════════════════════════════════════════════════
+
+WHAT IS DATAWINDER?
+
+DataWinder is a comprehensive, integrated platform built on peer-reviewed research frameworks that enables researchers to:
+
+• Discover species from multiple sources: IUCN Red List, iNaturalist observations, GBIF occurrence records, and speciesLink specimens
+• Clean and validate occurrence data with outlier detection and quality checks
+• Select from multiple climate datasets: WorldClim, CHELSA, ERA5, MODIS, CMIP6 projections
+• Run species distribution models using MAXENT automation
+• Calculate threat scores integrating habitat loss, population trends, protected area coverage, climate suitability change, and disease risk
+• Compare climate scenarios and project future habitat shifts under different warming pathways
+• Generate conservation recommendations based on data-driven threat assessment
+
+THE SIX-PHASE RESEARCH PIPELINE:
+
+1. Species Search & Selection
+   → Discover species using IUCN, iNaturalist, and GBIF databases
+
+2. Data Tidying & Quality Control
+   → Clean, validate, and prepare occurrence data for modeling
+
+3. Climate Data Integration
+   → Select climate datasets and variables for your analysis
+
+4. MAXENT Modeling
+   → Run species distribution models with performance validation
+
+5. Threat Assessment
+   → Evaluate conservation risks and priority rankings
+
+6. Scenario & Ensemble Analysis
+   → Compare climate scenarios and project future habitat shifts
+
+════════════════════════════════════════════════════════════════
+
+YOUR FOUNDER OFFER
+
+Sign up using your @bangor.ac.uk email address and receive:
+
+✓ Full platform access — all features, unlimited species, unlimited analyses
+✓ 1-year complimentary membership (no charge)
+✓ Recognized as a Founder Member and early tester
+✓ Direct input into our development roadmap
+✓ Early-adopter advantage before wider release
+
+════════════════════════════════════════════════════════════════
+
+WHY WE NEED YOUR FEEDBACK
+
+Every piece of feedback—whether you're neurodivergent or neurotypical—helps us build simpler, more accessible solutions for all researchers.
+
+DataWinder was designed by someone who experienced neurodiversity firsthand. This platform is built on the principle that accessibility and clarity benefit everyone. We need your voice—different perspectives, different ways of working, different needs—make us better.
+
+In exchange for free access, we value your honest feedback:
+
+• Does the platform solve your research problems?
+• What features are missing or could work better?
+• Where do you encounter friction or barriers?
+• What would make this indispensable to your work?
+• How can we make this more intuitive for you?
+
+We're not looking for praise. We're looking for real, candid observations about whether DataWinder actually works for conservation researchers. Even 15 minutes of testing and one observation can help us iterate toward something truly valuable.
+
+════════════════════════════════════════════════════════════════
+
+GETTING STARTED
+
+1. Visit: [LANDING_PAGE_URL]
+2. Click "Claim Your Founder Access"
+3. Enter your @bangor.ac.uk email
+4. Sign up and verify your account
+5. Your 1-year founder membership activates immediately
+
+Once you're in, explore:
+→ Home: Species Search & Selection
+→ Data Preparation: Clean and validate occurrence records
+→ Climate Data: Configure climate variables and datasets
+→ MAXENT Modeler: Run species distribution models
+→ Threat Assessment: Calculate conservation risks
+→ Scenario Comparison: Project future habitat under climate change
+
+════════════════════════════════════════════════════════════════
+
+SCIENTIFIC FOUNDATION
+
+DataWinder is built on peer-reviewed conservation research:
+
+• Duran et al. (2013) - Climate-driven species distribution modelling methodology
+• Chapman et al. (2020) - Ensemble approaches for biodiversity assessment
+• Hill & Winder (2019) - Conservation threat profiling and prioritization
+
+════════════════════════════════════════════════════════════════
+
+QUESTIONS?
+
+→ Visit our FAQ at: [APP_URL]/About
+→ Join the community forum: [APP_URL]/Community
+→ Reply directly to this email
+
+════════════════════════════════════════════════════════════════
+
+This is a unique opportunity. DataWinder will become essential infrastructure for conservation research. Help us build something that truly works for practicing zoologists.
+
+We believe this platform can transform how we approach biodiversity assessment. Your feedback is how we get there.
+
+With warm regards,
+
+DataWinder Development Team
+Bangor University
+
+P.S. Your membership expires in 1 year from signup. After 12 months, we'll reach out to discuss next steps. For now, focus on testing, breaking things, and telling us what you need.
+
+P.P.S. Whether you're a field biologist, modeller, conservation planner, or all three—we built this for you. Different approaches and perspectives aren't obstacles; they're exactly what we need.
