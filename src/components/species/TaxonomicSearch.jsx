@@ -25,6 +25,7 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
   const [loadingSpecies, setLoadingSpecies] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [includeINat, setIncludeINat] = useState(true);
+  const [higherTaxonBehavior, setHigherTaxonBehavior] = useState('manual'); // 'manual' | 'auto-expand'
 
   React.useEffect(() => {
     const loadCredentials = async () => {
@@ -53,15 +54,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
 
   const confirmSearch = () => {
     setShowConfirmDialog(false);
-    // CRITICAL: For higher-order searches (order, class, family, genus), MUST expand to individual species
-    // Don't pass the order/class name itself—force species selection first
-    if (level !== 'species') {
-      if (selectedSpecies.length === 0) {
-        // No species selected—can't proceed with order/class/family search
-        alert(`Please select individual species from the ${level}. Higher-level searches must be expanded to species-level results.`);
-        return;
-      }
-      // Search selected species at species level
+    // If not species level with selected species, search those specific species
+    if (level !== 'species' && selectedSpecies.length > 0) {
       onSearch({ 
         level: 'species', 
         terms: selectedSpecies, 
@@ -69,7 +63,6 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         includeINaturalist: includeINat
       });
     } else {
-      // Species-level search—direct pass-through
       const validTerms = searchTerms.filter(t => t.trim());
       if (validTerms.length > 0) {
         onSearch({ 
@@ -251,6 +244,41 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         <div className="p-3 bg-bangor-sun/10 border border-bangor-sun/30 rounded-lg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-bangor-sun" />
           <span className="text-xs text-bangor-sun font-medium">Public API - No Credentials Required</span>
+        </div>
+      </div>
+
+      {/* Higher-Taxon Behavior Preference */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-700 mb-2">Search Preference</h3>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100">
+            <input
+              type="radio"
+              name="taxon-behavior"
+              value="manual"
+              checked={higherTaxonBehavior === 'manual'}
+              onChange={(e) => setHigherTaxonBehavior(e.target.value)}
+              className="w-4 h-4"
+            />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-slate-900">Manual Species Selection</div>
+              <div className="text-xs text-slate-500">Select specific species before searching</div>
+            </div>
+          </label>
+          <label className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100">
+            <input
+              type="radio"
+              name="taxon-behavior"
+              value="auto-expand"
+              checked={higherTaxonBehavior === 'auto-expand'}
+              onChange={(e) => setHigherTaxonBehavior(e.target.value)}
+              className="w-4 h-4"
+            />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-slate-900">Auto-Expand All Species</div>
+              <div className="text-xs text-slate-500">Automatically fetch every species in the order/class/family</div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -473,8 +501,8 @@ export default function TaxonomicSearch({ onSearch, isLoading }) {
         {/* Marine Mammals */}
         <button
           onClick={() => {
-            setLevel('order');
-            setSearchTerms(['Cetacea']);
+            setLevel('family');
+            setSearchTerms(['Cetaceae', 'Sirenia', 'Odobenidae']);
             setFamilySpecies([]);
             setSelectedSpecies([]);
             setTimeout(handleSearch, 0);
