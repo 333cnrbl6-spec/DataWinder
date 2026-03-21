@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ChevronRight, ChevronLeft, Rocket, CheckCircle, History, Info, Loader2, Download, HardDrive, Wifi, ExternalLink, ChevronDown, ThumbsUp, ThumbsDown, Search, AlertCircle, PackageOpen } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
+import AsyncJobPoller from '@/lib/asyncJobPoller';
 
 import StepIndicator from '@/components/maxent/StepIndicator';
 import SpeciesSelector from '@/components/maxent/SpeciesSelector';
@@ -145,6 +147,34 @@ pause`;
     }
 
     setLastRun({ ...run, name });
+    
+    // If external job ID provided, start polling with timeout protection
+    if (run.external_job_id) {
+      const poller = new AsyncJobPoller({
+        maxAttempts: 120,
+        pollIntervalMs: 60000,
+        timeoutMs: 7200000
+      });
+
+      poller.poll(
+        run.external_job_id,
+        async (jobId) => {
+          // Fetch job status from backend
+          const result = await base44.functions.invoke('pollMaxentJobs', { job_id: jobId });
+          return result.data;
+        },
+        (status) => ['completed', 'failed', 'cancelled'].includes(status?.state?.toLowerCase())
+      )
+      .then((finalStatus) => {
+        toast.success(`MAXENT job ${run.external_job_id} completed!`);
+        base44.entities.MaxentRun.update(run.id, { status: 'completed', results: finalStatus });
+      })
+      .catch((error) => {
+        toast.error(`Job polling error: ${error.message}`);
+        base44.entities.MaxentRun.update(run.id, { status: 'failed', notes: error.message });
+      });
+    }
+    
     setIsSubmitting(false);
     setCurrentStep(5);
     refetchRuns();
