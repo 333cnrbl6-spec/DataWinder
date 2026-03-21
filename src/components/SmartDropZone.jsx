@@ -79,6 +79,7 @@ export default function SmartDropZone({ onImported }) {
         if (!importableFile && geospatialFiles.length > 0) {
           // ZIP contains only geospatial/raster data — inform user
           setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatialArchive: true, fileList: files.map(f => f.name) });
+          stopTicking();
           setStep('geospatial');
           return;
         }
