@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchSounds } from '@/hooks/useSearchSounds';
 import { base44 } from '@/api/base44Client';
-import { AlertCircle, Info, Database, Map, FileSpreadsheet, Layers, Grid3x3, FolderOpen, Upload, Leaf } from 'lucide-react';
+import { AlertCircle, Info, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { fetchIUCNSpecies } from '@/hooks/useIUCNSearch';
-import { validateOnboardingComplete, createCommunityMember, completeOnboarding } from '@/lib/onboardingValidator';
-import { generateMaxentCSV, generateArcGISGeoJSON, generateCompleteDatasetCSV, downloadFile, parseUploadedFile, importSpeciesRecords } from '@/lib/speciesDataHandlers';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { createCommunityMember, completeOnboarding } from '@/lib/onboardingValidator';
+import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
-import TaxonomicSearch from '@/components/species/TaxonomicSearch';
-import SpeciesGrid from '@/components/species/SpeciesGrid';
-import MapView from '@/components/species/MapView';
-import OccurrenceSourceMap from '@/components/species/OccurrenceSourceMap';
-import SelectionBar from '@/components/species/SelectionBar';
 import DownloadPanel from '@/components/species/DownloadPanel';
 import StatusBadge, { statusConfig } from '@/components/species/StatusBadge';
 import CompareSpecies from '@/components/species/CompareSpecies';
@@ -27,6 +18,9 @@ import OnboardingWizard from '@/components/OnboardingWizard';
 import LogoShowcase from '@/components/LogoShowcase';
 import SaveSearchPanel from '@/components/SaveSearchPanel';
 import DataSourceBadges from '@/components/DataSourceBadges';
+import SearchPanel from '@/components/home/SearchPanel';
+import DatabasePanel from '@/components/home/DatabasePanel';
+import ResultsPanel from '@/components/home/ResultsPanel';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
@@ -109,9 +103,9 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async ({ level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '', autoExpand = false, includeGBIF: unused_gbif = false }) => {
-    // Extract actual params correctly
-    const { level: searchLevel, terms: searchTerms, iucnToken: token, includeINaturalist: useINat, includeGBIF: useGBIF, includeSpeciesLink: useSL, speciesLinkApiKey: slKey } = arguments[0];
+  const handleSearch = async (searchParams) => {
+    const { level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '' } = searchParams;
+
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
@@ -123,19 +117,19 @@ export default function Home() {
     setSelectedIds([]);
     startTicking(4000);
     setSearchInfo({ 
-      level: searchLevel, 
-      terms: searchTerms.join(', '),
-      includeINaturalist: useINat,
-      includeGBIF: useGBIF,
-      includeSpeciesLink: useSL,
-      iucnToken: !!token
+      level, 
+      terms: terms.join(', '),
+      includeINaturalist,
+      includeGBIF,
+      includeSpeciesLink,
+      iucnToken: !!iucnToken
     });
 
     try {
       // Fetch all species data from IUCN using refactored hook
       let allSpeciesMap = {};
       try {
-        allSpeciesMap = await fetchIUCNSpecies(searchTerms, searchLevel, autoExpand, token);
+        allSpeciesMap = await fetchIUCNSpecies(terms, level, false, iucnToken);
       } catch (err) {
         setError(err.message || 'Failed to fetch IUCN data');
         stopTicking();
@@ -145,8 +139,8 @@ export default function Home() {
       }
 
       // Search iNaturalist if enabled
-      if (useINat) {
-        for (const term of searchTerms) {
+      if (includeINaturalist) {
+        for (const term of terms) {
           try {
             let iNatTaxa = [];
 
@@ -262,10 +256,10 @@ export default function Home() {
       }
 
       // Search GBIF if enabled
-      if (useGBIF) {
+      if (includeGBIF) {
         // For higher taxonomic searches, search once per term
-        if (searchLevel && searchLevel !== 'species') {
-          for (const term of searchTerms) {
+        if (level && level !== 'species') {
+          for (const term of terms) {
             try {
               const gbifResult = await base44.functions.invoke('fetchGBIFData', {
                 scientificName: term.trim(),
@@ -343,7 +337,7 @@ export default function Home() {
           // For species-level searches, query each scientific name
           const scientificNames = Object.keys(allSpeciesMap).length > 0 
             ? Object.keys(allSpeciesMap)
-            : searchTerms.filter(t => t.trim());
+            : terms.filter(t => t.trim());
 
           for (const scientificName of scientificNames) {
             try {
@@ -419,16 +413,16 @@ export default function Home() {
       }
 
       // Search speciesLink if enabled
-      if (useSL && slKey) {
+      if (includeSpeciesLink && speciesLinkApiKey) {
         const namesToSearch = Object.keys(allSpeciesMap).length > 0
           ? Object.keys(allSpeciesMap)
-          : searchTerms.filter(t => t.trim());
+          : terms.filter(t => t.trim());
 
         for (const scientificName of namesToSearch) {
           try {
             const slResult = await base44.functions.invoke('fetchSpeciesLinkData', {
               scientificName,
-              apiKey: slKey,
+              apiKey: speciesLinkApiKey,
               limit: 200
             });
 
@@ -699,90 +693,26 @@ export default function Home() {
       <main className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Search Panel */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <Card className="shadow-lg border-slate-200">
-              <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
-                <CardTitle className="text-bangor-red">Species Search</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <TaxonomicSearch onSearch={handleSearch} isLoading={isLoading} />
-              </CardContent>
-            </Card>
-
+          {/* Left: Search & Results */}
+          <div className="space-y-6">
+            <SearchPanel onSearch={handleSearch} isLoading={isLoading} />
+            
             {/* Search Results */}
             {species.length > 0 && (
-              <Card className="shadow-lg border-slate-200">
-                <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-bangor-red">Search Results ({species.length})</CardTitle>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => setViewMode('grid')}
-                        className={viewMode === 'grid' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
-                      >
-                        <Grid3x3 className="w-4 h-4 mr-1" />
-                        Grid
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setViewMode('map')}
-                        className={viewMode === 'map' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
-                      >
-                        <Map className="w-4 h-4 mr-1" />
-                        Map
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setViewMode('sources')}
-                        className={viewMode === 'sources' ? 'bg-bangor-red text-white' : 'bg-slate-100 text-slate-800'}
-                      >
-                        <Layers className="w-4 h-4 mr-1" />
-                        Sources
-                      </Button>
-                    </div>
-                  </div>
-                  {searchInfo && (
-                    <div className="text-sm text-slate-500 mt-2">
-                      Showing species from <span className="font-medium text-slate-700">{searchInfo.level}</span>: <span className="font-medium text-bangor-red">{searchInfo.terms}</span>
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="p-4">
-                  <SelectionBar
-                    totalCount={species.length}
-                    selectedCount={selectedIds.length}
-                    onSelectAll={() => setSelectedIds(species.map(sp => sp.id || sp.scientific_name))}
-                    onDeselectAll={() => setSelectedIds([])}
-                    onDownload={() => setShowDownload(true)}
-                    onCompare={() => selectedSpecies.length >= 2 && setShowCompare(true)}
-                    onManageLists={() => setShowListManager(true)}
-                    onAddNote={(sp) => { setNoteSpecies(sp); setShowNotes(true); }}
-                    onSaveSearch={() => setShowSaveSearch(true)}
-                    selectedSpecies={selectedSpecies}
-                  />
-
-                  <div className="mt-4 max-h-[600px] overflow-y-auto">
-                    {viewMode === 'grid' ? (
-                      <SpeciesGrid
-                        species={species}
-                        selectedIds={selectedIds}
-                        onSelect={handleSelect}
-                        onEnrichWithINaturalist={enrichWithINaturalist}
-                      />
-                    ) : viewMode === 'map' ? (
-                      <MapView
-                        species={species}
-                        selectedIds={selectedIds}
-                        onSelect={handleSelect}
-                      />
-                    ) : (
-                      <OccurrenceSourceMap species={species} />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ResultsPanel 
+                species={species}
+                selectedIds={selectedIds}
+                onSelect={handleSelect}
+                searchInfo={searchInfo}
+                onSelectAll={() => setSelectedIds(species.map(sp => sp.id || sp.scientific_name))}
+                onDeselectAll={() => setSelectedIds([])}
+                onDownload={() => setShowDownload(true)}
+                onCompare={() => setShowCompare(true)}
+                onManageLists={() => setShowListManager(true)}
+                onAddNote={(sp) => { setNoteSpecies(sp); setShowNotes(true); }}
+                onSaveSearch={() => setShowSaveSearch(true)}
+                onEnrichWithINaturalist={enrichWithINaturalist}
+              />
             )}
 
             {/* Info Banner when no results */}
@@ -870,219 +800,16 @@ export default function Home() {
             )}
           </motion.div>
 
-          {/* Right: Database Management Panel - Always Visible */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <Card className="shadow-lg border-slate-200">
-              <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-bangor-red/10 to-slate-100">
-                <CardTitle className="flex items-center gap-2 text-bangor-red">
-                  <Database className="w-5 h-5" />
-                  Database Management
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {/* Database Stats */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-cardinal/10 rounded-lg p-4">
-                    <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
-                    <div className="text-sm text-slate-600 mt-1">Total Species</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
-                    <div className="text-3xl font-bold text-blue-600">
-                      {allSpecies.filter(sp => sp.range_data_geojson).length}
-                    </div>
-                    <div className="text-sm text-slate-600 mt-1">With Range Data</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
-                    <div className="text-3xl font-bold text-green-600">
-                      {allSpecies.filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0).length}
-                    </div>
-                    <div className="text-sm text-slate-600 mt-1">With Occurrences</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
-                    <div className="text-3xl font-bold text-purple-600">
-                      {[...new Set(allSpecies.map(sp => sp.family))].filter(Boolean).length}
-                    </div>
-                    <div className="text-sm text-slate-600 mt-1">Families</div>
-                  </div>
-                </div>
-
-                {/* ArcGIS Tools */}
-                <div className="mb-4">
-                  <Link to={createPageUrl('ArcGISTools')}>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start border-blue-200 hover:bg-blue-50"
-                    >
-                      <Map className="w-4 h-4 mr-2 text-blue-600" />
-                      <span className="text-blue-700 font-semibold">ArcGIS Tools & API</span>
-                    </Button>
-                  </Link>
-                </div>
-
-                {/* Export Tools */}
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Export Data</h3>
-                  <div className="space-y-2">
-                    <Button
-                       onClick={() => {
-                         const csv = generateMaxentCSV(allSpecies);
-                         downloadFile(csv, `maxent_occurrences_${Date.now()}.csv`);
-                       }}
-                       className="w-full justify-start bg-emerald-600 hover:bg-emerald-700"
-                       disabled={!allSpecies.some(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)}
-                     >
-                       <Layers className="w-4 h-4 mr-2" />
-                       Export for MAXENT (Occurrence Data)
-                     </Button>
-                    
-                    <Button
-                       onClick={() => {
-                         const geojson = generateArcGISGeoJSON(allSpecies);
-                         downloadFile(JSON.stringify(geojson, null, 2), `arcgis_species_ranges_${Date.now()}.geojson`, 'application/geo+json');
-                       }}
-                       className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-                       disabled={!allSpecies.some(sp => sp.range_data_geojson)}
-                     >
-                       <Map className="w-4 h-4 mr-2" />
-                       Export for ArcGIS (GeoJSON Ranges)
-                     </Button>
-                    
-                    <Button
-                       onClick={() => {
-                         const csv = generateCompleteDatasetCSV(allSpecies);
-                         downloadFile(csv, `species_database_${Date.now()}.csv`);
-                       }}
-                       className="w-full justify-start bg-green-600 hover:bg-green-700"
-                       disabled={allSpecies.length === 0}
-                     >
-                       <FileSpreadsheet className="w-4 h-4 mr-2" />
-                       Export Complete Dataset (Excel/CSV)
-                     </Button>
-                  </div>
-                </div>
-
-                {/* Data Quality */}
-                {allSpecies.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Data Quality</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with IUCN Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.iucn_id).length} ({Math.round((allSpecies.filter(sp => sp.iucn_id).length / allSpecies.length) * 100)}%)
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with iNaturalist Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.inat_taxon_id).length} ({Math.round((allSpecies.filter(sp => sp.inat_taxon_id).length / allSpecies.length) * 100)}%)
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Species with GBIF Data:</span>
-                        <span className="font-semibold text-slate-900">
-                          {allSpecies.filter(sp => sp.gbif_id).length} ({Math.round((allSpecies.filter(sp => sp.gbif_id).length / allSpecies.length) * 100)}%)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Load Data Options */}
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Load Data</h3>
-                  <div className="space-y-2">
-                    {savedSearches.length > 0 && (
-                      <div className="mb-3">
-                        <p className="text-xs text-slate-500 mb-2">Load from Saved Searches:</p>
-                        <div className="space-y-1 max-h-40 overflow-y-auto">
-                          {savedSearches.map((search) => (
-                            <Button
-                              key={search.id}
-                              onClick={async () => {
-                                setIsLoadingSearch(true);
-                                try {
-                                  const filtered = allSpecies.filter(sp => {
-                                    if (search.taxonomy_level === 'family') {
-                                      return sp.family === search.search_term;
-                                    } else if (search.taxonomy_level === 'genus') {
-                                      return sp.genus === search.search_term;
-                                    } else if (search.taxonomy_level === 'order') {
-                                      return sp.order_name === search.search_term;
-                                    } else if (search.taxonomy_level === 'class') {
-                                      return sp.class_name === search.search_term;
-                                    } else if (search.taxonomy_level === 'species') {
-                                      return sp.scientific_name === search.search_term;
-                                    }
-                                    return false;
-                                  });
-                                  
-                                  setSpecies(filtered);
-                                  setSelectedIds(filtered.map(sp => sp.id || sp.scientific_name));
-                                } catch (error) {
-                                  console.error('Error loading search:', error);
-                                } finally {
-                                  setIsLoadingSearch(false);
-                                }
-                              }}
-                              variant="outline"
-                              size="sm"
-                              className="w-full justify-start text-xs"
-                              disabled={isLoadingSearch}
-                            >
-                              <FolderOpen className="w-3 h-3 mr-2" />
-                              {search.name} ({search.species_count})
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={() => {
-                        setSpecies(allSpecies);
-                        setSelectedIds(allSpecies.map(sp => sp.id || sp.scientific_name));
-                      }}
-                      variant="outline"
-                      className="w-full justify-start"
-                    >
-                      <Database className="w-4 h-4 mr-2" />
-                      Load All Species ({allSpecies.length})
-                    </Button>
-
-                    <Button
-                       onClick={async () => {
-                         const input = document.createElement('input');
-                         input.type = 'file';
-                         input.accept = '.csv,.json';
-                         input.onchange = async (e) => {
-                           const file = e.target.files[0];
-                           if (!file) return;
-                           try {
-                             const records = await parseUploadedFile(file);
-                             const { created, errors } = await importSpeciesRecords(records);
-                             toast.success(`Import complete! ${created} new species added.`);
-                             if (errors.length > 0) {
-                               console.warn('Import errors:', errors);
-                             }
-                             refetchSpecies();
-                           } catch (err) {
-                             toast.error('Import failed: ' + err.message);
-                           }
-                         };
-                         input.click();
-                       }}
-                       variant="outline"
-                       className="w-full justify-start"
-                     >
-                       <Upload className="w-4 h-4 mr-2" />
-                       Import Data File
-                     </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Right: Database Panel */}
+          <DatabasePanel 
+            allSpecies={allSpecies}
+            savedSearches={savedSearches}
+            onLoadSpecies={(filtered) => {
+              setSpecies(filtered);
+              setSelectedIds(filtered.map(sp => sp.id || sp.scientific_name));
+            }}
+            onRefetch={refetchSpecies}
+          />
         </div>
 
 
