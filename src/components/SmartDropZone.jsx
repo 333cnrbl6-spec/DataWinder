@@ -285,12 +285,15 @@ export default function SmartDropZone({ onImported }) {
             <div className="flex flex-col items-center gap-4 py-8">
               <Loader2 className="w-10 h-10 text-bangor-red animate-spin" />
               <div className="text-center">
-                <p className="font-semibold text-slate-700">Analysing your file…</p>
+                <p className="font-semibold text-slate-700">Smart analysing your file…</p>
                 <p className="text-sm text-slate-500 mt-1">{fileInfo?.extractedFrom || fileInfo?.name}</p>
                 {fileInfo?.extractedFrom && (
-                  <p className="text-xs text-emerald-600 mt-1">📦 Extracted: {fileInfo.name}</p>
+                  <p className="text-xs text-emerald-600 mt-1">📦 Extracted from archive: {fileInfo.name}</p>
                 )}
-                <p className="text-xs text-slate-400 mt-2">DataWinder is examining the data structure and content…</p>
+                {fileInfo?.datasource && (
+                  <p className="text-xs text-blue-600 mt-1">📊 Detected source: {fileInfo.datasource.toUpperCase()}</p>
+                )}
+                <p className="text-xs text-slate-400 mt-2">Identifying data structure, content type, and optimal destination…</p>
               </div>
             </div>
           )}
@@ -302,14 +305,15 @@ export default function SmartDropZone({ onImported }) {
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-800">DataWinder's Analysis</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-emerald-800">AI Analysis Result</p>
                     <p className="text-xs text-emerald-700 mt-0.5">{aiResult.reasoning}</p>
                     {aiResult.detected_fields?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {aiResult.detected_fields.slice(0, 8).map(f => (
                           <span key={f} className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">{f}</span>
                         ))}
+                        {aiResult.detected_fields.length > 8 && <span className="text-[10px] text-emerald-600">+{aiResult.detected_fields.length - 8} more</span>}
                       </div>
                     )}
                   </div>
