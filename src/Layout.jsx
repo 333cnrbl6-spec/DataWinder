@@ -40,6 +40,7 @@ const NAV_CATEGORIES = [
       { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },
       { label: 'Model Performance', page: 'ModelPerformance', icon: LineChart },
       { label: 'Results Map', page: 'MaxentResultsMap', icon: Map },
+      { label: 'Interpretation', page: 'MaxentInterpretation', icon: BarChart2 },
       { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
       { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
     ]
