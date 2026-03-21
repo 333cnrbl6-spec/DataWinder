@@ -101,6 +101,8 @@ function parseGeospatialLayer(name) {
 function classifyFile(name) {
   const ext = getFileExt(name);
   if (IMPORTABLE_EXTS.includes(ext)) return 'importable';
+  // DBF files from IUCN shapefiles contain the species attribute table — treat as importable
+  if (ext === 'dbf') return 'importable';
   if (GEOSPATIAL_EXTS.includes(ext)) return 'geospatial';
   if (TEXT_EXTS.includes(ext)) return 'text';
   return 'unknown';
