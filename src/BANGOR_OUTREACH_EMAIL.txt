@@ -1,0 +1,51 @@
+SUBJECT: Free DataWinder Beta Access for Bangor University Researchers
+
+---
+
+Dear Colleague,
+
+We are developing DataWinder — a pioneering biodiversity research platform designed to transform how ecologists, zoologists, and conservation scientists access and analyze multi-source species data.
+
+**What is DataWinder?**
+
+DataWinder integrates species occurrence data from IUCN Red List, iNaturalist, GBIF, and SpeciesLink into a unified research workspace. It streamlines data preparation, enables species distribution modelling using MAXENT, and provides climate projection analysis — all in one intelligent platform.
+
+**Why We Need You**
+
+We're in active development and seeking feedback from practicing zoologists and conservation experts. Your insights into real-world research workflows, data challenges, and modelling needs will directly shape DataWinder's evolution.
+
+**Your Founder Membership Offer**
+
+Sign up using your @bangor.ac.uk email address before [DATE] and receive:
+
+✓ **Full platform access** — all features, unlimited species, unlimited analyses
+✓ **1-year complimentary membership** — complete access at no cost
+✓ **Founder status** — recognized as an early tester who helped build this platform
+✓ **Direct input** — your feedback influences our development roadmap
+✓ **Early-adopter advantage** — master the platform before wider release
+
+**What We're Asking**
+
+In exchange for this free access, we'd value your honest feedback:
+- Does the platform solve your research problems?
+- What features are missing or could work better?
+- Where do you encounter friction or barriers?
+- What would make this indispensable to your work?
+
+**Get Started**
+
+Visit: [LANDING_PAGE_URL]
+
+Sign up with your @bangor.ac.uk email. Your founder membership is automatically activated.
+
+This is a unique opportunity to shape the future of biodiversity data science. We believe DataWinder will become essential infrastructure for your field — help us get there.
+
+Questions? Reply to this email or visit our FAQ at [APP_URL]/About
+
+Warm regards,
+
+[Your Name]
+DataWinder Development Team
+Bangor University
+
+P.S. Whether you use DataWinder daily or occasionally, your feedback matters. Even 15 minutes of testing and one observation can help us iterate toward something truly valuable.
