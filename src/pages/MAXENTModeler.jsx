@@ -188,41 +188,18 @@ pause`;
           </button>
         </div>
 
-        {/* ── MAXENT Bolt-On Banner ── */}
-         <div className={`mb-6 rounded-xl border overflow-hidden ${
-           maxentStatus === 'found' 
-             ? 'border-green-200 bg-green-50' 
-             : 'border-amber-200 bg-amber-50'
-         }`}>
+        {/* ── MAXENT Setup Banner ── */}
+         <div className="mb-6 rounded-xl border overflow-hidden border-blue-200 bg-blue-50">
            <button
              onClick={() => setShowMaxentSetup(v => !v)}
-             className={`w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors ${
-               maxentStatus === 'found' 
-                 ? 'hover:bg-green-100' 
-                 : 'hover:bg-amber-100'
-             }`}
+             className="w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-blue-100"
            >
-             {isDetecting ? (
-               <Loader2 className="w-5 h-5 text-amber-600 shrink-0 animate-spin" />
-             ) : maxentStatus === 'found' ? (
-               <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
-             ) : (
-               <HardDrive className="w-5 h-5 text-amber-600 shrink-0" />
-             )}
+             <PackageOpen className="w-5 h-5 text-blue-600 shrink-0" />
              <div className="flex-1">
-               {maxentStatus === 'found' ? (
-                 <>
-                   <p className="text-sm font-semibold text-green-800">✓ MAXENT Detected & Ready</p>
-                   <p className="text-xs text-green-700 mt-0.5">Models will run locally on your machine for optimal performance.</p>
-                 </>
-               ) : (
-                 <>
-                   <p className="text-sm font-semibold text-amber-800">Boost Performance — Install MAXENT Locally</p>
-                   <p className="text-xs text-amber-700 mt-0.5">A local installation runs significantly faster and keeps your data private. Click to learn more or set it up now.</p>
-                 </>
-               )}
+               <p className="text-sm font-semibold text-blue-900">How DataWinder runs MAXENT</p>
+               <p className="text-xs text-blue-700 mt-0.5">DataWinder prepares and downloads a ready-to-run package — you run it locally with your MAXENT installation. Click to learn more.</p>
              </div>
-             <ChevronDown className={`w-4 h-4 transition-transform ${maxentStatus === 'found' ? 'text-green-600' : 'text-amber-600'} ${showMaxentSetup ? 'rotate-180' : ''}`} />
+             <ChevronDown className={`w-4 h-4 text-blue-600 transition-transform ${showMaxentSetup ? 'rotate-180' : ''}`} />
            </button>
 
           {showMaxentSetup && (
