@@ -485,11 +485,11 @@ pause`;
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
                     <CheckCircle className="w-9 h-9 text-green-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Model Run Submitted!</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Run Package Downloaded!</h2>
                   <p className="text-slate-600 mb-1 max-w-md mx-auto">
-                    Your MAXENT configuration for{' '}
+                    Your MAXENT run package for{' '}
                     <em className="font-semibold italic">{lastRun?.species_name}</em>{' '}
-                    has been saved and queued.
+                    has been downloaded. Unzip it, add your climate layers to the <code className="bg-slate-100 px-1 rounded text-xs">layers/</code> folder, then run the included script.
                   </p>
                   <p className="text-xs text-slate-400 mb-8">
                     Run ID: <code className="bg-slate-100 px-2 py-0.5 rounded font-mono">{lastRun?.id}</code>
