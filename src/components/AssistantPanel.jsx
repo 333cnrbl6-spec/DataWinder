@@ -217,7 +217,7 @@ export default function AssistantPanel({ currentPageName }) {
               <img src={BOT_AVATAR} alt="Assistant" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-bold text-xs leading-tight">DataWinder Assistant</p>
+              <p className="text-white font-bold text-xs leading-tight">DataWinder</p>
               {currentPageName && PAGE_LABELS[currentPageName] && (
                 <p className="text-white/60 text-xs truncate">Helping with: {pageLabel}</p>
               )}
@@ -241,7 +241,7 @@ export default function AssistantPanel({ currentPageName }) {
                     <img src={BOT_AVATAR} alt="Assistant" className="w-full h-full object-cover" />
                   </div>
                   <div className="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-600 shadow-sm">
-                    👋 Hi! I'm your DataWinder assistant. Ask me anything about this page or the platform.
+                    👋 Hi! I'm DataWinder, your research assistant. Ask me anything about this page or the platform.
                   </div>
                 </div>
                 {PAGE_CHIPS[currentPageName] && (

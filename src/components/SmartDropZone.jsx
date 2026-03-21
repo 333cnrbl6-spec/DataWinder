@@ -203,7 +203,7 @@ export default function SmartDropZone({ onImported }) {
         <p className="text-sm font-semibold text-slate-600">
           {dragging ? 'Release to analyse & import' : 'Drag & drop a file to import'}
         </p>
-        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · ZIP — AI will identify where your data belongs</p>
+        <p className="text-xs text-slate-400 mt-1">CSV · Excel · JSON · ZIP — DataWinder will identify where your data belongs</p>
       </div>
 
       {/* Smart Import Modal */}
@@ -226,7 +226,7 @@ export default function SmartDropZone({ onImported }) {
                 {fileInfo?.extractedFrom && (
                   <p className="text-xs text-emerald-600 mt-1">📦 Extracted: {fileInfo.name}</p>
                 )}
-                <p className="text-xs text-slate-400 mt-2">AI is examining the data structure and content</p>
+                <p className="text-xs text-slate-400 mt-2">DataWinder is examining the data structure and content…</p>
               </div>
             </div>
           )}
@@ -239,7 +239,7 @@ export default function SmartDropZone({ onImported }) {
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-800">AI Analysis</p>
+                    <p className="text-sm font-semibold text-emerald-800">DataWinder's Analysis</p>
                     <p className="text-xs text-emerald-700 mt-0.5">{aiResult.reasoning}</p>
                     {aiResult.detected_fields?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
@@ -278,7 +278,7 @@ export default function SmartDropZone({ onImported }) {
                         <p className="text-xs opacity-70">{opt.description}</p>
                       </div>
                       {aiResult.suggested_entity === opt.key && (
-                        <span className="text-[10px] bg-bangor-red text-white px-1.5 py-0.5 rounded font-semibold shrink-0">AI Pick</span>
+                        <span className="text-[10px] bg-bangor-red text-white px-1.5 py-0.5 rounded font-semibold shrink-0">DW Pick</span>
                       )}
                       {selectedEntity === opt.key && <CheckCircle className="w-4 h-4 text-bangor-red shrink-0" />}
                     </button>
