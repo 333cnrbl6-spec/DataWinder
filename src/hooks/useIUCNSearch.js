@@ -4,9 +4,15 @@
  */
 
 import { base44 } from '@/api/base44Client';
+import { RateLimiter, CircuitBreaker, withTimeout, withRetry, TimeoutError } from '@/lib/apiRateLimiter';
+import { safeUploadFile, buildOccurrenceCSV, chunkCSVData, MAX_OCCURRENCES_PER_FILE } from '@/lib/fileStorageManager';
+
+// Initialize API safety controls
+const iucnRateLimiter = new RateLimiter(3, 1000); // 3 requests per second
+const iucnCircuitBreaker = new CircuitBreaker(5, 60000); // Break after 5 failures for 60s
 
 /**
- * Fetch and process species from IUCN
+ * Fetch and process species from IUCN with rate limiting and circuit breaker
  */
 export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
   const allSpeciesMap = {};
@@ -17,12 +23,19 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
 
   for (const term of terms) {
     try {
-      const searchResult = await base44.functions.invoke('fetchIUCNData', {
-        term,
-        endpoint: 'taxa',
-        level,
-        autoExpand
-      });
+      const searchResult = await iucnRateLimiter.execute(() =>
+        iucnCircuitBreaker.execute(() =>
+          withTimeout(
+            base44.functions.invoke('fetchIUCNData', {
+              term,
+              endpoint: 'taxa',
+              level,
+              autoExpand
+            }),
+            30000 // 30 second timeout
+          )
+        )
+      );
 
       if (searchResult.data.status === 'error') {
         console.error(`IUCN API error for ${term}:`, searchResult.data.message);
@@ -30,6 +43,11 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
           throw new Error('IUCN API token is invalid. Please check your token and try again.');
         }
         continue;
+      }
+      
+      // Reset circuit breaker on success
+      if (searchResult.data.status === 'success') {
+        iucnCircuitBreaker.reset();
       }
 
       const searchData = searchResult.data.data;
@@ -83,22 +101,29 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
         continue;
       }
 
-      // Fetch SIS assessment history for status tracking
+      // Fetch SIS assessment history for status tracking (with rate limiting)
       const uniqueSisIds = [...new Set(speciesList.map(sp => sp.sis_taxon_id).filter(Boolean))];
       const sisDataMap = {};
       
-      for (let i = 0; i < uniqueSisIds.length; i += 5) {
-        const chunk = uniqueSisIds.slice(i, i + 5);
+      for (let i = 0; i < uniqueSisIds.length; i += 3) {
+        const chunk = uniqueSisIds.slice(i, i + 3);
         await Promise.all(chunk.map(async (sisId) => {
           try {
-            const sisResult = await base44.functions.invoke('fetchIUCNData', {
-              endpoint: 'sis', 
-              term: String(sisId)
-            });
+            const sisResult = await iucnRateLimiter.execute(() =>
+              withTimeout(
+                base44.functions.invoke('fetchIUCNData', {
+                  endpoint: 'sis', 
+                  term: String(sisId)
+                }),
+                20000
+              )
+            );
             if (sisResult.data.status === 'success') {
               sisDataMap[sisId] = sisResult.data.data;
             }
-          } catch (e) { /* non-critical */ }
+          } catch (e) {
+            console.warn(`SIS data fetch failed for ${sisId}: ${e.message}`);
+          }
         }));
       }
 
@@ -114,18 +139,21 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
         })
       );
 
-      // Automatically fetch all range data formats (GeoJSON, shapefiles, CSV) and PDFs
+      // Automatically fetch all range data formats (GeoJSON, shapefiles, CSV) and PDFs (with timeout)
       for (const species of detailedSpecies) {
         if (species.iucn_id) {
           try {
-            const dlResult = await base44.functions.invoke('downloadIUCNFiles', {
-              scientific_name: species.scientific_name,
-              assessment_id: species.assessment_id,
-              iucn_id: species.iucn_id,
-              range_map_jpg_url: species.range_map_jpg_url,
-              range_data_shp_url: species.range_data_shp_url,
-              range_data_csv_url: species.range_data_csv_url
-            });
+            const dlResult = await withTimeout(
+              base44.functions.invoke('downloadIUCNFiles', {
+                scientific_name: species.scientific_name,
+                assessment_id: species.assessment_id,
+                iucn_id: species.iucn_id,
+                range_map_jpg_url: species.range_map_jpg_url,
+                range_data_shp_url: species.range_data_shp_url,
+                range_data_csv_url: species.range_data_csv_url
+              }),
+              45000 // File downloads may take longer
+            );
             
             if (dlResult.data?.status === 'success') {
               // Store all downloaded file URIs to species record
@@ -152,8 +180,12 @@ export const fetchIUCNSpecies = async (terms, level, autoExpand, iucnToken) => {
       });
 
     } catch (err) {
-      console.error(`Error fetching IUCN data for ${term}:`, err);
-      throw err;
+      if (err instanceof TimeoutError) {
+        console.error(`Search timed out for ${term}. Try with fewer terms or higher taxonomy level.`);
+      } else {
+        console.error(`Error fetching IUCN data for ${term}:`, err.message);
+      }
+      // Continue with next term instead of crashing entire search
     }
   }
 
