@@ -1039,55 +1039,33 @@ export default function Home() {
                     </Button>
 
                     <Button
-                      onClick={() => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = '.csv,.json';
-                        input.onchange = async (e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = async (ev) => {
-                            try {
-                              let records = [];
-                              if (file.name.endsWith('.json')) {
-                                records = JSON.parse(ev.target.result);
-                                if (!Array.isArray(records)) records = [records];
-                              } else {
-                                const lines = ev.target.result.split('\n').filter(Boolean);
-                                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-                                records = lines.slice(1).map(line => {
-                                  const values = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-                                  const obj = {};
-                                  headers.forEach((h, i) => { obj[h] = (values[i] || '').replace(/^"|"$/g, '').trim(); });
-                                  return obj;
-                                });
-                              }
-                              let created = 0;
-                              for (const record of records) {
-                                if (!record.scientific_name) continue;
-                                const existing = await base44.entities.Species.filter({ scientific_name: record.scientific_name });
-                                if (existing.length === 0) {
-                                  await base44.entities.Species.create(record);
-                                  created++;
-                                }
-                              }
-                              toast.success(`Import complete! ${created} new species added.`);
-                              refetchSpecies();
-                            } catch (err) {
-                              toast.error('Import failed: ' + err.message);
-                            }
-                          };
-                          reader.readAsText(file);
-                        };
-                        input.click();
-                      }}
-                      variant="outline"
-                      className="w-full justify-start"
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Import Data File
-                    </Button>
+                       onClick={async () => {
+                         const input = document.createElement('input');
+                         input.type = 'file';
+                         input.accept = '.csv,.json';
+                         input.onchange = async (e) => {
+                           const file = e.target.files[0];
+                           if (!file) return;
+                           try {
+                             const records = await parseUploadedFile(file);
+                             const { created, errors } = await importSpeciesRecords(records);
+                             toast.success(`Import complete! ${created} new species added.`);
+                             if (errors.length > 0) {
+                               console.warn('Import errors:', errors);
+                             }
+                             refetchSpecies();
+                           } catch (err) {
+                             toast.error('Import failed: ' + err.message);
+                           }
+                         };
+                         input.click();
+                       }}
+                       variant="outline"
+                       className="w-full justify-start"
+                     >
+                       <Upload className="w-4 h-4 mr-2" />
+                       Import Data File
+                     </Button>
                   </div>
                 </div>
               </CardContent>
