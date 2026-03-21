@@ -150,9 +150,9 @@ export default function SmartImport() {
           const uint8 = await entry.async('uint8array');
           const ext = getFileExt(entry.name);
           const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
-          const blob = new Blob([uint8], { type: mime });
-          blob.name = entry.name.split('/').pop();
-          return { name: entry.name, rawFile: blob };
+          const fileName = entry.name.split('/').pop();
+          const fileObj = new File([uint8], fileName, { type: mime });
+          return { name: entry.name, rawFile: fileObj };
         })
       );
 
