@@ -509,9 +509,55 @@ export default function SmartImport() {
                     <span className="text-sm text-slate-600 font-mono">{f.name}</span>
                   </div>
                 ))}
-                <p className="text-xs text-amber-700 mt-2 pt-2 border-t border-amber-100">
-                  Geospatial files cannot be auto-imported. Use <strong>ArcGIS Tools</strong> or <strong>Climate Data</strong> to work with these layers.
+              </div>
+              <div className="px-4 py-3 bg-amber-50/60 border-t border-amber-100 space-y-3">
+                <p className="text-xs text-amber-800">
+                  Geospatial files need a destination. Choose how to proceed:
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs border-amber-300 text-amber-800 hover:bg-amber-50"
+                    onClick={() => { window.location.href = '/ArcGISTools'; }}
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    Open in ArcGIS Tools
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs border-blue-300 text-blue-800 hover:bg-blue-50"
+                    onClick={() => { window.location.href = '/ClimateProjections'; }}
+                  >
+                    <CloudRain className="w-3.5 h-3.5" />
+                    Open in Climate Data
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="gap-1.5 text-xs bg-slate-700 hover:bg-slate-800 text-white"
+                    onClick={async () => {
+                      try {
+                        const records = geospatialFiles.map(f => ({
+                          name: f.name.replace(/\.[^.]+$/, ''),
+                          source: 'Other',
+                          variable_category: 'Compound',
+                          description: `Imported from ${zipName || f.name}`,
+                          maxent_ready: false,
+                        }));
+                        await base44.entities.ClimateDataset.bulkCreate(records);
+                        setGeospatialFiles([]);
+                        setImportSummary(prev => [...prev, { name: `${records.length} geospatial layer(s)`, entity: 'ClimateDataset', count: records.length }]);
+                      } catch (e) {
+                        setErrorMsg(e.message || 'Failed to register layers');
+                        setPhase('error');
+                      }
+                    }}
+                  >
+                    <Database className="w-3.5 h-3.5" />
+                    Register in Database Now
+                  </Button>
+                </div>
               </div>
             </section>
           )}
