@@ -594,11 +594,37 @@ export default function SmartImport() {
 
           {/* Unknown files */}
           {unknownFiles.length > 0 && (
-            <section className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-              <p className="text-xs font-semibold text-slate-500 mb-1">Skipped (unrecognised format)</p>
-              {unknownFiles.map((f, idx) => (
-                <p key={idx} className="text-xs text-slate-400 font-mono">{f.name}</p>
-              ))}
+            <section className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center gap-2">
+                <File className="w-4 h-4 text-slate-400" />
+                <span className="font-semibold text-slate-600 text-sm">Unrecognised Files</span>
+                <Badge className="ml-auto bg-slate-100 text-slate-500 border-slate-200">{unknownFiles.length} file{unknownFiles.length > 1 ? 's' : ''}</Badge>
+              </div>
+              <div className="px-4 py-3 space-y-1.5">
+                {unknownFiles.map((f, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="text-xs text-slate-500 font-mono truncate">{f.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="px-4 py-3 bg-slate-50/80 border-t border-slate-100 space-y-3">
+                <p className="text-xs text-slate-500">These file types aren't recognised. You can still upload them to secure storage for safe-keeping.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-xs border-slate-300 text-slate-700 hover:bg-slate-100"
+                  onClick={async () => {
+                    try {
+                      // Just dismiss — user acknowledged
+                      setUnknownFiles([]);
+                    } catch (e) {}
+                  }}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Dismiss
+                </Button>
+              </div>
             </section>
           )}
 
