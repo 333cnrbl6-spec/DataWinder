@@ -330,48 +330,67 @@ export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete
                 </div>
               </div>
 
-              {/* IUCN Available Files */}
-              {selectedSpecies.some(sp => sp.assessment_pdf_url || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url) && (
+              {/* IUCN Available Files — fetch to backend instead of local download */}
+              {selectedSpecies.some(sp => sp.assessment_pdf_url || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url || sp.assessment_id) && (
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Available IUCN Files</Label>
+                  <Label className="text-sm font-medium mb-1 block">IUCN Files — Store to Backend</Label>
+                  <p className="text-xs text-slate-500 mb-3">Files are fetched server-side and stored in your backend — no local download needed.</p>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {selectedSpecies.map(sp => (
-                      (sp.assessment_pdf_url || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url) && (
-                        <div key={sp.scientific_name} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                          <p className="text-xs font-semibold text-slate-700 italic mb-2">{sp.scientific_name}</p>
-                          <div className="flex flex-wrap gap-2">
-                            {sp.assessment_pdf_url && (
-                              <a href={sp.assessment_pdf_url} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200 hover:bg-red-100">
-                                <FileText className="w-3 h-3" /> Assessment (PDF)
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                    {selectedSpecies.map(sp => {
+                      const hasFiles = sp.assessment_pdf_url || sp.assessment_id || sp.range_data_shp_url || sp.range_map_jpg_url || sp.range_data_csv_url;
+                      if (!hasFiles) return null;
+                      const key = sp.scientific_name;
+                      const isFetching = fetchingToBackend[key];
+                      const fetchResult = backendFetchResults[key];
+                      const successCount = fetchResult ? Object.values(fetchResult).filter(v => typeof v === 'string' && v.startsWith('private://')).length : 0;
+                      return (
+                        <div key={key} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <p className="text-xs font-semibold text-slate-700 italic">{sp.scientific_name}</p>
+                            <div className="flex items-center gap-2">
+                              {fetchResult && !fetchResult.error && (
+                                <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" /> {successCount} file{successCount !== 1 ? 's' : ''} stored
+                                </span>
+                              )}
+                              {fetchResult?.error && (
+                                <span className="text-xs text-red-600">{fetchResult.error}</span>
+                              )}
+                              <button
+                                onClick={() => fetchIUCNFilesToBackend(sp)}
+                                disabled={isFetching}
+                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 disabled:opacity-50"
+                              >
+                                {isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : <Server className="w-3 h-3" />}
+                                {isFetching ? 'Fetching…' : fetchResult ? 'Re-fetch' : 'Fetch to Backend'}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(sp.assessment_pdf_url || sp.assessment_id) && (
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
+                                <FileText className="w-3 h-3" /> Assessment PDF
+                              </span>
                             )}
                             {sp.range_data_shp_url && (
-                              <a href={sp.range_data_shp_url} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100">
-                                <Map className="w-3 h-3" /> Range Data - Polygons (SHP)
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                <Map className="w-3 h-3" /> Range Polygons (SHP)
+                              </span>
                             )}
                             {sp.range_data_csv_url && sp.range_data_csv_url !== 'available' && (
-                              <a href={sp.range_data_csv_url} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-green-50 text-green-700 border border-green-200 hover:bg-green-100">
-                                <FileSpreadsheet className="w-3 h-3" /> Range Data - Points (CSV)
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200">
+                                <FileSpreadsheet className="w-3 h-3" /> Range Points (CSV)
+                              </span>
                             )}
                             {sp.range_map_jpg_url && (
-                              <a href={sp.range_map_jpg_url} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
                                 <Image className="w-3 h-3" /> Range Map (JPG)
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              </span>
                             )}
                           </div>
                         </div>
-                      )
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
