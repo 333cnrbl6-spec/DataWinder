@@ -42,6 +42,61 @@ const ENTITY_SCHEMA = {
   SavedSearch: { type: 'object', properties: { name: { type: 'string' }, taxonomy_level: { type: 'string' }, search_term: { type: 'string' } } },
 };
 
+// WorldClim bioclimatic variable descriptions
+const BIOCLIM_VARS = {
+  1: 'Annual Mean Temperature', 2: 'Mean Diurnal Range', 3: 'Isothermality',
+  4: 'Temperature Seasonality', 5: 'Max Temperature of Warmest Month',
+  6: 'Min Temperature of Coldest Month', 7: 'Temperature Annual Range',
+  8: 'Mean Temperature of Wettest Quarter', 9: 'Mean Temperature of Driest Quarter',
+  10: 'Mean Temperature of Warmest Quarter', 11: 'Mean Temperature of Coldest Quarter',
+  12: 'Annual Precipitation', 13: 'Precipitation of Wettest Month',
+  14: 'Precipitation of Driest Month', 15: 'Precipitation Seasonality',
+  16: 'Precipitation of Wettest Quarter', 17: 'Precipitation of Driest Quarter',
+  18: 'Precipitation of Warmest Quarter', 19: 'Precipitation of Coldest Quarter',
+};
+
+// Detect WorldClim/CHELSA-style TIF files and parse metadata
+function parseGeospatialLayer(name) {
+  const fname = name.split('/').pop();
+  // WorldClim: wc2.1_10m_bio_1.tif or wc2.1_30s_bio_12.tif
+  const wcMatch = fname.match(/^wc([\d.]+)_([\w]+)_(bio)_?(\d+)?\.tif$/i);
+  if (wcMatch) {
+    const resolution = wcMatch[2]; // e.g. 10m, 30s
+    const varNum = wcMatch[4] ? parseInt(wcMatch[4]) : null;
+    const varName = varNum ? (BIOCLIM_VARS[varNum] || `BIO${varNum}`) : 'Bioclimatic Layer';
+    return {
+      type: 'climate',
+      record: {
+        name: varNum ? `WorldClim BIO${varNum} — ${varName} (${resolution})` : `WorldClim Bioclimatic (${resolution})`,
+        source: 'WorldClim',
+        variable_category: varNum <= 11 ? 'Temperature' : varNum <= 19 ? 'Precipitation' : 'Bioclimatic',
+        scenario: 'Historical/Baseline',
+        resolution,
+        variables: varNum ? [`BIO${varNum}: ${varName}`] : ['Bioclimatic'],
+        description: varNum ? `${varName} — WorldClim v2.1 at ${resolution} resolution` : `WorldClim v2.1 bioclimatic variables at ${resolution} resolution`,
+        maxent_ready: true,
+      }
+    };
+  }
+  // CHELSA: CHELSA_bio1_1981-2010_V.2.1.tif
+  const chelsaMatch = fname.match(/^CHELSA_(bio\d+|[\w]+).*\.tif$/i);
+  if (chelsaMatch) {
+    return {
+      type: 'climate',
+      record: {
+        name: `CHELSA ${chelsaMatch[1]} layer`,
+        source: 'CHELSA',
+        variable_category: 'Bioclimatic',
+        scenario: 'Historical/Baseline',
+        variables: [chelsaMatch[1]],
+        description: `CHELSA ${fname}`,
+        maxent_ready: true,
+      }
+    };
+  }
+  return { type: 'geospatial' };
+}
+
 // Classify a single file by extension
 function classifyFile(name) {
   const ext = getFileExt(name);
