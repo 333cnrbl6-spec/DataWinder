@@ -224,8 +224,9 @@ export default function SmartDropZone({ onImported }) {
         name: archiveName,
         description: archiveDesc || `Geospatial file: ${fileInfo?.name}`,
         file_uri: fileUrl,
-        file_type: fileInfo?.name?.split('.').pop().toUpperCase() || 'FILE',
-        data_types: ['Geospatial', 'Reference']
+        file_type: fileInfo?.name?.split('.').pop()?.toUpperCase() || 'FILE',
+        species_count: 1,
+        status: 'ready'
       });
       stopTicking();
       playSuccess();
