@@ -144,18 +144,41 @@ export default function Home() {
             let speciesList = [];
 
             if (searchData.assessments && searchData.assessments.length > 0) {
-              // Higher-taxon search: get latest assessment per unique taxon/species
-              // IMPORTANT: Expand each assessment to individual species (don't return bulk aggregate)
-              const latestMap = {};
-              for (const a of searchData.assessments) {
-                // Key by SIS taxon ID to get unique species
-                const key = a.sis_taxon_id || a.taxon_id;
-                if (!latestMap[key] || a.latest || (a.year_published > (latestMap[key].year_published || 0))) {
-                  latestMap[key] = a;
+              // HARDWIRED FIX: Higher-taxon search MUST return individual species, never bulk aggregates
+              // De-duplicate by SIS taxon ID to ensure one species = one result card
+              const speciesByTaxonId = {};
+              
+              for (const assessment of searchData.assessments) {
+                const sisId = assessment.sis_taxon_id || assessment.taxon_id;
+                const scientificName = assessment.taxon_scientific_name || assessment.scientific_name;
+                
+                // Skip if no species identity
+                if (!sisId && !scientificName) continue;
+                
+                // Keep latest assessment per unique species
+                if (!speciesByTaxonId[sisId]) {
+                  speciesByTaxonId[sisId] = assessment;
+                } else {
+                  // Replace if this is marked latest or more recent
+                  const current = speciesByTaxonId[sisId];
+                  if (assessment.latest || (assessment.year_published > (current.year_published || 0))) {
+                    speciesByTaxonId[sisId] = assessment;
+                  }
                 }
               }
-              // Return one entry per species (not aggregate)
-              speciesList = Object.values(latestMap);
+              
+              speciesList = Object.values(speciesByTaxonId);
+              
+              // SAFETY CHECK: Reject order/class/family searches that return < 2 unique species
+              // (indicates API returned singular bulk result instead of expanding)
+              if ((level === 'order' || level === 'class' || level === 'family') && speciesList.length < 2) {
+                console.warn(`⚠️  IUCN ${level} search returned ${speciesList.length} unique species - likely bulk aggregate. Rejecting.`);
+                setError(`The IUCN ${level} search did not expand to individual species. Please select specific species manually.`);
+                stopTicking();
+                playError();
+                setIsLoading(false);
+                return;
+              }
             } else if (searchData.taxon) {
               // Species-level search: response is {taxon:{...}, assessments:[...]}
               // assessments are at top level, not nested inside taxon
