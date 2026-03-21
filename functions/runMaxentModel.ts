@@ -1,8 +1,88 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
+// Common MAXENT installation paths by OS
+const COMMON_PATHS = {
+  linux: [
+    '/opt/maxent',
+    '/usr/local/maxent',
+    '/home/*/maxent',
+    '~/maxent',
+  ],
+  darwin: [
+    '/Applications/maxent',
+    '/Applications/MaxEnt',
+    '/usr/local/maxent',
+    '~/maxent',
+  ],
+  windows: [
+    'C:\\Program Files\\maxent',
+    'C:\\Program Files (x86)\\maxent',
+    'C:\\maxent',
+    'C:\\Users\\*\\maxent',
+  ]
+};
+
 // Detect if running on Deno Deploy (no subprocess support)
 const isDeployEnvironment = () => {
   return typeof Deno?.deploy !== 'undefined' || (typeof Deno?.env?.get('DENO_DEPLOYMENT_ID') !== 'undefined');
+};
+
+// Auto-detect MAXENT executable location
+const detectMaxentPath = async () => {
+  try {
+    // Check environment variable first
+    const envMaxent = Deno.env.get('MAXENT_PATH');
+    if (envMaxent) {
+      try {
+        const stat = await Deno.stat(envMaxent);
+        if (stat.isFile || stat.isDirectory) {
+          return envMaxent;
+        }
+      } catch {
+        // Path doesn't exist, continue searching
+      }
+    }
+
+    // Try common paths based on OS
+    const os = Deno.build.os;
+    const paths = COMMON_PATHS[os] || [];
+
+    for (const pathPattern of paths) {
+      try {
+        let path = pathPattern;
+        if (path.startsWith('~')) {
+          const homeDir = Deno.env.get('HOME') || Deno.env.get('USERPROFILE');
+          if (homeDir) path = path.replace('~', homeDir);
+        }
+
+        const stat = await Deno.stat(path);
+        if (stat.isDirectory) {
+          // Check for maxent executable in directory
+          const executable = os === 'windows' ? 'maxent.bat' : 'maxent';
+          const execPath = `${path}/${executable}`;
+          try {
+            await Deno.stat(execPath);
+            return execPath;
+          } catch {
+            // Try jar file
+            const jarPath = `${path}/maxent.jar`;
+            try {
+              await Deno.stat(jarPath);
+              return jarPath;
+            } catch {
+              // Continue searching
+            }
+          }
+        }
+      } catch {
+        // Path doesn't exist, continue
+      }
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
 };
 
 // Execute MAXENT locally via command line
@@ -89,13 +169,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    if (!maxentPath || !occurrenceFile || !environmentalLayers) {
+    if (!occurrenceFile || !environmentalLayers) {
       return Response.json({
-        error: 'Missing required parameters: maxentPath, occurrenceFile, environmentalLayers'
+        error: 'Missing required parameters: occurrenceFile, environmentalLayers'
       }, { status: 400 });
     }
 
-    const result = await executeMaxent(maxentPath, occurrenceFile, environmentalLayers, parameters);
+    // Auto-detect MAXENT path if not provided
+    let resolvedMaxentPath = maxentPath;
+    if (!resolvedMaxentPath) {
+      resolvedMaxentPath = await detectMaxentPath();
+      if (!resolvedMaxentPath) {
+        return Response.json({
+          status: 'not_found',
+          error: 'MAXENT installation not found. Set MAXENT_PATH environment variable or install MAXENT in a standard location.'
+        }, { status: 400 });
+      }
+    }
+
+    const result = await executeMaxent(resolvedMaxentPath, occurrenceFile, environmentalLayers, parameters);
 
     // Handle platform constraint gracefully
     if (result.platform_constraint) {
@@ -109,7 +201,8 @@ Deno.serve(async (req) => {
 
     return Response.json({
       status: result.success ? 'success' : 'failed',
-      execution: result
+      execution: result,
+      detectedPath: !maxentPath ? resolvedMaxentPath : undefined
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
