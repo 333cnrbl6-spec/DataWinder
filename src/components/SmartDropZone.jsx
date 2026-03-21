@@ -98,7 +98,7 @@ export default function SmartDropZone({ onImported }) {
           return;
         }
       }
-      
+
       // Upload file first to get URL
       const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToProcess });
 
