@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Layers, Thermometer, Droplets, Leaf, Map, Wind, Download, CheckCircle2 } from 'lucide-react';
+import BackendFetchButton from '@/components/climate/BackendFetchButton';
 
 const categoryIcons = {
   'Bioclimatic': <Layers className="w-4 h-4" />,
@@ -24,7 +25,7 @@ const scenarioColors = {
   'All SSPs': 'bg-blue-100 text-blue-800',
 };
 
-export default function ClimateSourceCard({ source, onSelect, isSelected }) {
+export default function ClimateSourceCard({ source, onSelect, isSelected, datasetId }) {
   return (
     <Card
       onClick={() => onSelect(source)}
@@ -83,15 +84,18 @@ export default function ClimateSourceCard({ source, onSelect, isSelected }) {
           </div>
         )}
 
-        <Button
-          size="sm"
-          variant="outline"
-          className="w-full mt-1"
-          onClick={(e) => { e.stopPropagation(); window.open(source.url, '_blank'); }}
-        >
-          <ExternalLink className="w-3 h-3 mr-1" />
-          Visit Data Portal
-        </Button>
+        <div className="flex gap-2 mt-1" onClick={e => e.stopPropagation()}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1"
+            onClick={(e) => { e.stopPropagation(); window.open(source.url, '_blank'); }}
+          >
+            <ExternalLink className="w-3 h-3 mr-1" />
+            Visit Portal
+          </Button>
+          <BackendFetchButton source={source} datasetId={datasetId} />
+        </div>
       </CardContent>
     </Card>
   );
