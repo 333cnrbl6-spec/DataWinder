@@ -153,8 +153,10 @@ export default function SmartImport() {
           const ext = getFileExt(entry.name);
           const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
           const fileName = entry.name.split('/').pop();
-          const fileObj = new File([uint8], fileName, { type: mime });
-          return { name: entry.name, rawFile: fileObj };
+          const blob = new Blob([uint8], { type: mime });
+          Object.defineProperty(blob, 'name', { value: fileName });
+          Object.defineProperty(blob, 'lastModified', { value: Date.now() });
+          return { name: entry.name, rawFile: blob };
         })
       );
 
