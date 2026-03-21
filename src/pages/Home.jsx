@@ -986,6 +986,8 @@ export default function Home() {
       const allSpecies = Object.values(allSpeciesMap);
 
       if (allSpecies.length === 0) {
+        stopTicking();
+        playError();
         setError('No species found for the search terms.');
         return;
       }
