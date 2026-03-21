@@ -98,6 +98,7 @@ export default function SmartDropZone({ onImported }) {
         const ext = getFileExt(file.name);
         if (GEOSPATIAL_EXTS.includes(ext)) {
           setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatial: true });
+          stopTicking();
           setStep('geospatial');
           return;
         }
