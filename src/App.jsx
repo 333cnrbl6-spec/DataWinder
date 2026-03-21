@@ -22,6 +22,7 @@ import LiteratureLibrary from './pages/LiteratureLibrary';
 import MendeleyConnect from './pages/MendeleyConnect';
 import ProjectDashboard from './pages/ProjectDashboard';
 import SmartImport from './pages/SmartImport';
+import DataQualityAudit from './pages/DataQualityAudit';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -92,6 +93,7 @@ const AuthenticatedApp = () => {
       <Route path="/MendeleyConnect" element={<MendeleyConnect />} />
       <Route path="/ProjectDashboard" element={<LayoutWrapper currentPageName="ProjectDashboard"><ProjectDashboard /></LayoutWrapper>} />
       <Route path="/SmartImport" element={<LayoutWrapper currentPageName="SmartImport"><SmartImport /></LayoutWrapper>} />
+      <Route path="/DataQualityAudit" element={<LayoutWrapper currentPageName="DataQualityAudit"><DataQualityAudit /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
