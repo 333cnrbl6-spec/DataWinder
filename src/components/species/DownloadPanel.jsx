@@ -47,6 +47,39 @@ const dataFields = [
 ];
 
 export default function DownloadPanel({ selectedSpecies, onClose, onSaveComplete }) {
+  const [fetchingToBackend, setFetchingToBackend] = useState({});
+  const [backendFetchResults, setBackendFetchResults] = useState({});
+
+  const fetchIUCNFilesToBackend = async (species) => {
+    const key = species.scientific_name;
+    setFetchingToBackend(prev => ({ ...prev, [key]: true }));
+    try {
+      const res = await base44.functions.invoke('downloadIUCNFiles', {
+        scientific_name: species.scientific_name,
+        assessment_id: species.assessment_id,
+        range_map_jpg_url: species.range_map_jpg_url,
+        range_data_shp_url: species.range_data_shp_url,
+        range_data_csv_url: species.range_data_csv_url,
+      });
+      setBackendFetchResults(prev => ({ ...prev, [key]: res.data }));
+      // Update the species record in DB if it exists
+      if (species.id) {
+        const updates = {};
+        if (res.data.assessment_pdf_file_uri) updates.assessment_pdf_file_uri = res.data.assessment_pdf_file_uri;
+        if (res.data.range_map_jpg_file_uri) updates.range_map_jpg_file_uri = res.data.range_map_jpg_file_uri;
+        if (res.data.range_shp_file_uri) updates.range_shp_file_uri = res.data.range_shp_file_uri;
+        if (res.data.range_csv_file_uri) updates.range_csv_file_uri = res.data.range_csv_file_uri;
+        if (Object.keys(updates).length > 0) {
+          await base44.entities.Species.update(species.id, updates);
+        }
+      }
+    } catch (e) {
+      setBackendFetchResults(prev => ({ ...prev, [key]: { error: e.message } }));
+    } finally {
+      setFetchingToBackend(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
   const [selectedFields, setSelectedFields] = useState(
     dataFields.filter(f => f.required || ['common_name', 'data_source', 'iucn_status', 'population_trend', 'population_details', 'status_history', 'geographic_distribution', 'family', 'genus', 'range_description'].includes(f.key)).map(f => f.key)
   );
