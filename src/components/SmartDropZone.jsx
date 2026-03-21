@@ -123,6 +123,8 @@ export default function SmartDropZone({ onImported }) {
         // Single file — check if it's a non-importable geospatial type
         const ext = getFileExt(file.name);
         if (GEOSPATIAL_EXTS.includes(ext)) {
+          const uploadedFile = await base44.integrations.Core.UploadFile({ file });
+          setFileUrl(uploadedFile.file_url);
           setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatial: true });
           stopTicking();
           setStep('geospatial');
