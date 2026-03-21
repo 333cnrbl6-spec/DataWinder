@@ -198,7 +198,13 @@ export default function SmartImport() {
 
       const importables = [], texts = [], geospatials = [], climateLayers = [], unknowns = [];
 
+      // SHP sidecar extensions — only show the .shp, not .dbf/.prj/.shx etc.
+      const SHP_SIDECARS = new Set(['dbf', 'prj', 'shx', 'cpg', 'sbn', 'sbx', 'xml']);
+
       for (const entry of entries) {
+        const ext = getFileExt(entry.name);
+        // Skip shapefile sidecars — they'll be implied by the .shp entry
+        if (SHP_SIDECARS.has(ext)) continue;
         const cls = classifyFile(entry.name);
         if (cls === 'importable') importables.push(entry);
         else if (cls === 'text') texts.push(entry);
@@ -210,7 +216,7 @@ export default function SmartImport() {
         else unknowns.push(entry);
       }
 
-      setGeospatialFiles(geospatials.map(f => ({ name: f.name })));
+      setGeospatialFiles(geospatials.map(f => ({ name: f.name.split('/').pop() })));
       setClimateLayerFiles(climateLayers);
       setUnknownFiles(unknowns.map(f => ({ name: f.name })));
 
