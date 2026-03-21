@@ -135,22 +135,24 @@ export default function SmartImport() {
       // Upload text files
       const uploadedTexts = await Promise.all(
         texts.map(async (entry) => {
-          const blob = await entry.async('blob');
-          const f = new File([blob], entry.name.split('/').pop(), { type: 'text/plain' });
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: f });
+          const uint8 = await entry.async('uint8array');
+          const blob = new Blob([uint8], { type: 'text/plain' });
+          blob.name = entry.name.split('/').pop();
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
           return { name: entry.name, url: file_url, uploaded: true };
         })
       );
       setTextFiles(uploadedTexts);
 
-      // Convert importable ZIP entries to File objects for upload
+      // Convert importable ZIP entries to named Blobs for upload
       const importableRaw = await Promise.all(
         importables.map(async (entry) => {
-          const blob = await entry.async('blob');
+          const uint8 = await entry.async('uint8array');
           const ext = getFileExt(entry.name);
           const mime = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', json: 'application/json' }[ext] || 'application/octet-stream';
-          const f = new File([blob], entry.name.split('/').pop(), { type: mime });
-          return { name: entry.name, rawFile: f };
+          const blob = new Blob([uint8], { type: mime });
+          blob.name = entry.name.split('/').pop();
+          return { name: entry.name, rawFile: blob };
         })
       );
 
