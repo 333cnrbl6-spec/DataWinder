@@ -320,7 +320,7 @@ export default function MAXENTModeler() {
                      onClick={async () => {
                        const response = await base44.functions.invoke('detectMaxentLocation', {
                          action: 'verify',
-                         customPath
+                         customPath: customMaxentPath
                        });
                        if (response.data?.verified) {
                          setDetectedMaxentPath(customMaxentPath);
