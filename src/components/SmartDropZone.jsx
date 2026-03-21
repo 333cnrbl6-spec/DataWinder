@@ -127,7 +127,10 @@ export default function SmartDropZone({ onImported }) {
         const ext = getFileExt(file.name);
         if (GEOSPATIAL_EXTS.includes(ext)) {
           const uploadedFile = await base44.integrations.Core.UploadFile({ file });
+          const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
           setFileUrl(uploadedFile.file_url);
+          setArchiveName(nameWithoutExt);
+          setArchiveDesc(`Geospatial reference file: ${file.name}`);
           setFileInfo({ name: file.name, size: file.size, type: file.type, isGeospatial: true });
           stopTicking();
           setStep('geospatial');
