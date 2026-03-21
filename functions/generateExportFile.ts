@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
       const { observations, gbif_occurrences } = getObservations(sp);
       observations.forEach(obs => {
         if (obs.longitude != null && obs.latitude != null)
-          rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', obs.longitude, obs.latitude, 'iNaturalist', obs.observed_on || '']));
+          rows.push(csvRow([sp.scientific_name, sp.common_name || '', sp.iucn_status || '', obs.longitude, obs.latitude, 'iNaturalist', obs.date || obs.observed_on || '']));
       });
       gbif_occurrences.forEach(occ => {
         if (occ.longitude != null && occ.latitude != null)

@@ -12,9 +12,20 @@ Deno.serve(async (req) => {
     const { action, species_ids, data_env } = await req.json();
 
     // Fetch all species from database
-    const allSpecies = await base44.asServiceRole.entities.Species.list('-created_date', 10000, { data_env: data_env || 'prod' });
+    const allSpecies = await base44.asServiceRole.entities.Species.list('-created_date', 10000);
 
     if (action === 'analyze') {
+      // Limit to first 1000 species for LLM safety
+      const speciesForAnalysis = allSpecies.slice(0, 1000);
+      if (allSpecies.length > 1000) {
+        return Response.json({
+          status: 'warning',
+          message: `Database contains ${allSpecies.length} species. Analyzing first 1000 for performance.`,
+          analyzed_count: 1000,
+          total_count: allSpecies.length
+        }, { status: 206 });
+      }
+      
       // Use AI to analyze and cross-reference species data
       const analysisPrompt = `You are a taxonomic expert with access to authoritative databases. Analyze this species dataset and:
 
@@ -26,7 +37,7 @@ Deno.serve(async (req) => {
 6. **Specifically for Callitrichidae**: This family has approximately 42-60 recognized species globally (marmosets and tamarins). If you find significantly more, these are likely duplicates or misclassifications.
 
 Species dataset:
-${JSON.stringify(allSpecies.map(sp => ({
+${JSON.stringify(speciesForAnalysis.map(sp => ({
   id: sp.id,
   scientific_name: sp.scientific_name,
   common_name: sp.common_name,

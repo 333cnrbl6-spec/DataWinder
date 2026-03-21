@@ -46,9 +46,13 @@ Deno.serve(async (req) => {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           result.logs.push(`Fetching: ${url} (attempt ${attempt}/${maxRetries})`);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
           const res = await fetch(url, {
-            headers: { 'Accept': '*/*', 'User-Agent': 'Mozilla/5.0' }
+            headers: { 'Accept': '*/*', 'User-Agent': 'Mozilla/5.0' },
+            signal: controller.signal
           });
+          clearTimeout(timeout);
           result.logs.push(`Status: ${res.status}, Content-Type: ${res.headers.get('content-type')}`);
           if (!res.ok) {
             lastError = `HTTP ${res.status}`;

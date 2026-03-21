@@ -11,8 +11,8 @@ Deno.serve(async (req) => {
 
     const { records, target_entity, file_type } = await req.json();
 
-    if (!Array.isArray(records) || !target_entity) {
-      return Response.json({ error: 'Missing records or target_entity' }, { status: 400 });
+    if (!Array.isArray(records) || records.length === 0 || !target_entity) {
+      return Response.json({ error: 'Missing records array (empty or not provided) or target_entity' }, { status: 400 });
     }
 
     // Inline schema properties for supported entities (schema() not available in backend)
