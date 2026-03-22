@@ -73,10 +73,17 @@ export default function ForKids() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
+  const addRosaMessage = (text) => {
+    setChatMessages(prev => [...prev, { from: 'rosa', text }]);
+    setTimeout(() => speak(text), 300);
+  };
+
   const handleNameSubmit = () => {
     if (name.trim().length > 0) {
       setConfirmedName(name.trim());
+      const msg = `Hiii ${name.trim()}!! I'm SO happy to meet you! Tap the animals below and chat with me!`;
       setChatMessages([{ from: 'rosa', text: `Hiii ${name.trim()}!! 🌸 I'm SO happy to meet you! Tap the animals below and chat with me! 🐾` }]);
+      setTimeout(() => speak(msg), 300);
     }
   };
 
