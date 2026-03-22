@@ -477,8 +477,10 @@ export default function ForKids() {
 
         {/* ── Animal Grid ── */}
         <div className="bg-white/80 rounded-3xl p-6 mb-8 shadow-xl border-4 border-purple-300">
-          <h2 className="text-2xl font-black text-center text-purple-700 mb-1">🐾 Tap an animal to say hello!</h2>
-          <p className="text-center text-slate-600 font-semibold mb-5 text-sm">Tap to make it big — Rosa will read the fact to you! 🔊</p>
+          <h2 className="text-2xl font-black text-center text-purple-700 mb-1 cursor-default"
+            onMouseEnter={() => speak('Tap an animal to say hello!')}>🐾 Tap an animal to say hello!</h2>
+          <p className="text-center text-slate-600 font-semibold mb-5 text-sm cursor-default"
+            onMouseEnter={() => speak('Tap to make it big. Rosa will read the fact to you. Tap again for a new fact!')}>Tap to make it big — Rosa will read the fact to you! Tap again for a new fact! 🔊</p>
           <div className="grid grid-cols-4 gap-3">
             {animals.map((animal, i) => (
               <AnimalCard key={i} animal={animal} onTap={handleAnimalTap} />
