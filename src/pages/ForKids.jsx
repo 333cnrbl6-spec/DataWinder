@@ -106,7 +106,7 @@ export default function ForKids() {
     setTimeout(() => setClickedAnimal(null), 2000);
     if (confirmedName) {
       setTimeout(() => {
-        setChatMessages(prev => [...prev, { from: 'rosa', text: `Ooh a ${animal.name}! ${animal.sound} 🎉 ${animal.fact}` }]);
+        addRosaMessage(`Ooh a ${animal.name}! ${animal.sound} 🎉 ${animal.fact}`);
       }, 600);
     }
   };
