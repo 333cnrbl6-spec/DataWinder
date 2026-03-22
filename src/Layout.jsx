@@ -74,6 +74,12 @@ const NAV_CATEGORIES = [
       { label: 'Benchmark Tests', page: 'BenchmarkTester', icon: Zap },
     ]
   },
+  {
+    label: 'AI Review',
+    page: 'SpeciesFieldReview',
+    icon: Sparkles,
+    standalone: true
+  },
 ];
 
 export default function Layout({ children, currentPageName }) {
