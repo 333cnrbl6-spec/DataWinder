@@ -201,9 +201,9 @@ export default function DatabasePanel({ allSpecies, savedSearches, onLoadSpecies
               )}
 
               <Button
-                onClick={() => onLoadSpecies(allSpecies)}
-                variant="outline"
-                className="w-full justify-start"
+              onClick={() => onLoadSpecies(allSpecies, 'All Species')}
+              variant="outline"
+              className="w-full justify-start"
               >
                 <Database className="w-4 h-4 mr-2" />
                 Load All Species ({allSpecies.length})
