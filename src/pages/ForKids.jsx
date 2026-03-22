@@ -37,13 +37,28 @@ const speak = (text) => {
   window.speechSynthesis.cancel();
   const clean = stripEmojis(text);
   const utter = new SpeechSynthesisUtterance(clean);
-  utter.rate = 0.9;
-  utter.pitch = 1.4;
-  // Prefer a female voice if available
-  const voices = window.speechSynthesis.getVoices();
-  const female = voices.find(v => /female|woman|girl|zira|samantha|victoria|karen|moira|tessa/i.test(v.name));
-  if (female) utter.voice = female;
-  window.speechSynthesis.speak(utter);
+  utter.rate = 0.85;   // a little slower — easier for kids
+  utter.pitch = 1.6;   // higher pitch = friendlier, less scary
+  utter.volume = 1;
+
+  const trySpeak = () => {
+    const voices = window.speechSynthesis.getVoices();
+    // Priority: child-friendly English female voices
+    const female = 
+      voices.find(v => /samantha|karen|moira|tessa|victoria|zira|susan|linda|amy|emma|lisa/i.test(v.name) && /en/i.test(v.lang)) ||
+      voices.find(v => /female|woman/i.test(v.name) && /en/i.test(v.lang)) ||
+      voices.find(v => /en/i.test(v.lang) && v.name.toLowerCase().includes('f')) ||
+      voices.find(v => /en/i.test(v.lang));
+    if (female) utter.voice = female;
+    window.speechSynthesis.speak(utter);
+  };
+
+  // Voices may not be loaded yet on first call
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = trySpeak;
+  } else {
+    trySpeak();
+  }
 };
 
 export default function ForKids() {
