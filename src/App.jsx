@@ -28,6 +28,7 @@ import About from './pages/About';
 import BenchmarkTester from './pages/BenchmarkTester';
 import BangorFounderSignup from './pages/BangorFounderSignup';
 import BangorMicrosoftLogin from './pages/BangorMicrosoftLogin';
+import SpeciesFieldReview from './pages/SpeciesFieldReview';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
