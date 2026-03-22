@@ -498,8 +498,10 @@ export default function ForKids() {
 
         {/* ── Kids-Safe Animal Search ── */}
         <div className="bg-white/90 rounded-3xl p-6 mb-8 shadow-xl border-4 border-teal-300">
-          <h2 className="text-2xl font-black text-center text-teal-700 mb-1">🔍 Find a Real Animal!</h2>
-          <p className="text-center text-slate-600 font-semibold mb-4 text-sm">Type any animal and see real photos from nature! 🌿</p>
+          <h2 className="text-2xl font-black text-center text-teal-700 mb-1 cursor-default"
+            onMouseEnter={() => speak('Find a real animal!')}>🔍 Find a Real Animal!</h2>
+          <p className="text-center text-slate-600 font-semibold mb-4 text-sm cursor-default"
+            onMouseEnter={() => speak('Type any animal name and see real photos from nature!')}>Type any animal and see real photos from nature! 🌿</p>
 
           <div className="flex gap-2 mb-4">
             <input
