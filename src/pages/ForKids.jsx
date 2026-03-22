@@ -52,6 +52,30 @@ export default function ForKids() {
     setStars(s);
   }, []);
 
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const handleNameSubmit = () => {
+    if (name.trim().length > 0) {
+      setConfirmedName(name.trim());
+      setChatMessages([{ from: 'rosa', text: `Hiii ${name.trim()}!! 🌸 I'm SO happy to meet you! Tap the animals below and chat with me! 🐾` }]);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!inputMsg.trim()) return;
+    const userMsg = { from: 'user', text: inputMsg };
+    setChatMessages(prev => [...prev, userMsg]);
+    setInputMsg('');
+    setRosaTyping(true);
+    setTimeout(() => {
+      const next = ROSA_MESSAGES[Math.floor(Math.random() * ROSA_MESSAGES.length)].replace('{name}', confirmedName);
+      setChatMessages(prev => [...prev, { from: 'rosa', text: next }]);
+      setRosaTyping(false);
+    }, 1000);
+  };
+
   const handleAnimalClick = (animal) => {
     setClickedAnimal(animal);
     setCount(c => c + 1);
