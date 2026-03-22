@@ -95,8 +95,8 @@ export default function ForKids() {
     setRosaTyping(true);
     setTimeout(() => {
       const next = ROSA_MESSAGES[Math.floor(Math.random() * ROSA_MESSAGES.length)].replace('{name}', confirmedName);
-      setChatMessages(prev => [...prev, { from: 'rosa', text: next }]);
       setRosaTyping(false);
+      addRosaMessage(next);
     }, 1000);
   };
 
