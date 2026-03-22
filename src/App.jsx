@@ -29,6 +29,7 @@ import BenchmarkTester from './pages/BenchmarkTester';
 import BangorFounderSignup from './pages/BangorFounderSignup';
 import BangorMicrosoftLogin from './pages/BangorMicrosoftLogin';
 import SpeciesFieldReview from './pages/SpeciesFieldReview';
+import ForKids from './pages/ForKids';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
