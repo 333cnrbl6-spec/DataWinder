@@ -18,10 +18,28 @@ const steps = [
   { emoji: '💚', title: 'Save Them!', desc: 'We help scientists know which animals need our help the most so they can save them!', color: 'bg-green-100 border-green-300' },
 ];
 
+const ROSA_MESSAGES = [
+  "Hi {name}! I'm Rosa! 🌸 I love animals SO much!",
+  "Did you know butterflies taste with their feet? 🦋 Eww and cool!",
+  "My favourite animal is the elephant 🐘 because they never forget — just like me!",
+  "You are SO good at this! Keep tapping animals! 🐾",
+  "Dolphins are my best friends 🐬 they're super clever just like you!",
+  "One day YOU could make computer apps too! 💻✨",
+  "Tap more animals! I want to hear them all! 🦁🐸🦜",
+  "You're my favourite explorer EVER! 🌍⭐",
+];
+
 export default function ForKids() {
   const [clickedAnimal, setClickedAnimal] = useState(null);
   const [stars, setStars] = useState([]);
   const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+  const [confirmedName, setConfirmedName] = useState('');
+  const [rosaMessage, setRosaMessage] = useState(0);
+  const [rosaTyping, setRosaTyping] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [inputMsg, setInputMsg] = useState('');
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const s = Array.from({ length: 20 }, (_, i) => ({
