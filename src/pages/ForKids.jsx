@@ -148,49 +148,71 @@ function SpeakingText({ text, highlightIndex, highlightLen }) {
   );
 }
 
-// ── Animal Card (expands + reads aloud with word highlight) ──────────────────
+// ── Animal Card (expands + reads aloud with word highlight, cycles 5 facts) ──
 function AnimalCard({ animal, onTap }) {
   const [expanded, setExpanded] = useState(false);
+  const [factIdx, setFactIdx] = useState(0);
   const [hlIndex, setHlIndex] = useState(null);
   const [hlLen, setHlLen] = useState(0);
   const [speaking, setSpeaking] = useState(false);
 
+  const readFact = (idx) => {
+    const fullText = `${animal.name}! ${animal.sound} Did you know? ${animal.facts[idx]}`;
+    setSpeaking(true);
+    setHlIndex(null);
+    speak(
+      fullText,
+      (charIndex, charLen) => { setHlIndex(charIndex); setHlLen(charLen); },
+      () => { setHlIndex(null); setSpeaking(false); }
+    );
+  };
+
   const handleTap = () => {
-    const nowExpanded = !expanded;
-    setExpanded(nowExpanded);
-    onTap(animal);
-    if (nowExpanded) {
-      const fullText = `${animal.name}! ${animal.sound} Did you know? ${animal.fact}`;
-      setSpeaking(true);
-      setHlIndex(null);
-      speak(
-        fullText,
-        (charIndex, charLen) => { setHlIndex(charIndex); setHlLen(charLen); },
-        () => { setHlIndex(null); setSpeaking(false); }
-      );
+    if (!expanded) {
+      // Open and read first fact
+      setExpanded(true);
+      onTap(animal);
+      setFactIdx(0);
+      readFact(0);
     } else {
+      // Cycle to next fact (max 5, wrap around)
       window.speechSynthesis?.cancel();
-      setHlIndex(null);
-      setSpeaking(false);
+      const next = (factIdx + 1) % animal.facts.length;
+      setFactIdx(next);
+      readFact(next);
     }
   };
 
-  const factText = `${animal.name}! ${animal.sound} Did you know? ${animal.fact}`;
+  const handleClose = (e) => {
+    e.stopPropagation();
+    setExpanded(false);
+    window.speechSynthesis?.cancel();
+    setHlIndex(null);
+    setSpeaking(false);
+  };
+
+  const currentFact = animal.facts[factIdx];
+  const factText = `${animal.name}! ${animal.sound} Did you know? ${currentFact}`;
 
   return (
     <button
       onClick={handleTap}
       className={`bg-gradient-to-br ${animal.color} rounded-3xl flex flex-col items-center shadow-lg border-4 border-white transition-all duration-300 ${expanded ? 'col-span-2 p-5 scale-100' : 'p-3 hover:scale-110 active:scale-95'}`}
       style={{ minHeight: expanded ? 180 : undefined }}
+      onMouseEnter={() => { if (!expanded) speak(`${animal.name}. Tap me to learn a fun fact!`); }}
     >
       <span className={`transition-all duration-300 ${expanded ? 'text-7xl mb-3' : 'text-4xl'}`}>{animal.emoji}</span>
       <span className={`font-black text-white drop-shadow ${expanded ? 'text-2xl mb-3' : 'text-xs'}`}>{animal.name}</span>
       {expanded && (
-        <div className="bg-white/80 rounded-2xl px-4 py-3 text-center">
+        <div className="bg-white/80 rounded-2xl px-4 py-3 text-center w-full">
           <p className="text-base font-bold text-slate-700 leading-relaxed">
             <SpeakingText text={factText} highlightIndex={hlIndex} highlightLen={hlLen} />
           </p>
           {speaking && <p className="text-xs text-pink-600 font-semibold mt-2 animate-pulse">🔊 Rosa is reading…</p>}
+          <div className="flex items-center justify-between mt-3">
+            <p className="text-xs text-slate-500 font-semibold">Fact {factIdx + 1} of {animal.facts.length} — tap for next!</p>
+            <button onClick={handleClose} className="text-xs bg-white border-2 border-slate-300 rounded-full px-3 py-1 font-bold text-slate-600 hover:bg-slate-100">✕ Close</button>
+          </div>
         </div>
       )}
       {!expanded && <span className="text-xs font-semibold text-white/80 mt-0.5">Tap me!</span>}
