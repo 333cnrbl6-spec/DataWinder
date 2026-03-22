@@ -551,6 +551,7 @@ export default function ForKids() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {searchResults.map((r, i) => (
                 <div key={i} className="bg-teal-50 border-4 border-teal-200 rounded-2xl overflow-hidden shadow-md hover:scale-105 transition-all cursor-pointer"
+                  onMouseEnter={() => speak(`${r.preferred_common_name || r.name}. Click to find out more!`)}
                   onClick={() => addRosaMessage(`That is a ${r.preferred_common_name || r.name}! Its scientific name is ${r.name}. Cool, right?! 🌿`)}>
                   {r.default_photo?.medium_url ? (
                     <img src={r.default_photo.medium_url} alt={r.preferred_common_name || r.name}
