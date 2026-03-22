@@ -80,6 +80,12 @@ const NAV_CATEGORIES = [
     icon: Sparkles,
     standalone: true
   },
+  {
+    label: 'For Kids! 🐾',
+    page: 'ForKids',
+    icon: Leaf,
+    standalone: true
+  },
 ];
 
 export default function Layout({ children, currentPageName }) {
