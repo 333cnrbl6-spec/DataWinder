@@ -29,6 +29,23 @@ const ROSA_MESSAGES = [
   "You're my favourite explorer EVER! 🌍⭐",
 ];
 
+// Strip emojis for cleaner speech
+const stripEmojis = (str) => str.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
+
+const speak = (text) => {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const clean = stripEmojis(text);
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.rate = 0.9;
+  utter.pitch = 1.4;
+  // Prefer a female voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => /female|woman|girl|zira|samantha|victoria|karen|moira|tessa/i.test(v.name));
+  if (female) utter.voice = female;
+  window.speechSynthesis.speak(utter);
+};
+
 export default function ForKids() {
   const [clickedAnimal, setClickedAnimal] = useState(null);
   const [stars, setStars] = useState([]);
