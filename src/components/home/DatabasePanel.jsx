@@ -165,22 +165,22 @@ export default function DatabasePanel({ allSpecies, savedSearches, onLoadSpecies
                         onClick={async () => {
                           setIsLoadingSearch(true);
                           try {
+                            const term = search.search_term?.toLowerCase() || '';
                             const filtered = allSpecies.filter(sp => {
                               if (search.taxonomy_level === 'family') {
-                                return sp.family === search.search_term;
+                                return sp.family?.toLowerCase() === term;
                               } else if (search.taxonomy_level === 'genus') {
-                                return sp.genus === search.search_term;
+                                return sp.genus?.toLowerCase() === term;
                               } else if (search.taxonomy_level === 'order') {
-                                return sp.order_name === search.search_term;
+                                return sp.order_name?.toLowerCase() === term;
                               } else if (search.taxonomy_level === 'class') {
-                                return sp.class_name === search.search_term;
+                                return sp.class_name?.toLowerCase() === term;
                               } else if (search.taxonomy_level === 'species') {
-                                return sp.scientific_name === search.search_term;
+                                return sp.scientific_name?.toLowerCase() === term;
                               }
                               return false;
                             });
-                            
-                            onLoadSpecies(filtered);
+                            onLoadSpecies(filtered, `${search.taxonomy_level}: ${search.search_term}`);
                           } catch (error) {
                             console.error('Error loading search:', error);
                           } finally {
