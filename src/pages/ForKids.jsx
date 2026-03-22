@@ -185,8 +185,16 @@ export default function ForKids() {
                   <div className="bg-white rounded-2xl border-4 border-pink-200 p-3 h-40 overflow-y-auto flex flex-col gap-2 mb-3">
                     {chatMessages.map((msg, i) => (
                       <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm font-semibold ${msg.from === 'rosa' ? 'bg-pink-100 text-pink-800 border-2 border-pink-200' : 'bg-fuchsia-500 text-white'}`}>
-                          {msg.from === 'rosa' && <span className="mr-1">🌸</span>}{msg.text}
+                        <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm font-semibold flex items-center gap-1 ${msg.from === 'rosa' ? 'bg-pink-100 text-pink-800 border-2 border-pink-200' : 'bg-fuchsia-500 text-white'}`}>
+                          {msg.from === 'rosa' && <span className="mr-1">🌸</span>}
+                          {msg.text}
+                          {msg.from === 'rosa' && (
+                            <button
+                              onClick={() => speak(msg.text)}
+                              className="ml-2 text-base flex-shrink-0 hover:scale-125 transition-transform"
+                              title="Hear this!"
+                            >🔊</button>
+                          )}
                         </div>
                       </div>
                     ))}
