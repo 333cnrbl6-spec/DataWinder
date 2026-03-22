@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const animals = [
   { emoji: '🦁', name: 'Lion', sound: 'Roar!', color: 'from-yellow-300 to-orange-400', fact: 'Lions live in Africa!' },
