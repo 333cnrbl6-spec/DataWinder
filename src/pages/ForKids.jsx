@@ -104,7 +104,7 @@ export default function ForKids() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8">
 
         {/* Hero Title */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <div className="text-6xl mb-4 animate-bounce">🌍</div>
           <h1 className="text-4xl sm:text-5xl font-black text-white drop-shadow-lg mb-3" style={{ textShadow: '3px 3px 0px #065f46' }}>
             Hello, Little Explorer! 👋
@@ -112,6 +112,87 @@ export default function ForKids() {
           <p className="text-xl sm:text-2xl font-bold text-emerald-900 bg-white/60 rounded-2xl px-6 py-3 inline-block">
             Want to see what we're building? 🛠️
           </p>
+        </div>
+
+        {/* Rosa Character + Name Entry / Chat */}
+        <div className="bg-gradient-to-br from-pink-100 to-fuchsia-100 rounded-3xl p-6 mb-8 shadow-xl border-4 border-pink-400">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Rosa illustration */}
+            <div className="flex-shrink-0 flex flex-col items-center">
+              <div className="relative">
+                {/* Body */}
+                <div className="w-24 h-24 bg-gradient-to-b from-pink-300 to-fuchsia-400 rounded-full flex items-center justify-center shadow-lg border-4 border-pink-200 text-5xl">
+                  👩
+                </div>
+                {/* Dress */}
+                <div className="w-28 h-16 bg-gradient-to-b from-pink-400 to-fuchsia-500 rounded-b-full mx-auto -mt-2 shadow border-b-4 border-fuchsia-300 flex items-end justify-center pb-1">
+                  <span className="text-white text-xs font-bold">🌸🌸🌸</span>
+                </div>
+              </div>
+              <p className="mt-2 text-lg font-black text-pink-700">Rosa 🌸</p>
+            </div>
+
+            {/* Name entry or chat */}
+            <div className="flex-1 w-full">
+              {!confirmedName ? (
+                <div className="text-center sm:text-left">
+                  <p className="text-2xl font-black text-pink-700 mb-1">Hi! I'm Rosa! 🌸</p>
+                  <p className="text-base font-semibold text-slate-600 mb-4">I love animals and making friends! What's your name?</p>
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 rounded-2xl border-4 border-pink-300 px-4 py-3 text-xl font-bold text-pink-800 outline-none focus:border-fuchsia-400 bg-white"
+                      placeholder="Type your name here! ✏️"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
+                      maxLength={20}
+                    />
+                    <button
+                      onClick={handleNameSubmit}
+                      className="bg-pink-500 hover:bg-pink-600 text-white font-black text-xl rounded-2xl px-5 py-3 shadow-lg transition-all active:scale-95"
+                    >
+                      👋 Hi!
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-lg font-black text-pink-700 mb-2">Chat with Rosa! 💬</p>
+                  <div className="bg-white rounded-2xl border-4 border-pink-200 p-3 h-40 overflow-y-auto flex flex-col gap-2 mb-3">
+                    {chatMessages.map((msg, i) => (
+                      <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm font-semibold ${msg.from === 'rosa' ? 'bg-pink-100 text-pink-800 border-2 border-pink-200' : 'bg-fuchsia-500 text-white'}`}>
+                          {msg.from === 'rosa' && <span className="mr-1">🌸</span>}{msg.text}
+                        </div>
+                      </div>
+                    ))}
+                    {rosaTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-pink-100 text-pink-800 border-2 border-pink-200 px-3 py-2 rounded-2xl text-sm font-semibold animate-pulse">🌸 Rosa is typing...</div>
+                      </div>
+                    )}
+                    <div ref={chatEndRef} />
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 rounded-2xl border-4 border-pink-300 px-3 py-2 text-base font-bold text-pink-800 outline-none focus:border-fuchsia-400 bg-white"
+                      placeholder="Say something! 🗣️"
+                      value={inputMsg}
+                      onChange={e => setInputMsg(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                      maxLength={80}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      className="bg-pink-500 hover:bg-pink-600 text-white font-black text-base rounded-2xl px-4 py-2 shadow-lg transition-all active:scale-95"
+                    >
+                      Send 💌
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* What we do */}
