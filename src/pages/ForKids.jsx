@@ -160,7 +160,10 @@ export default function ForKids() {
             <div className="flex-1 w-full">
               {!confirmedName ? (
                 <div className="text-center sm:text-left">
-                  <p className="text-2xl font-black text-pink-700 mb-1">Hi! I'm Rosa! 🌸</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-2xl font-black text-pink-700">Hi! I'm Rosa! 🌸</p>
+                    <button onClick={() => speak("Hi! I'm Rosa! I love animals and making friends! What's your name?")} className="text-2xl hover:scale-125 transition-transform" title="Hear Rosa!">🔊</button>
+                  </div>
                   <p className="text-base font-semibold text-slate-600 mb-4">I love animals and making friends! What's your name?</p>
                   <div className="flex gap-2">
                     <input
