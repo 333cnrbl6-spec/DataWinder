@@ -107,6 +107,7 @@ const AuthenticatedApp = () => {
       <Route path="/BangorFounderSignup" element={<BangorFounderSignup />} />
       <Route path="/BangorMicrosoftLogin" element={<BangorMicrosoftLogin />} />
       <Route path="/SpeciesFieldReview" element={<LayoutWrapper currentPageName="SpeciesFieldReview"><SpeciesFieldReview /></LayoutWrapper>} />
+      <Route path="/ForKids" element={<ForKids />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
