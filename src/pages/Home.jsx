@@ -804,9 +804,15 @@ export default function Home() {
           <DatabasePanel 
             allSpecies={allSpecies}
             savedSearches={savedSearches}
-            onLoadSpecies={(filtered) => {
+            onLoadSpecies={(filtered, label) => {
               setSpecies(filtered);
               setSelectedIds(filtered.map(sp => sp.id || sp.scientific_name));
+              setSearchInfo(label ? { level: 'database', terms: label } : null);
+              if (filtered.length === 0) {
+                toast.warning('No species found matching that saved search in the database.');
+              } else {
+                toast.success(`Loaded ${filtered.length} species`);
+              }
             }}
             onRefetch={refetchSpecies}
           />
