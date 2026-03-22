@@ -122,7 +122,7 @@ export default function SpeciesCard({
             {showDetails ? 'Hide' : 'Info'}
           </Button>
 
-          {!species.inat_taxon_id && (
+          {!species.inat_taxon_id && onEnrichWithINaturalist && (
             <Button
               onClick={(e) => {
                 e.stopPropagation();
