@@ -11,6 +11,7 @@ export default function SpeciesCard({
   selected,
   onSelect,
   onEnrichWithINaturalist,
+  onDelete,
   index
 }) {
   const [showDetails, setShowDetails] = useState(false);
