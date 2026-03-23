@@ -162,21 +162,52 @@ export default function SpeciesFieldReview() {
   const runBatch = async () => {
     setIsBatchRunning(true);
     try {
-      // Find species that have no pending suggestion yet
       const pendingIds = new Set(pending.map(p => p.species_id));
       const targets = allSpecies.filter(s => !pendingIds.has(s.id));
       if (targets.length === 0) {
         toast.info('All species already have pending suggestions or are complete');
+        setIsBatchRunning(false);
         return;
       }
       const species_ids = targets.map(s => s.id);
+      const total = species_ids.length;
+
+      setBatchProgress({ total, done: 0, label: `Starting AI analysis for ${total} species…` });
+
+      // Simulate incremental progress while the backend works
+      let elapsed = 0;
+      const estimatedMs = total * 1500; // ~1.5s per species estimate
+      progressIntervalRef.current = setInterval(() => {
+        elapsed += 500;
+        const ratio = Math.min(elapsed / estimatedMs, 0.92); // cap at 92% until done
+        const done = Math.floor(ratio * total);
+        setBatchProgress({
+          total,
+          done,
+          label: done < total
+            ? `Analysing species ${done + 1} of ${total}…`
+            : `Finalising suggestions…`,
+        });
+      }, 500);
+
       await base44.functions.invoke('suggestSpeciesFields', { species_ids });
-      toast.success(`Queued AI suggestions for ${species_ids.length} species`);
+
+      clearInterval(progressIntervalRef.current);
+      setBatchProgress({ total, done: total, label: `Done! ${total} species processed.` });
+
+      toast.success(`AI suggestions queued for ${total} species`);
       queryClient.invalidateQueries({ queryKey: ['pendingSpeciesUpdates'] });
+
+      // Hide bar after a moment
+      setTimeout(() => {
+        setIsBatchRunning(false);
+        setBatchProgress({ total: 0, done: 0, label: '' });
+      }, 2000);
     } catch (e) {
+      clearInterval(progressIntervalRef.current);
       toast.error(`Batch failed: ${e.message}`);
-    } finally {
       setIsBatchRunning(false);
+      setBatchProgress({ total: 0, done: 0, label: '' });
     }
   };
 
