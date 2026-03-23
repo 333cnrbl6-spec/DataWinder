@@ -97,16 +97,17 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
                 })}
 
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" onClick={approveSelected} className="bg-green-600 hover:bg-green-700 text-white flex-1">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Approve Selected
+                  <Button size="sm" onClick={approveSelected} disabled={isBusy} className="bg-green-600 hover:bg-green-700 text-white flex-1">
+                    {isApproving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <CheckCircle className="w-3 h-3 mr-1" />}
+                    {isApproving ? 'Saving…' : 'Approve Selected'}
                   </Button>
-                  <Button size="sm" onClick={approveAll} className="bg-bangor-red hover:bg-bangor-red/90 text-white flex-1">
-                    Approve All
+                  <Button size="sm" onClick={approveAll} disabled={isBusy} className="bg-bangor-red hover:bg-bangor-red/90 text-white flex-1">
+                    {isApproving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : null}
+                    {isApproving ? 'Saving…' : 'Approve All'}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => onReject(update.id)} className="text-red-600 border-red-200">
-                    <XCircle className="w-3 h-3 mr-1" />
-                    Reject
+                  <Button size="sm" variant="outline" onClick={() => onReject(update.id)} disabled={isBusy} className="text-red-600 border-red-200">
+                    {isRejecting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <XCircle className="w-3 h-3 mr-1" />}
+                    {isRejecting ? 'Rejecting…' : 'Reject'}
                   </Button>
                 </div>
               </CardContent>
