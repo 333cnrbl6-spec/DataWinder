@@ -18,10 +18,9 @@ import BangOnLogo from './BangOnLogo';
 const steps = [
   { id: 1, title: 'Welcome',       subtitle: 'Get started' },
   { id: 2, title: 'Your Profile',  subtitle: 'About you' },
-  { id: 3, title: 'IUCN Access',   subtitle: 'API token' },
-  { id: 4, title: 'MAXENT Setup',  subtitle: 'Modelling power' },
-  { id: 5, title: 'Community',     subtitle: 'Join the network' },
-  { id: 6, title: 'Terms of Use',  subtitle: 'Data usage' },
+  { id: 3, title: 'MAXENT Setup',  subtitle: 'Modelling power' },
+  { id: 4, title: 'Community',     subtitle: 'Join the network' },
+  { id: 5, title: 'Terms of Use',  subtitle: 'Data usage' },
 ];
 
 const FIELDS_OF_INTEREST = [
