@@ -157,11 +157,18 @@ export default function SmartDropZone({ onImported }) {
       if (fileDatasource === 'inat' || fileDatasource === 'gbif' || fileDatasource === 'specieslink' || fileDatasource === 'iucn') guessedEntity = 'Species';
 
       // Use our own backend function to parse — avoids ExtractDataFromUploadedFile hashed-filename issue
-      const parseResult = await base44.functions.invoke('parseAndImportFile', {
-        file_url: uploadedFile.file_url,
-        original_name: originalName,
-        suggested_entity: guessedEntity,
-      });
+      let parseResult;
+      try {
+        parseResult = await base44.functions.invoke('parseAndImportFile', {
+          file_url: uploadedFile.file_url,
+          original_name: originalName,
+          suggested_entity: guessedEntity,
+        });
+      } catch (invokeErr) {
+        // Axios throws for non-2xx responses — extract the error message from response body if available
+        const serverMsg = invokeErr?.response?.data?.error || invokeErr?.response?.data?.message;
+        throw new Error(serverMsg || invokeErr.message || 'Import service error (code 500)');
+      }
 
       if (parseResult.data?.error) throw new Error(parseResult.data.error);
 
