@@ -88,7 +88,9 @@ export default function SmartDropZone({ onImported }) {
     try {
       let fileToProcess = file;
       let extractedFrom = null;
-      
+      // Use local variable — don't rely on fileInfo state which hasn't updated yet
+      const fileDatasource = datasource;
+
       // If ZIP file, unzip and get first supported extractable file
       if (file.name.endsWith('.zip') || file.type === 'application/zip') {
         const zip = new JSZip();
