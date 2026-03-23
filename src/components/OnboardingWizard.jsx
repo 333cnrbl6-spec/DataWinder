@@ -453,8 +453,8 @@ export default function OnboardingWizard({ open, onComplete }) {
                 </div>
               )}
 
-              {/* ── Step 6: Terms ── */}
-              {currentStep === 6 && (
+              {/* ── Step 5: Terms ── */}
+              {currentStep === 5 && (
                 <div className="space-y-6">
                   <DialogHeader>
                     <DialogTitle className="text-2xl text-bangor-red">Terms of Use</DialogTitle>
