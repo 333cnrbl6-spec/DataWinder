@@ -20,7 +20,8 @@ export default function ResultsPanel({
   onManageLists,
   onAddNote,
   onSaveSearch,
-  onEnrichWithINaturalist
+  onEnrichWithINaturalist,
+  onDelete
 }) {
   const [viewMode, setViewMode] = useState('grid');
   const selectedSpecies = species.filter(sp => selectedIds.includes(sp.id || sp.scientific_name));
