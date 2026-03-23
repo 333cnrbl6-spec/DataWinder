@@ -725,6 +725,7 @@ export default function Home() {
                 onAddNote={(sp) => { setNoteSpecies(sp); setShowNotes(true); }}
                 onSaveSearch={() => setShowSaveSearch(true)}
                 onEnrichWithINaturalist={enrichWithINaturalist}
+                onDelete={handleDeleteSpecies}
               />
             )}
 
