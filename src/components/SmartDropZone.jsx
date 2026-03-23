@@ -130,6 +130,10 @@ export default function SmartDropZone({ onImported }) {
       } else {
         // Single file — check if it's a non-importable geospatial type
         const ext = getFileExt(file.name);
+        // Excel files are binary — backend cannot parse them, give clear guidance
+        if (ext === 'xlsx' || ext === 'xls') {
+          throw new Error('Excel files (.xlsx/.xls) are not yet supported. Please open the file in Excel and save as CSV (File → Save As → CSV UTF-8), then re-upload.');
+        }
         if (GEOSPATIAL_EXTS.includes(ext)) {
           const uploadedFile = await base44.integrations.Core.UploadFile({ file });
           const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
