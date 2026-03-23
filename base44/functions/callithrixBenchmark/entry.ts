@@ -73,39 +73,31 @@ Deno.serve(async (req) => {
     let iucnStage = { passed: false, count: 0, species: [], error: null };
 
     try {
-      // Try individual species lookups for the known Callithrix species
-      // (IUCN v4 genus endpoint is unreliable — species-level is authoritative)
-      const iucnResults = [];
-      for (const sp of CALLITHRIX_SPECIES) {
-        const parts = sp.split(' ');
-        const url = `${BASE}/taxa/scientific_name?genus_name=${encodeURIComponent(parts[0])}&species_name=${encodeURIComponent(parts[1])}`;
-        try {
-          const r = await fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } });
-          if (r.ok) {
-            const json = await r.json();
-            const assessments = json.assessments || [];
-            if (assessments.length > 0) {
-              iucnResults.push({ ...assessments[0], _queried_name: sp });
-            }
-          }
-        } catch (e) {
-          console.log(`IUCN lookup failed for ${sp}: ${e.message}`);
-        }
+      const iucnRes = await fetch(`${BASE}/taxa/genus/${encodeURIComponent('Callithrix')}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+      });
+
+      if (iucnRes.ok) {
+        const json = await iucnRes.json();
+        iucnSpecies = (json.assessments || []).slice(0, 10);
+        iucnStage = {
+          passed: iucnSpecies.length > 0,
+          count: iucnSpecies.length,
+          species: iucnSpecies.map(s => ({
+            name: s.taxon_scientific_name,
+            status: s.red_list_category_code,
+            trend: s.population_trend?.description || 'unknown',
+            iucn_id: s.sis_taxon_id,
+            assessment_id: s.assessment_id
+          })),
+          error: null
+        };
+        console.log(`IUCN: found ${iucnSpecies.length} Callithrix assessments`);
+      } else {
+        const text = await iucnRes.text();
+        iucnStage.error = `HTTP ${iucnRes.status}: ${text.slice(0, 200)}`;
+        console.log(`IUCN error: ${iucnStage.error}`);
       }
-      iucnSpecies = iucnResults;
-      iucnStage = {
-        passed: iucnSpecies.length > 0,
-        count: iucnSpecies.length,
-        species: iucnSpecies.map(s => ({
-          name: s.taxon_scientific_name || s._queried_name,
-          status: s.red_list_category_code,
-          trend: s.population_trend?.description || 'unknown',
-          iucn_id: s.sis_taxon_id,
-          assessment_id: s.assessment_id
-        })),
-        error: iucnSpecies.length === 0 ? 'No IUCN records found for any Callithrix species' : null
-      };
-      console.log(`IUCN: found ${iucnSpecies.length}/${CALLITHRIX_SPECIES.length} Callithrix species assessments`);
     } catch (e) {
       iucnStage.error = e.message;
       console.log(`IUCN exception: ${e.message}`);
