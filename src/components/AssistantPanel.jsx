@@ -7,8 +7,9 @@ const BOT_AVATAR = "https://media.base44.com/images/public/69821d606837970a4a3c0
 
 const PAGE_CHIPS = {
   Home: [
+    "How do I get an IUCN API token?",
+    "What can I do without an IUCN token?",
     "How do I search for a species?",
-    "How do I save my search results?",
     "What data sources does the search use?",
   ],
   SavedData: [
