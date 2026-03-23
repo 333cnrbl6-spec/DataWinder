@@ -48,7 +48,11 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
   };
 
   const approveAll = () => {
-    onApprove(update.id, Object.fromEntries(fields));
+    const allFields = Object.fromEntries(fields);
+    // Mark all checkboxes as selected before approving
+    const allApproved = Object.fromEntries(fields.map(([key]) => [key, true]));
+    setApproved(allApproved);
+    onApprove(update.id, allFields);
   };
 
   return (
@@ -139,13 +143,11 @@ export default function SpeciesFieldReview() {
   });
 
   const approveMutation = useMutation({
-    mutationFn: async ({ updateId, fields }) => {
-      setBusyId(updateId); setBusyAction('approve');
-      const record = pending.find(p => p.id === updateId);
-      if (!record) throw new Error('Record not found');
-      await base44.entities.Species.update(record.species_id, fields);
+    mutationFn: async ({ updateId, fields, speciesId }) => {
+      await base44.entities.Species.update(speciesId, fields);
       await base44.entities.PendingSpeciesUpdate.update(updateId, { status: 'accepted' });
     },
+    onMutate: ({ updateId }) => { setBusyId(updateId); setBusyAction('approve'); },
     onSuccess: () => {
       toast.success('Species updated successfully');
       setBusyId(null); setBusyAction(null);
@@ -156,9 +158,9 @@ export default function SpeciesFieldReview() {
 
   const rejectMutation = useMutation({
     mutationFn: async (updateId) => {
-      setBusyId(updateId); setBusyAction('reject');
       await base44.entities.PendingSpeciesUpdate.update(updateId, { status: 'rejected' });
     },
+    onMutate: (updateId) => { setBusyId(updateId); setBusyAction('reject'); },
     onSuccess: () => {
       toast.success('Suggestion rejected');
       setBusyId(null); setBusyAction(null);
@@ -298,7 +300,7 @@ export default function SpeciesFieldReview() {
           <PendingUpdateCard
             key={update.id}
             update={update}
-            onApprove={(id, fields) => approveMutation.mutate({ updateId: id, fields })}
+            onApprove={(id, fields) => approveMutation.mutate({ updateId: id, fields, speciesId: update.species_id })}
             onReject={(id) => rejectMutation.mutate(id)}
             isApproving={busyId === update.id && busyAction === 'approve'}
             isRejecting={busyId === update.id && busyAction === 'reject'}
