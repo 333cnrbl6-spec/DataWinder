@@ -140,27 +140,31 @@ export default function SpeciesFieldReview() {
 
   const approveMutation = useMutation({
     mutationFn: async ({ updateId, fields }) => {
-      // Get the pending record to find species_id
+      setBusyId(updateId); setBusyAction('approve');
       const record = pending.find(p => p.id === updateId);
       if (!record) throw new Error('Record not found');
-      // Apply approved fields to the actual species record
       await base44.entities.Species.update(record.species_id, fields);
-      // Mark as accepted
       await base44.entities.PendingSpeciesUpdate.update(updateId, { status: 'accepted' });
     },
     onSuccess: () => {
       toast.success('Species updated successfully');
+      setBusyId(null); setBusyAction(null);
       queryClient.invalidateQueries({ queryKey: ['pendingSpeciesUpdates'] });
     },
-    onError: (e) => toast.error(`Failed: ${e.message}`),
+    onError: (e) => { toast.error(`Failed: ${e.message}`); setBusyId(null); setBusyAction(null); },
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (updateId) => base44.entities.PendingSpeciesUpdate.update(updateId, { status: 'rejected' }),
+    mutationFn: async (updateId) => {
+      setBusyId(updateId); setBusyAction('reject');
+      await base44.entities.PendingSpeciesUpdate.update(updateId, { status: 'rejected' });
+    },
     onSuccess: () => {
       toast.success('Suggestion rejected');
+      setBusyId(null); setBusyAction(null);
       queryClient.invalidateQueries({ queryKey: ['pendingSpeciesUpdates'] });
     },
+    onError: (e) => { toast.error(`Failed: ${e.message}`); setBusyId(null); setBusyAction(null); },
   });
 
   const runBatch = async () => {
