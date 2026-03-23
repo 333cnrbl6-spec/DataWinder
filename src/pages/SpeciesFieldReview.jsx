@@ -241,6 +241,34 @@ export default function SpeciesFieldReview() {
         </div>
       </header>
 
+      {/* Batch Progress Bar */}
+      <AnimatePresence>
+        {isBatchRunning && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="bg-amber-50 border-b border-amber-200 px-4 py-3"
+          >
+            <div className="max-w-4xl mx-auto space-y-2">
+              <div className="flex items-center justify-between text-xs text-amber-800">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 animate-pulse" />
+                  <span className="font-medium">{batchProgress.label}</span>
+                </div>
+                <span className="font-semibold tabular-nums">
+                  {batchProgress.done} / {batchProgress.total}
+                </span>
+              </div>
+              <Progress
+                value={batchProgress.total > 0 ? (batchProgress.done / batchProgress.total) * 100 : 0}
+                className="h-2 bg-amber-200 [&>div]:bg-amber-500"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {isLoading && (
           <div className="flex justify-center py-12">
