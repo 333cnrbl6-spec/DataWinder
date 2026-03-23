@@ -149,8 +149,8 @@ export default function SmartDropZone({ onImported }) {
 
       // Guess entity from filename/datasource for initial suggestion
       let guessedEntity = 'Species';
-      const ds = fileInfo?.datasource;
-      if (ds === 'inat' || ds === 'gbif' || ds === 'specieslink' || ds === 'iucn') guessedEntity = 'Species';
+      // fileDatasource is reliable here (local var); fileInfo?.datasource would be stale state
+      if (fileDatasource === 'inat' || fileDatasource === 'gbif' || fileDatasource === 'specieslink' || fileDatasource === 'iucn') guessedEntity = 'Species';
 
       // Use our own backend function to parse — avoids ExtractDataFromUploadedFile hashed-filename issue
       const parseResult = await base44.functions.invoke('parseAndImportFile', {
