@@ -85,6 +85,7 @@ export default function ResultsPanel({
               selectedIds={selectedIds}
               onSelect={onSelect}
               onEnrichWithINaturalist={onEnrichWithINaturalist}
+              onDelete={onDelete}
             />
           ) : viewMode === 'map' ? (
             <MapView
