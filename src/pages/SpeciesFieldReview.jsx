@@ -60,12 +60,25 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
       <Card className={`border-amber-200 shadow-sm relative overflow-hidden transition-opacity ${isBusy ? 'opacity-70' : ''}`}>
         {/* Processing overlay */}
         {isBusy && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-bangor-red" />
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/85 backdrop-blur-sm gap-3 rounded-xl">
+            <Loader2 className="w-9 h-9 animate-spin text-bangor-red" />
             <p className="text-sm font-semibold text-slate-700">
               {isApproving ? 'Saving to species record…' : 'Rejecting suggestion…'}
             </p>
-            <Progress value={undefined} className="w-40 h-1.5 bg-slate-200 [&>div]:bg-bangor-red animate-pulse" />
+            {/* Indeterminate progress bar */}
+            <div className="w-44 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-bangor-red rounded-full"
+                style={{ animation: 'indeterminate-slide 1.4s ease-in-out infinite' }}
+              />
+            </div>
+            <style>{`
+              @keyframes indeterminate-slide {
+                0%   { transform: translateX(-100%) scaleX(0.4); }
+                50%  { transform: translateX(60%)  scaleX(0.6); }
+                100% { transform: translateX(200%) scaleX(0.4); }
+              }
+            `}</style>
           </div>
         )}
         <CardHeader className="pb-3 cursor-pointer" onClick={() => !isBusy && setExpanded(v => !v)}>
