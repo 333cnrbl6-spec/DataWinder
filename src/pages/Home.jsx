@@ -579,6 +579,19 @@ export default function Home() {
     setShowNotes(true);
   };
 
+  const handleDeleteSpecies = async (sp) => {
+    // Remove from local results immediately
+    setSpecies(prev => prev.filter(s => (s.id || s.scientific_name) !== (sp.id || sp.scientific_name)));
+    setSelectedIds(prev => prev.filter(id => id !== (sp.id || sp.scientific_name)));
+    // If it has a DB record, delete it
+    if (sp.id) {
+      await base44.entities.Species.delete(sp.id);
+      toast.success(`Deleted ${sp.scientific_name}`);
+    } else {
+      toast.success(`Removed ${sp.scientific_name} from results`);
+    }
+  };
+
   const enrichWithINaturalist = async (species) => {
     setIsLoading(true);
     setError(null);
