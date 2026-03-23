@@ -48,6 +48,7 @@ export default function DataManagement() {
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isRunningTaxonomyCheck, setIsRunningTaxonomyCheck] = useState(false);
   const [isEnrichingNames, setIsEnrichingNames] = useState(false);
+  const [enrichingSpeciesId, setEnrichingSpeciesId] = useState(null);
   const [showTaxonomyInfo, setShowTaxonomyInfo] = useState(false);
   const [metricsModal, setMetricsModal] = useState({ isOpen: false, type: null, title: null, data: null });
   const [showMergeModal, setShowMergeModal] = useState(false);
@@ -837,6 +838,7 @@ export default function DataManagement() {
 
   const enrichWithINaturalist = async (species) => {
     setIsLoading(true);
+    setEnrichingSpeciesId(species.id || species.scientific_name);
     setError(null);
 
     try {
@@ -926,6 +928,7 @@ export default function DataManagement() {
       setError(`Failed to enrich ${species.scientific_name} with iNaturalist data.`);
     } finally {
       setIsLoading(false);
+      setEnrichingSpeciesId(null);
     }
   };
 
@@ -1130,6 +1133,7 @@ export default function DataManagement() {
                         selectedIds={selectedIds}
                         onSelect={handleSelect}
                         onEnrichWithINaturalist={enrichWithINaturalist}
+                        enrichingId={enrichingSpeciesId}
                       />
                     ) : (
                       <MapView
