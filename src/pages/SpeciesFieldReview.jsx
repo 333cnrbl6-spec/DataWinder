@@ -120,6 +120,8 @@ function PendingUpdateCard({ update, onApprove, onReject }) {
 export default function SpeciesFieldReview() {
   const queryClient = useQueryClient();
   const [isBatchRunning, setIsBatchRunning] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ total: 0, done: 0, label: '' });
+  const progressIntervalRef = useRef(null);
 
   const { data: pending = [], isLoading } = useQuery({
     queryKey: ['pendingSpeciesUpdates'],
