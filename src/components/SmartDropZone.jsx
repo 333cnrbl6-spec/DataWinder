@@ -96,8 +96,10 @@ export default function SmartDropZone({ onImported }) {
         const files = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
         if (files.length === 0) throw new Error('ZIP file is empty or contains no valid files');
         
-        // Prioritize importable file formats; if none found, check if it's all geospatial
-        const importableFile = files.find(f => IMPORTABLE_EXTS.includes(getFileExt(f.name)));
+        // Prioritize importable file formats (prefer csv/json/xlsx over txt); if none found, check if it's all geospatial
+        const importableFile = 
+          files.find(f => ['csv', 'xlsx', 'xls', 'json', 'geojson'].includes(getFileExt(f.name))) ||
+          files.find(f => IMPORTABLE_EXTS.includes(getFileExt(f.name)));
         const geospatialFiles = files.filter(f => GEOSPATIAL_EXTS.includes(getFileExt(f.name)));
         
         if (!importableFile && geospatialFiles.length > 0) {
