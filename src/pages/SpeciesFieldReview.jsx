@@ -123,6 +123,8 @@ export default function SpeciesFieldReview() {
   const queryClient = useQueryClient();
   const [isBatchRunning, setIsBatchRunning] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ total: 0, done: 0, label: '' });
+  const [busyId, setBusyId] = useState(null);
+  const [busyAction, setBusyAction] = useState(null);
   const progressIntervalRef = useRef(null);
 
   const { data: pending = [], isLoading } = useQuery({
