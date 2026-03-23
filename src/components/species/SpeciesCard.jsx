@@ -136,6 +136,21 @@ export default function SpeciesCard({
               iNat Data
             </Button>
           )}
+
+          {onDelete && (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(species);
+              }}
+              size="sm"
+              variant="ghost"
+              className="w-full text-xs text-red-500 hover:bg-red-50 hover:text-red-700"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Delete
+            </Button>
+          )}
         </div>
 
         {/* Expandable Details */}
