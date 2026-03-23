@@ -139,12 +139,17 @@ export default function SmartDropZone({ onImported }) {
       }
 
       // Upload file first to get URL (supports all file types)
-       const uploadedFile = await base44.integrations.Core.UploadFile({ file: fileToProcess });
+      // Rename file to strip any hash prefix so the integration can identify the extension correctly
+      const cleanName = fileToProcess.name.replace(/^[a-f0-9]+_/, '');
+      const renamedFile = cleanName !== fileToProcess.name
+        ? new File([fileToProcess], cleanName, { type: fileToProcess.type })
+        : fileToProcess;
+      const uploadedFile = await base44.integrations.Core.UploadFile({ file: renamedFile });
 
       // Ask AI what this data is
       const sourceInfo = fileInfo?.datasource ? `\nData Source: ${fileInfo.datasource.toUpperCase()}.` : '';
       const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${fileToProcess.name}".${sourceInfo}
+        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${cleanName}".${sourceInfo}
       Examine the file content and determine:
       1. What type of data it contains (species records, occurrence records from iNaturalist/GBIF/SpeciesLink, climate data, geospatial data, etc.)
       2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch, or other
@@ -153,7 +158,7 @@ export default function SmartDropZone({ onImported }) {
       5. Whether this is tabular data that can be imported vs. reference data
 
       Respond with JSON only.`,
-         file_urls: [uploadedFile.file_url],
+        file_urls: [uploadedFile.file_url],
         response_json_schema: {
           type: 'object',
           properties: {
