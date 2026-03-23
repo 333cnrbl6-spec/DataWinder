@@ -57,8 +57,18 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="border-amber-200 shadow-sm">
-        <CardHeader className="pb-3 cursor-pointer" onClick={() => setExpanded(v => !v)}>
+      <Card className={`border-amber-200 shadow-sm relative overflow-hidden transition-opacity ${isBusy ? 'opacity-70' : ''}`}>
+        {/* Processing overlay */}
+        {isBusy && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-bangor-red" />
+            <p className="text-sm font-semibold text-slate-700">
+              {isApproving ? 'Saving to species record…' : 'Rejecting suggestion…'}
+            </p>
+            <Progress value={undefined} className="w-40 h-1.5 bg-slate-200 [&>div]:bg-bangor-red animate-pulse" />
+          </div>
+        )}
+        <CardHeader className="pb-3 cursor-pointer" onClick={() => !isBusy && setExpanded(v => !v)}>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base italic text-bangor-red">{update.scientific_name}</CardTitle>
@@ -106,7 +116,7 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
                     {isApproving ? 'Saving…' : 'Approve Selected'}
                   </Button>
                   <Button size="sm" onClick={approveAll} disabled={isBusy} className="bg-bangor-red hover:bg-bangor-red/90 text-white flex-1">
-                    {isApproving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : null}
+                    {isApproving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <CheckCircle className="w-3 h-3 mr-1" />}
                     {isApproving ? 'Saving…' : 'Approve All'}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => onReject(update.id)} disabled={isBusy} className="text-red-600 border-red-200">
