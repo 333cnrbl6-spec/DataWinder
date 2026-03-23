@@ -20,6 +20,7 @@ export default function SpeciesGrid({ species, selectedIds, onSelect, onEnrichWi
           selected={selectedIds.includes(sp.id || sp.scientific_name)}
           onSelect={onSelect}
           onEnrichWithINaturalist={onEnrichWithINaturalist}
+          onDelete={onDelete}
           index={index}
         />
       ))}
