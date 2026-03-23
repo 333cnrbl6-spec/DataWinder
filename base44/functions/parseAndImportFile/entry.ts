@@ -1,5 +1,17 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
+// Retry fetch with backoff — uploaded files sometimes take a moment to be accessible
+async function fetchWithRetry(url, retries = 3, delayMs = 800) {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch(url);
+    if (res.ok) return res;
+    if (i < retries - 1) await new Promise(r => setTimeout(r, delayMs));
+  }
+  const last = await fetch(url);
+  if (!last.ok) throw new Error(`Failed to fetch file after ${retries} retries: ${last.status}`);
+  return last;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,12 +21,18 @@ Deno.serve(async (req) => {
     const { file_url, original_name, suggested_entity } = await req.json();
     if (!file_url) return Response.json({ error: 'Missing file_url' }, { status: 400 });
 
-    // Fetch the file content directly — bypass ExtractDataFromUploadedFile
-    const fileResponse = await fetch(file_url);
-    if (!fileResponse.ok) throw new Error(`Failed to fetch file: ${fileResponse.status}`);
-
-    const text = await fileResponse.text();
     const ext = (original_name || '').split('.').pop().toLowerCase();
+
+    // Excel files are binary — we can't parse them as text
+    if (ext === 'xlsx' || ext === 'xls') {
+      return Response.json({
+        error: 'Excel files (.xlsx/.xls) are not yet supported for direct import. Please save as CSV (File → Save As → CSV) and re-upload.',
+      }, { status: 400 });
+    }
+
+    // Fetch the file content — with retry in case the URL isn't ready yet
+    const fileResponse = await fetchWithRetry(file_url);
+    const text = await fileResponse.text();
 
     let records = [];
 
@@ -23,14 +41,14 @@ Deno.serve(async (req) => {
       if (Array.isArray(parsed)) {
         records = parsed;
       } else if (parsed.features) {
-        // GeoJSON FeatureCollection
         records = parsed.features.map(f => ({ ...f.properties, geometry: f.geometry }));
       } else {
         records = [parsed];
       }
     } else {
-      // CSV / TSV / TXT — parse it
-      const lines = text.split('\n').filter(l => l.trim());
+      // CSV / TSV / TXT — normalise line endings first
+      const normalised = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const lines = normalised.split('\n').filter(l => l.trim());
       if (lines.length < 2) throw new Error('File appears to be empty or has no data rows');
 
       // Auto-detect delimiter
@@ -58,19 +76,18 @@ Deno.serve(async (req) => {
       };
 
       const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
-      
+
       for (let i = 1; i < lines.length; i++) {
         const values = parseCSVLine(lines[i]);
         if (values.length === 0 || (values.length === 1 && !values[0])) continue;
         const row = {};
         headers.forEach((h, idx) => {
-          row[h] = (values[idx] || '').replace(/^"|"$/g, '').trim();
+          if (h) row[h] = (values[idx] || '').replace(/^"|"$/g, '').trim();
         });
         records.push(row);
       }
     }
 
-    // Use LLM to map fields to the target entity schema
     const entitySchemas = {
       Species: ['scientific_name', 'common_name', 'iucn_status', 'population_trend', 'kingdom', 'phylum', 'class_name', 'order_name', 'family', 'genus', 'observation_count'],
       ClimateDataset: ['name', 'source', 'variable_category', 'scenario', 'time_period', 'resolution', 'description'],
@@ -79,8 +96,12 @@ Deno.serve(async (req) => {
     };
 
     const targetFields = entitySchemas[suggested_entity] || entitySchemas['Species'];
-    const sampleRow = records[0] ? JSON.stringify(records[0]) : '{}';
     const sourceKeys = records[0] ? Object.keys(records[0]) : [];
+
+    // Truncate sample row values so we don't blow the LLM context
+    const sampleRow = records[0]
+      ? JSON.stringify(Object.fromEntries(Object.entries(records[0]).map(([k, v]) => [k, String(v).slice(0, 80)])))
+      : '{}';
 
     // Map source columns to target fields
     const mappingResult = await base44.integrations.Core.InvokeLLM({
@@ -99,7 +120,7 @@ Rules:
 Return ONLY a JSON object like {"target_field": "source_column_or_null", ...} with no extra text.`,
       response_json_schema: {
         type: 'object',
-        additionalProperties: { type: ['string', 'null'] }
+        additionalProperties: { oneOf: [{ type: 'string' }, { type: 'null' }] }
       }
     });
 
@@ -111,7 +132,7 @@ Return ONLY a JSON object like {"target_field": "source_column_or_null", ...} wi
           mapped[targetField] = row[sourceCol];
         }
       }
-      // Always fallback: if scientific_name still missing, try common column names
+      // Fallback: if scientific_name still missing, try common column names directly
       if (suggested_entity === 'Species' && !mapped.scientific_name) {
         mapped.scientific_name = row['scientific_name'] || row['scientificName'] || row['taxon'] || row['species'] || null;
       }

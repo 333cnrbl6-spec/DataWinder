@@ -8,7 +8,8 @@ import { base44 } from '@/api/base44Client';
 import JSZip from 'jszip';
 
 // File types that can be parsed into database records
-const IMPORTABLE_EXTS = ['csv', 'xlsx', 'xls', 'json', 'txt', 'geojson'];
+// Note: xlsx/xls are binary and not parseable as text — users must convert to CSV first
+const IMPORTABLE_EXTS = ['csv', 'json', 'txt', 'geojson'];
 // File types that are geospatial/binary — inform user, store for later use
 const GEOSPATIAL_EXTS = ['tif', 'tiff', 'asc', 'shp', 'dbf', 'prj', 'shx', 'kml', 'kmz'];
 // File types that can be stored/archived
