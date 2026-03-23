@@ -15,6 +15,7 @@ export default function ThreatAssessment() {
   const [selectedSpecies, setSelectedSpecies] = useState(null);
   const [threatData, setThreatData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
 
   // Fetch species for search
   const { data: allSpecies, isLoading: speciesLoading } = useQuery({
