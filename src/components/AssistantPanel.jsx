@@ -189,7 +189,15 @@ export default function AssistantPanel({ currentPageName }) {
     });
     setConversation(conv);
     setMessages(conv.messages ?? []);
-    if (currentPageName && PAGE_LABELS[currentPageName]) {
+    if (currentPageName === 'Home') {
+      let user = null;
+      try { user = await base44.auth.me(); } catch (_) {}
+      const hasToken = !!user?.iucn_api_token;
+      const primer = hasToken
+        ? `[CONTEXT: The user is on the Species Search page and has an IUCN API token configured. Welcome them warmly and offer one practical tip about searching for species. Keep it to 2-3 sentences.]`
+        : `[CONTEXT: The user is on the Species Search page and does NOT yet have an IUCN API token. Welcome them warmly to DataWinder, briefly explain that connecting an IUCN token unlocks the full Red List conservation data, and give them a short 3-step guide: (1) visit https://www.iucnredlist.org/ and create a free account or log in, (2) go to their profile/account page to find their API token, (3) paste it into their DataWinder profile settings. Keep it friendly and encouraging — mention they can still explore iNaturalist and GBIF data right now without a token. 4-5 sentences max.]`;
+      await base44.agents.addMessage(conv, { role: "user", content: primer });
+    } else if (currentPageName && PAGE_LABELS[currentPageName]) {
       await base44.agents.addMessage(conv, {
         role: "user",
         content: `[CONTEXT: The user is currently on the "${pageLabel}" page. Please greet them warmly and offer one concise, practical tip or next step for this page. Keep it to 2-3 sentences.]`,
