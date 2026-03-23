@@ -300,6 +300,8 @@ export default function SpeciesFieldReview() {
             update={update}
             onApprove={(id, fields) => approveMutation.mutate({ updateId: id, fields })}
             onReject={(id) => rejectMutation.mutate(id)}
+            isApproving={busyId === update.id && busyAction === 'approve'}
+            isRejecting={busyId === update.id && busyAction === 'reject'}
           />
         ))}
       </main>
