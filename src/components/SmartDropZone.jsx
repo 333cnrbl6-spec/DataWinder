@@ -140,66 +140,38 @@ export default function SmartDropZone({ onImported }) {
         }
       }
 
-      // Upload file first to get URL (supports all file types)
-      // Rename file to strip any hash prefix so the integration can identify the extension correctly
-      const cleanName = fileToProcess.name.replace(/^[a-f0-9]+_/, '');
-      const renamedFile = cleanName !== fileToProcess.name
-        ? new File([fileToProcess], cleanName, { type: fileToProcess.type })
-        : fileToProcess;
-      const uploadedFile = await base44.integrations.Core.UploadFile({ file: renamedFile });
+      // Upload file to get a URL
+      const uploadedFile = await base44.integrations.Core.UploadFile({ file: fileToProcess });
+      const originalName = fileToProcess.name;
 
-      // Ask AI what this data is
-      const sourceInfo = fileInfo?.datasource ? `\nData Source: ${fileInfo.datasource.toUpperCase()}.` : '';
-      const aiAnalysis = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a biodiversity data analyst. A user has uploaded a file named "${cleanName}".${sourceInfo}
-      Examine the file content and determine:
-      1. What type of data it contains (species records, occurrence records from iNaturalist/GBIF/SpeciesLink, climate data, geospatial data, etc.)
-      2. Which database entity it best matches: Species, ClimateDataset, MaxentRun, SpeciesList, SavedSearch, or other
-      3. A brief 1-sentence explanation of your reasoning
-      4. Key fields you detected in the data
-      5. Whether this is tabular data that can be imported vs. reference data
+      // Guess entity from filename/datasource for initial suggestion
+      let guessedEntity = 'Species';
+      const ds = fileInfo?.datasource;
+      if (ds === 'inat' || ds === 'gbif' || ds === 'specieslink' || ds === 'iucn') guessedEntity = 'Species';
 
-      Respond with JSON only.`,
-        file_urls: [uploadedFile.file_url],
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            suggested_entity: { type: 'string' },
-            confidence: { type: 'number' },
-            reasoning: { type: 'string' },
-            detected_fields: { type: 'array', items: { type: 'string' } },
-            sample_values: { type: 'object' }
-          }
-        }
+      // Use our own backend function to parse — avoids ExtractDataFromUploadedFile hashed-filename issue
+      const parseResult = await base44.functions.invoke('parseAndImportFile', {
+        file_url: uploadedFile.file_url,
+        original_name: originalName,
+        suggested_entity: guessedEntity,
       });
 
-      // Extract structured data
-      const entitySchema = {
-        Species: { type: 'object', properties: { scientific_name: { type: 'string' }, common_name: { type: 'string' }, kingdom: { type: 'string' }, iucn_status: { type: 'string' } } },
-        ClimateDataset: { type: 'object', properties: { name: { type: 'string' }, source: { type: 'string' }, variable_category: { type: 'string' }, description: { type: 'string' } } },
-        SpeciesList: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' } } },
-        SavedSearch: { type: 'object', properties: { name: { type: 'string' }, taxonomy_level: { type: 'string' }, search_term: { type: 'string' } } },
+      if (parseResult.data?.error) throw new Error(parseResult.data.error);
+
+      const rows = parseResult.data?.records || [];
+      const detectedCols = parseResult.data?.detected_columns || [];
+
+      // Build a lightweight aiResult for the UI
+      const aiResult = {
+        suggested_entity: guessedEntity,
+        confidence: 0.9,
+        reasoning: `Parsed ${parseResult.data?.total_raw || 0} raw rows → ${rows.length} mapped records. Detected columns: ${detectedCols.slice(0, 6).join(', ')}${detectedCols.length > 6 ? '…' : ''}`,
+        detected_fields: detectedCols,
       };
 
-      const targetSchema = entitySchema[aiAnalysis.suggested_entity] || entitySchema['Species'];
-
-      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: uploadedFile.file_url,
-        json_schema: {
-          type: 'object',
-          properties: {
-            records: {
-              type: 'array',
-              items: targetSchema
-            }
-          }
-        }
-      });
-
-      const rows = extracted?.output?.records || (Array.isArray(extracted?.output) ? extracted.output : []);
       setParsedRows(rows);
-      setAiResult(aiAnalysis);
-      setSelectedEntity(aiAnalysis.suggested_entity);
+      setAiResult(aiResult);
+      setSelectedEntity(guessedEntity);
       setFileUrl(uploadedFile.file_url);
       stopTicking();
       setStep('confirm');
