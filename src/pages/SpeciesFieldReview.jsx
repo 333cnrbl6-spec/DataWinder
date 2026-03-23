@@ -26,9 +26,10 @@ const FIELD_LABELS = {
   conservation_actions: 'Conservation Actions',
 };
 
-function PendingUpdateCard({ update, onApprove, onReject }) {
+function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecting }) {
   const [expanded, setExpanded] = useState(true);
   const [approved, setApproved] = useState({});   // fieldKey -> true/false
+  const isBusy = isApproving || isRejecting;
   const fields = Object.entries(update.new_data || {});
 
   const toggleField = (key) => {
