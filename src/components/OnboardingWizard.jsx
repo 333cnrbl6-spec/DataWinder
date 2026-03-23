@@ -261,49 +261,8 @@ export default function OnboardingWizard({ open, onComplete }) {
                 </div>
               )}
 
-              {/* ── Step 3: IUCN Token ── */}
+              {/* ── Step 3: MAXENT Setup ── */}
               {currentStep === 3 && (
-                <div className="space-y-6">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl text-bangor-red">IUCN Red List API Access</DialogTitle>
-                    <p className="text-slate-600 text-sm">Get your free API token to access conservation data</p>
-                  </DialogHeader>
-                  <Alert className="bg-bangor-sun/10 border-bangor-sun/30">
-                    <Key className="h-4 w-4 text-bangor-sun" />
-                    <AlertDescription className="text-slate-700 font-medium">
-                      <strong className="text-bangor-sun">Free Registration Required:</strong> The IUCN API token is free and takes 2 minutes to obtain.
-                    </AlertDescription>
-                  </Alert>
-                  <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 space-y-4">
-                    <h4 className="font-semibold text-slate-900">How to get your token:</h4>
-                    <ol className="space-y-3 ml-4 list-decimal text-sm text-slate-700">
-                      <li>
-                        Click below to visit the IUCN Red List website
-                        <div className="mt-2">
-                          <a href="https://www.iucnredlist.org/" target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-bangor-red text-white rounded-lg text-sm font-medium">
-                            <ExternalLink className="w-4 h-4" /> Go to IUCN Red List
-                          </a>
-                        </div>
-                      </li>
-                      <li>Sign up for a free account or log in</li>
-                      <li>Navigate to your account / profile page</li>
-                      <li>Find and copy your API token</li>
-                      <li>Paste it below</li>
-                    </ol>
-                  </div>
-                  <div>
-                    <Label htmlFor="token">IUCN API Token *</Label>
-                    <Input id="token" type="password" value={formData.iucn_api_token}
-                      onChange={e => set('iucn_api_token', e.target.value)}
-                      placeholder="Paste your token here" className="mt-1 font-mono" />
-                    <p className="text-xs text-slate-500 mt-1">Your token is stored securely and used only for API requests</p>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Step 4: MAXENT Setup ── */}
-              {currentStep === 4 && (
                 <div className="space-y-5">
                   <DialogHeader>
                     <DialogTitle className="text-2xl text-bangor-red">MAXENT Species Distribution Modelling</DialogTitle>
