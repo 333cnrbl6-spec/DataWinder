@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import StatusBadge from './StatusBadge';
-import { FileText, Leaf, MapPin, Users, TrendingDown, Plus, Info } from 'lucide-react';
+import { FileText, Leaf, MapPin, Users, TrendingDown, Plus, Info, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function SpeciesCard({
