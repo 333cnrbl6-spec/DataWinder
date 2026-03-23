@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  ChevronRight, ChevronLeft, ExternalLink, AlertCircle, CheckCircle, Key,
+  ChevronRight, ChevronLeft, ExternalLink, AlertCircle, CheckCircle,
   Download, Cpu, Wifi, HardDrive, ThumbsUp, ThumbsDown, Users, Star, Rocket, Gift
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
