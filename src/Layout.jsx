@@ -72,6 +72,7 @@ const NAV_CATEGORIES = [
     icon: Zap,
     items: [
       { label: 'Benchmark Tests', page: 'BenchmarkTester', icon: Zap },
+      { label: 'User Management', page: 'UserManagement', icon: Users },
     ]
   },
   {

@@ -30,6 +30,7 @@ import BangorFounderSignup from './pages/BangorFounderSignup';
 import BangorMicrosoftLogin from './pages/BangorMicrosoftLogin';
 import SpeciesFieldReview from './pages/SpeciesFieldReview';
 import CallithrixBenchmark from './pages/CallithrixBenchmark';
+import UserManagement from './pages/UserManagement';
 import ForKids from './pages/ForKids';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -109,6 +110,7 @@ const AuthenticatedApp = () => {
       <Route path="/BangorMicrosoftLogin" element={<BangorMicrosoftLogin />} />
       <Route path="/SpeciesFieldReview" element={<LayoutWrapper currentPageName="SpeciesFieldReview"><SpeciesFieldReview /></LayoutWrapper>} />
       <Route path="/CallithrixBenchmark" element={<LayoutWrapper currentPageName="CallithrixBenchmark"><CallithrixBenchmark /></LayoutWrapper>} />
+      <Route path="/UserManagement" element={<LayoutWrapper currentPageName="UserManagement"><UserManagement /></LayoutWrapper>} />
       <Route path="/ForKids" element={<ForKids />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
