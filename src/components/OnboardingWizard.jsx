@@ -344,8 +344,8 @@ export default function OnboardingWizard({ open, onComplete }) {
                 </div>
               )}
 
-              {/* ── Step 5: Community ── */}
-              {currentStep === 5 && (
+              {/* ── Step 4: Community ── */}
+              {currentStep === 4 && (
                 <div className="space-y-5">
                   <DialogHeader>
                     <DialogTitle className="text-2xl text-bangor-red flex items-center gap-2">
