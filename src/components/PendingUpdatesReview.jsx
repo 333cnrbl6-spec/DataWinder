@@ -93,11 +93,11 @@ export default function PendingUpdatesReview({ open, onClose }) {
               <div className="flex justify-end">
                 <Button
                   onClick={() => acceptAllMutation.mutate()}
-                  disabled={acceptAllMutation.isPending}
+                  disabled={acceptAllMutation.isPending || acceptMutation.isPending || rejectMutation.isPending}
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Accept All {pendingUpdates.length} Updates
+                  {acceptAllMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                  {acceptAllMutation.isPending ? 'Saving all…' : `Accept All ${pendingUpdates.length} Updates`}
                 </Button>
               </div>
             )}
@@ -153,18 +153,20 @@ export default function PendingUpdatesReview({ open, onClose }) {
                       <Button
                         size="sm"
                         onClick={() => acceptMutation.mutate(update)}
-                        disabled={acceptMutation.isPending}
+                        disabled={acceptMutation.isPending || rejectMutation.isPending || acceptAllMutation.isPending}
                         className="bg-green-600 hover:bg-green-700"
+                        title="Accept"
                       >
-                        <CheckCircle className="w-4 h-4" />
+                        {acceptMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
                         onClick={() => rejectMutation.mutate(update.id)}
-                        disabled={rejectMutation.isPending}
+                        disabled={rejectMutation.isPending || acceptMutation.isPending || acceptAllMutation.isPending}
+                        title="Reject"
                       >
-                        <XCircle className="w-4 h-4" />
+                        {rejectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
                       </Button>
                     </div>
                   </div>

@@ -35,6 +35,7 @@ export default function ThreatAssessment() {
   // Calculate threat score
   const calculateThreat = async (species) => {
     setLoading(true);
+    setLoadingId(species.id);
     try {
       const response = await base44.functions.invoke('calculateThreatScore', {
         speciesId: species.id,
@@ -48,6 +49,7 @@ export default function ThreatAssessment() {
       console.error('Error calculating threat score:', error);
     } finally {
       setLoading(false);
+      setLoadingId(null);
     }
   };
 
@@ -86,19 +88,22 @@ export default function ThreatAssessment() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-96 overflow-y-auto">
                 {filteredSpecies.slice(0, 20).map(sp => (
                   <Button
-                    key={sp.id}
-                    onClick={() => calculateThreat(sp)}
-                    variant={selectedSpecies?.id === sp.id ? 'default' : 'outline'}
-                    className="justify-start text-left h-auto py-2 px-3"
-                    disabled={loading}
-                  >
-                    <div>
-                      <div className="font-semibold text-sm">{sp.scientific_name}</div>
-                      {sp.common_name && (
-                        <div className="text-xs text-slate-500">{sp.common_name}</div>
-                      )}
-                    </div>
-                  </Button>
+                     key={sp.id}
+                     onClick={() => calculateThreat(sp)}
+                     variant={selectedSpecies?.id === sp.id ? 'default' : 'outline'}
+                     className="justify-start text-left h-auto py-2 px-3"
+                     disabled={loading}
+                   >
+                     <div className="flex items-center gap-2 w-full">
+                       {loadingId === sp.id && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />}
+                       <div>
+                         <div className="font-semibold text-sm">{sp.scientific_name}</div>
+                         {sp.common_name && (
+                           <div className="text-xs text-slate-500">{sp.common_name}</div>
+                         )}
+                       </div>
+                     </div>
+                   </Button>
                 ))}
               </div>
             )}

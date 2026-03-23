@@ -12,7 +12,8 @@ export default function SpeciesCard({
   onSelect,
   onEnrichWithINaturalist,
   onDelete,
-  index
+  index,
+  isEnriching
 }) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -130,10 +131,11 @@ export default function SpeciesCard({
                 onEnrichWithINaturalist(species);
               }}
               size="sm"
+              disabled={isEnriching}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
             >
-              <Plus className="w-3 h-3 mr-1" />
-              iNat Data
+              {isEnriching ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Plus className="w-3 h-3 mr-1" />}
+              {isEnriching ? 'Fetching…' : 'iNat Data'}
             </Button>
           )}
 
