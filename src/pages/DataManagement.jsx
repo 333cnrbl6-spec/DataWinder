@@ -1346,8 +1346,8 @@ export default function DataManagement() {
                       className="flex-1 justify-start bg-bangor-red hover:bg-bangor-red/90"
                       title="Uses WoRMS, ITIS, IOC, and taxonomic revisions to identify duplicates"
                       >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {isRunningTaxonomyCheck ? 'Analyzing...' : 'AI Check Duplicates (WoRMS/ITIS)'}
+                      {isRunningTaxonomyCheck ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
+                      {isRunningTaxonomyCheck ? 'Analyzing…' : 'AI Check Duplicates (WoRMS/ITIS)'}
                     </Button>
                     <Button
                       onClick={() => setShowTaxonomyInfo(!showTaxonomyInfo)}
@@ -1394,8 +1394,8 @@ export default function DataManagement() {
                     className="w-full justify-start bg-teal-600 hover:bg-teal-700 text-white mt-2"
                     title="Automatically fills missing common names using iNaturalist and GBIF"
                   >
-                    <Leaf className="w-4 h-4 mr-2" />
-                    {isEnrichingNames ? 'Fetching Common Names…' : `Auto-fill Common Names (${allSpecies.filter(sp => !sp.common_name).length} missing)`}
+                    {isEnrichingNames ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Leaf className="w-4 h-4 mr-2" />}
+                     {isEnrichingNames ? 'Fetching Common Names…' : `Auto-fill Common Names (${allSpecies.filter(sp => !sp.common_name).length} missing)`}
                   </Button>
 
                   {/* Scan All Outliers */}
@@ -1428,8 +1428,8 @@ export default function DataManagement() {
                       disabled={isLoadingMergeCandidates || allSpecies.length === 0}
                       className="w-full justify-start bg-amber-600 hover:bg-amber-700"
                     >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {isLoadingMergeCandidates ? 'Scanning...' : 'Scan for Duplicate Records'}
+                      {isLoadingMergeCandidates ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
+                       {isLoadingMergeCandidates ? 'Scanning…' : 'Scan for Duplicate Records'}
                     </Button>
                   </div>
                 </div>
