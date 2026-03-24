@@ -356,6 +356,14 @@ export default function AcademicPaperLab() {
                   {registering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Hash className="w-4 h-4 mr-2" />}
                   Register Authorship
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(`/DataWinderReport?genus=${genus}`, '_blank')}
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  <BarChart2 className="w-4 h-4 mr-2" />
+                  DataWinder Evidence Report
+                </Button>
               </>
             )}
           </div>
