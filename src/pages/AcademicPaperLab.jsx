@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   FlaskConical, Loader2, Download, BookOpen, Trash2,
   FileText, History, AlertTriangle, Lock, Printer,
-  Share2, ShieldCheck, Hash, CheckCircle2
+  Share2, ShieldCheck, Hash, CheckCircle2, BarChart2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import PaperViewer from '@/components/paperlab/PaperViewer';
