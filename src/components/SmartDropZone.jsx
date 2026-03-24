@@ -204,7 +204,26 @@ export default function SmartDropZone({ onImported }) {
     try {
       const entity = base44.entities[selectedEntity];
       if (!entity) throw new Error(`Unknown entity: ${selectedEntity}`);
-      await entity.bulkCreate(parsedRows);
+      const created = await entity.bulkCreate(parsedRows);
+
+      // Log the import so it can be reverted later
+      try {
+        const user = await base44.auth.me();
+        const recordIds = Array.isArray(created) ? created.map(r => r.id).filter(Boolean) : [];
+        await base44.entities.ImportLog.create({
+          user_email: user?.email || '',
+          user_name: user?.full_name || '',
+          entity_type: selectedEntity,
+          file_name: fileInfo?.name || '',
+          record_count: parsedRows.length,
+          record_ids: recordIds,
+          status: 'completed',
+        });
+      } catch (logErr) {
+        // Log failure is non-fatal — import already succeeded
+        console.warn('Failed to write import log:', logErr.message);
+      }
+
       stopTicking();
       playSuccess();
       setImportCount(parsedRows.length);

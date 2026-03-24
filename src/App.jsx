@@ -23,6 +23,7 @@ import LiteratureLibrary from './pages/LiteratureLibrary';
 import MendeleyConnect from './pages/MendeleyConnect';
 import ProjectDashboard from './pages/ProjectDashboard';
 import SmartImport from './pages/SmartImport';
+import ImportHistory from './pages/ImportHistory';
 import DataQualityAudit from './pages/DataQualityAudit';
 import About from './pages/About';
 import BenchmarkTester from './pages/BenchmarkTester';
