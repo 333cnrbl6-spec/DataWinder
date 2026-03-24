@@ -373,6 +373,42 @@ export default function AcademicPaperLab() {
           )}
         </div>
 
+        {/* Share link result */}
+        {shareLink && (
+          <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-800">View-Once Link Generated & Copied</p>
+              <p className="text-xs text-amber-700 mt-1 break-all font-mono">{shareLink}</p>
+              <p className="text-xs text-amber-600 mt-2">
+                This link burns permanently after the first view. Expires in 48 hours. IP address of viewer is recorded.
+                The URL is already in your clipboard.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Authorship certificate */}
+        {authorshipRecord && (
+          <div className="bg-green-50 border border-green-300 rounded-xl p-4 flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-green-800">Authorship Registered</p>
+              <p className="text-xs text-green-700 mt-1">
+                <strong>Timestamp:</strong> {authorshipRecord.timestamp_utc}
+              </p>
+              <p className="text-xs text-green-700 font-mono mt-0.5 break-all">
+                <strong>SHA-256:</strong> {authorshipRecord.content_hash}
+              </p>
+              <p className="text-xs text-green-600 mt-2">
+                This hash is stored immutably. Under the Copyright, Designs and Patents Act 1988, 
+                copyright subsists from the moment of creation. This record proves you created this 
+                exact content at this exact time.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
