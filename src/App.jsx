@@ -35,6 +35,7 @@ import UserManagement from './pages/UserManagement';
 import ForKids from './pages/ForKids';
 import AcademicPaperLab from './pages/AcademicPaperLab';
 import DataWinderReport from './pages/DataWinderReport';
+import GenusComparison from './pages/GenusComparison';
 import SecureView from './pages/SecureView';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -123,6 +124,8 @@ const AuthenticatedApp = () => {
       <Route path="/SecureView" element={<SecureView />} />
       {/* DataWinder visual evidence report — admin only */}
       <Route path="/DataWinderReport" element={<LayoutWrapper currentPageName="DataWinderReport"><DataWinderReport /></LayoutWrapper>} />
+      {/* Genus comparison dashboard — admin only */}
+      <Route path="/GenusComparison" element={<LayoutWrapper currentPageName="GenusComparison"><GenusComparison /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>

@@ -74,6 +74,7 @@ const NAV_CATEGORIES = [
     items: [
       { label: 'Benchmark Tests', page: 'BenchmarkTester', icon: Zap },
       { label: 'User Management', page: 'UserManagement', icon: Users },
+      { label: 'Genus Comparison', page: 'GenusComparison', icon: GitCompare },
     ]
   },
   {
