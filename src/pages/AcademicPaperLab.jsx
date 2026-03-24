@@ -61,6 +61,10 @@ export default function AcademicPaperLab() {
   const [citationStyle, setCitationStyle] = useState('Harvard');
   const [generating, setGenerating] = useState(false);
   const [activeDraft, setActiveDraft] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareLink, setShareLink] = useState(null);
+  const [registering, setRegistering] = useState(false);
+  const [authorshipRecord, setAuthorshipRecord] = useState(null);
 
   // Auth check
   const { data: user, isLoading: authLoading } = useQuery({
