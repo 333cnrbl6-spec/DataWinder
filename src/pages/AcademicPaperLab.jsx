@@ -171,6 +171,43 @@ export default function AcademicPaperLab() {
     win.document.close();
   };
 
+  const createShareLink = async () => {
+    if (!activeDraft?.id) { toast.error('Save the draft first (generate with save_draft: true)'); return; }
+    setSharing(true);
+    setShareLink(null);
+    try {
+      const res = await base44.functions.invoke('createSecureShare', {
+        draft_id: activeDraft.id,
+        audio_enabled: true,
+        expires_hours: 48,
+      });
+      const token = res.data.token;
+      const url = `${window.location.origin}/SecureView?token=${token}`;
+      setShareLink(url);
+      await navigator.clipboard.writeText(url);
+      toast.success('One-time link copied to clipboard — share it now. It burns on first view.');
+    } catch (e) {
+      toast.error('Share failed: ' + e.message);
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const registerAuthorship = async () => {
+    if (!activeDraft?.id) { toast.error('No saved draft to register'); return; }
+    setRegistering(true);
+    setAuthorshipRecord(null);
+    try {
+      const res = await base44.functions.invoke('registerAuthorship', { draft_id: activeDraft.id });
+      setAuthorshipRecord(res.data);
+      toast.success('Authorship registered & timestamped with SHA-256 hash');
+    } catch (e) {
+      toast.error('Registration failed: ' + e.message);
+    } finally {
+      setRegistering(false);
+    }
+  };
+
   const exportMarkdown = () => {
     if (!activeDraft) return;
     const { title, sections, similarity_scores, word_count } = activeDraft;
