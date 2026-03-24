@@ -287,10 +287,16 @@ export default function AcademicPaperLab() {
               }
             </Button>
             {activeDraft && (
-              <Button variant="outline" onClick={exportMarkdown}>
-                <Download className="w-4 h-4 mr-2" />
-                Export Markdown
-              </Button>
+              <>
+                <Button variant="outline" onClick={printPaper}>
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print / Read
+                </Button>
+                <Button variant="outline" onClick={exportMarkdown}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Markdown
+                </Button>
+              </>
             )}
           </div>
 
