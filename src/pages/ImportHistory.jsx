@@ -32,9 +32,15 @@ export default function ImportHistory() {
   const [revertTarget, setRevertTarget] = useState(null); // import log object
   const [isReverting, setIsReverting] = useState(false);
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: logs = [], isLoading } = useQuery({
-    queryKey: ['import_logs'],
-    queryFn: () => base44.entities.ImportLog.list('-created_date', 100),
+    queryKey: ['import_logs', currentUser?.email],
+    queryFn: () => base44.entities.ImportLog.filter({ created_by: currentUser.email }, '-created_date', 100),
+    enabled: !!currentUser?.email,
   });
 
   const handleRevert = async () => {
