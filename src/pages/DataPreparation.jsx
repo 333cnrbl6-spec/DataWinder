@@ -356,6 +356,19 @@ export default function DataPreparation() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
+            {/* Output format showcase */}
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+              {[
+                { src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&q=80', label: 'MAXENT CSV' },
+                { src: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=300&q=80', label: 'ArcGIS SHP' },
+                { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&q=80', label: 'Excel / R' },
+              ].map(({ src, label }) => (
+                <div key={label} className="relative rounded-lg overflow-hidden shrink-0 h-20 w-32 border border-slate-200">
+                  <img src={src} alt={label} className="w-full h-full object-cover opacity-70" />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs text-center py-0.5 font-bold">{label}</div>
+                </div>
+              ))}
+            </div>
             <DataTypeSelector selected={selectedDataTypes} onChange={setSelectedDataTypes} />
           </CardContent>
         </Card>
