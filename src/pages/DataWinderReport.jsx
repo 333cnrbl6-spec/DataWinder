@@ -126,7 +126,7 @@ export default function DataWinderReport() {
               <Icon className={`w-5 h-5 ${tc} shrink-0`} />
                 <div>
                   <p className="text-xs text-slate-500">{label}</p>
-                  <p className={`text-lg font-bold ${color.split(' ')[0]}`}>{value}</p>
+                  <p className={`text-lg font-bold ${tc}`}>{value}</p>
                 </div>
               </div>
             ))}
