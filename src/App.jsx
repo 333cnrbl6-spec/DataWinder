@@ -34,6 +34,7 @@ import CallithrixBenchmark from './pages/CallithrixBenchmark';
 import UserManagement from './pages/UserManagement';
 import ForKids from './pages/ForKids';
 import AcademicPaperLab from './pages/AcademicPaperLab';
+import DataWinderReport from './pages/DataWinderReport';
 import SecureView from './pages/SecureView';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -120,6 +121,8 @@ const AuthenticatedApp = () => {
       <Route path="/AcademicPaperLab" element={<LayoutWrapper currentPageName="AcademicPaperLab"><AcademicPaperLab /></LayoutWrapper>} />
       {/* One-time secure paper viewer — no nav, no layout */}
       <Route path="/SecureView" element={<SecureView />} />
+      {/* DataWinder visual evidence report — admin only */}
+      <Route path="/DataWinderReport" element={<LayoutWrapper currentPageName="DataWinderReport"><DataWinderReport /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
