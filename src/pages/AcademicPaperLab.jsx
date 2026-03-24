@@ -15,7 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   FlaskConical, Loader2, Download, BookOpen, Trash2,
-  FileText, History, AlertTriangle, Lock, Printer
+  FileText, History, AlertTriangle, Lock, Printer,
+  Share2, ShieldCheck, Hash, CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import PaperViewer from '@/components/paperlab/PaperViewer';
