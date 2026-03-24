@@ -161,6 +161,24 @@ export default function DataPreparation() {
         </div>
       </header>
 
+      {/* ── Method Hero Banner ── */}
+      <div className="relative overflow-hidden bg-slate-900 h-48 sm:h-56">
+        <img
+          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80"
+          alt="Tropical forest canopy"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center gap-6">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-bangor-red/80 mb-1">DataWinder Workflow</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">Prepare & Export Occurrence Data</h2>
+            <p className="text-sm text-slate-300 mt-2 max-w-xl">
+              Select species, clean outliers, apply spatial thinning, then export structured files ready for MAXENT, ArcGIS and R.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* ── Step 1: Select Species ── */}
