@@ -34,6 +34,7 @@ import CallithrixBenchmark from './pages/CallithrixBenchmark';
 import UserManagement from './pages/UserManagement';
 import ForKids from './pages/ForKids';
 import AcademicPaperLab from './pages/AcademicPaperLab';
+import SecureView from './pages/SecureView';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
