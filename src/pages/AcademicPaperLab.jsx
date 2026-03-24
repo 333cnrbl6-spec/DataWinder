@@ -111,6 +111,61 @@ export default function AcademicPaperLab() {
     toast.success('Draft deleted');
   };
 
+  const printPaper = () => {
+    if (!activeDraft) return;
+    const { title, sections, keywords, word_count, citation_style, similarity_scores } = activeDraft;
+    const sectionBlocks = [
+      ['Abstract', sections.abstract],
+      ['1. Introduction', sections.introduction],
+      ['2. Materials & Methods', sections.methods],
+      ['3. Results', sections.results],
+      ['4. Discussion', sections.discussion],
+      ['5. Conclusion', sections.conclusion],
+      ['References', sections.references],
+    ].map(([heading, body]) => `
+      <section>
+        <h2>${heading}</h2>
+        ${(body || '').split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+      </section>`).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  @page { size: A4; margin: 25mm 20mm; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.7; color: #111; max-width: 170mm; margin: 0 auto; }
+  .watermark { background: #fff3cd; border: 1px solid #ffc107; padding: 8pt 12pt; font-size: 9pt; font-family: Arial, sans-serif; margin-bottom: 20pt; border-radius: 4pt; }
+  h1 { font-size: 16pt; font-weight: bold; margin-bottom: 6pt; line-height: 1.3; }
+  .meta { font-size: 9pt; color: #555; margin-bottom: 18pt; border-bottom: 1pt solid #ccc; padding-bottom: 8pt; }
+  h2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5pt; margin-top: 20pt; margin-bottom: 6pt; border-top: 1pt solid #ddd; padding-top: 10pt; }
+  p { margin: 0 0 8pt 0; text-align: justify; }
+  section:first-of-type h2 { border-top: none; padding-top: 0; }
+  @media print { .watermark { display: none; } body { max-width: 100%; } }
+</style>
+</head>
+<body>
+  <div class="watermark">⚠ PRIVATE DEVELOPER DRAFT — AI-GENERATED — FOR EVALUATION ONLY — NOT FOR DISTRIBUTION</div>
+  <h1>${title}</h1>
+  <div class="meta">
+    <strong>Genus:</strong> ${genus} &nbsp;|&nbsp;
+    <strong>Style:</strong> ${citation_style} &nbsp;|&nbsp;
+    <strong>Words:</strong> ~${word_count?.toLocaleString()} &nbsp;|&nbsp;
+    <strong>Similarity:</strong> ${similarity_scores?.overall ?? '?'}% &nbsp;|&nbsp;
+    <strong>Keywords:</strong> ${(keywords || []).join('; ')} &nbsp;|&nbsp;
+    <strong>Generated:</strong> ${new Date().toLocaleString('en-GB')}
+  </div>
+  ${sectionBlocks}
+  <script>window.onload = function(){ window.print(); }<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+  };
+
   const exportMarkdown = () => {
     if (!activeDraft) return;
     const { title, sections, similarity_scores, word_count } = activeDraft;
