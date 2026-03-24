@@ -115,6 +115,8 @@ const AuthenticatedApp = () => {
       <Route path="/CallithrixBenchmark" element={<LayoutWrapper currentPageName="CallithrixBenchmark"><CallithrixBenchmark /></LayoutWrapper>} />
       <Route path="/UserManagement" element={<LayoutWrapper currentPageName="UserManagement"><UserManagement /></LayoutWrapper>} />
       <Route path="/ForKids" element={<ForKids />} />
+      {/* PRIVATE: Developer-only academic paper generation lab — never linked from nav */}
+      <Route path="/AcademicPaperLab" element={<LayoutWrapper currentPageName="AcademicPaperLab"><AcademicPaperLab /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
