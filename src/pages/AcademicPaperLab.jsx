@@ -338,6 +338,24 @@ export default function AcademicPaperLab() {
                   <Download className="w-4 h-4 mr-2" />
                   Export Markdown
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={createShareLink}
+                  disabled={sharing || !activeDraft?.id}
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                >
+                  {sharing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Share2 className="w-4 h-4 mr-2" />}
+                  View-Once Share
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={registerAuthorship}
+                  disabled={registering || !activeDraft?.id}
+                  className="border-green-300 text-green-700 hover:bg-green-50"
+                >
+                  {registering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Hash className="w-4 h-4 mr-2" />}
+                  Register Authorship
+                </Button>
               </>
             )}
           </div>
