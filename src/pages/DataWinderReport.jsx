@@ -117,13 +117,13 @@ export default function DataWinderReport() {
           {/* KPI strip */}
           <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Species in DB', value: report.species_count, icon: Globe, color: 'text-blue-600 bg-blue-50' },
-              { label: 'Total Records', value: totalRecords.toLocaleString(), icon: Database, color: 'text-green-600 bg-green-50' },
-              { label: 'Location Points', value: report.location_points?.length || 0, icon: MapPin, color: 'text-purple-600 bg-purple-50' },
-              { label: 'Data-poor Outliers', value: flaggedCount, icon: AlertTriangle, color: flaggedCount > 0 ? 'text-red-600 bg-red-50' : 'text-slate-500 bg-slate-50' },
-            ].map(({ label, value, icon: Icon, color }) => (
-              <div key={label} className={`rounded-xl p-3 flex items-center gap-3 ${color.split(' ')[1]}`}>
-                <Icon className={`w-5 h-5 ${color.split(' ')[0]} shrink-0`} />
+            { label: 'Species in DB', value: report.species_count, Icon: Globe, bg: 'bg-blue-50', tc: 'text-blue-600' },
+            { label: 'Total Records', value: totalRecords.toLocaleString(), Icon: Database, bg: 'bg-green-50', tc: 'text-green-600' },
+            { label: 'Location Points', value: report.location_points?.length || 0, Icon: MapPin, bg: 'bg-purple-50', tc: 'text-purple-600' },
+            { label: 'Data-poor Outliers', value: flaggedCount, Icon: AlertTriangle, bg: flaggedCount > 0 ? 'bg-red-50' : 'bg-slate-50', tc: flaggedCount > 0 ? 'text-red-600' : 'text-slate-500' },
+            ].map(({ label, value, Icon, bg, tc }) => (
+            <div key={label} className={`rounded-xl p-3 flex items-center gap-3 ${bg}`}>
+              <Icon className={`w-5 h-5 ${tc} shrink-0`} />
                 <div>
                   <p className="text-xs text-slate-500">{label}</p>
                   <p className={`text-lg font-bold ${color.split(' ')[0]}`}>{value}</p>
