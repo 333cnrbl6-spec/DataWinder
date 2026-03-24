@@ -321,6 +321,25 @@ export default function DataPreparation() {
             <p className="text-xs text-slate-500 mt-0.5">Reduce spatial autocorrelation in MAXENT occurrence output (recommended for SDMs)</p>
           </CardHeader>
           <CardContent className="p-4">
+            {/* Illustrative before/after thinning */}
+            <div className="grid grid-cols-2 gap-2 mb-4 rounded-xl overflow-hidden border border-slate-200">
+              <div className="relative h-24 sm:h-32 bg-slate-800">
+                <img
+                  src="https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=500&q=80"
+                  alt="Dense clustered points before thinning"
+                  className="w-full h-full object-cover opacity-60"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs text-center py-1 font-semibold">Before — dense clusters</div>
+              </div>
+              <div className="relative h-24 sm:h-32 bg-slate-800">
+                <img
+                  src="https://images.unsplash.com/photo-1569982175971-d92b01cf8694?w=500&q=80"
+                  alt="Evenly spaced points after thinning"
+                  className="w-full h-full object-cover opacity-60"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-bangor-red/80 text-white text-xs text-center py-1 font-semibold">After — spatially thinned</div>
+              </div>
+            </div>
             <SpatialThinningPanel
               value={spatialThinning}
               onChange={setSpatialThinning}
