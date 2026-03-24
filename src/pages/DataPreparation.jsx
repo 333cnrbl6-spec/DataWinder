@@ -264,6 +264,19 @@ export default function DataPreparation() {
             <p className="text-xs text-slate-500 mt-0.5">Choose how statistically suspect occurrence points are treated in the export</p>
           </CardHeader>
           <CardContent className="p-4 space-y-2">
+            {/* Illustrative image — IQR outlier map concept */}
+            <div className="relative rounded-xl overflow-hidden mb-3 h-28 sm:h-36 bg-slate-900">
+              <img
+                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&q=80"
+                alt="Map with occurrence points"
+                className="w-full h-full object-cover opacity-50"
+              />
+              <div className="absolute inset-0 flex items-center px-4 gap-3">
+                <span className="inline-flex items-center gap-1.5 bg-green-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">✓ Valid point</span>
+                <span className="inline-flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">✕ IQR outlier flagged</span>
+                <span className="inline-flex items-center gap-1.5 bg-amber-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">⚠ Low-confidence duplicate</span>
+              </div>
+            </div>
             {[
               { value: 'include_all',         label: 'Include all points',                       desc: 'No filtering — export every occurrence record as-is' },
               { value: 'exclude_high',        label: 'Exclude high-confidence outliers (≥75%)',  desc: 'Removes invalid coords and strong IQR deviations; keeps low-confidence duplicates' },
