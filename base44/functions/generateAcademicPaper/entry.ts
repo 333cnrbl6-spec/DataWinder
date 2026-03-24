@@ -221,25 +221,19 @@ Return a JSON object with these exact keys:
 
     console.log('Calling LLM to generate paper...');
 
-    const generated = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const rawLLM = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: llmPrompt,
       model: 'claude_sonnet_4_6',
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          title: { type: 'string' },
-          abstract: { type: 'string' },
-          introduction: { type: 'string' },
-          methods: { type: 'string' },
-          results: { type: 'string' },
-          discussion: { type: 'string' },
-          conclusion: { type: 'string' },
-          references: { type: 'string' },
-          keywords: { type: 'array', items: { type: 'string' } },
-          word_count_estimate: { type: 'number' }
-        }
-      }
     });
+
+    // Parse the LLM response — it may return a JSON string or an object
+    let generated;
+    if (typeof rawLLM === 'string') {
+      const match = rawLLM.match(/\{[\s\S]*\}/);
+      generated = match ? JSON.parse(match[0]) : {};
+    } else {
+      generated = rawLLM;
+    }
 
     console.log('LLM response received, computing similarity scores...');
 
