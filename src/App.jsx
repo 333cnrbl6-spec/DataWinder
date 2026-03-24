@@ -33,6 +33,7 @@ import SpeciesFieldReview from './pages/SpeciesFieldReview';
 import CallithrixBenchmark from './pages/CallithrixBenchmark';
 import UserManagement from './pages/UserManagement';
 import ForKids from './pages/ForKids';
+import AcademicPaperLab from './pages/AcademicPaperLab';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
