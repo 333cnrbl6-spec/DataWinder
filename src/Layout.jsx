@@ -25,6 +25,7 @@ const NAV_CATEGORIES = [
     icon: PackageOpen,
     items: [
       { label: 'Smart Import', page: 'SmartImport', icon: PackageOpen },
+      { label: 'Import History', page: 'ImportHistory', icon: History },
       { label: 'Data Preparation', page: 'DataPreparation', icon: FileOutput },
       { label: 'Database Cleanse', page: 'DatabaseCleanse', icon: PackageOpen },
       { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },

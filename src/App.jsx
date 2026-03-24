@@ -104,6 +104,7 @@ const AuthenticatedApp = () => {
       <Route path="/MendeleyConnect" element={<MendeleyConnect />} />
       <Route path="/ProjectDashboard" element={<LayoutWrapper currentPageName="ProjectDashboard"><ProjectDashboard /></LayoutWrapper>} />
       <Route path="/SmartImport" element={<LayoutWrapper currentPageName="SmartImport"><SmartImport /></LayoutWrapper>} />
+      <Route path="/ImportHistory" element={<LayoutWrapper currentPageName="ImportHistory"><ImportHistory /></LayoutWrapper>} />
       <Route path="/DataQualityAudit" element={<LayoutWrapper currentPageName="DataQualityAudit"><DataQualityAudit /></LayoutWrapper>} />
       <Route path="/About" element={<LayoutWrapper currentPageName="About"><About /></LayoutWrapper>} />
       <Route path="/BenchmarkTester" element={<LayoutWrapper currentPageName="BenchmarkTester"><BenchmarkTester /></LayoutWrapper>} />
