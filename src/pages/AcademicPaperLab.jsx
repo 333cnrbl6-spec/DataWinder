@@ -364,6 +364,17 @@ export default function AcademicPaperLab() {
                   <BarChart2 className="w-4 h-4 mr-2" />
                   DataWinder Evidence Report
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const win = window.open(`/DataWinderReport?genus=${genus}&print=1`, '_blank');
+                    win.addEventListener('load', () => setTimeout(() => win.print(), 1500));
+                  }}
+                  className="border-slate-300 text-slate-600 hover:bg-slate-50"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Evidence Report
+                </Button>
               </>
             )}
           </div>
