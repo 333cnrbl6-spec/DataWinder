@@ -329,53 +329,60 @@ export default function AcademicPaperLab() {
               }
             </Button>
             {activeDraft && (
-              <>
-                <Button variant="outline" onClick={printPaper}>
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print / Read
-                </Button>
-                <Button variant="outline" onClick={exportMarkdown}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Markdown
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={createShareLink}
-                  disabled={sharing || !activeDraft?.id}
-                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
-                >
-                  {sharing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Share2 className="w-4 h-4 mr-2" />}
-                  View-Once Share
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={registerAuthorship}
-                  disabled={registering || !activeDraft?.id}
-                  className="border-green-300 text-green-700 hover:bg-green-50"
-                >
-                  {registering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Hash className="w-4 h-4 mr-2" />}
-                  Register Authorship
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => window.open(`/DataWinderReport?genus=${genus}`, '_blank')}
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50"
-                >
-                  <BarChart2 className="w-4 h-4 mr-2" />
-                  DataWinder Evidence Report
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const win = window.open(`/DataWinderReport?genus=${genus}&print=1`, '_blank');
-                    win.addEventListener('load', () => setTimeout(() => win.print(), 1500));
-                  }}
-                  className="border-slate-300 text-slate-600 hover:bg-slate-50"
-                >
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Evidence Report
-                </Button>
-              </>
+              <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Paper actions */}
+                <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Paper</p>
+                  <Button variant="outline" onClick={printPaper} className="justify-start gap-2 text-xs h-8">
+                    <Printer className="w-3.5 h-3.5" /> Print / Read Paper
+                  </Button>
+                  <Button variant="outline" onClick={exportMarkdown} className="justify-start gap-2 text-xs h-8">
+                    <Download className="w-3.5 h-3.5" /> Export Markdown
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={createShareLink}
+                    disabled={sharing || !activeDraft?.id}
+                    className="justify-start gap-2 text-xs h-8 border-amber-300 text-amber-700 hover:bg-amber-50"
+                  >
+                    {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
+                    View-Once Share Link
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={registerAuthorship}
+                    disabled={registering || !activeDraft?.id}
+                    className="justify-start gap-2 text-xs h-8 border-green-300 text-green-700 hover:bg-green-50"
+                  >
+                    {registering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Hash className="w-3.5 h-3.5" />}
+                    Register Authorship (SHA-256)
+                  </Button>
+                </div>
+
+                {/* Evidence report actions */}
+                <div className="flex flex-col gap-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
+                  <p className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1">DataWinder Evidence Report</p>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-1">
+                    Visual companion showing everything DataWinder collected — maps, charts, species images, outlier flags and completeness matrix for <em>{genus}</em>.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open(`/DataWinderReport?genus=${genus}`, '_blank')}
+                    className="justify-start gap-2 text-xs h-8 border-purple-300 text-purple-700 hover:bg-purple-100"
+                  >
+                    <BarChart2 className="w-3.5 h-3.5" /> Open Evidence Report
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const win = window.open(`/DataWinderReport?genus=${genus}&print=1`, '_blank');
+                      win.addEventListener('load', () => setTimeout(() => win.print(), 1500));
+                    }}
+                    className="justify-start gap-2 text-xs h-8 bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    <Printer className="w-3.5 h-3.5" /> Print / Save Evidence Report as PDF
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
 
