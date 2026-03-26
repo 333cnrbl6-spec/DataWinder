@@ -102,7 +102,7 @@ export default function IUCNSplitView({ species = [], rangeData = [], assessment
         <div className="w-80 shrink-0 bg-white border-r border-slate-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
             <p className="text-xs font-semibold text-amber-900">Download checklist</p>
-            <p className="text-xs text-slate-500 mt-0.5">Click a species to navigate the IUCN page. Drag files onto the drop zone below.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Expand a species to see what's missing. Use the guide on the right to download & import files.</p>
           </div>
 
           {/* Species list */}
@@ -237,34 +237,52 @@ export default function IUCNSplitView({ species = [], rangeData = [], assessment
               </div>
             </div>
 
+            {/* What the spatial data page actually offers */}
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+              <p className="font-semibold mb-1">ℹ️ How IUCN spatial downloads work</p>
+              <p className="text-xs text-blue-800 leading-relaxed">
+                The IUCN Spatial Data Download page offers <strong>bulk taxonomic downloads</strong> — e.g. one 815 MB ZIP for all Terrestrial Mammals. 
+                It does <em>not</em> offer individual species shapefiles. 
+                For <em>Callithrix</em>, the practical route is to download the full <strong>Terrestrial Mammals</strong> ZIP and extract the relevant species, 
+                or visit each species page individually for the range map image and assessment PDF.
+              </p>
+            </div>
+
             {/* Step-by-step guide */}
             <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
               {[
                 {
                   step: 1,
-                  title: 'Log in to your IUCN account',
-                  detail: 'Go to iucnredlist.org → click Sign In top-right. You need a registered account to download spatial data.',
-                  action: { label: 'Open IUCN login', url: 'https://www.iucnredlist.org/login' },
+                  title: 'Log in to IUCN',
+                  detail: 'You need a free registered account to download spatial data. Click Sign In at the top-right of the Red List site.',
+                  action: { label: 'IUCN login page', url: 'https://www.iucnredlist.org/login' },
                   icon: '🔑',
                 },
                 {
                   step: 2,
-                  title: 'Go to Spatial Data Download',
-                  detail: 'Navigate to Resources → Spatial Data Download. Select the relevant taxon group (e.g. Mammalia > Primates > Callithrix).',
-                  action: { label: 'Spatial data page', url: 'https://www.iucnredlist.org/resources/spatial-data-download' },
-                  icon: '🗺️',
+                  title: 'Download Terrestrial Mammals bulk shapefile',
+                  detail: 'On the Spatial Data Download page, find "Terrestrial Mammals" and click the polygon download link (815 MB ZIP). This single file contains range polygons for all terrestrial mammals including all Callithrix species.',
+                  action: { label: 'Spatial Data Download page', url: 'https://www.iucnredlist.org/resources/spatial-data-download' },
+                  icon: '📦',
                 },
                 {
                   step: 3,
-                  title: 'Download files for each species',
-                  detail: 'For each species in the checklist, download: Shapefile (.zip), Range map image (.jpg), and Assessment PDF. Use the "Open on IUCN →" links on the left to jump directly to each species page.',
+                  title: 'Extract Callithrix layers from the ZIP',
+                  detail: 'Unzip the downloaded file. Open the shapefile in QGIS or ArcGIS and filter by sci_name LIKE \'Callithrix%\' to extract only the relevant species polygons. Export each as a separate GeoJSON or SHP.',
                   action: null,
-                  icon: '⬇️',
+                  icon: '✂️',
                 },
                 {
                   step: 4,
-                  title: 'Drop files into the upload zone',
-                  detail: 'Drag the downloaded files onto the "Upload downloaded files" button in the bottom-left panel. The checklist will automatically strike through each species as files are detected.',
+                  title: 'Get range map image & assessment PDF per species',
+                  detail: 'For the JPG map and assessment PDF, visit each species page directly using the quick-links below. On the species page: "View/Download" → Range Map Image (.jpg) and Assessment PDF.',
+                  action: null,
+                  icon: '🖼️',
+                },
+                {
+                  step: 5,
+                  title: 'Upload all files here',
+                  detail: 'Drag your extracted GeoJSON/SHP files and any JPG/PDF files onto the "Upload downloaded files" button in the bottom-left panel. The checklist ticks off automatically as each file is detected in the database.',
                   action: null,
                   icon: '📂',
                 },
