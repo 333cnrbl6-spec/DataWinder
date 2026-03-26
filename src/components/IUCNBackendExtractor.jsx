@@ -29,24 +29,43 @@ export default function IUCNBackendExtractor() {
     setResult(null);
 
     try {
-      const response = await base44.functions.invoke('automatedIUCNExtract', {
-        library_id: selectedLibraryId,
-        ...(genusFilter.trim() ? { genus_filter: genusFilter.trim() } : {})
-      });
+       // Create timeout controller (20 min max - allows for large file processing)
+       const controller = new AbortController();
+       const timeoutId = setTimeout(() => controller.abort(), 20 * 60 * 1000);
 
-      if (response.data?.error) {
-        throw new Error(response.data.error);
-      }
+       const response = await base44.functions.invoke('automatedIUCNExtract', {
+         library_id: selectedLibraryId,
+         ...(genusFilter.trim() ? { genus_filter: genusFilter.trim() } : {})
+       });
 
-      setResult(response.data);
-      toast.success(`Extracted ${response.data?.species_count || 0} species`);
-    } catch (err) {
-      const msg = err?.response?.data?.error || err.message || 'Extraction failed';
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setRunning(false);
-    }
+       clearTimeout(timeoutId);
+
+       if (response.data?.error) {
+         throw new Error(response.data.error);
+       }
+
+       if (response.status >= 400) {
+         throw new Error(response.data?.error || `Server error: ${response.status}`);
+       }
+
+       setResult(response.data);
+       toast.success(`Extracted ${response.data?.species_count || 0} species`);
+     } catch (err) {
+       const statusCode = err?.response?.status;
+       let msg = err?.response?.data?.error || err.message || 'Extraction failed';
+
+       // Handle specific error cases
+       if (statusCode === 502 || statusCode === 504) {
+         msg = 'Processing exceeded timeout. Try with a more specific genus filter (e.g., "Callithrix" vs "Callitrichidae").';
+       } else if (err.name === 'AbortError') {
+         msg = 'Request cancelled (timeout).';
+       }
+
+       setError(msg);
+       toast.error(msg);
+     } finally {
+       setRunning(false);
+     }
   };
 
   return (

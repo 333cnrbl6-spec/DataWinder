@@ -43,8 +43,13 @@ export default function IUCNRangeFetcher({ species = [], onComplete }) {
       if (data.range_shp_file_uri) filesGot.push('SHP');
       if (data.range_csv_file_uri) filesGot.push('CSV');
 
-      // Update the IUCNRangeData record if it exists, or update Species record with file URIs
-      const rangeRecords = await base44.entities.IUCNRangeData.filter({ species_id: sp.id });
+      // Batch fetch both records at once (avoid N+1)
+      const [rangeRecords, assessmentRecords] = await Promise.all([
+        base44.entities.IUCNRangeData.filter({ species_id: sp.id }),
+        base44.entities.IUCNAssessment.filter({ species_id: sp.id })
+      ]);
+
+      // Update IUCNRangeData if exists
       if (rangeRecords.length > 0) {
         const updates = {};
         if (data.range_map_jpg_file_uri) updates.range_map_jpg_file_uri = data.range_map_jpg_file_uri;
@@ -55,14 +60,11 @@ export default function IUCNRangeFetcher({ species = [], onComplete }) {
         }
       }
 
-      // Update IUCNAssessment with PDF
-      if (data.assessment_pdf_file_uri) {
-        const assessmentRecords = await base44.entities.IUCNAssessment.filter({ species_id: sp.id });
-        if (assessmentRecords.length > 0) {
-          await base44.entities.IUCNAssessment.update(assessmentRecords[0].id, {
-            assessment_pdf_file_uri: data.assessment_pdf_file_uri
-          });
-        }
+      // Update IUCNAssessment if exists and has PDF
+      if (assessmentRecords.length > 0 && data.assessment_pdf_file_uri) {
+        await base44.entities.IUCNAssessment.update(assessmentRecords[0].id, {
+          assessment_pdf_file_uri: data.assessment_pdf_file_uri
+        });
       }
 
       setResults(prev => ({
@@ -89,15 +91,16 @@ export default function IUCNRangeFetcher({ species = [], onComplete }) {
   };
 
   const runAll = async () => {
-    setRunning(true);
-    setResults({});
-    for (const sp of candidates) {
-      await fetchForSpecies(sp);
-    }
-    setCurrentSpecies(null);
-    setRunning(false);
-    onComplete?.();
-  };
+     setRunning(true);
+     setResults({});
+     // Batch in groups of 3 to avoid overwhelming backend
+     for (let i = 0; i < candidates.length; i += 3) {
+       await Promise.all(candidates.slice(i, i + 3).map(fetchForSpecies));
+     }
+     setCurrentSpecies(null);
+     setRunning(false);
+     onComplete?.();
+   };
 
   if (candidates.length === 0 && complete.length === 0) {
     return null;

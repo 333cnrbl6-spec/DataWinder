@@ -52,6 +52,10 @@ Deno.serve(async (req) => {
       ...(iucn_version ? { iucn_version } : {})
     });
 
+    if (result.status >= 400) {
+      throw new Error(`Backend extraction failed (${result.status}): ${result.data?.error || 'Unknown error'}`);
+    }
+
     if (result.data?.error) {
       throw new Error(result.data.error);
     }

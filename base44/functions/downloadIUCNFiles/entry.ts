@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const getMimeTypeFromFilename = (filename) => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -123,12 +123,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Determine status based on what succeeded
-    const successCount = Object.values(result).filter(v => typeof v === 'string' && v.startsWith('private://')).length;
-    const totalAttempts = [result.assessment_pdf_file_uri, result.range_map_jpg_file_uri, result.range_shp_file_uri, result.range_csv_file_uri].filter(v => v !== null).length;
+    // Count successful downloads
+    const fileUris = [result.assessment_pdf_file_uri, result.range_map_jpg_file_uri, result.range_shp_file_uri, result.range_csv_file_uri];
+    const successCount = fileUris.filter(uri => uri && typeof uri === 'string').length;
+    const skipCount = result.logs.filter(l => l.includes('Skipped') || l.includes('Error')).length;
     
     result.status = successCount > 0 ? 'partial_success' : 'no_files_downloaded';
-    result.summary = `Downloaded ${successCount} file${successCount === 1 ? '' : 's'}. ${result.logs.filter(l => l.includes('Skipped') || l.includes('Error')).length} resource${result.logs.filter(l => l.includes('Skipped') || l.includes('Error')).length === 1 ? '' : 's'} unavailable.`;
+    result.summary = `Downloaded ${successCount} file${successCount === 1 ? '' : 's'}. ${skipCount} resource${skipCount === 1 ? '' : 's'} unavailable.`;
     
     return Response.json(result);
   } catch (error) {

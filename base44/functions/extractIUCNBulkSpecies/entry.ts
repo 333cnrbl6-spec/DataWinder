@@ -202,11 +202,44 @@ Deno.serve(async (req) => {
     console.log('Downloading bulk shapefile ZIP...');
     const zipResponse = await fetch(signed_url, { timeout: 120000 });
     if (!zipResponse.ok) throw new Error(`Failed to fetch stored file: ${zipResponse.status}`);
-    const zipBuffer = await zipResponse.arrayBuffer();
+    
+    // CRITICAL: Use streaming to avoid memory overflow on large files (814MB+)
+    let zipBuffer;
+    if (zipResponse.body) {
+      const chunks = [];
+      const reader = zipResponse.body.getReader();
+      let totalSize = 0;
+      const MAX_ZIP_SIZE = 2_000_000_000; // 2GB safeguard
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          totalSize += value.byteLength;
+          if (totalSize > MAX_ZIP_SIZE) {
+            throw new Error(`ZIP file exceeds 2GB limit (${(totalSize / 1e9).toFixed(2)}GB)`);
+          }
+          console.log(`Downloaded ${(totalSize / 1e6).toFixed(1)}MB...`);
+        }
+        zipBuffer = new Uint8Array(totalSize);
+        let offset = 0;
+        for (const chunk of chunks) {
+          zipBuffer.set(chunk, offset);
+          offset += chunk.byteLength;
+        }
+        zipBuffer = zipBuffer.buffer;
+      } catch (e) {
+        console.error('Stream read failed:', e.message);
+        throw e;
+      }
+    } else {
+      zipBuffer = await zipResponse.arrayBuffer();
+    }
 
     // 2. Extract SHP + DBF from ZIP
     const zip = new JSZip();
     await zip.loadAsync(zipBuffer);
+    console.log(`ZIP loaded: ${(zipBuffer.byteLength / 1e6).toFixed(1)}MB`);
 
     const files = {};
     for (const [name, entry] of Object.entries(zip.files)) {

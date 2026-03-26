@@ -118,13 +118,11 @@ export default function IUCNBulkExtractPanel({ onDone }) {
     setExtractError('');
     setPhase('extract');
 
+    const timeoutId = setTimeout(() => {}, 15 * 60 * 1000); // 15 min timeout token
+
     try {
       const payload = modeType === 'app_data' ? { mode: 'app_data' } : { file_uri };
       if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
-
-      // Create a custom abort controller with longer timeout (15 minutes for large files)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15 * 60 * 1000);
 
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', {
         ...payload,
@@ -142,17 +140,20 @@ export default function IUCNBulkExtractPanel({ onDone }) {
       setPhase('done');
       onDone?.();
     } catch (e) {
-      const errorMsg = e?.response?.data?.error || e.message;
       const statusCode = e?.response?.status;
+      const errorMsg = e?.response?.data?.error || e.message;
 
       let msg = errorMsg || 'Extraction failed';
       if (statusCode === 502 || statusCode === 504) {
-        msg = 'Processing is taking too long. Try again with a smaller file or a more specific genus filter (like "Callithrix").';
+        msg = 'Processing exceeded timeout. Try with a more specific genus filter (e.g., "Callithrix" vs "Callitrichidae").';
+      } else if (e.name === 'AbortError') {
+        msg = 'Request cancelled (timeout exceeded).';
       }
 
       setExtractError(msg);
       setPhase('error');
     } finally {
+      clearTimeout(timeoutId);
       setExtracting(false);
     }
   };

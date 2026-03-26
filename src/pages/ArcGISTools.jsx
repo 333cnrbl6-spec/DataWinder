@@ -30,7 +30,6 @@ import { useAnalysisState } from '@/hooks/useAnalysisState';
 
 export default function ArcGISTools() {
   const [showArcGISTerms, setShowArcGISTerms] = useState(false);
-
   const [arcgisAgreed, setArcgisAgreed] = useState(false);
   const [showSplitView, setShowSplitView] = useState(false);
   const { selectedSpecies, setSelectedSpecies } = useSpecies();
@@ -71,6 +70,25 @@ export default function ArcGISTools() {
 
   const speciesWithRangeData = enrichedSpecies.filter(sp => sp.range_data_geojson);
 
+  // Shared export utility to reduce duplication
+  const downloadGeoJSON = (geojson, filename) => {
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const extractGeometry = (rangeData) => {
+    return rangeData?.type === 'FeatureCollection' 
+      ? rangeData.features[0]?.geometry 
+      : rangeData?.geometry;
+  };
+
   const exportForArcGIS = () => {
     const features = speciesWithRangeData.map(sp => ({
       type: 'Feature',
@@ -83,25 +101,13 @@ export default function ArcGISTools() {
         order: sp.order_name,
         class: sp.class_name
       },
-      geometry: sp.range_data_geojson.type === 'FeatureCollection' 
-        ? sp.range_data_geojson.features[0]?.geometry 
-        : sp.range_data_geojson.geometry
+      geometry: extractGeometry(sp.range_data_geojson)
     })).filter(f => f.geometry);
 
-    const geojson = {
+    downloadGeoJSON({
       type: 'FeatureCollection',
       features
-    };
-
-    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `arcgis_species_ranges_${Date.now()}.geojson`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    }, `arcgis_species_ranges_${Date.now()}.geojson`);
   };
 
   return (
@@ -331,52 +337,23 @@ export default function ArcGISTools() {
                 onClick={() => {
                   const occurrences = allSpecies
                     .filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)
-                    .flatMap(sp => {
-                      const points = [
-                        ...(sp.observations || []).map(obs => ({
-                          type: 'Feature',
-                          properties: {
-                            species: sp.scientific_name,
-                            common_name: sp.common_name,
-                            source: 'iNaturalist',
-                            date: obs.observed_on
-                          },
-                          geometry: {
-                            type: 'Point',
-                            coordinates: [obs.longitude, obs.latitude]
-                          }
-                        })),
-                        ...(sp.gbif_occurrences || []).map(occ => ({
-                          type: 'Feature',
-                          properties: {
-                            species: sp.scientific_name,
-                            common_name: sp.common_name,
-                            source: 'GBIF',
-                            date: occ.date
-                          },
-                          geometry: {
-                            type: 'Point',
-                            coordinates: [occ.longitude, occ.latitude]
-                          }
-                        }))
-                      ];
-                      return points;
-                    });
+                    .flatMap(sp => [
+                      ...(sp.observations || []).map(obs => ({
+                        type: 'Feature',
+                        properties: { species: sp.scientific_name, common_name: sp.common_name, source: 'iNaturalist', date: obs.observed_on },
+                        geometry: { type: 'Point', coordinates: [obs.longitude, obs.latitude] }
+                      })),
+                      ...(sp.gbif_occurrences || []).map(occ => ({
+                        type: 'Feature',
+                        properties: { species: sp.scientific_name, common_name: sp.common_name, source: 'GBIF', date: occ.date },
+                        geometry: { type: 'Point', coordinates: [occ.longitude, occ.latitude] }
+                      }))
+                    ]);
 
-                  const geojson = {
+                  downloadGeoJSON({
                     type: 'FeatureCollection',
                     features: occurrences
-                  };
-
-                  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `arcgis_occurrences_${Date.now()}.geojson`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+                  }, `arcgis_occurrences_${Date.now()}.geojson`);
                 }}
                 className="w-full justify-start bg-emerald-600 hover:bg-emerald-700"
                 disabled={!allSpecies.some(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0)}
@@ -548,11 +525,7 @@ export default function ArcGISTools() {
 
               <Button
                 onClick={() => {
-                  // Export all threatened species for ArcGIS
-                  const threatened = speciesWithRangeData.filter(sp => 
-                    ['CR', 'EN', 'VU'].includes(sp.iucn_status)
-                  );
-                  
+                  const threatened = speciesWithRangeData.filter(sp => ['CR', 'EN', 'VU'].includes(sp.iucn_status));
                   if (threatened.length === 0) return;
 
                   const features = threatened.map(sp => ({
@@ -565,25 +538,10 @@ export default function ArcGISTools() {
                       family: sp.family,
                       threats: sp.threats
                     },
-                    geometry: sp.range_data_geojson.type === 'FeatureCollection' 
-                      ? sp.range_data_geojson.features[0]?.geometry 
-                      : sp.range_data_geojson.geometry
+                    geometry: extractGeometry(sp.range_data_geojson)
                   })).filter(f => f.geometry);
 
-                  const geojson = {
-                    type: 'FeatureCollection',
-                    features
-                  };
-
-                  const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `threatened_species_${Date.now()}.geojson`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+                  downloadGeoJSON({ type: 'FeatureCollection', features }, `threatened_species_${Date.now()}.geojson`);
                 }}
                 className="w-full justify-start bg-orange-600 hover:bg-orange-700"
                 disabled={!speciesWithRangeData.some(sp => ['CR', 'EN', 'VU'].includes(sp.iucn_status))}
