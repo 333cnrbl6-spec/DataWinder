@@ -194,6 +194,7 @@ export default function IUCNSplitView({ species = [], rangeData = [], assessment
             ) : (
               <div className="space-y-2">
                 <SmartDropZone
+                  targetSpecies={speciesNeedingFiles.map(sp => sp.scientific_name)}
                   onImported={() => {
                     setShowDropZone(false);
                     onUploaded?.();

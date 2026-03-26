@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useSearchSounds } from '@/hooks/useSearchSounds';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, X, Database, Sparkles, Info } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2, X, Database, Sparkles, Info, Globe, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -41,10 +41,10 @@ const COLOR_MAP = {
   slate: 'bg-slate-50 border-slate-300 text-slate-800 hover:bg-slate-100',
 };
 
-export default function SmartDropZone({ onImported }) {
+export default function SmartDropZone({ onImported, targetSpecies = null }) {
   const [dragging, setDragging] = useState(false);
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState('idle'); // idle | analysing | confirm | importing | done | error
+  const [step, setStep] = useState('idle'); // idle | analysing | confirm | importing | done | error | bulk_mammals
   const [fileInfo, setFileInfo] = useState(null);
   const [aiResult, setAiResult] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -52,8 +52,10 @@ export default function SmartDropZone({ onImported }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [importCount, setImportCount] = useState(0);
   const [fileUrl, setFileUrl] = useState(null);
+  const [fileUri, setFileUri] = useState(null); // private storage URI
   const [archiveName, setArchiveName] = useState('');
   const [archiveDesc, setArchiveDesc] = useState('');
+  const [genusFilter, setGenusFilter] = useState('Callithrix');
   const inputRef = useRef();
   const { playSuccess, playError, startTicking, stopTicking } = useSearchSounds();
 
@@ -66,8 +68,10 @@ export default function SmartDropZone({ onImported }) {
     setErrorMsg('');
     setImportCount(0);
     setFileUrl(null);
+    setFileUri(null);
     setArchiveName('');
     setArchiveDesc('');
+    setGenusFilter('Callithrix');
   };
 
   const detectDatasource = (fileName) => {
@@ -105,7 +109,29 @@ export default function SmartDropZone({ onImported }) {
         const hasDbf = files.some(f => getFileExt(f.name) === 'dbf');
 
         if (hasShp && hasDbf) {
-          // Upload the full ZIP then call processShapefileData
+          // Detect IUCN bulk Terrestrial Mammals download (large file, 100MB+)
+          // These need special handling: save to private storage, then extract target species only
+          const isBulkMammals = file.size > 50 * 1024 * 1024 || // >50MB suggests bulk
+            /MAMMALS_TERRESTRIAL|terrestrial_mammals|TERRESTRIAL_MAMMALS/i.test(file.name);
+
+          if (isBulkMammals) {
+            // Save to private backend storage (so we can re-use without re-uploading)
+            setFileInfo({ name: file.name, size: file.size, type: file.type, isBulkMammals: true, fileList: files.map(f => f.name) });
+            stopTicking();
+            setStep('bulk_mammals_saving');
+
+            try {
+              const saved = await base44.integrations.Core.UploadPrivateFile({ file });
+              setFileUri(saved.file_uri);
+              setStep('bulk_mammals');
+            } catch (e) {
+              setErrorMsg(`Failed to save file to backend: ${e.message}`);
+              setStep('error');
+            }
+            return;
+          }
+
+          // Standard (small) shapefile — upload publicly then call processShapefileData
           const uploadedFile = await base44.integrations.Core.UploadFile({ file });
           setFileUrl(uploadedFile.file_url);
           setFileInfo({ name: file.name, size: file.size, type: file.type, isShapefile: true, fileList: files.map(f => f.name) });
@@ -299,6 +325,36 @@ export default function SmartDropZone({ onImported }) {
       stopTicking();
       playError();
       setErrorMsg(e.message || 'Failed to archive file');
+      setStep('error');
+    }
+  };
+
+  const handleBulkMammalsExtract = async () => {
+    if (!fileUri) return;
+    setStep('importing');
+    startTicking(30000);
+    try {
+      const payload = { file_uri: fileUri };
+      if (targetSpecies && targetSpecies.length > 0) {
+        payload.target_species = targetSpecies;
+      } else if (genusFilter.trim()) {
+        payload.genus_filter = genusFilter.trim();
+      }
+
+      const result = await base44.functions.invoke('extractIUCNBulkSpecies', payload);
+      if (result.data?.error) throw new Error(result.data.error);
+
+      stopTicking();
+      playSuccess();
+      setImportCount(result.data?.species_count || 0);
+      setAiResult({ shapefile: true, message: result.data?.message, species: result.data?.species });
+      setStep('done');
+      onImported && onImported('IUCNRangeData', result.data?.species_count || 0);
+    } catch (e) {
+      stopTicking();
+      playError();
+      const serverMsg = e?.response?.data?.error || e.message || 'Extraction failed';
+      setErrorMsg(serverMsg);
       setStep('error');
     }
   };
@@ -573,6 +629,81 @@ export default function SmartDropZone({ onImported }) {
                   onClick={handleArchiveGeospatial}
                 >
                   Save & Archive
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Bulk Mammals — saving to backend */}
+          {step === 'bulk_mammals_saving' && (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+              <div className="text-center">
+                <p className="font-semibold text-slate-700">Saving to backend storage…</p>
+                <p className="text-sm text-slate-500 mt-1">{fileInfo?.name}</p>
+                <p className="text-xs text-slate-400 mt-2">Large file detected — uploading to secure backend so you can extract species multiple times without re-uploading.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Bulk Mammals — ready to extract */}
+          {step === 'bulk_mammals' && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Globe className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-blue-900">IUCN Bulk Mammals Shapefile Saved ✓</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      <strong>{fileInfo?.name}</strong> ({(fileInfo?.size / 1024 / 1024).toFixed(0)} MB) has been saved to secure backend storage.
+                    </p>
+                    <p className="text-xs text-blue-600 mt-2">
+                      Now choose which species to extract. Only matching polygons will be processed and saved as individual range records.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Filter className="w-3.5 h-3.5 text-slate-600" />
+                    <span className="text-sm font-semibold text-slate-700">Extract by genus</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={genusFilter}
+                    onChange={e => setGenusFilter(e.target.value)}
+                    placeholder="e.g. Callithrix"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">
+                    Extracts all species whose name starts with this prefix. Leave blank to extract everything (slow for all mammals).
+                  </p>
+                </div>
+
+                {targetSpecies && targetSpecies.length > 0 && (
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800">
+                    <p className="font-semibold mb-1">✓ Will also match {targetSpecies.length} specific species from your checklist:</p>
+                    <p className="text-emerald-700 italic">{targetSpecies.slice(0, 5).join(', ')}{targetSpecies.length > 5 ? `… +${targetSpecies.length - 5} more` : ''}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700">
+                ⏳ Extraction may take 30–90 seconds — the function must read and parse the full shapefile before filtering.
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => { reset(); setOpen(false); }}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={!genusFilter.trim() && (!targetSpecies || targetSpecies.length === 0)}
+                  onClick={handleBulkMammalsExtract}
+                >
+                  Extract {genusFilter.trim() || 'Target'} Species →
                 </Button>
               </div>
             </div>
