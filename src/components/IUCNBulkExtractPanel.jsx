@@ -122,18 +122,34 @@ export default function IUCNBulkExtractPanel({ onDone }) {
       const payload = modeType === 'app_data' ? { mode: 'app_data' } : { file_uri };
       if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
 
+      // Create a custom abort controller with longer timeout (15 minutes for large files)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15 * 60 * 1000);
+
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', {
         ...payload,
         iucn_version: iucnVersion || ''
       });
 
+      clearTimeout(timeoutId);
+
       if (result.data?.error) throw new Error(result.data.error);
+      if (result.status >= 400) {
+        throw new Error(result.data?.error || `Server error: ${result.status}`);
+      }
 
       setExtractResult(result.data);
       setPhase('done');
       onDone?.();
     } catch (e) {
-      const msg = e?.response?.data?.error || e.message || 'Extraction failed';
+      const errorMsg = e?.response?.data?.error || e.message;
+      const statusCode = e?.response?.status;
+
+      let msg = errorMsg || 'Extraction failed';
+      if (statusCode === 502 || statusCode === 504) {
+        msg = 'Processing is taking too long. Try again with a smaller file or a more specific genus filter (like "Callithrix").';
+      }
+
       setExtractError(msg);
       setPhase('error');
     } finally {
@@ -170,7 +186,8 @@ export default function IUCNBulkExtractPanel({ onDone }) {
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
         <div>
           <p className="font-semibold text-slate-700">Extracting species from bulk shapefile…</p>
-          <p className="text-sm text-slate-400 mt-1">This can take 30–90 seconds. The full shapefile must be parsed before filtering.</p>
+          <p className="text-sm text-slate-400 mt-1">Large files (500MB+) can take 2–10 minutes. Please keep the window open.</p>
+          {genusFilter && <p className="text-xs text-emerald-600 mt-1">✓ Using genus filter: <span className="font-medium">{genusFilter}</span> (faster)</p>}
         </div>
       </div>
     );

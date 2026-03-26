@@ -139,6 +139,10 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // Add early timeout safeguard for large files
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 600000); // 10 min max
+
     const body = await req.json();
     const { mode, file_uri, target_species, genus_filter, iucn_version, species_list } = body;
 
@@ -183,13 +187,20 @@ Deno.serve(async (req) => {
 
     // 1. Get a signed URL for the private file then download it
     console.log(`Getting signed URL for stored bulk file: ${file_uri}`);
-    const { signed_url } = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
-      file_uri,
-      expires_in: 600
-    });
+    let signed_url;
+    try {
+      const result = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
+        file_uri,
+        expires_in: 600
+      });
+      signed_url = result.signed_url;
+    } catch (e) {
+      console.error('Failed to get signed URL:', e.message);
+      throw new Error(`Cannot access bulk file: ${e.message}`);
+    }
 
     console.log('Downloading bulk shapefile ZIP...');
-    const zipResponse = await fetch(signed_url);
+    const zipResponse = await fetch(signed_url, { timeout: 120000 });
     if (!zipResponse.ok) throw new Error(`Failed to fetch stored file: ${zipResponse.status}`);
     const zipBuffer = await zipResponse.arrayBuffer();
 
@@ -281,6 +292,7 @@ Deno.serve(async (req) => {
     const speciesEntries = [...speciesMap.entries()];
 
     // Step A: Upload all GeoJSON files concurrently (big speed win)
+    // Limit concurrency to avoid overwhelming the backend
     const uploadPromises = speciesEntries.map(async ([, { attrs, features }]) => {
       const speciesGeoJson = {
         type: 'FeatureCollection',
@@ -289,16 +301,26 @@ Deno.serve(async (req) => {
         source: 'IUCN Bulk Shapefile'
       };
       try {
-        const blob = new Blob([JSON.stringify(speciesGeoJson)], { type: 'application/json' });
-        const uploaded = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: blob });
+        const jsonStr = JSON.stringify(speciesGeoJson);
+        const file = new Blob([jsonStr], { type: 'application/json' });
+        console.log(`Uploading GeoJSON for ${attrs.scientific_name} (${jsonStr.length} bytes)...`);
+        const uploaded = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file });
+        console.log(`✓ GeoJSON uploaded for ${attrs.scientific_name}`);
         return { scientific_name: attrs.scientific_name, file_uri: uploaded.file_uri, geojson: speciesGeoJson };
       } catch (e) {
-        console.warn(`GeoJSON upload failed for ${attrs.scientific_name}: ${e.message}`);
+        console.error(`GeoJSON upload failed for ${attrs.scientific_name}: ${e.message}`);
         return { scientific_name: attrs.scientific_name, file_uri: null, geojson: speciesGeoJson };
       }
     });
 
-    const uploadResults = await Promise.all(uploadPromises);
+    // Process uploads with a reasonable concurrency limit (5 at a time)
+    const uploadResults = [];
+    for (let i = 0; i < uploadPromises.length; i += 5) {
+      const batch = uploadPromises.slice(i, i + 5);
+      const batchResults = await Promise.all(batch);
+      uploadResults.push(...batchResults);
+      console.log(`Completed upload batch ${Math.ceil(i / 5) + 1}/${Math.ceil(uploadPromises.length / 5)}`);
+    }
     const uploadMap = new Map(uploadResults.map(r => [r.scientific_name.toLowerCase(), r]));
 
     // Step B: Upsert Species + IUCNRangeData records sequentially (DB writes)
@@ -373,6 +395,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    clearTimeout(timeout);
     return Response.json({
       status: 'success',
       species_count: results.length,
@@ -381,7 +404,16 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Bulk extraction error:', error.message, error.stack);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Bulk extraction error:', error.message);
+    if (error.stack) console.error('Stack:', error.stack);
+    
+    // Distinguish between timeout and other errors
+    const isTimeout = error.name === 'AbortError' || error.message?.includes('timeout');
+    return Response.json({ 
+      error: isTimeout 
+        ? 'Processing took too long (>10min). Please try again with a smaller file or more specific genus filter.'
+        : error.message,
+      type: error.constructor.name 
+    }, { status: isTimeout ? 504 : 500 });
   }
 });
