@@ -22,6 +22,7 @@ import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklis
 import IUCNSplitView from '@/components/IUCNSplitView';
 import IUCNVersionBanner from '@/components/IUCNVersionBanner';
 import IUCNBulkExtractPanel from '@/components/IUCNBulkExtractPanel';
+import IUCNBackendExtractor from '@/components/IUCNBackendExtractor';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
@@ -152,10 +153,17 @@ export default function ArcGISTools() {
                 All bulk uploads are stored securely and shared with other users.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
-              <IUCNBulkExtractPanel
-                onDone={() => { refetchRangeData(); refetchAssessments(); }}
-              />
+            <CardContent className="p-6 space-y-6">
+              <div>
+                <h4 className="text-sm font-semibold text-slate-700 mb-3">UI-Based Extraction</h4>
+                <IUCNBulkExtractPanel
+                  onDone={() => { refetchRangeData(); refetchAssessments(); }}
+                />
+              </div>
+              <div className="border-t pt-6">
+                <h4 className="text-sm font-semibold text-slate-700 mb-3">Direct Backend Call</h4>
+                <IUCNBackendExtractor />
+              </div>
             </CardContent>
           </Card>
         </div>
