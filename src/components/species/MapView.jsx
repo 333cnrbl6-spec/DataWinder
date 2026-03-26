@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Filter, MapPin, Download } from 'lucide-react';
+import { Filter, MapPin, Download, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import StatusBadge from './StatusBadge';
 import ObservationExportPanel from './ObservationExportPanel';
 import 'leaflet/dist/leaflet.css';
@@ -26,6 +27,8 @@ export default function MapView({ species, selectedIds, onSelect }) {
   const [taxonomicRank, setTaxonomicRank] = useState('family');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [showExport, setShowExport] = useState(false);
+  const [speciesData, setSpeciesData] = useState(species);
+  const [loading, setLoading] = useState(false);
 
   // Get unique values for current taxonomic rank
   const taxonomicOptions = useMemo(() => {
@@ -37,9 +40,23 @@ export default function MapView({ species, selectedIds, onSelect }) {
     return unique.sort();
   }, [species, taxonomicRank]);
 
+  // Auto-fetch family data when taxonomic filter changes
+  useEffect(() => {
+    if (taxonomicRank === 'family' && taxonomicFilter !== 'all' && !loading) {
+      setLoading(true);
+      base44.functions.invoke('fetchFamilySpeciesData', { family: taxonomicFilter })
+        .then(res => {
+          setSpeciesData(res.data.species);
+          setTaxonomicFilter('all'); // Reset to show all species from fetched family
+        })
+        .catch(err => console.error('Family fetch error:', err))
+        .finally(() => setLoading(false));
+    }
+  }, [taxonomicRank, taxonomicFilter]);
+
   // Filter species and get observations with coordinates
   const observations = useMemo(() => {
-    let filtered = species;
+    let filtered = speciesData;
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter(s => s.iucn_status === statusFilter);
@@ -71,7 +88,7 @@ export default function MapView({ species, selectedIds, onSelect }) {
     });
 
     return obs;
-  }, [species, statusFilter, taxonomicFilter, taxonomicRank, sourceFilter]);
+  }, [speciesData, statusFilter, taxonomicFilter, taxonomicRank, sourceFilter]);
 
   // Calculate map center
   const mapCenter = useMemo(() => {
@@ -160,28 +177,34 @@ export default function MapView({ species, selectedIds, onSelect }) {
          </div>
         
         <div className="mt-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-xs text-slate-500">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-              <span>IUCN</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span>iNaturalist</span>
-            </div>
-            <span>{observations.length} observations</span>
-          </div>
-          {observations.length > 0 && (
-            <Button
-              size="sm"
-              onClick={() => setShowExport(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-xs h-7"
-            >
-              <Download className="w-3 h-3 mr-1" />
-              Export Map Data
-            </Button>
-          )}
-        </div>
+           <div className="flex items-center gap-4 text-xs text-slate-500">
+             <div className="flex items-center gap-1">
+               <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+               <span>IUCN</span>
+             </div>
+             <div className="flex items-center gap-1">
+               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+               <span>iNaturalist</span>
+             </div>
+             <span>{observations.length} observations</span>
+             {loading && (
+               <div className="flex items-center gap-1 text-amber-600">
+                 <Loader2 className="w-3 h-3 animate-spin" />
+                 <span>Loading family data...</span>
+               </div>
+             )}
+           </div>
+           {observations.length > 0 && (
+             <Button
+               size="sm"
+               onClick={() => setShowExport(true)}
+               className="bg-blue-600 hover:bg-blue-700 text-xs h-7"
+             >
+               <Download className="w-3 h-3 mr-1" />
+               Export Map Data
+             </Button>
+           )}
+         </div>
       </Card>
 
       {/* Map */}
