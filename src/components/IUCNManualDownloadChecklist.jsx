@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, ExternalLink, X, ChevronDown, ChevronUp, Upload, Columns, StickyNote } from 'lucide-react';
+import { CheckCircle2, Circle, ExternalLink, X, ChevronDown, ChevronUp, Upload, Columns, StickyNote, Download, Loader2, Check } from 'lucide-react';
 import SmartDropZone from '@/components/SmartDropZone';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const FILE_TYPES = [
   {
@@ -52,6 +53,8 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
   const [open, setOpen] = useState(true);
   const [showDropZone, setShowDropZone] = useState(false);
   const [expandedSpecies, setExpandedSpecies] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [selectedSpecies, setSelectedSpecies] = useState(new Set());
 
   // Build lookup maps: species_id → record
   const rangeMap = {};
@@ -77,6 +80,50 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
   }, 0);
 
   if (species.length === 0) return null;
+
+  const handleBackendImport = async (toLoad) => {
+    if (toLoad.length === 0) {
+      toast.info('Please select species to load.');
+      return;
+    }
+    
+    setImporting(true);
+    try {
+      const res = await base44.functions.invoke('extractIUCNBulkSpecies', {
+        mode: 'app_data',
+        species_list: toLoad,
+      });
+      toast.success(`${res.data?.species_count || 0} species loaded from app data`);
+      setSelectedSpecies(new Set());
+      onUploaded?.();
+    } catch (e) {
+      toast.error('Backend import failed: ' + e.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const toggleSpeciesSelection = (speciesId) => {
+    const newSelected = new Set(selectedSpecies);
+    if (newSelected.has(speciesId)) {
+      newSelected.delete(speciesId);
+    } else {
+      newSelected.add(speciesId);
+    }
+    setSelectedSpecies(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedSpecies.size === speciesNeedingFiles.length) {
+      setSelectedSpecies(new Set());
+    } else {
+      setSelectedSpecies(new Set(speciesNeedingFiles.map(sp => sp.id)));
+    }
+  };
+
+  const selectedList = speciesNeedingFiles
+    .filter(sp => selectedSpecies.has(sp.id))
+    .map(sp => sp.scientific_name);
 
   return (
     <motion.div
@@ -110,17 +157,39 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
             exit={{ height: 0 }}
             className="overflow-hidden flex flex-col"
           >
-            {/* Instructions + split view button */}
+            {/* Instructions + action buttons */}
             <div className="px-4 py-2 bg-amber-50/60 border-b border-amber-100 text-xs text-slate-600 space-y-2">
-              <p>Log in to <a href="https://www.iucnredlist.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">iucnredlist.org</a>, download the files below, then drop them here.</p>
-              <Button
-                size="sm"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5 h-7 text-xs"
-                onClick={onOpenSplitView}
-              >
-                <Columns className="w-3.5 h-3.5" />
-                Open Split View (IUCN + Checklist)
-              </Button>
+              <p>Choose an option to populate IUCN data:</p>
+              <div className="space-y-1.5">
+                <div className="flex gap-1.5">
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white gap-1.5 h-7 text-xs"
+                    onClick={() => handleBackendImport(selectedList)}
+                    disabled={importing || selectedSpecies.size === 0}
+                  >
+                    {importing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                    Load Selected ({selectedSpecies.size})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs px-2"
+                    onClick={toggleSelectAll}
+                    disabled={importing}
+                  >
+                    {selectedSpecies.size === speciesNeedingFiles.length ? 'Clear' : 'All'}
+                  </Button>
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5 h-7 text-xs"
+                  onClick={onOpenSplitView}
+                >
+                  <Columns className="w-3.5 h-3.5" />
+                  Open Split View (IUCN + Checklist)
+                </Button>
+              </div>
             </div>
 
             {/* Species list */}
@@ -132,17 +201,28 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
                 </div>
               ) : (
                 speciesNeedingFiles.map(sp => {
-                  const isExpanded = expandedSpecies === sp.id;
-                  const iucnId = sp.iucn_id;
-                  const assessmentId = sp.assessment_id;
+                   const isExpanded = expandedSpecies === sp.id;
+                   const isSelected = selectedSpecies.has(sp.id);
+                   const iucnId = sp.iucn_id;
+                   const assessmentId = sp.assessment_id;
 
-                  return (
-                    <div key={sp.id}>
-                      <button
-                        className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-slate-50 text-left"
-                        onClick={() => setExpandedSpecies(isExpanded ? null : sp.id)}
-                      >
-                        <div className="flex-1 min-w-0">
+                   return (
+                     <div key={sp.id} className={cn("transition-colors", isSelected && "bg-green-50")}>
+                       <div className="flex items-center gap-2 px-2 py-2.5">
+                         <button
+                           className={cn(
+                             "flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-colors",
+                             isSelected ? "bg-green-600 border-green-600" : "border-slate-300 hover:border-green-400"
+                           )}
+                           onClick={() => toggleSpeciesSelection(sp.id)}
+                         >
+                           {isSelected && <Check className="w-3 h-3 text-white" />}
+                         </button>
+                         <button
+                           className="w-full flex items-center gap-2 hover:bg-slate-50 text-left rounded px-1"
+                           onClick={() => setExpandedSpecies(isExpanded ? null : sp.id)}
+                         >
+                           <div className="flex-1 min-w-0">
                           <div className="text-xs font-semibold text-slate-800 truncate italic">{sp.scientific_name}</div>
                           <div className="flex gap-1 mt-1 flex-wrap">
                             {FILE_TYPES.map(ft => {
@@ -166,7 +246,8 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
                           </div>
                         </div>
                         <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform", isExpanded && "rotate-180")} />
-                      </button>
+                        </button>
+                        </div>
 
                       <AnimatePresence>
                         {isExpanded && (
