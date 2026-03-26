@@ -118,6 +118,45 @@ async function fetchLiveData(taxon, iucnToken, rank = 'genus') {
     }
   } catch (e) { console.error('IUCN fetch error:', e.message); }
 
+  // FALLBACK: if IUCN data is unavailable, query backend Species entity
+  if (!data.iucn || data.iucn.count === 0) {
+    try {
+      console.log(`IUCN data unavailable for ${taxon} — falling back to backend Species entity`);
+      const base44 = createClientFromRequest(new Request('http://dummy'));
+      const speciesList = await base44.asServiceRole.entities.Species.list(undefined, 500);
+      
+      // Filter species by genus or family name in scientific_name
+      const filtered = speciesList.filter(s => {
+        const name = (s.scientific_name || '').toLowerCase();
+        if (rank === 'family') {
+          // For family, match any species in Callitrichidae family (heuristic: look for common callitrichid genera)
+          return name.includes('callithrix') || name.includes('saguinus') || name.includes('leontopithecus') || 
+                 name.includes('cebuella') || name.includes('mico') || name.includes('callicebus');
+        } else {
+          // For genus, match exact genus name
+          return name.startsWith(taxon.toLowerCase());
+        }
+      });
+
+      if (filtered.length > 0) {
+        data.iucn = {
+          species: filtered.map(s => ({
+            name: s.scientific_name,
+            status: s.iucn_status || 'DD',
+            trend: s.population_trend || 'unknown',
+            iucn_id: s.id
+          })),
+          count: filtered.length,
+          rank_label: rank === 'family' ? 'Family' : 'Genus',
+          source: 'backend_fallback'
+        };
+        console.log(`Fallback: found ${filtered.length} species in backend for ${taxon}`);
+      }
+    } catch (e) {
+      console.error('Backend fallback error:', e.message);
+    }
+  }
+
   // iNaturalist — search for family or genus
   try {
     const searchRank = rank === 'family' ? 'family' : 'genus';
