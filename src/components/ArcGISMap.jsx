@@ -128,7 +128,7 @@ export default function ArcGISMap({ species, height = '600px', hasAgreedToTerms 
           )}
 
           {/* Observation points */}
-          {species?.observations && species.observations.map((obs, idx) => (
+          {species?.observations && species.observations.filter(o => o.latitude && o.longitude).map((obs, idx) => (
             <CircleMarker
               key={idx}
               center={[obs.latitude, obs.longitude]}

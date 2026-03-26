@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -30,7 +30,30 @@ export default function ArcGISTools() {
     queryFn: () => base44.entities.Species.list('-created_date', 10000)
   });
 
-  const speciesWithRangeData = allSpecies.filter(sp => sp.range_data_geojson);
+  const { data: allRangeData = [] } = useQuery({
+    queryKey: ['allRangeData'],
+    queryFn: () => base44.entities.IUCNRangeData.list('-created_date', 10000)
+  });
+
+  // Build a lookup: species_id → range GeoJSON
+  const rangeBySpeciesId = React.useMemo(() => {
+    const map = {};
+    for (const rd of allRangeData) {
+      if (rd.species_id && rd.range_data_geojson) {
+        map[rd.species_id] = rd.range_data_geojson;
+      }
+    }
+    return map;
+  }, [allRangeData]);
+
+  // Enrich species with their range GeoJSON from IUCNRangeData
+  const enrichedSpecies = React.useMemo(() =>
+    allSpecies.map(sp => ({
+      ...sp,
+      range_data_geojson: sp.range_data_geojson || rangeBySpeciesId[sp.id] || null
+    })), [allSpecies, rangeBySpeciesId]);
+
+  const speciesWithRangeData = enrichedSpecies.filter(sp => sp.range_data_geojson);
 
   const exportForArcGIS = () => {
     const features = speciesWithRangeData.map(sp => ({
@@ -83,9 +106,9 @@ export default function ArcGISTools() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Missing Range Data Prompt */}
-        {allSpecies.length > 0 && speciesWithRangeData.length < allSpecies.length && (
+        {enrichedSpecies.length > 0 && speciesWithRangeData.length < enrichedSpecies.length && (
           <MissingRangeDataPrompt 
-            speciesCount={allSpecies.length - speciesWithRangeData.length}
+            speciesCount={enrichedSpecies.length - speciesWithRangeData.length}
             onDataReady={() => {
               // Refetch species to pick up newly uploaded range data
               window.location.reload();
@@ -177,12 +200,12 @@ export default function ArcGISTools() {
               </TabsList>
 
               <TabsContent value="hybridization" className="mt-4">
-                <HybridizationMapper species={allSpecies} />
+                <HybridizationMapper species={enrichedSpecies} />
               </TabsContent>
                 
                 <TabsContent value="buffer" className="mt-4">
                    <BufferAnalysis 
-                     species={allSpecies}
+                     species={enrichedSpecies}
                      onResultReady={(result) => {
                        addResult({
                          name: `Buffer Analysis (${result.features.length} zones)`,
@@ -196,7 +219,7 @@ export default function ArcGISTools() {
 
                  <TabsContent value="overlay" className="mt-4">
                    <RangeOverlayAnalysis 
-                     species={allSpecies}
+                     species={enrichedSpecies}
                      onResultReady={(result) => {
                        addResult({
                          name: `Range Overlay (${result.features.length} overlaps)`,
@@ -210,7 +233,7 @@ export default function ArcGISTools() {
 
                  <TabsContent value="spatial-join" className="mt-4">
                    <SpatialJoinAnalysis 
-                     species={allSpecies}
+                     species={enrichedSpecies}
                      onResultReady={(result) => {
                        addResult({
                          name: `Spatial Join (${result.features.length} associations)`,
