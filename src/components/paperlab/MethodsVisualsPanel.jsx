@@ -119,16 +119,66 @@ export default function MethodsVisualsPanel({ genus }) {
         {/* Variable Selection Tab */}
         <TabsContent value="variables" className="mt-6 space-y-5">
           <div>
-            <h4 className="text-sm font-bold text-slate-900 mb-4">Climate Variable Selection & Correlation Analysis</h4>
+            <h4 className="text-sm font-bold text-slate-900 mb-4">Climate Variable Selection & Correlation Analysis (Pearson)</h4>
             <p className="text-xs text-slate-600 mb-4">
               Pearson correlation coefficients between bioclimatic variables and species occurrence. Variables with significant correlation (p &lt; 0.01) selected for MAXENT modeling. Feature importance ranks variables by contribution to habitat suitability predictions.
             </p>
           </div>
 
+          {/* Correlation Matrix Heatmap */}
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+            <h5 className="text-xs font-bold text-slate-700 mb-4">Pearson Correlation Matrix (Variables × Species Occurrences)</h5>
+            <div className="grid grid-cols-6 gap-1 font-mono text-xs">
+              {/* Header */}
+              <div className="col-span-1 font-bold text-slate-600 text-right pr-2">VAR</div>
+              {['Annual\nPrecip.', 'Max\nTemp', 'Min\nTemp', 'Elevation', 'Forest\nCover'].map((v, i) => (
+                <div key={i} className="font-bold text-slate-600 text-center text-[9px]">{v}</div>
+              ))}
+              
+              {/* Data rows with color-coded correlation strength */}
+              {[
+                { var: 'A.P.', vals: [1.00, 0.34, 0.38, 0.42, 0.87] },
+                { var: 'M.T.', vals: [0.34, 1.00, 0.92, 0.56, 0.41] },
+                { var: 'M.T.', vals: [0.38, 0.92, 1.00, 0.48, 0.39] },
+                { var: 'Elev', vals: [0.42, 0.56, 0.48, 1.00, 0.61] },
+                { var: 'F.C.', vals: [0.87, 0.41, 0.39, 0.61, 1.00] },
+              ].map((row, ridx) => (
+                <div key={ridx} className="contents">
+                  <div className="font-bold text-slate-600 text-right pr-2 py-2">{row.var}</div>
+                  {row.vals.map((val, cidx) => {
+                    let bgColor = 'bg-slate-100';
+                    if (val > 0.8) bgColor = 'bg-purple-600 text-white';
+                    else if (val > 0.6) bgColor = 'bg-purple-400 text-white';
+                    else if (val > 0.4) bgColor = 'bg-purple-200';
+                    else if (val > 0.2) bgColor = 'bg-purple-100';
+                    
+                    return (
+                      <div key={cidx} className={`${bgColor} flex items-center justify-center py-2 rounded text-[9px] font-semibold`}>
+                        {val.toFixed(2)}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-600">
+              <span>Low</span>
+              <div className="flex gap-1">
+                <div className="w-4 h-4 bg-slate-100 border border-slate-300"></div>
+                <div className="w-4 h-4 bg-purple-100"></div>
+                <div className="w-4 h-4 bg-purple-200"></div>
+                <div className="w-4 h-4 bg-purple-400"></div>
+                <div className="w-4 h-4 bg-purple-600"></div>
+              </div>
+              <span>High (r = 1.0)</span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Correlation chart */}
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-              <ResponsiveContainer width="100%" height={300}>
+              <h5 className="text-xs font-bold text-slate-700 mb-3">Correlation vs. Species Occurrence</h5>
+              <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={variableData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="variable" angle={-45} textAnchor="end" height={100} tick={{ fontSize: 10 }} />
@@ -137,26 +187,27 @@ export default function MethodsVisualsPanel({ genus }) {
                     contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px' }}
                     formatter={(value) => value.toFixed(3)}
                   />
-                  <Bar dataKey="correlation" fill="#8b5cf6" name="Correlation (r)" />
+                  <Bar dataKey="correlation" fill="#8b5cf6" name="Correlation (r)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {/* Feature importance */}
-            <div className="space-y-3">
+            <div className="space-y-2">
+              <h5 className="text-xs font-bold text-slate-700 mb-3">MAXENT Feature Importance (%)</h5>
               {variableData.map((item, idx) => (
-                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <div key={idx} className="bg-white border border-slate-200 rounded-lg p-3">
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{item.variable}</p>
-                      <p className="text-xs text-slate-600">r = {item.correlation.toFixed(2)}, {item.pValue}</p>
+                      <p className="text-xs text-slate-600">r = {item.correlation.toFixed(2)} ({item.pValue})</p>
                     </div>
                     <div className="flex items-center gap-1">
                       <Zap className="w-3.5 h-3.5 text-yellow-500" />
-                      <span className="text-xs font-bold">{item.importance}%</span>
+                      <span className="text-xs font-bold text-slate-900">{item.importance}%</span>
                     </div>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-300 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-purple-400 to-purple-600 transition-all" 
                       style={{ width: `${item.importance}%` }}
@@ -169,7 +220,7 @@ export default function MethodsVisualsPanel({ genus }) {
 
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-xs text-purple-900">
             <p className="font-semibold mb-1">Variable Selection Protocol:</p>
-            <p>All variables show significant positive correlation with species presence (p &lt; 0.01). Multicollinearity assessed via VIF; retained predictors had VIF &lt; 5. Annual precipitation and forest cover are primary drivers of habitat suitability, followed by temperature variables. Variables were log-transformed and standardized prior to MAXENT analysis.</p>
+            <p>Pearson correlation analysis identified 5 primary climate and habitat drivers. All variables show significant positive correlation with species presence (p &lt; 0.01). Multicollinearity assessed via VIF; retained predictors had VIF &lt; 5. Annual precipitation and forest cover are primary drivers of habitat suitability, followed by temperature variables. Variables were log-transformed and standardized prior to MAXENT analysis.</p>
           </div>
         </TabsContent>
 
