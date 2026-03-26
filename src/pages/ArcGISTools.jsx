@@ -17,6 +17,7 @@ import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
 import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
 import ClimateProjectionOverlay from '@/components/arcgis/ClimateProjectionOverlay';
+import TwoSpeciesOverlay from '@/components/arcgis/TwoSpeciesOverlay';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
@@ -223,13 +224,14 @@ export default function ArcGISTools() {
             </CardHeader>
             <CardContent className="p-6">
               <Tabs defaultValue="hybridization" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="hybridization">🧬 Hybridization</TabsTrigger>
-                <TabsTrigger value="climate">🌡️ Climate</TabsTrigger>
-                <TabsTrigger value="buffer">Buffer</TabsTrigger>
-                <TabsTrigger value="overlay">Overlay</TabsTrigger>
-                <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
-              </TabsList>
+               <TabsList className="grid w-full grid-cols-6">
+                 <TabsTrigger value="hybridization">🧬 Hybridization</TabsTrigger>
+                 <TabsTrigger value="climate">🌡️ Climate</TabsTrigger>
+                 <TabsTrigger value="two-species">🔀 2-Species</TabsTrigger>
+                 <TabsTrigger value="buffer">Buffer</TabsTrigger>
+                 <TabsTrigger value="overlay">Overlay</TabsTrigger>
+                 <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
+               </TabsList>
 
               <TabsContent value="hybridization" className="mt-4">
                 <HybridizationMapper species={enrichedSpecies} />
@@ -238,7 +240,11 @@ export default function ArcGISTools() {
               <TabsContent value="climate" className="mt-4">
                 <ClimateProjectionOverlay species={enrichedSpecies} />
               </TabsContent>
-                
+
+              <TabsContent value="two-species" className="mt-4">
+                <TwoSpeciesOverlay species={enrichedSpecies} />
+              </TabsContent>
+
                 <TabsContent value="buffer" className="mt-4">
                    <BufferAnalysis 
                      species={enrichedSpecies}
