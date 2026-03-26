@@ -9,6 +9,7 @@ import { Map, Layers, Globe, ZoomIn, Download, ExternalLink, Code, FileJson, Dat
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import ArcGISMap from '@/components/ArcGISMap';
+import TaxonomyLevelSelector from '@/components/TaxonomyLevelSelector';
 import ArcGISTermsModal from '@/components/ArcGISTermsModal';
 import BufferAnalysis from '@/components/arcgis/BufferAnalysis';
 import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
@@ -183,39 +184,17 @@ export default function ArcGISTools() {
             <CardContent className="p-6">
               {arcgisAgreed ? (
                 <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <select
-                      className="px-3 py-2 border rounded-lg text-sm"
-                      onChange={(e) => {
-                        const species = speciesWithRangeData.find(sp => sp.id === e.target.value);
-                        setSelectedSpecies(species);
-                      }}
-                      value={selectedSpecies?.id || ''}
-                    >
-                      <option value="">Select a species to view...</option>
-                      {speciesWithRangeData.map(sp => (
-                        <option key={sp.id} value={sp.id}>
-                          {sp.common_name || sp.scientific_name} ({sp.iucn_status})
-                        </option>
-                      ))}
-                    </select>
-                    {selectedSpecies && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedSpecies(null)}
-                      >
-                        Clear Selection
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <ArcGISMap 
-                    species={selectedSpecies} 
-                    height="600px"
-                    hasAgreedToTerms={arcgisAgreed}
-                    onRequestTermsAgreement={() => setShowArcGISTerms(true)}
-                  />
+                   <TaxonomyLevelSelector 
+                     species={speciesWithRangeData}
+                     onSelectionChange={setSelectedSpecies}
+                   />
+
+                   <ArcGISMap 
+                     species={selectedSpecies} 
+                     height="600px"
+                     hasAgreedToTerms={arcgisAgreed}
+                     onRequestTermsAgreement={() => setShowArcGISTerms(true)}
+                   />
                 </div>
               ) : (
                 <div className="text-center py-12">
