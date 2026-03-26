@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ChevronDown, ChevronUp, Map, BarChart3, AlertCircle, Eye } from 'lucide-react';
+import { ChevronDown, ChevronUp, Map, BarChart3, AlertCircle, Eye, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Loader2 } from 'lucide-react';
 import ResultsMapViewer from './ResultsMapViewer';
 import MethodsVisualsPanel from './MethodsVisualsPanel';
 import DiscussionVisualsPanel from './DiscussionVisualsPanel';
+import GeneratedImageViewer from './GeneratedImageViewer';
 
 const SECTION_CONFIG = {
   abstract: {
@@ -308,7 +308,21 @@ function VisualSection({ sectionKey, label, content, visuals, genus, defaultOpen
                    </div>
                    <div className="grid grid-cols-1 gap-6">
                      {config.visualTypes.map((vType, idx) => (
-                       <VisualPlaceholder key={idx} type={vType} genus={genus} />
+                       <div key={idx} className="border-2 border-dashed border-blue-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                         {/* Figure label */}
+                         <div className="flex items-center justify-between px-4 py-2 bg-blue-50 border-b border-blue-200">
+                           <span className="text-xs font-bold text-blue-800">Figure {sectionKey === 'introduction' ? idx + 1 : sectionKey === 'methods' ? idx + 2 : sectionKey === 'results' ? idx + 3 : idx}. {vType}</span>
+                           <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded font-medium">AI-Generated</span>
+                         </div>
+                         {/* Generated image */}
+                         <div className="px-4 py-4">
+                           <GeneratedImageViewer 
+                             type={vType} 
+                             genus={genus}
+                             sectionContent={content}
+                           />
+                         </div>
+                       </div>
                      ))}
                    </div>
                  </>
