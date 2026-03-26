@@ -142,34 +142,34 @@ export default function Layout({ children, currentPageName }) {
                   }
                   
                   return (
-                    <NavigationMenuItem key={category.label}>
-                      <NavigationMenuTrigger className="text-xs font-semibold text-slate-600 hover:text-bangor-red hover:bg-bangor-red/10 data-[state=open]:bg-bangor-red/10 data-[state=open]:text-bangor-red">
-                        {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                        {category.label}
-                        <ChevronDown className="w-3 h-3 ml-0.5" />
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <div className="w-48 p-2 bg-white rounded-lg shadow-lg border border-slate-100">
-                          {category.items.map(({ label, page, icon: Icon }) => {
-                            const isActive = currentPageName === page;
-                            return (
-                              <Link
-                                key={page}
-                                to={`/${page}`}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition-all ${
-                                  isActive
-                                    ? 'bg-bangor-red/10 text-bangor-red'
-                                    : 'text-slate-600 hover:bg-slate-100'
-                                }`}
-                              >
-                                {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                                {label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
+                   <NavigationMenuItem key={category.label} className="relative">
+                     <NavigationMenuTrigger className="text-xs font-semibold text-slate-600 hover:text-bangor-red hover:bg-bangor-red/10 data-[state=open]:bg-bangor-red/10 data-[state=open]:text-bangor-red">
+                       {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                       {category.label}
+                       <ChevronDown className="w-3 h-3 ml-0.5" />
+                     </NavigationMenuTrigger>
+                     <NavigationMenuContent className="absolute left-0 top-full mt-0 w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50">
+                       <div className="space-y-1">
+                         {category.items.map(({ label, page, icon: Icon }) => {
+                           const isActive = currentPageName === page;
+                           return (
+                             <Link
+                               key={page}
+                               to={`/${page}`}
+                               className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+                                 isActive
+                                   ? 'bg-bangor-red/10 text-bangor-red'
+                                   : 'text-slate-600 hover:bg-slate-100'
+                               }`}
+                             >
+                               {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
+                               {label}
+                             </Link>
+                           );
+                         })}
+                       </div>
+                     </NavigationMenuContent>
+                   </NavigationMenuItem>
                   );
                 })}
               </NavigationMenuList>
