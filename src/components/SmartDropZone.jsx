@@ -56,6 +56,7 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
   const [archiveName, setArchiveName] = useState('');
   const [archiveDesc, setArchiveDesc] = useState('');
   const [genusFilter, setGenusFilter] = useState('Callithrix');
+  const [taxonomyFilter, setTaxonomyFilter] = useState('genus'); // genus, family, order, etc.
   const inputRef = useRef();
   const { playSuccess, playError, startTicking, stopTicking } = useSearchSounds();
 
@@ -72,6 +73,7 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
     setArchiveName('');
     setArchiveDesc('');
     setGenusFilter('Callithrix');
+    setTaxonomyFilter('genus');
   };
 
   const detectDatasource = (fileName) => {
@@ -352,7 +354,10 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
     startTicking(30000);
     try {
       const payload = { file_uri: fileUri };
-      if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
+      if (genusFilter.trim()) {
+        payload.taxonomy_field = taxonomyFilter;
+        payload.taxonomy_filter = genusFilter.trim();
+      }
 
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', payload);
       if (result.data?.error) throw new Error(result.data.error);
@@ -681,17 +686,32 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Filter className="w-3.5 h-3.5 text-slate-600" />
-                    <span className="text-sm font-semibold text-slate-700">Extract by genus</span>
+                    <span className="text-sm font-semibold text-slate-700">Filter by taxonomic level</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {['genus', 'family', 'order', 'class'].map(level => (
+                      <button
+                        key={level}
+                        onClick={() => setTaxonomyFilter(level)}
+                        className={`px-2 py-1.5 rounded text-xs font-semibold transition-all border ${
+                          taxonomyFilter === level
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-slate-50 text-slate-700 border-slate-300 hover:border-blue-400'
+                        }`}
+                      >
+                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                      </button>
+                    ))}
                   </div>
                   <input
                     type="text"
                     value={genusFilter}
                     onChange={e => setGenusFilter(e.target.value)}
-                    placeholder="e.g. Callithrix"
+                    placeholder={`e.g. Callithrix (${taxonomyFilter})`}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <p className="text-xs text-slate-400 mt-1">
-                    Extracts all species whose name starts with this prefix. Leave blank to extract everything (slow for all mammals).
+                    Extracts all species in this {taxonomyFilter}. Leave blank to extract everything (slow for all mammals).
                   </p>
                 </div>
 
@@ -712,12 +732,12 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                  disabled={!genusFilter.trim() && (!targetSpecies || targetSpecies.length === 0)}
-                  onClick={handleBulkMammalsExtract}
-                >
-                  Extract {genusFilter.trim() || 'Target'} Species →
-                </Button>
+                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                   disabled={!genusFilter.trim() && (!targetSpecies || targetSpecies.length === 0)}
+                   onClick={handleBulkMammalsExtract}
+                 >
+                   Extract {genusFilter.trim() ? `${genusFilter.trim()} (${taxonomyFilter})` : 'Target'} Species →
+                 </Button>
               </div>
             </div>
           )}
