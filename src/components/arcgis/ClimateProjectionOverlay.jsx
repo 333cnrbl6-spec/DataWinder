@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Tooltip, LayersControl } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Thermometer, Droplets, Wind, Info, Download, Eye, EyeOff } from 'lucide-react';
+import { Thermometer, Droplets, Info, Download, Eye, EyeOff } from 'lucide-react';
+import EvoEcologyInsights from '@/components/arcgis/EvoEcologyInsights';
 
 // Climate projection tile sources (public WMS/tile endpoints from WorldClim/CMIP6 projections)
 const CLIMATE_LAYERS = [
@@ -286,6 +287,12 @@ export default function ClimateProjectionOverlay({ species = [] }) {
           )}
         </MapContainer>
       </div>
+
+      {/* Evolutionary ecology context */}
+      <EvoEcologyInsights
+        activeSpeciesCount={activeSpecies.length}
+        selectedScenario={selectedLayer?.scenario}
+      />
 
       {/* Legend */}
       <div className="grid grid-cols-2 gap-4">

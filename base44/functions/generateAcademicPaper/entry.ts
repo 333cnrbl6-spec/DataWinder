@@ -13,37 +13,76 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const HILL_WINDER_STRUCTURE = {
   abstract: `Structured as: Aims / Location / Taxon / Methods / Results / Main conclusions. 
-    ~250 words. Academic register. No first-person plural beyond "we".`,
-  introduction: `~600 words. 4 paragraphs:
-    1. Broad conservation context — why SDMs matter for primates / biodiversity.
-    2. The focal taxon — its ecology, IUCN status, distribution, threats.
-    3. Gaps in existing knowledge and what this study addresses.
-    4. Study aims stated clearly as numbered objectives.`,
+    ~250 words. Academic register. No first-person plural beyond "we".
+    Must mention: climate change, species distribution modelling, island biogeography theory, hybridisation potential.`,
+  introduction: `~700 words. 5 paragraphs:
+    1. Broad conservation context — why SDMs matter for primates / biodiversity under climate change.
+    2. The focal taxon — its ecology, IUCN status, distribution, known hybridisation zones (if any).
+    3. Island Biogeography theory (MacArthur & Wilson, 1967): explain how climate-driven habitat fragmentation 
+       creates de-facto ecological islands — isolated refugia subject to genetic drift, reduced gene flow, 
+       and elevated extinction risk. Cite Hanski (1998) metapopulation theory. Apply this explicitly to the focal genus.
+    4. Hybridisation and speciation: explain how climate-driven range shifts bring previously allopatric lineages 
+       into secondary contact, creating hybridisation zones. Distinguish genetic swamping (threat) from 
+       adaptive introgression and homoploid hybrid speciation (evolutionary opportunity). Cite Mallet (2007) 
+       and Abbott et al. (2013). Reference known hybridisation zones in the focal genus if applicable.
+    5. Gaps in existing knowledge and numbered study objectives — including explicit objectives to 
+       (a) identify future fragmented refugia via island biogeography lens, and 
+       (b) predict new potential hybridisation contact zones under warming scenarios.`,
   methods: `~700 words. Sub-sections:
     2.1 Study species and occurrence data — sources (GBIF, iNaturalist), record counts, quality filtering.
     2.2 Environmental predictors — bioclimatic variables (WorldClim), resolution, collinearity screening.
     2.3 Species distribution modelling — algorithm (MAXENT), regularisation, cross-validation, AUC.
-    2.4 Future projections — climate scenarios (SSP/RCP), GCMs, time horizons (2050, 2070).`,
-  results: `~500 words. Sub-sections matching methods:
+    2.4 Future projections — climate scenarios (SSP2-4.5, SSP5-8.5), GCMs, time horizons (2050, 2070).
+    2.5 Fragmentation analysis — patch isolation metrics applied to projected suitable habitat to quantify 
+        island biogeography effects (mean patch size, connectivity index, nearest-neighbour distance).
+    2.6 Hybridisation zone prediction — range overlap analysis between sister species under future scenarios 
+        to identify predicted new or expanding contact zones; hybridisation risk scored as overlap area × 
+        range contraction rate.`,
+  results: `~600 words. Sub-sections matching methods:
     3.1 Data summary — final occurrence counts per species after filtering.
     3.2 Model performance — AUC values, omission rates.
     3.3 Variable importance — top environmental predictors per species.
     3.4 Current predicted distributions — area of suitable habitat.
-    3.5 Future projections — gain/loss under scenarios, % change.`,
-  discussion: `~800 words. 4 paragraphs:
-    1. Interpretation of variable importance findings in ecological context.
-    2. Comparison with existing IUCN assessments and published literature.
-    3. Conservation implications — which species are most at risk and why.
-    4. Limitations: modelling assumptions, data gaps, climate model uncertainty.`,
-  conclusion: `~150 words. Summarises key findings, policy recommendations, future research directions.`,
-  references: `Harvard format. All in-text citations listed. Include Hill & Winder (2019) and the 3 Callithrix benchmark papers as mandatory references.`
+    3.5 Future projections — gain/loss under scenarios, % change per species.
+    3.6 Fragmentation outcomes — predicted number of isolated refugia patches under each scenario by 2070; 
+        species with most fragmented future ranges highlighted as high island-biogeography risk.
+    3.7 Hybridisation contact zone predictions — which species pairs are predicted to come into new contact 
+        under warming; estimated area of predicted overlap by 2050 and 2070.`,
+  discussion: `~900 words. 5 paragraphs:
+    1. Interpretation of variable importance and range change findings.
+    2. Island Biogeography implications: interpret which species face the most fragmented future ranges and 
+       what this means for long-term viability. Invoke species-area relationship quantitatively. Discuss 
+       connectivity and corridor conservation as mitigation. Cite MacArthur & Wilson (1967), Hanski (1998).
+    3. Hybridisation zone dynamics: discuss predicted new contact zones, their evolutionary implications 
+       (adaptive introgression vs. genetic swamping), and whether hybridisation represents opportunity or 
+       threat for each species pair. Reference Mallet (2007), Abbott et al. (2013), and any empirical 
+       hybridisation studies for the focal genus.
+    4. Comparison with existing IUCN assessments — argue that IUCN criteria do not currently capture 
+       island biogeography fragmentation effects nor hybridisation zone dynamics, and that SDM-derived 
+       metrics should augment Red List assessments.
+    5. Limitations: modelling assumptions, data gaps, climate model uncertainty, limits of MAXENT for 
+       predicting novel climate space.`,
+  conclusion: `~180 words. Synthesises: (1) which species face greatest climate-driven range loss, 
+    (2) which face island biogeography extinction risk from fragmentation, 
+    (3) which are predicted to enter new hybridisation contact zones. 
+    Policy recommendations: protected area connectivity, hybrid zone monitoring, 
+    integration of evolutionary potential into IUCN assessments. 
+    Future research directions.`,
+  references: `Harvard format. All in-text citations listed. MUST include: Hill & Winder (2019), 
+    MacArthur & Wilson (1967), Hanski (1998), Mallet (2007), Abbott et al. (2013), 
+    and the 3 Callithrix benchmark papers as mandatory references.`
 };
 
 const MANDATORY_REFERENCES_HARVARD = [
   "Hill, S.E. and Winder, I.C. (2019) 'Predicting the impacts of climate change on Papio baboon biogeography: Are widespread, generalist primates safe?', Journal of Biogeography, 46(7), pp. 1380–1405. doi:10.1111/jbi.13582.",
+  "MacArthur, R.H. and Wilson, E.O. (1967) The Theory of Island Biogeography. Princeton: Princeton University Press.",
+  "Hanski, I. (1998) 'Metapopulation dynamics', Nature, 396, pp. 41–49. doi:10.1038/23876.",
+  "Mallet, J. (2007) 'Hybrid speciation', Nature, 446, pp. 279–283. doi:10.1038/nature05706.",
+  "Abbott, R. et al. (2013) 'Hybridization and speciation', Journal of Evolutionary Biology, 26(2), pp. 229–246. doi:10.1111/j.1420-9101.2012.02599.x.",
   "Rylands, A.B. and Mittermeier, R.A. (2009) 'The diversity of the New World primates (Platyrrhini): an annotated taxonomy', in Garber, P.A. et al. (eds) South American Primates. New York: Springer, pp. 23–54.",
   "Zinner, D. et al. (2013) 'Baboon phylogeny as inferred from complete mitochondrial genomes', American Journal of Physical Anthropology, 150(1), pp. 133–140.",
   "Freitas, M.A. et al. (2019) 'Habitat loss and fragmentation effects on Atlantic Forest primates', American Journal of Primatology, 81(7), e22989.",
+  "Aguiar, L.M. et al. (2008) 'A hybrid zone between Callithrix flaviceps and Callithrix geoffroyi (Callitrichidae, Primates)', American Journal of Primatology, 70(2), pp. 119–127.",
   "IUCN (2024) The IUCN Red List of Threatened Species. Version 2024-1. Available at: https://www.iucnredlist.org (Accessed: " + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + ").",
   "GBIF (2024) Global Biodiversity Information Facility. Available at: https://www.gbif.org (Accessed: " + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + ").",
   "iNaturalist (2024) iNaturalist Research-grade Observations. Available at: https://www.inaturalist.org (Accessed: " + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + ").",
@@ -187,36 +226,58 @@ MAXENT READINESS:
 
     const llmPrompt = `You are an expert academic ecologist writing a peer-reviewed journal article for Journal of Biogeography.
 
-TASK: Write a complete academic paper draft about the genus ${genus} (New World marmosets) following the EXACT structure of Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" published in Journal of Biogeography 46(7):1380-1405.
+TASK: Write a complete academic paper draft about the genus ${genus} following the EXACT structure of Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" published in Journal of Biogeography 46(7):1380-1405.
 
 CITATION STYLE: ${citation_style}
 
 ${dataContext}
 
-STRUCTURAL REQUIREMENTS (follow Hill & Winder 2019 exactly):
+STRUCTURAL REQUIREMENTS (follow Hill & Winder 2019 structure, extended with evolutionary ecology):
 ${JSON.stringify(HILL_WINDER_STRUCTURE, null, 2)}
+
+CRITICAL THEMATIC REQUIREMENTS — these must be substantively integrated, not merely mentioned:
+
+1. ISLAND BIOGEOGRAPHY (MacArthur & Wilson, 1967):
+   - Explicitly apply the species-area relationship to projected future habitat patches
+   - Discuss how climate-driven fragmentation creates ecological islands from continuous range
+   - Invoke metapopulation theory (Hanski, 1998) for the most fragmented predicted futures
+   - Argue that conservation corridors between future refugia are as important as the refugia themselves
+
+2. SPECIATION VIA HYBRIDIZATION (Mallet, 2007; Abbott et al., 2013):
+   - Identify which species pairs within the genus have overlapping or near-overlapping ranges today
+   - Predict which pairs are likely to come into secondary contact as climate shifts ranges
+   - Distinguish adaptive introgression (beneficial gene flow) from genetic swamping (loss of rare taxon identity)
+   - If ${genus} === 'Callithrix', explicitly discuss the documented C. jacchus × C. penicillata hybrid zone 
+     and how warming may expand it northward — cite Aguiar et al. (2008)
+   - Discuss homoploid hybrid speciation as a potential evolutionary outcome in contact zones
+
+3. CLIMATE-DRIVEN EVOLUTIONARY PATHWAYS:
+   - Synthesise both frameworks: fragmented populations → isolation → drift/local adaptation (island biogeography path) 
+     VERSUS expanding contact zones → hybridisation → introgression/hybrid speciation (hybrid speciation path)
+   - Note that these are not mutually exclusive — different species pairs may follow different paths simultaneously
+   - Discuss implications for IUCN Red Listing: current criteria may under- or over-estimate risk by ignoring these dynamics
 
 MANDATORY RULES:
 1. Use ONLY the real data figures provided above — do NOT invent numbers
 2. Where data is missing, explicitly say "data not available at time of writing" rather than fabricating
-3. All in-text citations must follow ${citation_style} format exactly: e.g. (Hill and Winder, 2019), (IUCN, 2024)
+3. All in-text citations must follow ${citation_style} format exactly
 4. Write in formal academic English, third person, past tense for methods/results
-5. The paper must be ORIGINAL — similar in STRUCTURE to Hill & Winder but entirely different in content, taxon and conclusions
-6. Flag DataWinder as the data aggregation platform used: "Data were compiled using the DataWinder multi-source biodiversity platform (DataWinder, 2024), which integrates IUCN Red List, GBIF and iNaturalist APIs."
+5. The paper must be ORIGINAL — similar in STRUCTURE to Hill & Winder but different in content, taxon and conclusions
+6. Flag DataWinder: "Data were compiled using the DataWinder multi-source biodiversity platform (DataWinder, 2024), which integrates IUCN Red List, GBIF and iNaturalist APIs."
 7. Each section must be clearly labelled
 
 Return a JSON object with these exact keys:
 {
   "title": "Full paper title",
-  "abstract": "Full abstract text (~250 words, structured: Aims/Location/Taxon/Methods/Results/Main conclusions)",
-  "introduction": "Full introduction text (~600 words)",
-  "methods": "Full methods text (~700 words) with numbered subsections",
-  "results": "Full results text (~500 words) with numbered subsections and real data values",
-  "discussion": "Full discussion text (~800 words)",
-  "conclusion": "Full conclusion (~150 words)",
+  "abstract": "Full abstract text (~250 words, structured: Aims/Location/Taxon/Methods/Results/Main conclusions — mention island biogeography and hybridisation)",
+  "introduction": "Full introduction text (~700 words) — must include island biogeography and hybridisation paragraphs",
+  "methods": "Full methods text (~700 words) with numbered subsections including fragmentation and hybridisation zone analysis",
+  "results": "Full results text (~600 words) with numbered subsections including fragmentation and predicted contact zones",
+  "discussion": "Full discussion text (~900 words) — must have dedicated island biogeography and hybridisation paragraphs",
+  "conclusion": "Full conclusion (~180 words) — synthesise all three frameworks",
   "references": "Complete reference list in ${citation_style} format",
   "keywords": ["keyword1", "keyword2"],
-  "word_count_estimate": 3000
+  "word_count_estimate": 3500
 }`;
 
     console.log('Calling LLM to generate paper...');
@@ -244,6 +305,8 @@ Return a JSON object with these exact keys:
       rylands_2009: computeSimilarity(fullText, 'New World primates Platyrrhini diversity taxonomy Callithrix conservation status'),
       zinner_2013: computeSimilarity(fullText, 'phylogeny Callithrix marmosets conservation species distribution mitochondrial'),
       freitas_2019: computeSimilarity(fullText, 'habitat loss fragmentation Atlantic Forest primates threat conservation'),
+      macarthur_wilson_1967: computeSimilarity(fullText, 'island biogeography species area relationship immigration extinction equilibrium isolation fragmentation refugia patch connectivity'),
+      mallet_2007: computeSimilarity(fullText, 'hybrid speciation hybridisation zone contact secondary introgression adaptive homoploid speciation gene flow reproductive isolation'),
     };
     similarity.overall = Math.round(Object.values(similarity).reduce((a, b) => a + b, 0) / Object.keys(similarity).length);
 

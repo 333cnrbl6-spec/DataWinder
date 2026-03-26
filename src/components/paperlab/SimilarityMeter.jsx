@@ -5,6 +5,8 @@ const PAPERS = [
   { key: 'rylands_2009', label: 'Rylands & Mittermeier (2009)', journal: 'New World Primates' },
   { key: 'zinner_2013', label: 'Zinner et al. (2013)', journal: 'Am. J. Phys. Anthro.' },
   { key: 'freitas_2019', label: 'Freitas et al. (2019)', journal: 'Am. J. Primatology' },
+  { key: 'macarthur_wilson_1967', label: 'MacArthur & Wilson (1967)', journal: 'Island Biogeography (theory)' },
+  { key: 'mallet_2007', label: 'Mallet (2007)', journal: 'Nature — Hybrid Speciation' },
 ];
 
 function Band({ pct }) {
@@ -29,7 +31,7 @@ export default function SimilarityMeter({ scores }) {
         </div>
       </div>
       <p className="text-xs text-slate-500">
-        Similarity is calculated using n-gram lexical overlap against the 4 benchmark papers.
+        Similarity is calculated using n-gram lexical overlap against 6 benchmark papers/theories including Island Biogeography and Hybrid Speciation frameworks.
         Academic papers typically share 5–25% vocabulary with related works. &gt;30% warrants review.
       </p>
       <div className="space-y-3">

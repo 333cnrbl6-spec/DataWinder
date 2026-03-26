@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import PaperViewer from '@/components/paperlab/PaperViewer';
 import PaperFigures from '@/components/paperlab/PaperFigures';
 import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
+import EvolutionaryContextPanel from '@/components/paperlab/EvolutionaryContextPanel';
 
 const GENERA = ['Callithrix', 'Papio', 'Gorilla', 'Pan', 'Pongo', 'Macaca'];
 const CITATION_STYLES = ['Harvard', 'APA', 'Vancouver'];
@@ -495,6 +496,9 @@ export default function AcademicPaperLab() {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Evolutionary ecology frameworks */}
+            <EvolutionaryContextPanel genus={genus} />
 
             {/* Figures */}
             {activeDraft?.figures_data && (
