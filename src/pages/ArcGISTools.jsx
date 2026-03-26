@@ -14,6 +14,7 @@ import BufferAnalysis from '@/components/arcgis/BufferAnalysis';
 import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
 import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
+import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
@@ -167,12 +168,17 @@ export default function ArcGISTools() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <Tabs defaultValue="buffer" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="buffer">Buffer Analysis</TabsTrigger>
-                  <TabsTrigger value="overlay">Range Overlay</TabsTrigger>
-                  <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
-                </TabsList>
+              <Tabs defaultValue="hybridization" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="hybridization">🧬 Hybridization Zones</TabsTrigger>
+                <TabsTrigger value="buffer">Buffer Analysis</TabsTrigger>
+                <TabsTrigger value="overlay">Range Overlay</TabsTrigger>
+                <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="hybridization" className="mt-4">
+                <HybridizationMapper species={allSpecies} />
+              </TabsContent>
                 
                 <TabsContent value="buffer" className="mt-4">
                    <BufferAnalysis 
