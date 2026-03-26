@@ -8,7 +8,7 @@ import { Lock, Layers } from 'lucide-react';
 
 const BASEMAPS = [
   { id: 'satellite', label: '🛰 Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: true },
-  { id: 'light',     label: '🗺 Light',     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '&copy; OpenStreetMap contributors', labels: false },
+  { id: 'light',     label: '🗺 Light',     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: true },
   { id: 'topo',      label: '🏔 Topo',      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: false },
   { id: 'dark',      label: '🌑 Dark',      url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', attr: '&copy; Stadia Maps', labels: false },
   { id: 'outline',   label: '📐 Outline',   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: true },

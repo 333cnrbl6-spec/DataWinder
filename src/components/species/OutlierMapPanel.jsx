@@ -50,7 +50,7 @@ export default function OutlierMapPanel({
         style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }}
         scrollWheelZoom
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap" />
+        <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" attribution="&copy; Esri" />
         <AutoFit points={allValid} />
 
         {/* Clean points — small, semi-transparent */}

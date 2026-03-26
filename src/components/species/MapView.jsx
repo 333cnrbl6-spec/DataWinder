@@ -167,8 +167,8 @@ export default function MapView({ species, selectedIds, onSelect }) {
               style={{ height: '100%', width: '100%' }}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+                attribution="&copy; Esri"
               />
               <MapUpdater center={mapCenter} />
               

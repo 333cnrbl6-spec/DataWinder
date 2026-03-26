@@ -109,8 +109,8 @@ export default function OccurrenceSourceMap({ species }) {
         <div className="rounded-lg overflow-hidden border border-slate-200 shadow-sm" style={{ height: 480 }}>
           <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+              attribution="&copy; Esri"
             />
             {points.map((point, i) => {
               const style = SOURCE_STYLES[point.source];
