@@ -369,29 +369,38 @@ Return a JSON object with these exact keys:
           id: 'iucn_status_distribution',
           type: 'bar',
           title: `IUCN Conservation Status Distribution — ${finalTaxon}`,
-          data: liveData.iucn?.species?.reduce((acc, s) => {
-            acc[s.status] = (acc[s.status] || 0) + 1;
-            return acc;
-          }, {}) || {}
+          description: 'Count of species by IUCN Red List category',
+          data: liveData.iucn?.species?.map(s => ({
+            status: s.status,
+            count: 1
+          })) || []
         },
         {
           id: 'occurrence_sources',
           type: 'pie',
           title: 'Occurrence Records by Source',
-          data: {
-            'GBIF': liveData.gbif?.total_occurrences || 0,
-            'iNaturalist (research-grade)': liveData.inat?.research_grade_count || 0,
-          }
+          description: 'Distribution of occurrence records across data sources',
+          data: [
+            { name: 'GBIF', value: liveData.gbif?.total_occurrences || 0 },
+            { name: 'iNaturalist', value: liveData.inat?.research_grade_count || 0 }
+          ].filter(d => d.value > 0)
         },
         {
           id: 'population_trends',
           type: 'bar',
-          title: `Population Trends — ${finalTaxon} ${finalRank} species`,
-          data: liveData.iucn?.species?.reduce((acc, s) => {
-            const t = s.trend || 'unknown';
-            acc[t] = (acc[t] || 0) + 1;
-            return acc;
-          }, {}) || {}
+          title: `Population Trends — ${finalTaxon}`,
+          description: 'Species distribution by population trend',
+          data: liveData.iucn?.species?.map(s => ({
+            trend: s.trend || 'unknown',
+            count: 1
+          })) || []
+        },
+        {
+          id: 'geographic_distribution',
+          type: 'map',
+          title: `Global Geographic Distribution — ${finalTaxon}`,
+          description: 'Occurrence points from GBIF and iNaturalist',
+          image_url: `https://api.gbif.org/v1/map/occurrence/density@Hu/${liveData.gbif?.usage_key}@Mercator.png?style=purpleHeat.point&srs=EPSG%3A4326&width=800&height=600` || null
         }
       ],
       similarity_scores: similarity,
