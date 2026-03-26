@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Map, BarChart3, AlertCircle, Eye } from 'lucide
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
+import ResultsMapViewer from './ResultsMapViewer';
 
 const SECTION_CONFIG = {
   abstract: {
@@ -23,7 +24,8 @@ const SECTION_CONFIG = {
   results: {
     label: '3. Results',
     hasVisuals: true,
-    visualTypes: ['suitability_map', 'occurrence_chart', 'climate_projection'],
+    visualTypes: ['range_map_interactive', 'hybridization_zones', 'climate_projection'],
+    useCustomComponent: true,
   },
   discussion: {
     label: '4. Discussion',
@@ -144,15 +146,21 @@ function VisualSection({ sectionKey, label, content, visuals, genus, defaultOpen
            {/* Visuals */}
            {hasVisuals && (
              <div className="space-y-5 border-t-2 border-slate-200 pt-8">
-               <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-lg">
-                 <Eye className="w-4 h-4" />
-                 Visual Evidence & Maps
-               </div>
-               <div className="grid grid-cols-1 gap-6">
-                 {config.visualTypes.map((vType, idx) => (
-                   <VisualPlaceholder key={idx} type={vType} genus={genus} />
-                 ))}
-               </div>
+               {config.useCustomComponent && sectionKey === 'results' ? (
+                 <ResultsMapViewer genus={genus} draft={{}} />
+               ) : (
+                 <>
+                   <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-lg">
+                     <Eye className="w-4 h-4" />
+                     Visual Evidence & Maps
+                   </div>
+                   <div className="grid grid-cols-1 gap-6">
+                     {config.visualTypes.map((vType, idx) => (
+                       <VisualPlaceholder key={idx} type={vType} genus={genus} />
+                     ))}
+                   </div>
+                 </>
+               )}
              </div>
            )}
          </div>
