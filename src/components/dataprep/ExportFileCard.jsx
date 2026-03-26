@@ -17,10 +17,20 @@ export default function ExportFileCard({ file }) {
   const StatusIcon = s.icon;
 
   const handleDownload = async () => {
+    if (!file.file_uri) {
+      alert('File URI not available. File may still be generating.');
+      return;
+    }
     setDownloading(true);
-    const res = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: file.file_uri, expires_in: 300 });
-    window.open(res.signed_url, '_blank');
-    setDownloading(false);
+    try {
+      const res = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: file.file_uri, expires_in: 300 });
+      window.open(res.signed_url, '_blank');
+    } catch (error) {
+      alert('Failed to download file. Please try again.');
+      console.error('Download error:', error);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
