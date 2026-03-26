@@ -22,15 +22,20 @@ function MapUpdater({ center }) {
 
 export default function MapView({ species, selectedIds, onSelect }) {
   const [statusFilter, setStatusFilter] = useState('all');
-  const [familyFilter, setFamilyFilter] = useState('all');
+  const [taxonomicFilter, setTaxonomicFilter] = useState('all');
+  const [taxonomicRank, setTaxonomicRank] = useState('family');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [showExport, setShowExport] = useState(false);
 
-  // Get unique families
-  const families = useMemo(() => {
-    const uniqueFamilies = [...new Set(species.map(s => s.family).filter(Boolean))];
-    return uniqueFamilies.sort();
-  }, [species]);
+  // Get unique values for current taxonomic rank
+  const taxonomicOptions = useMemo(() => {
+    const rankField = taxonomicRank === 'genus' ? 'genus' 
+                    : taxonomicRank === 'family' ? 'family'
+                    : taxonomicRank === 'order' ? 'order_name'
+                    : 'class_name';
+    const unique = [...new Set(species.map(s => s[rankField]).filter(Boolean))];
+    return unique.sort();
+  }, [species, taxonomicRank]);
 
   // Filter species and get observations with coordinates
   const observations = useMemo(() => {
@@ -39,8 +44,12 @@ export default function MapView({ species, selectedIds, onSelect }) {
     if (statusFilter !== 'all') {
       filtered = filtered.filter(s => s.iucn_status === statusFilter);
     }
-    if (familyFilter !== 'all') {
-      filtered = filtered.filter(s => s.family === familyFilter);
+    if (taxonomicFilter !== 'all') {
+      const rankField = taxonomicRank === 'genus' ? 'genus' 
+                      : taxonomicRank === 'family' ? 'family'
+                      : taxonomicRank === 'order' ? 'order_name'
+                      : 'class_name';
+      filtered = filtered.filter(s => s[rankField] === taxonomicFilter);
     }
     if (sourceFilter !== 'all') {
       filtered = filtered.filter(s => s.data_source === sourceFilter);
@@ -62,7 +71,7 @@ export default function MapView({ species, selectedIds, onSelect }) {
     });
 
     return obs;
-  }, [species, statusFilter, familyFilter, sourceFilter]);
+  }, [species, statusFilter, taxonomicFilter, taxonomicRank, sourceFilter]);
 
   // Calculate map center
   const mapCenter = useMemo(() => {
@@ -80,57 +89,75 @@ export default function MapView({ species, selectedIds, onSelect }) {
           <Filter className="w-4 h-4 text-slate-500" />
           <h3 className="text-sm font-semibold text-slate-700">Map Filters</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs text-slate-500 mb-1 block">Data Source</label>
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Sources</SelectItem>
-                <SelectItem value="IUCN Red List">IUCN Only</SelectItem>
-                <SelectItem value="iNaturalist">iNaturalist Only</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+           <div>
+             <label className="text-xs text-slate-500 mb-1 block">Data Source</label>
+             <Select value={sourceFilter} onValueChange={setSourceFilter}>
+               <SelectTrigger className="h-9">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">All Sources</SelectItem>
+                 <SelectItem value="IUCN Red List">IUCN Only</SelectItem>
+                 <SelectItem value="iNaturalist">iNaturalist Only</SelectItem>
+               </SelectContent>
+             </Select>
+           </div>
 
-          <div>
-            <label className="text-xs text-slate-500 mb-1 block">Conservation Status</label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="CR">Critically Endangered</SelectItem>
-                <SelectItem value="EN">Endangered</SelectItem>
-                <SelectItem value="VU">Vulnerable</SelectItem>
-                <SelectItem value="NT">Near Threatened</SelectItem>
-                <SelectItem value="LC">Least Concern</SelectItem>
-                <SelectItem value="DD">Data Deficient</SelectItem>
-                <SelectItem value="NE">Not Evaluated</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+           <div>
+             <label className="text-xs text-slate-500 mb-1 block">Conservation Status</label>
+             <Select value={statusFilter} onValueChange={setStatusFilter}>
+               <SelectTrigger className="h-9">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">All Statuses</SelectItem>
+                 <SelectItem value="CR">Critically Endangered</SelectItem>
+                 <SelectItem value="EN">Endangered</SelectItem>
+                 <SelectItem value="VU">Vulnerable</SelectItem>
+                 <SelectItem value="NT">Near Threatened</SelectItem>
+                 <SelectItem value="LC">Least Concern</SelectItem>
+                 <SelectItem value="DD">Data Deficient</SelectItem>
+                 <SelectItem value="NE">Not Evaluated</SelectItem>
+               </SelectContent>
+             </Select>
+           </div>
 
-          <div>
-            <label className="text-xs text-slate-500 mb-1 block">Family</label>
-            <Select value={familyFilter} onValueChange={setFamilyFilter}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Families</SelectItem>
-                {families.map(family => (
-                  <SelectItem key={family} value={family}>
-                    {family}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+           <div>
+             <label className="text-xs text-slate-500 mb-1 block">Taxonomic Rank</label>
+             <Select value={taxonomicRank} onValueChange={(v) => {
+               setTaxonomicRank(v);
+               setTaxonomicFilter('all');
+             }}>
+               <SelectTrigger className="h-9">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="class">Class</SelectItem>
+                 <SelectItem value="order">Order</SelectItem>
+                 <SelectItem value="family">Family</SelectItem>
+                 <SelectItem value="genus">Genus</SelectItem>
+               </SelectContent>
+             </Select>
+           </div>
+
+           <div>
+             <label className="text-xs text-slate-500 mb-1 block capitalize">{taxonomicRank}</label>
+             <Select value={taxonomicFilter} onValueChange={setTaxonomicFilter}>
+               <SelectTrigger className="h-9">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">All {taxonomicRank}s</SelectItem>
+                 {taxonomicOptions.map(option => (
+                   <SelectItem key={option} value={option}>
+                     {option}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+         </div>
         
         <div className="mt-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-xs text-slate-500">
