@@ -385,10 +385,10 @@ Deno.serve(async (req) => {
         species_id: speciesId,
         scientific_name: attrs.scientific_name,
         ...(uploadResult?.file_uri ? { range_geojson_file_uri: uploadResult.file_uri } : {}),
-        // Store compact inline version (bounding box + feature count only) for map display
+        // Store metadata only (count + source), NOT full geometries
         range_data_geojson: {
           type: 'FeatureCollection',
-          features: uploadResult?.geojson?.features || [],
+          feature_count: uploadResult?.geojson?.features?.length || 0,
           species: attrs.scientific_name,
           source: 'IUCN Bulk Shapefile'
         }
