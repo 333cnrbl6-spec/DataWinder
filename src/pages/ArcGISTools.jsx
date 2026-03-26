@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Map, Layers, Globe, ZoomIn, Download, ExternalLink, Code, FileJson, Database, Share2, Info, Activity } from 'lucide-react';
+import { Map, Layers, Globe, ZoomIn, Download, ExternalLink, Code, FileJson, Database, Share2, Info, Activity, Thermometer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import ArcGISMap from '@/components/ArcGISMap';
@@ -15,6 +15,7 @@ import RangeOverlayAnalysis from '@/components/arcgis/RangeOverlayAnalysis';
 import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
 import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
+import ClimateProjectionOverlay from '@/components/arcgis/ClimateProjectionOverlay';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
@@ -235,15 +236,20 @@ export default function ArcGISTools() {
             </CardHeader>
             <CardContent className="p-6">
               <Tabs defaultValue="hybridization" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="hybridization">🧬 Hybridization Zones</TabsTrigger>
-                <TabsTrigger value="buffer">Buffer Analysis</TabsTrigger>
-                <TabsTrigger value="overlay">Range Overlay</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="hybridization">🧬 Hybridization</TabsTrigger>
+                <TabsTrigger value="climate">🌡️ Climate</TabsTrigger>
+                <TabsTrigger value="buffer">Buffer</TabsTrigger>
+                <TabsTrigger value="overlay">Overlay</TabsTrigger>
                 <TabsTrigger value="spatial-join">Spatial Join</TabsTrigger>
               </TabsList>
 
               <TabsContent value="hybridization" className="mt-4">
                 <HybridizationMapper species={enrichedSpecies} />
+              </TabsContent>
+
+              <TabsContent value="climate" className="mt-4">
+                <ClimateProjectionOverlay species={enrichedSpecies} />
               </TabsContent>
                 
                 <TabsContent value="buffer" className="mt-4">
