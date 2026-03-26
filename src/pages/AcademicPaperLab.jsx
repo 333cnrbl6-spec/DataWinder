@@ -133,26 +133,68 @@ export default function AcademicPaperLab() {
 
   const printPaper = () => {
     if (!activeDraft) return;
-    const { title, sections, keywords, word_count, citation_style, similarity_scores } = activeDraft;
+    
+    // Generate figures HTML
+    const figuresHtml = activeDraft.figures_data?.map(fig => {
+      const colors = ['#1f2937', '#059669', '#d97706', '#2563eb', '#7c3aed'];
+      let chartHtml = '';
+      
+      if (fig.type === 'pie') {
+        // Simple pie chart as SVG
+        const total = fig.data.reduce((sum, d) => sum + d.value, 0);
+        let angle = 0;
+        const slices = fig.data.map((d, i) => {
+          const percentage = (d.value / total) * 100;
+          const sliceAngle = (percentage / 100) * 360;
+          const x1 = 100 + 80 * Math.cos((angle * Math.PI) / 180);
+          const y1 = 100 + 80 * Math.sin((angle * Math.PI) / 180);
+          const x2 = 100 + 80 * Math.cos(((angle + sliceAngle) * Math.PI) / 180);
+          const y2 = 100 + 80 * Math.sin(((angle + sliceAngle) * Math.PI) / 180);
+          const largeArc = sliceAngle > 180 ? 1 : 0;
+          const path = `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`;
+          angle += sliceAngle;
+          return `<path d="${path}" fill="${colors[i % colors.length]}" stroke="white" stroke-width="2" />`;
+        }).join('');
+        chartHtml = `<svg width="200" height="200" viewBox="0 0 200 200" style="margin: 10px auto; display: block;">${slices}</svg>`;
+      } else {
+        // Bar chart placeholder
+        const maxValue = Math.max(...fig.data.map(d => d.value));
+        const bars = fig.data.map((d, i) => {
+          const height = (d.value / maxValue) * 100;
+          return `<div style="display: inline-block; width: 30px; height: 150px; margin: 5px; background: linear-gradient(to top, ${colors[i % colors.length]} ${height}%, #f0f0f0 ${height}%); border: 1px solid #ddd;"></div>`;
+        }).join('');
+        chartHtml = `<div style="text-align: center; margin: 15px 0;">${bars}</div>`;
+      }
+      
+      return `
+        <div style="margin: 20px 0; page-break-inside: avoid;">
+          <h3 style="font-size: 11pt; font-weight: bold; margin-bottom: 10px;">Figure: ${fig.id || fig.type}</h3>
+          ${chartHtml}
+          <p style="font-size: 9pt; text-align: center; color: #666; margin-top: 8px;">${fig.description || ''}</p>
+        </div>
+      `;
+    }).join('');
+
     const sectionBlocks = [
-      ['Abstract', sections.abstract],
-      ['1. Introduction', sections.introduction],
-      ['2. Materials & Methods', sections.methods],
-      ['3. Results', sections.results],
-      ['4. Discussion', sections.discussion],
-      ['5. Conclusion', sections.conclusion],
-      ['References', sections.references],
-    ].map(([heading, body]) => `
-      <section>
+      ['Abstract', activeDraft.sections.abstract],
+      ['1. Introduction', activeDraft.sections.introduction],
+      ['2. Materials & Methods', activeDraft.sections.methods],
+      ['3. Results', activeDraft.sections.results, figuresHtml],
+      ['4. Discussion', activeDraft.sections.discussion],
+      ['5. Conclusion', activeDraft.sections.conclusion],
+      ['References', activeDraft.sections.references],
+    ].map(([heading, body, figures]) => `
+      <section style="page-break-inside: avoid;">
         <h2>${heading}</h2>
         ${(body || '').split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+        ${figures || ''}
       </section>`).join('');
 
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>${title}</title>
+<title>${activeDraft.title}</title>
 <style>
   @page { size: A4; margin: 25mm 20mm; }
   body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.7; color: #111; max-width: 170mm; margin: 0 auto; }
@@ -160,20 +202,22 @@ export default function AcademicPaperLab() {
   h1 { font-size: 16pt; font-weight: bold; margin-bottom: 6pt; line-height: 1.3; }
   .meta { font-size: 9pt; color: #555; margin-bottom: 18pt; border-bottom: 1pt solid #ccc; padding-bottom: 8pt; }
   h2 { font-size: 12pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5pt; margin-top: 20pt; margin-bottom: 6pt; border-top: 1pt solid #ddd; padding-top: 10pt; }
+  h3 { font-size: 11pt; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; }
   p { margin: 0 0 8pt 0; text-align: justify; }
   section:first-of-type h2 { border-top: none; padding-top: 0; }
-  @media print { .watermark { display: none; } body { max-width: 100%; } }
+  svg { max-width: 100%; height: auto; }
+  @media print { .watermark { display: none; } body { max-width: 100%; } section { page-break-inside: avoid; } }
 </style>
 </head>
 <body>
   <div class="watermark">⚠ PRIVATE DEVELOPER DRAFT — AI-GENERATED — FOR EVALUATION ONLY — NOT FOR DISTRIBUTION</div>
-  <h1>${title}</h1>
+  <h1>${activeDraft.title}</h1>
   <div class="meta">
-    <strong>Taxon:</strong> ${activeDraft?.genus || taxon} &nbsp;|&nbsp;
-    <strong>Style:</strong> ${citation_style} &nbsp;|&nbsp;
-    <strong>Words:</strong> ~${word_count?.toLocaleString()} &nbsp;|&nbsp;
-    <strong>Similarity:</strong> ${similarity_scores?.overall ?? '?'}% &nbsp;|&nbsp;
-    <strong>Keywords:</strong> ${(keywords || []).join('; ')} &nbsp;|&nbsp;
+    <strong>Taxon:</strong> ${activeDraft.genus || taxon} &nbsp;|&nbsp;
+    <strong>Style:</strong> ${citationStyle} &nbsp;|&nbsp;
+    <strong>Words:</strong> ~${activeDraft.word_count?.toLocaleString()} &nbsp;|&nbsp;
+    <strong>Similarity:</strong> ${activeDraft.similarity_scores?.overall ?? '?'}% &nbsp;|&nbsp;
+    <strong>Keywords:</strong> ${(activeDraft.keywords || []).join('; ')} &nbsp;|&nbsp;
     <strong>Generated:</strong> ${new Date().toLocaleString('en-GB')}
   </div>
   ${sectionBlocks}
