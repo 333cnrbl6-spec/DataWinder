@@ -38,6 +38,7 @@ import DataWinderReport from './pages/DataWinderReport';
 import GenusComparison from './pages/GenusComparison';
 import SecureView from './pages/SecureView';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -137,6 +138,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <SpeciesProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
@@ -144,6 +146,7 @@ function App() {
         </Router>
         <Toaster />
       </QueryClientProvider>
+      </SpeciesProvider>
     </AuthProvider>
   )
 }
