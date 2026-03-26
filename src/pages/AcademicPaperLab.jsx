@@ -19,6 +19,7 @@ import {
   Share2, ShieldCheck, Hash, CheckCircle2, BarChart2, Eye, BookMarked
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 import PaperViewer from '@/components/paperlab/PaperViewer';
 import PaperFigures from '@/components/paperlab/PaperFigures';
 import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
@@ -102,18 +103,44 @@ export default function AcademicPaperLab() {
         save_draft: true,
       });
       const data = res.data;
-      console.log('Generated paper data:', data);
+
+      // Validate critical fields exist
+      if (!data.sections || !data.title) {
+        throw new Error('Backend returned incomplete paper data');
+      }
+
+      // Ensure sections are properly formed with non-empty content
+      const validSections = {
+        abstract: data.sections.abstract || '',
+        introduction: data.sections.introduction || '',
+        methods: data.sections.methods || '',
+        results: data.sections.results || '',
+        discussion: data.sections.discussion || '',
+        conclusion: data.sections.conclusion || '',
+        references: data.sections.references || ''
+      };
+
+      // Ensure figures_data is always an array
+      const figuresData = Array.isArray(data.figures_data) ? data.figures_data : [];
+
+      console.log('Generated paper:', {
+        title: data.title,
+        sections_keys: Object.keys(validSections),
+        figures_count: figuresData.length,
+        word_count: data.word_count
+      });
+
       setActiveDraft({
         title: data.title,
         genus: data.taxon || taxon,
         taxon: data.taxon || taxon,
         taxon_rank: data.taxon_rank || taxonRank,
         citation_style: citationStyle,
-        sections: data.sections,
-        figures_data: data.figures_data,
-        similarity_scores: data.similarity_scores,
-        keywords: data.keywords,
-        word_count: data.word_count,
+        sections: validSections,
+        figures_data: figuresData,
+        similarity_scores: data.similarity_scores || {},
+        keywords: data.keywords || [],
+        word_count: data.word_count || 0,
         id: data.draft_id
       });
       refetchDrafts();
@@ -121,6 +148,7 @@ export default function AcademicPaperLab() {
     } catch (e) {
       console.error('Generation error:', e);
       toast.error('Generation failed: ' + e.message);
+      setActiveDraft(null);
     } finally {
       setGenerating(false);
     }
@@ -134,10 +162,19 @@ export default function AcademicPaperLab() {
   };
 
   const printPaper = () => {
-    if (!activeDraft) return;
-    
+    if (!activeDraft || !activeDraft.sections) {
+      toast.error('No valid draft to print');
+      return;
+    }
+
+    // Validate critical sections exist
+    if (!activeDraft.sections.abstract || !activeDraft.sections.introduction) {
+      toast.error('Draft is incomplete — cannot print');
+      return;
+    }
+
     // Generate figures HTML
-    const figuresHtml = activeDraft.figures_data?.map(fig => {
+    const figuresHtml = (activeDraft.figures_data || []).map(fig => {
       const colors = ['#1f2937', '#059669', '#d97706', '#2563eb', '#7c3aed'];
       let chartHtml = '';
       
@@ -547,9 +584,18 @@ export default function AcademicPaperLab() {
                         key={d.id}
                         draft={d}
                         onLoad={(draft) => {
+                          // Validate draft before loading
+                          if (!draft.sections || !draft.title) {
+                            toast.error('Draft is incomplete');
+                            return;
+                          }
                           setActiveDraft({
                             ...draft,
-                            sections: draft.sections,
+                            sections: draft.sections || {},
+                            figures_data: Array.isArray(draft.figures_data) ? draft.figures_data : [],
+                            similarity_scores: draft.similarity_scores || {},
+                            keywords: draft.keywords || [],
+                            word_count: draft.word_count || 0
                           });
                         }}
                         onDelete={deleteDraft}
@@ -634,8 +680,14 @@ export default function AcademicPaperLab() {
 
                  {/* Content */}
                  {reportMode === 'text' ? (
-                   <PaperViewer draft={activeDraft} />
-                 ) : activeDraft?.figures_data || activeDraft?.sections ? (
+                   activeDraft.sections && Object.values(activeDraft.sections).some(s => s) ? (
+                     <PaperViewer draft={activeDraft} />
+                   ) : (
+                     <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-200 rounded-lg">
+                       <p className="text-sm text-slate-400">Paper content not available.</p>
+                     </div>
+                   )
+                 ) : activeDraft.figures_data?.length > 0 || (activeDraft.sections && Object.values(activeDraft.sections).some(s => s)) ? (
                    <VisualReportViewer draft={activeDraft} />
                  ) : (
                    <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-200 rounded-lg">

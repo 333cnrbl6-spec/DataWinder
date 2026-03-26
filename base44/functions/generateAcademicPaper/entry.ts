@@ -318,11 +318,22 @@ Return a JSON object with these exact keys:
 
     // Parse the LLM response — it may return a JSON string or an object
     let generated;
-    if (typeof rawLLM === 'string') {
-      const match = rawLLM.match(/\{[\s\S]*\}/);
-      generated = match ? JSON.parse(match[0]) : {};
-    } else {
-      generated = rawLLM;
+    try {
+      if (typeof rawLLM === 'string') {
+        const match = rawLLM.match(/\{[\s\S]*\}/);
+        generated = match ? JSON.parse(match[0]) : {};
+      } else {
+        generated = rawLLM;
+      }
+    } catch (parseErr) {
+      console.error('LLM JSON parse error:', parseErr);
+      throw new Error('Failed to parse LLM response: ' + parseErr.message);
+    }
+
+    // Validate generated content has required sections
+    if (!generated.title || !generated.abstract || !generated.introduction) {
+      console.error('Generated content missing required sections:', Object.keys(generated));
+      throw new Error('LLM did not generate required paper sections');
     }
 
     console.log('LLM response received, computing similarity scores...');
@@ -365,17 +376,22 @@ Return a JSON object with these exact keys:
       benchmark_papers: ['hill_winder_2019', 'rylands_2009', 'zinner_2013', 'freitas_2019'],
       sections,
       figures_data: [
-        {
+        // IUCN Status Distribution
+        ...(liveData.iucn?.species?.length > 0 ? [{
           id: 'iucn_status_distribution',
           type: 'bar',
           title: `IUCN Conservation Status Distribution — ${finalTaxon}`,
           description: 'Count of species by IUCN Red List category',
-          data: liveData.iucn?.species?.map(s => ({
-            status: s.status,
-            count: 1
-          })) || []
-        },
-        {
+          data: Object.entries(
+            liveData.iucn.species.reduce((acc, s) => {
+              acc[s.status] = (acc[s.status] || 0) + 1;
+              return acc;
+            }, {})
+          ).map(([status, count]) => ({ name: status, value: count }))
+        }] : []),
+        
+        // Occurrence Sources Pie Chart
+        ...(((liveData.gbif?.total_occurrences || 0) + (liveData.inat?.research_grade_count || 0)) > 0 ? [{
           id: 'occurrence_sources',
           type: 'pie',
           title: 'Occurrence Records by Source',
@@ -384,24 +400,31 @@ Return a JSON object with these exact keys:
             { name: 'GBIF', value: liveData.gbif?.total_occurrences || 0 },
             { name: 'iNaturalist', value: liveData.inat?.research_grade_count || 0 }
           ].filter(d => d.value > 0)
-        },
-        {
+        }] : []),
+        
+        // Population Trends Bar Chart
+        ...(liveData.iucn?.species?.length > 0 ? [{
           id: 'population_trends',
           type: 'bar',
           title: `Population Trends — ${finalTaxon}`,
           description: 'Species distribution by population trend',
-          data: liveData.iucn?.species?.map(s => ({
-            trend: s.trend || 'unknown',
-            count: 1
-          })) || []
-        },
-        {
+          data: Object.entries(
+            liveData.iucn.species.reduce((acc, s) => {
+              const trend = s.trend || 'unknown';
+              acc[trend] = (acc[trend] || 0) + 1;
+              return acc;
+            }, {})
+          ).map(([trend, count]) => ({ name: trend, value: count }))
+        }] : []),
+        
+        // Geographic Distribution Map
+        ...(liveData.gbif?.usage_key ? [{
           id: 'geographic_distribution',
           type: 'map',
           title: `Global Geographic Distribution — ${finalTaxon}`,
-          description: 'Occurrence points from GBIF and iNaturalist',
-          image_url: `https://api.gbif.org/v1/map/occurrence/density@Hu/${liveData.gbif?.usage_key}@Mercator.png?style=purpleHeat.point&srs=EPSG%3A4326&width=800&height=600` || null
-        }
+          description: 'Occurrence point density map from GBIF',
+          image_url: `https://api.gbif.org/v1/map/occurrence/density@Hu/${liveData.gbif.usage_key}@Mercator.png?style=purpleHeat.point&srs=EPSG%3A4326&width=800&height=600`
+        }] : [])
       ],
       similarity_scores: similarity,
       raw_data_snapshot: liveData,
