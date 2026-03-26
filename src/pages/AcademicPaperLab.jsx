@@ -155,10 +155,19 @@ export default function AcademicPaperLab() {
   };
 
   const deleteDraft = async (id) => {
-    await base44.entities.PaperDraft.delete(id);
-    refetchDrafts();
-    if (activeDraft?.id === id) setActiveDraft(null);
-    toast.success('Draft deleted');
+    try {
+      await base44.entities.PaperDraft.delete(id);
+      toast.success('Draft deleted');
+    } catch (e) {
+      if (e.message?.includes('not found')) {
+        toast.info('Draft already removed');
+      } else {
+        toast.error('Failed to delete draft: ' + e.message);
+      }
+    } finally {
+      refetchDrafts();
+      if (activeDraft?.id === id) setActiveDraft(null);
+    }
   };
 
   const printPaper = () => {
