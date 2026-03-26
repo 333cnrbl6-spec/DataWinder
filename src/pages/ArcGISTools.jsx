@@ -18,12 +18,14 @@ import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
+import IUCNSplitView from '@/components/IUCNSplitView';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
 export default function ArcGISTools() {
   const [showArcGISTerms, setShowArcGISTerms] = useState(false);
   const [arcgisAgreed, setArcgisAgreed] = useState(false);
+  const [showSplitView, setShowSplitView] = useState(false);
   const { selectedSpecies, setSelectedSpecies } = useSpecies();
   const { analysisResults, addResult, clearResults } = useAnalysisState();
 
@@ -612,12 +614,27 @@ export default function ArcGISTools() {
         </Alert>
       </main>
 
+      {/* Split view — full screen IUCN + checklist side by side */}
+      {showSplitView && (
+        <IUCNSplitView
+          species={enrichedSpecies}
+          rangeData={allRangeData}
+          assessmentData={allAssessments}
+          onClose={() => setShowSplitView(false)}
+          onUploaded={() => {
+            refetchRangeData();
+            refetchAssessments();
+          }}
+        />
+      )}
+
       {/* Sticky IUCN Manual Download Checklist */}
-      {allSpecies.length > 0 && (
+      {allSpecies.length > 0 && !showSplitView && (
         <IUCNManualDownloadChecklist
           species={enrichedSpecies}
           rangeData={allRangeData}
           assessmentData={allAssessments}
+          onOpenSplitView={() => setShowSplitView(true)}
           onUploaded={() => {
             refetchRangeData();
             refetchAssessments();

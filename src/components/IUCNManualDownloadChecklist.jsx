@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, ExternalLink, X, ChevronDown, ChevronUp, Upload, FileJson, Map, FileArchive, StickyNote } from 'lucide-react';
+import { CheckCircle2, Circle, ExternalLink, X, ChevronDown, ChevronUp, Upload, Columns, StickyNote } from 'lucide-react';
 import SmartDropZone from '@/components/SmartDropZone';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -48,7 +48,7 @@ const FILE_TYPES = [
   },
 ];
 
-export default function IUCNManualDownloadChecklist({ species = [], rangeData = [], assessmentData = [], onUploaded }) {
+export default function IUCNManualDownloadChecklist({ species = [], rangeData = [], assessmentData = [], onUploaded, onOpenSplitView }) {
   const [open, setOpen] = useState(true);
   const [showDropZone, setShowDropZone] = useState(false);
   const [expandedSpecies, setExpandedSpecies] = useState(null);
@@ -110,10 +110,17 @@ export default function IUCNManualDownloadChecklist({ species = [], rangeData = 
             exit={{ height: 0 }}
             className="overflow-hidden flex flex-col"
           >
-            {/* Instructions */}
-            <div className="px-4 py-2 bg-amber-50/60 border-b border-amber-100 text-xs text-slate-600">
-              Log in to <a href="https://www.iucnredlist.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">iucnredlist.org</a> with your account, download the files below, then drag & drop them onto the map.
-              <a href="https://www.iucnredlist.org/resources/spatial-data-download" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-600 underline">Bulk download page →</a>
+            {/* Instructions + split view button */}
+            <div className="px-4 py-2 bg-amber-50/60 border-b border-amber-100 text-xs text-slate-600 space-y-2">
+              <p>Log in to <a href="https://www.iucnredlist.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">iucnredlist.org</a>, download the files below, then drop them here.</p>
+              <Button
+                size="sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5 h-7 text-xs"
+                onClick={onOpenSplitView}
+              >
+                <Columns className="w-3.5 h-3.5" />
+                Open Split View (IUCN + Checklist)
+              </Button>
             </div>
 
             {/* Species list */}
