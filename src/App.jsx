@@ -38,6 +38,7 @@ import DataWinderReport from './pages/DataWinderReport';
 import GenusComparison from './pages/GenusComparison';
 import SecureView from './pages/SecureView';
 import IUCNDataValidation from './pages/IUCNDataValidation';
+import DataValidation from './pages/DataValidation';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -130,6 +131,8 @@ const AuthenticatedApp = () => {
       <Route path="/GenusComparison" element={<LayoutWrapper currentPageName="GenusComparison"><GenusComparison /></LayoutWrapper>} />
       {/* IUCN data validation dashboard */}
       <Route path="/IUCNDataValidation" element={<LayoutWrapper currentPageName="IUCNDataValidation"><IUCNDataValidation /></LayoutWrapper>} />
+      {/* Data Validation dashboard */}
+      <Route path="/DataValidation" element={<LayoutWrapper currentPageName="DataValidation"><DataValidation /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
