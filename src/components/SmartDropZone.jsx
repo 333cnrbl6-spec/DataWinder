@@ -99,27 +99,28 @@ export default function SmartDropZone({ onImported }) {
         const files = Object.values(zip.files).filter(f => !f.dir && !f.name.startsWith('__MACOSX/'));
         if (files.length === 0) throw new Error('ZIP file is empty or contains no valid files');
         
+        // Check for Shapefile FIRST — before any CSV/importable file check
+        // IUCN ZIPs often contain both a .shp/.dbf AND a summary CSV — we must prefer the shapefile pipeline
+        const hasShp = files.some(f => getFileExt(f.name) === 'shp');
+        const hasDbf = files.some(f => getFileExt(f.name) === 'dbf');
+
+        if (hasShp && hasDbf) {
+          // Upload the full ZIP then call processShapefileData
+          const uploadedFile = await base44.integrations.Core.UploadFile({ file });
+          setFileUrl(uploadedFile.file_url);
+          setFileInfo({ name: file.name, size: file.size, type: file.type, isShapefile: true, fileList: files.map(f => f.name) });
+          stopTicking();
+          setStep('shapefile');
+          return;
+        }
+
         // Prioritize importable file formats (prefer csv/json over txt); if none found, check if it's all geospatial
         const importableFile = 
           files.find(f => ['csv', 'json', 'geojson'].includes(getFileExt(f.name))) ||
           files.find(f => IMPORTABLE_EXTS.includes(getFileExt(f.name)));
         const geospatialFiles = files.filter(f => GEOSPATIAL_EXTS.includes(getFileExt(f.name)));
-        
+
         if (!importableFile && geospatialFiles.length > 0) {
-            // Check if this is a Shapefile ZIP (has .shp + .dbf) — process it as IUCN range data
-            const hasShp = files.some(f => getFileExt(f.name) === 'shp');
-            const hasDbf = files.some(f => getFileExt(f.name) === 'dbf');
-
-            if (hasShp && hasDbf) {
-              // Upload the full ZIP then call processShapefileData
-              const uploadedFile = await base44.integrations.Core.UploadFile({ file });
-              setFileUrl(uploadedFile.file_url);
-              setFileInfo({ name: file.name, size: file.size, type: file.type, isShapefile: true, fileList: files.map(f => f.name) });
-              stopTicking();
-              setStep('shapefile');
-              return;
-            }
-
             // Other geospatial/raster data — upload and inform user
             const uploadedFile = await base44.integrations.Core.UploadFile({ file });
             const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
