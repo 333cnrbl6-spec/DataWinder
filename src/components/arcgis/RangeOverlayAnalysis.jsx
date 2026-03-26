@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Layers, Download, Loader2, AlertTriangle } from 'lucide-react';
 import * as turf from '@turf/turf';
 import { toast } from 'sonner';
+import RangeOverlayBackendExtractor from '@/components/RangeOverlayBackendExtractor';
 
 export default function RangeOverlayAnalysis({ species, onResultReady }) {
   const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
@@ -125,7 +126,20 @@ export default function RangeOverlayAnalysis({ species, onResultReady }) {
           Identify overlapping areas between species ranges
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="p-6 space-y-6">
+        {/* Backend Extraction */}
+        <div>
+          <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Backend Processing</p>
+          <RangeOverlayBackendExtractor
+            species={species}
+            onResultReady={onResultReady}
+          />
+        </div>
+
+        <div className="border-t pt-4">
+          <p className="text-xs font-semibold text-slate-600 uppercase mb-3">Frontend Analysis</p>
+        </div>
+
         {/* Species Selection */}
         <div>
           <label className="text-sm font-medium text-slate-700 mb-2 block">
