@@ -6,6 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
 import ResultsMapViewer from './ResultsMapViewer';
 import MethodsVisualsPanel from './MethodsVisualsPanel';
+import DiscussionVisualsPanel from './DiscussionVisualsPanel';
 
 const SECTION_CONFIG = {
   abstract: {
@@ -32,7 +33,8 @@ const SECTION_CONFIG = {
   discussion: {
     label: '4. Discussion',
     hasVisuals: true,
-    visualTypes: ['hybridization_zones', 'range_overlap', 'threat_analysis'],
+    visualTypes: ['climate_response', 'population_trends', 'threat_analysis'],
+    useCustomComponent: true,
   },
   conclusion: {
     label: '5. Conclusion',
@@ -152,6 +154,8 @@ function VisualSection({ sectionKey, label, content, visuals, genus, defaultOpen
                  <ResultsMapViewer genus={genus} draft={{}} />
                ) : config.useCustomComponent && sectionKey === 'methods' ? (
                  <MethodsVisualsPanel genus={genus} />
+               ) : config.useCustomComponent && sectionKey === 'discussion' ? (
+                 <DiscussionVisualsPanel genus={genus} />
                ) : (
                  <>
                    <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-lg">
