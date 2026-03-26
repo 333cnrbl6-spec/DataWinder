@@ -684,19 +684,9 @@ export default function AcademicPaperLab() {
 
                  {/* Content */}
                  {reportMode === 'text' ? (
-                   activeDraft.sections && Object.values(activeDraft.sections).some(s => s) ? (
-                     <PaperViewer draft={activeDraft} />
-                   ) : (
-                     <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-200 rounded-lg">
-                       <p className="text-sm text-slate-400">Paper content not available.</p>
-                     </div>
-                   )
-                 ) : activeDraft.figures_data?.length > 0 || (activeDraft.sections && Object.values(activeDraft.sections).some(s => s)) ? (
-                   <VisualReportViewer draft={activeDraft} />
+                   <PaperViewer draft={activeDraft} />
                  ) : (
-                   <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-200 rounded-lg">
-                     <p className="text-sm text-slate-400">No visual data available for this draft.</p>
-                   </div>
+                   <VisualReportViewer draft={activeDraft} />
                  )}
                </>
              )}
@@ -704,8 +694,8 @@ export default function AcademicPaperLab() {
                <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-300 rounded-2xl">
                  <div className="text-center space-y-2 text-slate-400">
                    <BookOpen className="w-10 h-10 mx-auto opacity-30" />
-                   <p className="text-sm font-medium">Select a {taxonRank} and click Generate</p>
-                   <p className="text-xs">Paper will appear here with all sections, figures and similarity scores</p>
+                   <p className="text-sm font-medium">Ready to generate</p>
+                   <p className="text-xs">Select a taxon above and click Generate Paper to get started</p>
                  </div>
                </div>
              )}
