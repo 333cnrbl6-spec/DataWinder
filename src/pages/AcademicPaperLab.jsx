@@ -158,9 +158,9 @@ export default function AcademicPaperLab() {
           return `<path d="${path}" fill="${colors[i % colors.length]}" stroke="white" stroke-width="2" />`;
         }).join('');
         chartHtml = `<svg width="200" height="200" viewBox="0 0 200 200" style="margin: 10px auto; display: block;">${slices}</svg>`;
-      } else if (Array.isArray(fig.data) && fig.data.length > 0) {
+      } else if (Array.isArray(fig.data) && fig.data.length > 0 && fig.data[0]?.value) {
         // Bar chart placeholder
-        const maxValue = Math.max(...fig.data.map(d => d.value));
+        const maxValue = Math.max(...fig.data.map(d => d.value || 0));
         const bars = fig.data.map((d, i) => {
           const height = (d.value / maxValue) * 100;
           return `<div style="display: inline-block; width: 30px; height: 150px; margin: 5px; background: linear-gradient(to top, ${colors[i % colors.length]} ${height}%, #f0f0f0 ${height}%); border: 1px solid #ddd;"></div>`;
