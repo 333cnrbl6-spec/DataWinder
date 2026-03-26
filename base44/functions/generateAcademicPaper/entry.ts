@@ -79,6 +79,9 @@ const MANDATORY_REFERENCES_HARVARD = [
   "Hanski, I. (1998) 'Metapopulation dynamics', Nature, 396, pp. 41–49. doi:10.1038/23876.",
   "Mallet, J. (2007) 'Hybrid speciation', Nature, 446, pp. 279–283. doi:10.1038/nature05706.",
   "Abbott, R. et al. (2013) 'Hybridization and speciation', Journal of Evolutionary Biology, 26(2), pp. 229–246. doi:10.1111/j.1420-9101.2012.02599.x.",
+  "Arnold, M.L. (1997) Natural Hybridization and Evolution. Oxford: Oxford University Press.",
+  "Fontaine, M.C. et al. (2015) 'Extensive introgression in a malaria vector species complex revealed by phylogenomics', Science, 347, p. 1258524. doi:10.1126/science.1258524.",
+  "Huson, D.H. and Bryant, D. (2006) 'Application of phylogenetic networks in evolutionary studies', Molecular Biology and Evolution, 23(2), pp. 254–267. doi:10.1093/molbev/msj030.",
   "Rylands, A.B. and Mittermeier, R.A. (2009) 'The diversity of the New World primates (Platyrrhini): an annotated taxonomy', in Garber, P.A. et al. (eds) South American Primates. New York: Springer, pp. 23–54.",
   "Zinner, D. et al. (2013) 'Baboon phylogeny as inferred from complete mitochondrial genomes', American Journal of Physical Anthropology, 150(1), pp. 133–140.",
   "Freitas, M.A. et al. (2019) 'Habitat loss and fragmentation effects on Atlantic Forest primates', American Journal of Primatology, 81(7), e22989.",
@@ -251,11 +254,25 @@ CRITICAL THEMATIC REQUIREMENTS — these must be substantively integrated, not m
      and how warming may expand it northward — cite Aguiar et al. (2008)
    - Discuss homoploid hybrid speciation as a potential evolutionary outcome in contact zones
 
-3. CLIMATE-DRIVEN EVOLUTIONARY PATHWAYS:
-   - Synthesise both frameworks: fragmented populations → isolation → drift/local adaptation (island biogeography path) 
-     VERSUS expanding contact zones → hybridisation → introgression/hybrid speciation (hybrid speciation path)
+3. RETICULATE EVOLUTION (Arnold, 1997; Fontaine et al., 2015):
+   - Explain that where hybridisation and introgression are ongoing, evolutionary history is no longer tree-like 
+     but network-like — lineages branch AND merge (reticulate phylogeny)
+   - Argue that standard bifurcating phylogenies are insufficient to describe the evolutionary history of 
+     genera with active hybrid zones (e.g. Callithrix)
+   - Discuss how climate-driven range shifts increase the rate and spatial extent of reticulate events
+   - Note the challenge this poses for IUCN species delimitation: if lineages are merging, what is the 
+     conservation unit? Discuss evolutionarily significant units (ESUs) as an alternative framework
+   - Cite Huson & Bryant (2006) for phylogenetic network methods; Fontaine et al. (2015) for an empirical 
+     example of extensive reticulation revealed by phylogenomics
+
+4. CLIMATE-DRIVEN EVOLUTIONARY PATHWAYS — SYNTHESIS:
+   - Synthesise all three frameworks: fragmented populations → isolation → drift/local adaptation (island biogeography path) 
+     VERSUS expanding contact zones → hybridisation → introgression/hybrid speciation (hybrid speciation path) 
+     VERSUS ongoing reticulation weaving lineage histories into a network (reticulate evolution)
    - Note that these are not mutually exclusive — different species pairs may follow different paths simultaneously
    - Discuss implications for IUCN Red Listing: current criteria may under- or over-estimate risk by ignoring these dynamics
+   - Argue that DataWinder's multi-source occurrence data and range mapping tools provide the empirical foundation 
+     needed to detect and monitor all three evolutionary processes in near real-time
 
 MANDATORY RULES:
 1. Use ONLY the real data figures provided above — do NOT invent numbers
@@ -273,7 +290,7 @@ Return a JSON object with these exact keys:
   "introduction": "Full introduction text (~700 words) — must include island biogeography and hybridisation paragraphs",
   "methods": "Full methods text (~700 words) with numbered subsections including fragmentation and hybridisation zone analysis",
   "results": "Full results text (~600 words) with numbered subsections including fragmentation and predicted contact zones",
-  "discussion": "Full discussion text (~900 words) — must have dedicated island biogeography and hybridisation paragraphs",
+  "discussion": "Full discussion text (~900 words) — must have dedicated island biogeography, hybridisation, and reticulate evolution paragraphs",
   "conclusion": "Full conclusion (~180 words) — synthesise all three frameworks",
   "references": "Complete reference list in ${citation_style} format",
   "keywords": ["keyword1", "keyword2"],
@@ -307,6 +324,7 @@ Return a JSON object with these exact keys:
       freitas_2019: computeSimilarity(fullText, 'habitat loss fragmentation Atlantic Forest primates threat conservation'),
       macarthur_wilson_1967: computeSimilarity(fullText, 'island biogeography species area relationship immigration extinction equilibrium isolation fragmentation refugia patch connectivity'),
       mallet_2007: computeSimilarity(fullText, 'hybrid speciation hybridisation zone contact secondary introgression adaptive homoploid speciation gene flow reproductive isolation'),
+      arnold_reticulate: computeSimilarity(fullText, 'reticulate evolution phylogenetic network introgression lineage merging web of life reticulation bifurcating tree hybridisation evolutionarily significant unit'),
     };
     similarity.overall = Math.round(Object.values(similarity).reduce((a, b) => a + b, 0) / Object.keys(similarity).length);
 

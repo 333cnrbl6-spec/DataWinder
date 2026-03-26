@@ -7,6 +7,7 @@ const PAPERS = [
   { key: 'freitas_2019', label: 'Freitas et al. (2019)', journal: 'Am. J. Primatology' },
   { key: 'macarthur_wilson_1967', label: 'MacArthur & Wilson (1967)', journal: 'Island Biogeography (theory)' },
   { key: 'mallet_2007', label: 'Mallet (2007)', journal: 'Nature — Hybrid Speciation' },
+  { key: 'arnold_reticulate', label: 'Arnold (1997) / Fontaine et al. (2015)', journal: 'Reticulate Evolution' },
 ];
 
 function Band({ pct }) {
@@ -31,7 +32,7 @@ export default function SimilarityMeter({ scores }) {
         </div>
       </div>
       <p className="text-xs text-slate-500">
-        Similarity is calculated using n-gram lexical overlap against 6 benchmark papers/theories including Island Biogeography and Hybrid Speciation frameworks.
+        Similarity is calculated using n-gram lexical overlap against 7 benchmark papers/theories including Island Biogeography, Hybrid Speciation, and Reticulate Evolution frameworks.
         Academic papers typically share 5–25% vocabulary with related works. &gt;30% warrants review.
       </p>
       <div className="space-y-3">

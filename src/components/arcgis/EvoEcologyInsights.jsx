@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Info, Layers, Leaf, FlaskConical, ChevronDown, ChevronUp } from 'lucide-react';
+import { Info, Layers, Leaf, FlaskConical, GitMerge, ChevronDown, ChevronUp } from 'lucide-react';
 
 const THEORIES = [
   {
@@ -50,6 +50,30 @@ const THEORIES = [
       'Abbott, R. et al. (2013) Hybridization and speciation. Journal of Evolutionary Biology, 26(2), 229–246.',
       'Aguiar, L.M. et al. (2008) Callithrix penicillata × C. jacchus hybrid zone. American Journal of Primatology, 70(2), 119–127.',
     ]
+  },
+  {
+    id: 'reticulate_evolution',
+    icon: GitMerge,
+    color: 'blue',
+    title: 'Reticulate Evolution',
+    subtitle: 'Arnold (1997); Mallet (2007); Fontaine et al. (2015)',
+    badge: 'Web of Life → Network Phylogeny',
+    summary: `Reticulate evolution describes evolutionary history where lineages do not simply branch (as in a classical bifurcating tree) but also merge — through hybridisation, introgression, horizontal gene transfer, or endosymbiosis. The result is a phylogenetic network or "web of life" rather than a tree. In sexually reproducing organisms, reticulation occurs when hybrid offspring between two lineages successfully back-cross or establish, weaving the genetic histories of previously separate lineages together.`,
+    climate_link: `As climate change forces species ranges to shift and overlap, the frequency of reticulate events is predicted to increase. Species that were geographically isolated for millennia suddenly share range space, increasing the probability of hybridisation and introgressive reticulation. For primates like Callithrix, whose hybrid zones are already active, warming may dramatically increase the spatial extent and frequency of reticulate evolutionary events — making traditional bifurcating phylogenies insufficient to describe their evolutionary history.`,
+    key_concepts: [
+      'Phylogenetic networks (not trees) are required to depict reticulate histories',
+      'Introgressive hybridisation transfers adaptive alleles across lineage boundaries',
+      'Ancient reticulation events may be invisible in modern genomes (deep reticulation)',
+      'Reticulation accelerates adaptation by combining divergent gene pools',
+      'Distinguishes from convergent evolution: shared ancestry, not just similar trait',
+      'IUCN taxonomy struggles with reticulate taxa — species boundaries become porous',
+    ],
+    references: [
+      'Arnold, M.L. (1997) Natural Hybridization and Evolution. Oxford: Oxford University Press.',
+      'Mallet, J. (2007) Hybrid speciation. Nature, 446, 279–283.',
+      'Fontaine, M.C. et al. (2015) Extensive introgression in a malaria vector species complex revealed by phylogenomics. Science, 347, 1258524.',
+      'Huson, D.H. and Bryant, D. (2006) Application of phylogenetic networks in evolutionary studies. Molecular Biology and Evolution, 23(2), 254–267.',
+    ]
   }
 ];
 
@@ -59,6 +83,7 @@ function TheoryCard({ theory }) {
   const colorMap = {
     emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', badgeCls: 'bg-emerald-100 text-emerald-700', iconCls: 'text-emerald-600', titleCls: 'text-emerald-800', dotBg: 'bg-emerald-500' },
     purple:  { bg: 'bg-purple-50',  border: 'border-purple-200',  badgeCls: 'bg-purple-100 text-purple-700',   iconCls: 'text-purple-600',  titleCls: 'text-purple-800',  dotBg: 'bg-purple-500'  },
+    blue:    { bg: 'bg-blue-50',    border: 'border-blue-200',    badgeCls: 'bg-blue-100 text-blue-700',       iconCls: 'text-blue-600',    titleCls: 'text-blue-800',    dotBg: 'bg-blue-500'    },
   };
   const c = colorMap[theory.color];
 
@@ -139,7 +164,7 @@ export default function EvoEcologyInsights({ activeSpeciesCount = 0, selectedSce
 
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500 space-y-1">
         <p className="font-semibold text-slate-600">Synthesis for SDM outputs</p>
-        <p>When interpreting MAXENT habitat suitability projections, consider: (1) whether future suitable patches are large enough and connected enough to maintain viable populations (island biogeography), and (2) whether contracting ranges of related species will overlap, creating new hybridisation contact zones (hybrid speciation). Both processes fundamentally alter extinction risk beyond what IUCN criteria currently capture.</p>
+        <p>When interpreting MAXENT habitat suitability projections, consider: (1) whether future suitable patches are large enough and connected enough to maintain viable populations (island biogeography), (2) whether contracting ranges of related species will overlap, creating new hybridisation contact zones (hybrid speciation), and (3) whether those hybridisation events result in reticulate evolutionary histories — lineages that merge rather than simply branch — which renders standard bifurcating phylogenies incomplete and IUCN species boundaries potentially misleading.</p>
       </div>
     </div>
   );

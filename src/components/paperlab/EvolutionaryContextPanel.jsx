@@ -10,7 +10,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Leaf, FlaskConical, Thermometer, Map, ExternalLink } from 'lucide-react';
+import { Leaf, FlaskConical, Thermometer, GitMerge, Map, ExternalLink } from 'lucide-react';
 
 const CONCEPTS = [
   {
@@ -40,12 +40,22 @@ const CONCEPTS = [
     mapLink: '/ArcGISTools',
     mapLabel: 'Open Climate Projection overlay →',
   },
+  {
+    icon: GitMerge,
+    color: 'blue',
+    title: 'Reticulate Evolution',
+    authors: 'Arnold, 1997; Fontaine et al., 2015',
+    howIncluded: 'The paper discusses how climate-driven range shifts increase the frequency of reticulate events — lineages merging via hybridisation and introgression — requiring phylogenetic networks rather than trees, and complicating IUCN species delimitation.',
+    mapLink: '/ArcGISTools',
+    mapLabel: 'Open Hybridization Mapper →',
+  },
 ];
 
 const colorMap = {
   emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
   purple:  { bg: 'bg-purple-50',  border: 'border-purple-200',  icon: 'text-purple-600',  badge: 'bg-purple-100 text-purple-700'  },
   red:     { bg: 'bg-red-50',     border: 'border-red-200',     icon: 'text-red-600',     badge: 'bg-red-100 text-red-700'       },
+  blue:    { bg: 'bg-blue-50',    border: 'border-blue-200',    icon: 'text-blue-600',    badge: 'bg-blue-100 text-blue-700'     },
 };
 
 export default function EvolutionaryContextPanel({ genus }) {
