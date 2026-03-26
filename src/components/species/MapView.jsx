@@ -161,7 +161,7 @@ export default function MapView({ species, selectedIds, onSelect }) {
            <div>
              <label className="text-xs text-slate-500 mb-1 block capitalize">{taxonomicRank}</label>
              <Select value={taxonomicFilter} onValueChange={setTaxonomicFilter}>
-               <SelectTrigger className="h-9">
+               <SelectTrigger className="h-9 text-slate-900">
                  <SelectValue />
                </SelectTrigger>
                <SelectContent>
