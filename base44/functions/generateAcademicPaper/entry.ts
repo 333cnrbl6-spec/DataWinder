@@ -412,6 +412,50 @@ Return a valid JSON object with these exact keys (all values are long strings of
     // Compute rough word count
     const wordCount = Object.values(sections).join(' ').split(/\s+/).length;
 
+    // Generate AI images for key figures
+    console.log('Generating AI scientific figures...');
+    const figurePrompts = [
+      {
+        id: 'range_map',
+        prompt: `Professional biogeographic map showing the current geographic range distribution of the genus ${finalTaxon}. Display species ranges as distinct colored polygons overlaid on a map of South America/Neotropics showing country borders, major geographic features (Atlantic Forest, Amazon, Cerrado biomes), and occurrence points as black dots. Use scientific cartography style with lat/long grid, scale bar, and legend showing each species' IUCN status (EN/VU/LC). High resolution, publication-quality. Based on ${liveData.iucn?.count || 0} species from IUCN Red List and ${(liveData.gbif?.total_occurrences || 0) + (liveData.inat?.research_grade_count || 0)} occurrence records.`
+      },
+      {
+        id: 'climate_projection',
+        prompt: `Comparative climate change impact visualization for ${finalTaxon}. Show stacked bar charts comparing baseline suitable area (gray) with 2050 (orange) and 2070 (red) projections under SSP5-8.5 scenario. Include percentage loss labels. Below, show a map with current range (solid green) and 2070 suitable area (hatched red) showing range contraction. Publication-quality scientific figure for journal submission.`
+      },
+      {
+        id: 'threat_assessment',
+        prompt: `Integrated threat assessment dashboard for ${finalTaxon}. Display threat scores incorporating habitat loss, climate change vulnerability, population decline, and protection gaps for each species. Use color scale from green (low threat) to red (critical). Include conservation priority ranking. Scientific publication-ready figure.`
+      },
+      {
+        id: 'occurrence_distribution',
+        prompt: `Occurrence point density map for ${finalTaxon} showing all quality-filtered field observations (${liveData.inat?.research_grade_count || 0} from iNaturalist, ${liveData.gbif?.total_occurrences || 0} from GBIF). Use density heatmaps with concentration in warmer colors. Overlay on topographic map. Include data source legend. Professional scientific cartography.`
+      }
+    ];
+
+    const generatedFigures = [];
+    for (const fig of figurePrompts) {
+      try {
+        const imgResult = await base44.asServiceRole.integrations.Core.GenerateImage({
+          prompt: fig.prompt + ' This is for an academic research paper on species distribution and climate vulnerability.',
+          existing_image_urls: []
+        });
+        if (imgResult?.url) {
+          generatedFigures.push({
+            id: fig.id,
+            type: 'image',
+            title: fig.id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            description: fig.prompt,
+            image_url: imgResult.url,
+            generated_at: new Date().toISOString()
+          });
+          console.log(`Generated figure: ${fig.id}`);
+        }
+      } catch (imgErr) {
+        console.warn(`Failed to generate figure ${fig.id}:`, imgErr.message);
+      }
+    }
+
     const draftPayload = {
       title: generated.title,
       genus: finalTaxon,
@@ -420,6 +464,7 @@ Return a valid JSON object with these exact keys (all values are long strings of
       benchmark_papers: ['hill_winder_2019', 'rylands_2009', 'zinner_2013', 'freitas_2019'],
       sections,
       figures_data: [
+        ...generatedFigures,
         // IUCN Status Distribution
         ...(liveData.iucn?.species?.length > 0 ? [{
           id: 'iucn_status_distribution',

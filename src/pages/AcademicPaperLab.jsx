@@ -174,11 +174,15 @@ export default function AcademicPaperLab() {
     }
 
     // Generate figures HTML
-    const figuresHtml = (activeDraft.figures_data || []).map(fig => {
+    const figuresHtml = (activeDraft.figures_data || []).map((fig, idx) => {
       const colors = ['#1f2937', '#059669', '#d97706', '#2563eb', '#7c3aed'];
       let chartHtml = '';
+      let figureNum = idx + 1;
       
-      if (fig.type === 'pie' && Array.isArray(fig.data) && fig.data.length > 0) {
+      if (fig.type === 'image' && fig.image_url) {
+        // Render AI-generated image
+        chartHtml = `<div style="text-align: center; margin: 10px 0; page-break-inside: avoid;"><img src="${fig.image_url}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" /></div>`;
+      } else if (fig.type === 'pie' && Array.isArray(fig.data) && fig.data.length > 0) {
         // Simple pie chart as SVG
         const total = fig.data.reduce((sum, d) => sum + d.value, 0);
         let angle = 0;
@@ -228,7 +232,7 @@ export default function AcademicPaperLab() {
       
       return `
         <div style="margin: 20px 0; page-break-inside: avoid;">
-          <h3 style="font-size: 11pt; font-weight: bold; margin-bottom: 10px;">Figure: ${fig.id || fig.type}</h3>
+          <h3 style="font-size: 11pt; font-weight: bold; margin-bottom: 10px;">Figure ${figureNum}. ${fig.title || fig.id || fig.type}</h3>
           ${chartHtml}
           <p style="font-size: 9pt; text-align: center; color: #666; margin-top: 8px;">${fig.description || ''}</p>
         </div>
