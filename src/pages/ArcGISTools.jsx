@@ -19,6 +19,7 @@ import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
 import IUCNSplitView from '@/components/IUCNSplitView';
+import IUCNVersionBanner from '@/components/IUCNVersionBanner';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
@@ -114,6 +115,11 @@ export default function ArcGISTools() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* IUCN Version Check Banner */}
+        <div className="mb-4">
+          <IUCNVersionBanner />
+        </div>
+
         {/* IUCN File Fetcher + Missing Range Data Prompt */}
         {enrichedSpecies.length > 0 && speciesWithRangeData.length < enrichedSpecies.length && (
           <div className="space-y-4 mb-6">

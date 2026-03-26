@@ -1,0 +1,28 @@
+{
+  "name": "IUCNVersionRecord",
+  "type": "object",
+  "properties": {
+    "imported_version": {
+      "type": "string",
+      "description": "IUCN Red List version string at time of last shapefile import (e.g. '2025-2')"
+    },
+    "latest_known_version": {
+      "type": "string",
+      "description": "Most recent version detected from the IUCN API"
+    },
+    "last_checked_at": {
+      "type": "string",
+      "description": "ISO timestamp of last API version check"
+    },
+    "update_available": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when latest_known_version differs from imported_version"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about this version record"
+    }
+  },
+  "required": []
+}
