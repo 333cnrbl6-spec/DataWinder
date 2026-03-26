@@ -148,7 +148,7 @@ export default function Layout({ children, currentPageName }) {
                        {category.label}
                        <ChevronDown className="w-3 h-3 ml-0.5" />
                      </NavigationMenuTrigger>
-                     <NavigationMenuContent className="absolute left-0 top-full mt-0 w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50">
+                     <NavigationMenuContent className="absolute left-0 top-full mt-0 w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50 text-slate-700">
                        <div className="space-y-1">
                          {category.items.map(({ label, page, icon: Icon }) => {
                            const isActive = currentPageName === page;
