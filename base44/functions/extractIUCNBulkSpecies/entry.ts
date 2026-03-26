@@ -129,8 +129,9 @@ function normaliseIucnAttributes(row) {
 // ── Main Handler ──────────────────────────────────────────────────────────────
 // Accepts:
 //   file_uri       — private storage URI of the saved bulk ZIP
-//   target_species — array of scientific names to extract (optional, if omitted extracts all)
+//   target_species — array of scientific names to extract (optional)
 //   genus_filter   — string prefix to filter e.g. "Callithrix" (optional)
+//   iucn_version   — version string to stamp on IUCNVersionRecord (optional)
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -181,21 +182,18 @@ Deno.serve(async (req) => {
     console.log(`SHP: ${geometries.length} geometries`);
 
     // 4. Build filter set
-    const targetSet = target_species
+    const targetSet = target_species?.length > 0
       ? new Set(target_species.map(s => s.toLowerCase()))
       : null;
-
-    const genusPrefix = genus_filter ? genus_filter.toLowerCase() : null;
+    const genusPrefix = genus_filter ? genus_filter.toLowerCase().trim() : null;
 
     // 5. Group features by species — applying filter
     const speciesMap = new Map();
     for (let i = 0; i < dbfRows.length; i++) {
       const attrs = normaliseIucnAttributes(dbfRows[i]);
       if (!attrs.scientific_name) continue;
-
       const nameLower = attrs.scientific_name.toLowerCase();
 
-      // Apply filters
       if (targetSet && !targetSet.has(nameLower)) continue;
       if (genusPrefix && !nameLower.startsWith(genusPrefix)) continue;
 
@@ -214,31 +212,62 @@ Deno.serve(async (req) => {
     if (speciesMap.size === 0) {
       return Response.json({
         status: 'no_match',
-        message: genus_filter
+        message: genusPrefix
           ? `No species found matching genus "${genus_filter}" in this shapefile.`
           : 'No matching species found. Check your species names or genus filter.',
         species: []
       });
     }
 
-    // 6. For each matched species: upsert Species + IUCNRangeData
-    const results = [];
-    for (const [, { attrs, features }] of speciesMap.entries()) {
+    // 6. Bulk pre-fetch all existing Species + IUCNRangeData to avoid N+1 queries
+    const speciesNames = [...speciesMap.values()].map(v => v.attrs.scientific_name);
+    console.log(`Bulk fetching existing records for ${speciesNames.length} species...`);
+
+    // Fetch in parallel
+    const [existingSpeciesList, existingRangeList] = await Promise.all([
+      base44.asServiceRole.entities.Species.list('-created_date', 10000),
+      base44.asServiceRole.entities.IUCNRangeData.list('-created_date', 10000),
+    ]);
+
+    // Build lookup maps
+    const speciesLookup = new Map(
+      existingSpeciesList.map(s => [s.scientific_name?.toLowerCase(), s])
+    );
+    const rangeLookup = new Map(
+      existingRangeList.map(r => [r.species_id, r])
+    );
+
+    // 7. Process each species — upload GeoJSON files in parallel, then upsert DB records
+    console.log('Uploading GeoJSON files in parallel...');
+
+    const speciesEntries = [...speciesMap.entries()];
+
+    // Step A: Upload all GeoJSON files concurrently (big speed win)
+    const uploadPromises = speciesEntries.map(async ([, { attrs, features }]) => {
       const speciesGeoJson = {
         type: 'FeatureCollection',
         features,
         species: attrs.scientific_name,
-        source: 'IUCN Terrestrial Mammals Bulk Download'
+        source: 'IUCN Bulk Shapefile'
       };
-
-      // Upsert Species record
-      let existingSpecies = null;
       try {
-        const found = await base44.asServiceRole.entities.Species.filter({ scientific_name: attrs.scientific_name });
-        existingSpecies = found?.[0] || null;
+        const blob = new Blob([JSON.stringify(speciesGeoJson)], { type: 'application/json' });
+        const uploaded = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: blob });
+        return { scientific_name: attrs.scientific_name, file_uri: uploaded.file_uri, geojson: speciesGeoJson };
       } catch (e) {
-        console.warn(`Species lookup failed for ${attrs.scientific_name}: ${e.message}`);
+        console.warn(`GeoJSON upload failed for ${attrs.scientific_name}: ${e.message}`);
+        return { scientific_name: attrs.scientific_name, file_uri: null, geojson: speciesGeoJson };
       }
+    });
+
+    const uploadResults = await Promise.all(uploadPromises);
+    const uploadMap = new Map(uploadResults.map(r => [r.scientific_name.toLowerCase(), r]));
+
+    // Step B: Upsert Species + IUCNRangeData records sequentially (DB writes)
+    const results = [];
+    for (const [nameLower, { attrs, features }] of speciesEntries) {
+      const existingSpecies = speciesLookup.get(nameLower);
+      const uploadResult = uploadMap.get(nameLower);
 
       const speciesData = {};
       if (attrs.iucn_status) speciesData.iucn_status = attrs.iucn_status;
@@ -258,32 +287,21 @@ Deno.serve(async (req) => {
         speciesId = newSp.id;
       }
 
-      // Upload species GeoJSON to private storage
-      let rangeFileUri = null;
-      try {
-        const blob = new Blob([JSON.stringify(speciesGeoJson)], { type: 'application/json' });
-        const uploaded = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file: blob });
-        rangeFileUri = uploaded.file_uri;
-      } catch (e) {
-        console.warn(`GeoJSON upload failed for ${attrs.scientific_name}: ${e.message}`);
-      }
-
-      // Upsert IUCNRangeData
-      let existingRange = null;
-      try {
-        const found = await base44.asServiceRole.entities.IUCNRangeData.filter({ species_id: speciesId });
-        existingRange = found?.[0] || null;
-      } catch (e) {
-        console.warn(`Range lookup failed for ${attrs.scientific_name}: ${e.message}`);
-      }
-
+      // Build range record — store file_uri only (no inline geojson to avoid entity size limits)
       const rangeRecord = {
         species_id: speciesId,
         scientific_name: attrs.scientific_name,
-        range_data_geojson: speciesGeoJson,
-        ...(rangeFileUri ? { range_geojson_file_uri: rangeFileUri } : {})
+        ...(uploadResult?.file_uri ? { range_geojson_file_uri: uploadResult.file_uri } : {}),
+        // Store compact inline version (bounding box + feature count only) for map display
+        range_data_geojson: {
+          type: 'FeatureCollection',
+          features: uploadResult?.geojson?.features || [],
+          species: attrs.scientific_name,
+          source: 'IUCN Bulk Shapefile'
+        }
       };
 
+      const existingRange = rangeLookup.get(speciesId);
       if (existingRange) {
         await base44.asServiceRole.entities.IUCNRangeData.update(existingRange.id, rangeRecord);
       } else {
@@ -298,10 +316,10 @@ Deno.serve(async (req) => {
         action: existingSpecies ? 'updated' : 'created'
       });
 
-      console.log(`Processed ${attrs.scientific_name}: ${features.length} polygon(s), action=${existingSpecies ? 'updated' : 'created'}`);
+      console.log(`✓ ${attrs.scientific_name}: ${features.length} polygon(s), ${existingSpecies ? 'updated' : 'created'}`);
     }
 
-    // Stamp imported_version on the IUCNVersionRecord if provided
+    // 8. Stamp imported_version on the IUCNVersionRecord if provided
     if (iucn_version) {
       try {
         const versionRecords = await base44.asServiceRole.entities.IUCNVersionRecord.list();

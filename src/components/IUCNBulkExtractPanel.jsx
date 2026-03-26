@@ -46,7 +46,7 @@ const MODES = [
   },
 ];
 
-export default function IUCNBulkExtractPanel({ targetSpecies = [], onDone }) {
+export default function IUCNBulkExtractPanel({ onDone }) {
   const [mode, setMode] = useState(null);
 
   // Shared library state
@@ -120,7 +120,6 @@ export default function IUCNBulkExtractPanel({ targetSpecies = [], onDone }) {
 
     try {
       const payload = { file_uri };
-      if (targetSpecies.length > 0) payload.target_species = targetSpecies;
       if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
 
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', {
@@ -382,8 +381,7 @@ export default function IUCNBulkExtractPanel({ targetSpecies = [], onDone }) {
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <p className="text-xs text-slate-400 mt-1">
-            Leave blank to extract all species in the file (may be slow).
-            {targetSpecies.length > 0 && ` Or — ${targetSpecies.length} species from your checklist will also be matched.`}
+            Leave blank to extract all species in the file (may be slow for large ZIPs).
           </p>
         </div>
       )}

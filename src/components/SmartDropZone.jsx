@@ -352,11 +352,7 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
     startTicking(30000);
     try {
       const payload = { file_uri: fileUri };
-      if (targetSpecies && targetSpecies.length > 0) {
-        payload.target_species = targetSpecies;
-      } else if (genusFilter.trim()) {
-        payload.genus_filter = genusFilter.trim();
-      }
+      if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
 
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', payload);
       if (result.data?.error) throw new Error(result.data.error);

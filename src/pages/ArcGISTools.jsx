@@ -26,6 +26,7 @@ import { useAnalysisState } from '@/hooks/useAnalysisState';
 
 export default function ArcGISTools() {
   const [showArcGISTerms, setShowArcGISTerms] = useState(false);
+
   const [arcgisAgreed, setArcgisAgreed] = useState(false);
   const [showSplitView, setShowSplitView] = useState(false);
   const { selectedSpecies, setSelectedSpecies } = useSpecies();
@@ -47,7 +48,7 @@ export default function ArcGISTools() {
   });
 
   // Build a lookup: species_id → range GeoJSON
-  const rangeBySpeciesId = React.useMemo(() => {
+  const rangeBySpeciesId = useMemo(() => {
     const map = {};
     for (const rd of allRangeData) {
       if (rd.species_id && rd.range_data_geojson) {
@@ -58,7 +59,7 @@ export default function ArcGISTools() {
   }, [allRangeData]);
 
   // Enrich species with their range GeoJSON from IUCNRangeData
-  const enrichedSpecies = React.useMemo(() =>
+  const enrichedSpecies = useMemo(() =>
     allSpecies.map(sp => ({
       ...sp,
       range_data_geojson: sp.range_data_geojson || rangeBySpeciesId[sp.id] || null
@@ -152,7 +153,6 @@ export default function ArcGISTools() {
             </CardHeader>
             <CardContent className="p-6">
               <IUCNBulkExtractPanel
-                targetSpecies={enrichedSpecies.map(sp => sp.scientific_name)}
                 onDone={() => { refetchRangeData(); refetchAssessments(); }}
               />
             </CardContent>
