@@ -37,7 +37,7 @@ import AcademicPaperLab from './pages/AcademicPaperLab';
 import DataWinderReport from './pages/DataWinderReport';
 import GenusComparison from './pages/GenusComparison';
 import SecureView from './pages/SecureView';
-import IUCNDataValidation from './pages/IUCNDataValidation.jsx';
+import IUCNDataValidation from './pages/IUCNDataValidation';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
