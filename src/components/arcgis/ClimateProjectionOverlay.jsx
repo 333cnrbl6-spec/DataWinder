@@ -143,7 +143,7 @@ export default function ClimateProjectionOverlay({ species = [] }) {
       {/* Controls row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Climate layer selector */}
-        <div className="space-y-2">
+        <div className="space-y-2 bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-1">
             <Thermometer className="w-3.5 h-3.5" /> Climate Projection Layer
           </label>
@@ -171,7 +171,7 @@ export default function ClimateProjectionOverlay({ species = [] }) {
         </div>
 
         {/* Species selector */}
-        <div className="space-y-2">
+        <div className="space-y-2 bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
               Species Ranges ({selectedSpeciesIds.length}/{speciesWithRanges.length})
@@ -181,7 +181,7 @@ export default function ClimateProjectionOverlay({ species = [] }) {
               <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={clearAll}>None</Button>
             </div>
           </div>
-          <div className="max-h-28 overflow-y-auto border rounded-lg p-2 space-y-1 bg-slate-50">
+          <div className="max-h-32 overflow-y-auto border rounded-lg p-2 space-y-1 bg-slate-50">
             {speciesWithRanges.length === 0 ? (
               <p className="text-xs text-slate-400 text-center py-2">No species with range data</p>
             ) : (
@@ -236,13 +236,15 @@ export default function ClimateProjectionOverlay({ species = [] }) {
 
       {/* Scenario badge */}
       {selectedLayer && (
-        <div className="flex flex-wrap gap-2 items-center text-xs">
-          <span className="text-slate-500">Scenario:</span>
-          <Badge style={{ background: selectedLayer.color, color: 'white' }} className="text-xs">
-            {selectedLayer.scenario}
-          </Badge>
-          <Badge variant="outline" className="text-xs">Horizon: {selectedLayer.year}</Badge>
-          <Badge variant="outline" className="text-xs capitalize">{selectedLayer.variable}</Badge>
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-2">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scenario</p>
+          <div className="flex flex-wrap gap-2 items-center text-xs">
+            <Badge style={{ background: selectedLayer.color, color: 'white' }} className="text-xs">
+              {selectedLayer.scenario}
+            </Badge>
+            <Badge variant="outline" className="text-xs">Horizon: {selectedLayer.year}</Badge>
+            <Badge variant="outline" className="text-xs capitalize">{selectedLayer.variable}</Badge>
+          </div>
         </div>
       )}
 
@@ -295,24 +297,23 @@ export default function ClimateProjectionOverlay({ species = [] }) {
       />
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">IUCN Status</p>
-          <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">IUCN Status Colours</p>
+          <div className="grid grid-cols-3 gap-2">
             {Object.entries(IUCN_STATUS_COLORS).map(([status, color]) => (
-              <span key={status} className="flex items-center gap-1 text-xs text-slate-600">
-                <span className="w-3 h-3 rounded-sm inline-block border border-white/50" style={{ background: color }} />
-                {status}
+              <span key={status} className="flex items-center gap-1.5 text-xs text-slate-700 p-1.5 bg-slate-50 rounded-lg">
+                <span className="w-3 h-3 rounded-sm inline-block border border-slate-200" style={{ background: color }} />
+                <span className="font-medium">{status}</span>
               </span>
             ))}
           </div>
         </div>
-        <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Climate Layer Source</p>
-          <p className="text-xs text-slate-500">
-            Visualisation uses NASA GIBS satellite-derived land surface temperature imagery as a proxy for climate patterns.
-            For quantitative anomaly data, export the species ranges and overlay with{' '}
-            <a href="https://worldclim.org/data/cmip6/cmip6climate.html" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Data Sources</p>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Climate tiles visualise NASA GIBS satellite-derived temperature as a proxy. For quantitative anomalies, export ranges and overlay with{' '}
+            <a href="https://worldclim.org/data/cmip6/cmip6climate.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">
               WorldClim CMIP6
             </a>{' '}
             rasters in GIS software.

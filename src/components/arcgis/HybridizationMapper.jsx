@@ -189,8 +189,8 @@ export default function HybridizationMapper({ species = [] }) {
   return (
     <div className="space-y-4">
       {/* Species selector */}
-      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Select species to display (colour-coded)</p>
+      <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Select species to display (colour-coded)</p>
         <div className="flex flex-wrap gap-2">
           {speciesWithData.map((sp, i) => {
             const col = SPECIES_COLOURS[speciesWithData.indexOf(sp) % SPECIES_COLOURS.length];
@@ -211,13 +211,13 @@ export default function HybridizationMapper({ species = [] }) {
           })}
         </div>
         {speciesWithData.length === 0 && (
-          <p className="text-sm text-slate-500 italic">No species with range or occurrence data found in the database.</p>
+          <p className="text-xs text-slate-400 italic">No species with range or occurrence data found in the database.</p>
         )}
       </div>
 
       {/* Basemap switcher + layer toggles + export */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-1.5 border border-slate-200">
           <Layers className="w-3.5 h-3.5 text-slate-500 ml-1 mr-0.5" />
           {BASEMAPS.map(bm => (
             <button
@@ -249,22 +249,25 @@ export default function HybridizationMapper({ species = [] }) {
 
       {/* Hybridization alerts */}
       {hybridPairs.length > 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-1.5">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
           <div className="flex items-center gap-2 text-amber-700 font-semibold text-sm">
             <AlertTriangle className="w-4 h-4" />
             {hybridPairs.length} potential hybridization zone{hybridPairs.length > 1 ? 's' : ''} detected
           </div>
-          {hybridPairs.map(({ a, b }, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-amber-800">
+          {hybridPairs.slice(0, 5).map(({ a, b }, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs text-amber-800 bg-white px-2.5 py-1.5 rounded-lg">
               <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colourMap[a.id] }} />
-              <span className="italic">{a.scientific_name}</span>
-              <span className="text-amber-500">⟷</span>
+              <span className="italic font-medium">{a.scientific_name}</span>
+              <span className="text-amber-500 mx-0.5">⟷</span>
               <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colourMap[b.id] }} />
-              <span className="italic">{b.scientific_name}</span>
-              <Badge className="ml-1 bg-amber-200 text-amber-800 text-xs">overlap</Badge>
+              <span className="italic font-medium">{b.scientific_name}</span>
+              <Badge className="ml-auto bg-amber-200 text-amber-800 text-xs py-0 px-1.5">overlap</Badge>
             </div>
           ))}
-          <p className="text-xs text-amber-600 flex items-start gap-1 mt-1">
+          {hybridPairs.length > 5 && (
+            <p className="text-xs text-amber-600 px-2 py-1">+{hybridPairs.length - 5} more overlaps</p>
+          )}
+          <p className="text-xs text-amber-600 flex items-start gap-1 mt-2 bg-white px-2.5 py-1.5 rounded-lg">
             <Info className="w-3 h-3 mt-0.5 shrink-0" />
             Overlap is based on IUCN range bounding boxes. Inspect the map for precise contact zones.
           </p>
@@ -336,19 +339,22 @@ export default function HybridizationMapper({ species = [] }) {
 
       {/* Legend */}
       {selectedSpecies.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-3">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Legend</p>
-          <div className="flex flex-wrap gap-3">
-            {selectedSpecies.map(sp => (
-              <div key={sp.id} className="flex items-center gap-1.5 text-xs">
-                <span className="w-4 h-3 rounded inline-block opacity-50 border" style={{ backgroundColor: colourMap[sp.id], borderColor: colourMap[sp.id] }} />
-                <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: colourMap[sp.id] }} />
-                <span className="italic text-slate-700">{sp.scientific_name}</span>
-                <span className="text-slate-400">({sp.iucn_status || '?'})</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-slate-400 mt-2">Filled polygon = IUCN range  ·  Dot = occurrence record  ·  Overlapping polygons = potential hybridization zone</p>
+        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Legend</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+             {selectedSpecies.map(sp => (
+               <div key={sp.id} className="flex items-center gap-2 text-xs p-1.5 rounded-lg bg-slate-50">
+                 <span className="w-4 h-3 rounded inline-block opacity-60 border border-slate-300" style={{ backgroundColor: colourMap[sp.id] }} />
+                 <span className="w-3 h-3 rounded-full inline-block border border-white" style={{ backgroundColor: colourMap[sp.id] }} />
+                 <span className="italic text-slate-700 flex-1">{sp.scientific_name}</span>
+                 <span className="text-slate-500 text-[10px] font-medium">{sp.iucn_status || '?'}</span>
+               </div>
+             ))}
+           </div>
+           <p className="text-xs text-slate-500 mt-3 px-2 py-2 bg-slate-50 rounded-lg">
+             <span className="block mb-1">Filled polygon = IUCN range · Dot = occurrence record</span>
+             <span className="block">Overlapping polygons = potential hybridization zone</span>
+           </p>
         </div>
       )}
     </div>
