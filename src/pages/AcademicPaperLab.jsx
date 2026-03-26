@@ -25,7 +25,15 @@ import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
 import EvolutionaryContextPanel from '@/components/paperlab/EvolutionaryContextPanel';
 import VisualReportViewer from '@/components/paperlab/VisualReportViewer';
 
-const GENERA = ['Callithrix', 'Papio', 'Gorilla', 'Pan', 'Pongo', 'Macaca'];
+const TAXA = [
+  { name: 'Callithrix', rank: 'genus' },
+  { name: 'Callithrichidae', rank: 'family' },
+  { name: 'Papio', rank: 'genus' },
+  { name: 'Gorilla', rank: 'genus' },
+  { name: 'Pan', rank: 'genus' },
+  { name: 'Pongo', rank: 'genus' },
+  { name: 'Macaca', rank: 'genus' },
+];
 const CITATION_STYLES = ['Harvard', 'APA', 'Vancouver'];
 
 function DraftHistoryItem({ draft, onLoad, onDelete }) {
@@ -59,7 +67,8 @@ function DraftHistoryItem({ draft, onLoad, onDelete }) {
 }
 
 export default function AcademicPaperLab() {
-  const [genus, setGenus] = useState('Callithrix');
+  const [taxon, setTaxon] = useState('Callithrix');
+  const [taxonRank, setTaxonRank] = useState('genus');
   const [citationStyle, setCitationStyle] = useState('Harvard');
   const [generating, setGenerating] = useState(false);
   const [activeDraft, setActiveDraft] = useState(null);
@@ -87,14 +96,17 @@ export default function AcademicPaperLab() {
     setActiveDraft(null);
     try {
       const res = await base44.functions.invoke('generateAcademicPaper', {
-        genus,
+        taxon,
+        taxon_rank: taxonRank,
         citation_style: citationStyle,
         save_draft: true,
       });
       const data = res.data;
       setActiveDraft({
         title: data.title,
-        genus,
+        genus: data.taxon || taxon,
+        taxon: data.taxon || taxon,
+        taxon_rank: data.taxon_rank || taxonRank,
         citation_style: citationStyle,
         sections: data.sections,
         figures_data: data.figures_data,
@@ -213,7 +225,7 @@ export default function AcademicPaperLab() {
 
   const exportMarkdown = () => {
     if (!activeDraft) return;
-    const { title, sections, similarity_scores, word_count } = activeDraft;
+    const { title, sections, similarity_scores, word_count, taxon: draftTaxon } = activeDraft;
     const lines = [
       `# ${title}`,
       `\n> **PRIVATE DEVELOPER DRAFT — AI-GENERATED — NOT FOR DISTRIBUTION**\n`,
@@ -232,7 +244,7 @@ export default function AcademicPaperLab() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${genus}_academic_draft_${new Date().toISOString().slice(0, 10)}.md`;
+    a.download = `${draftTaxon}_academic_draft_${new Date().toISOString().slice(0, 10)}.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -296,14 +308,23 @@ export default function AcademicPaperLab() {
           {/* Controls */}
           <div className="mt-5 flex flex-wrap gap-3 items-end">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-600">Genus</label>
-              <Select value={genus} onValueChange={setGenus}>
-                <SelectTrigger className="w-40">
+              <label className="text-xs font-semibold text-slate-600">Taxon</label>
+              <Select 
+                value={`${taxon}|${taxonRank}`} 
+                onValueChange={(val) => {
+                  const [t, r] = val.split('|');
+                  setTaxon(t);
+                  setTaxonRank(r);
+                }}
+              >
+                <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {GENERA.map(g => (
-                    <SelectItem key={g} value={g}>{g}</SelectItem>
+                  {TAXA.map(t => (
+                    <SelectItem key={`${t.name}|${t.rank}`} value={`${t.name}|${t.rank}`}>
+                      {t.name} <span className="text-xs text-slate-400 ml-2">({t.rank})</span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -370,14 +391,14 @@ export default function AcademicPaperLab() {
                   </p>
                   <Button
                     variant="outline"
-                    onClick={() => window.open(`/DataWinderReport?genus=${genus}`, '_blank')}
+                    onClick={() => window.open(`/DataWinderReport?genus=${activeDraft?.genus || taxon}`, '_blank')}
                     className="justify-start gap-2 text-xs h-8 border-purple-300 text-purple-700 hover:bg-purple-100"
                   >
                     <BarChart2 className="w-3.5 h-3.5" /> Open Evidence Report
                   </Button>
                   <Button
                     onClick={() => {
-                      const win = window.open(`/DataWinderReport?genus=${genus}&print=1`, '_blank');
+                      const win = window.open(`/DataWinderReport?genus=${activeDraft?.genus || taxon}&print=1`, '_blank');
                       win.addEventListener('load', () => setTimeout(() => win.print(), 1500));
                     }}
                     className="justify-start gap-2 text-xs h-8 bg-purple-600 hover:bg-purple-700 text-white"

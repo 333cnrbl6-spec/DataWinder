@@ -92,12 +92,15 @@ const MANDATORY_REFERENCES_HARVARD = [
   "Phillips, S.J., Anderson, R.P. and Schapire, R.E. (2006) 'Maximum entropy modeling of species geographic distributions', Ecological Modelling, 190(3–4), pp. 231–259."
 ];
 
-async function fetchLiveData(genus, iucnToken) {
-  const data = { iucn: null, inat: null, gbif: null };
+async function fetchLiveData(taxon, iucnToken, rank = 'genus') {
+  const data = { iucn: null, inat: null, gbif: null, rank, taxon_name: taxon };
 
-  // IUCN
+  // IUCN — support both genus and family
   try {
-    const r = await fetch(`https://api.iucnredlist.org/api/v4/taxa/genus/${encodeURIComponent(genus)}`, {
+    const endpoint = rank === 'family' 
+      ? `https://api.iucnredlist.org/api/v4/taxa/family/${encodeURIComponent(taxon)}`
+      : `https://api.iucnredlist.org/api/v4/taxa/genus/${encodeURIComponent(taxon)}`;
+    const r = await fetch(endpoint, {
       headers: { Authorization: `Bearer ${iucnToken}`, Accept: 'application/json' }
     });
     if (r.ok) {
@@ -109,25 +112,26 @@ async function fetchLiveData(genus, iucnToken) {
           trend: s.population_trend?.description || 'unknown',
           iucn_id: s.sis_taxon_id
         })),
-        count: (j.assessments || []).length
+        count: (j.assessments || []).length,
+        rank_label: rank === 'family' ? 'Family' : 'Genus'
       };
     }
   } catch (e) { console.error('IUCN fetch error:', e.message); }
 
-  // iNaturalist
+  // iNaturalist — search for family or genus
   try {
-    const t = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(genus)}&rank=genus&per_page=1`);
+    const searchRank = rank === 'family' ? 'family' : 'genus';
+    const t = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(taxon)}&rank=${searchRank}&per_page=1`);
     if (t.ok) {
       const tj = await t.json();
-      const taxon = tj.results?.[0];
-      if (taxon) {
+      const taxonRes = tj.results?.[0];
+      if (taxonRes) {
         data.inat = {
-          taxon_id: taxon.id,
-          total_observations: taxon.observations_count || 0,
+          taxon_id: taxonRes.id,
+          total_observations: taxonRes.observations_count || 0,
           research_grade_count: null
         };
-        // get research grade count
-        const og = await fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=1&quality_grade=research`);
+        const og = await fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxonRes.id}&per_page=1&quality_grade=research`);
         if (og.ok) {
           const ogj = await og.json();
           data.inat.research_grade_count = ogj.total_results || 0;
@@ -136,9 +140,11 @@ async function fetchLiveData(genus, iucnToken) {
     }
   } catch (e) { console.error('iNat fetch error:', e.message); }
 
-  // GBIF
+  // GBIF — search for family or genus
   try {
-    const gm = await fetch(`https://api.gbif.org/v1/species/match?genus=${encodeURIComponent(genus)}&rank=GENUS`);
+    const gbifRank = rank === 'family' ? 'FAMILY' : 'GENUS';
+    const gbifField = rank === 'family' ? 'family' : 'genus';
+    const gm = await fetch(`https://api.gbif.org/v1/species/match?${gbifField}=${encodeURIComponent(taxon)}&rank=${gbifRank}`);
     if (gm.ok) {
       const gmj = await gm.json();
       if (gmj.usageKey) {
@@ -187,12 +193,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin only' }, { status: 403 });
     }
 
-    const { genus = 'Callithrix', citation_style = 'Harvard', save_draft = true } = await req.json();
+    const { taxon = 'Callithrix', taxon_rank = 'genus', citation_style = 'Harvard', save_draft = true } = await req.json();
+    // Support both old 'genus' param and new 'taxon' param for backward compatibility
+    const finalTaxon = taxon || req.json.genus || 'Callithrix';
+    const finalRank = taxon_rank || 'genus';
 
-    console.log(`=== PAPER GENERATION START: ${genus} [${citation_style}] ===`);
+    console.log(`=== PAPER GENERATION START: ${finalTaxon} (${finalRank}) [${citation_style}] ===`);
 
     const iucnToken = Deno.env.get('IUCN_API_KEY');
-    const liveData = await fetchLiveData(genus, iucnToken);
+    const liveData = await fetchLiveData(finalTaxon, iucnToken, finalRank);
 
     console.log('Live data fetched:', JSON.stringify({
       iucn_species: liveData.iucn?.count,
@@ -202,7 +211,7 @@ Deno.serve(async (req) => {
 
     // Build data context string for LLM
     const dataContext = `
-REAL LIVE DATA FOR ${genus.toUpperCase()} (fetched ${new Date().toISOString()}):
+REAL LIVE DATA FOR ${finalTaxon.toUpperCase()} — ${finalRank.toUpperCase()} LEVEL (fetched ${new Date().toISOString()}):
 
 IUCN Red List data:
 ${liveData.iucn ? liveData.iucn.species.map(s => `  - ${s.name}: ${s.status} (trend: ${s.trend})`).join('\n') : 'IUCN data unavailable'}
@@ -229,7 +238,9 @@ MAXENT READINESS:
 
     const llmPrompt = `You are an expert academic ecologist writing a peer-reviewed journal article for Journal of Biogeography.
 
-TASK: Write a complete academic paper draft about the genus ${genus} following the EXACT structure of Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" published in Journal of Biogeography 46(7):1380-1405.
+    TASK: Write a complete academic paper draft about the ${finalRank} ${finalTaxon} following the EXACT structure of Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" published in Journal of Biogeography 46(7):1380-1405. 
+
+    Note: This paper covers ${finalRank === 'family' ? `all genera within the family ${finalTaxon}` : `the genus ${finalTaxon}`}, with special attention to intra-family phylogenetic relationships and comparative biogeography.
 
 CITATION STYLE: ${citation_style}
 
@@ -247,11 +258,12 @@ CRITICAL THEMATIC REQUIREMENTS — these must be substantively integrated, not m
    - Argue that conservation corridors between future refugia are as important as the refugia themselves
 
 2. SPECIATION VIA HYBRIDIZATION (Mallet, 2007; Abbott et al., 2013):
-   - Identify which species pairs within the genus have overlapping or near-overlapping ranges today
+   - Identify which species pairs have overlapping or near-overlapping ranges today
    - Predict which pairs are likely to come into secondary contact as climate shifts ranges
    - Distinguish adaptive introgression (beneficial gene flow) from genetic swamping (loss of rare taxon identity)
-   - If ${genus} === 'Callithrix', explicitly discuss the documented C. jacchus × C. penicillata hybrid zone 
-     and how warming may expand it northward — cite Aguiar et al. (2008)
+   - If taxon is Callithrix or family Callithrichidae, explicitly discuss documented hybrid zones 
+     (e.g. C. jacchus × C. penicillata, or inter-genus contact in Atlantic Forest) 
+     and how warming may alter their spatial extent — cite Aguiar et al. (2008)
    - Discuss homoploid hybrid speciation as a potential evolutionary outcome in contact zones
 
 3. RETICULATE EVOLUTION (Arnold, 1997; Fontaine et al., 2015):
@@ -347,7 +359,8 @@ Return a JSON object with these exact keys:
 
     const draftPayload = {
       title: generated.title,
-      genus,
+      genus: finalTaxon,
+      taxon_rank: finalRank,
       citation_style,
       benchmark_papers: ['hill_winder_2019', 'rylands_2009', 'zinner_2013', 'freitas_2019'],
       sections,
@@ -355,7 +368,7 @@ Return a JSON object with these exact keys:
         {
           id: 'iucn_status_distribution',
           type: 'bar',
-          title: `IUCN Conservation Status Distribution — ${genus}`,
+          title: `IUCN Conservation Status Distribution — ${finalTaxon}`,
           data: liveData.iucn?.species?.reduce((acc, s) => {
             acc[s.status] = (acc[s.status] || 0) + 1;
             return acc;
@@ -373,7 +386,7 @@ Return a JSON object with these exact keys:
         {
           id: 'population_trends',
           type: 'bar',
-          title: `Population Trends — ${genus} species`,
+          title: `Population Trends — ${finalTaxon} ${finalRank} species`,
           data: liveData.iucn?.species?.reduce((acc, s) => {
             const t = s.trend || 'unknown';
             acc[t] = (acc[t] || 0) + 1;
@@ -394,13 +407,15 @@ Return a JSON object with these exact keys:
       console.log(`Draft saved with ID: ${savedId}`);
     }
 
-    console.log(`=== PAPER GENERATION COMPLETE: ${wordCount} words, similarity: ${similarity.overall}% ===`);
+    console.log(`=== PAPER GENERATION COMPLETE: ${wordCount} words, similarity: ${similarity.overall}%, rank: ${finalRank} ===`);
 
     return Response.json({
       status: 'success',
       draft_id: savedId,
       title: generated.title,
       word_count: wordCount,
+      taxon: finalTaxon,
+      taxon_rank: finalRank,
       similarity_scores: similarity,
       keywords: generated.keywords || [],
       sections,
