@@ -106,7 +106,21 @@ export default function SmartDropZone({ onImported }) {
         const geospatialFiles = files.filter(f => GEOSPATIAL_EXTS.includes(getFileExt(f.name)));
         
         if (!importableFile && geospatialFiles.length > 0) {
-            // ZIP contains only geospatial/raster data — upload and inform user
+            // Check if this is a Shapefile ZIP (has .shp + .dbf) — process it as IUCN range data
+            const hasShp = files.some(f => getFileExt(f.name) === 'shp');
+            const hasDbf = files.some(f => getFileExt(f.name) === 'dbf');
+
+            if (hasShp && hasDbf) {
+              // Upload the full ZIP then call processShapefileData
+              const uploadedFile = await base44.integrations.Core.UploadFile({ file });
+              setFileUrl(uploadedFile.file_url);
+              setFileInfo({ name: file.name, size: file.size, type: file.type, isShapefile: true, fileList: files.map(f => f.name) });
+              stopTicking();
+              setStep('shapefile');
+              return;
+            }
+
+            // Other geospatial/raster data — upload and inform user
             const uploadedFile = await base44.integrations.Core.UploadFile({ file });
             const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
             setFileUrl(uploadedFile.file_url);
@@ -233,6 +247,32 @@ export default function SmartDropZone({ onImported }) {
       stopTicking();
       playError();
       setErrorMsg(e.message || 'Import failed');
+      setStep('error');
+    }
+  };
+
+  const handleShapefileImport = async () => {
+    if (!fileUrl) return;
+    setStep('importing');
+    startTicking(8000);
+    try {
+      const result = await base44.functions.invoke('processShapefileData', {
+        file_url: fileUrl,
+        file_name: fileInfo?.name || 'shapefile.zip'
+      });
+      if (result.data?.error) throw new Error(result.data.error);
+      stopTicking();
+      playSuccess();
+      setImportCount(result.data?.species_count || 0);
+      setStep('done');
+      // Use species_count for the done message
+      setAiResult({ shapefile: true, message: result.data?.message, species: result.data?.species });
+      onImported && onImported('IUCNRangeData', result.data?.species_count || 0);
+    } catch (e) {
+      stopTicking();
+      playError();
+      const serverMsg = e?.response?.data?.error || e.message || 'Shapefile import failed';
+      setErrorMsg(serverMsg);
       setStep('error');
     }
   };
@@ -406,11 +446,70 @@ export default function SmartDropZone({ onImported }) {
               <CheckCircle className="w-12 h-12 text-emerald-500" />
               <div className="text-center">
                 <p className="font-bold text-slate-700 text-lg">Import Complete!</p>
-                <p className="text-sm text-slate-500 mt-1">{importCount} records added to <strong>{selectedEntity}</strong></p>
+                {aiResult?.shapefile ? (
+                  <>
+                    <p className="text-sm text-slate-500 mt-1">{aiResult.message || `${importCount} species range${importCount !== 1 ? 's' : ''} imported`}</p>
+                    {aiResult.species?.length > 0 && (
+                      <div className="mt-3 text-left bg-slate-50 rounded-lg p-3 max-h-32 overflow-y-auto w-full">
+                        {aiResult.species.map((s, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs py-0.5">
+                            <span className="italic text-slate-700">{s.scientific_name}</span>
+                            <span className={`px-1.5 py-0.5 rounded font-semibold ${s.action === 'created' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>{s.action}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-slate-500 mt-1">{importCount} records added to <strong>{selectedEntity}</strong></p>
+                )}
               </div>
               <Button className="bg-bangor-red hover:bg-bangor-red/90 text-white" onClick={() => { reset(); setOpen(false); }}>
                 Done
               </Button>
+            </div>
+          )}
+
+          {/* Shapefile — IUCN range import */}
+          {step === 'shapefile' && (
+            <div className="space-y-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-emerald-900">IUCN Shapefile Detected</p>
+                    <p className="text-sm text-emerald-700 mt-1">DataWinder found <strong>.shp + .dbf</strong> files — this is an IUCN species range archive.</p>
+                    <p className="text-xs text-emerald-600 mt-2">Importing will: parse species attributes from the DBF, convert polygons to GeoJSON, and store range data linked to Species records.</p>
+                  </div>
+                </div>
+              </div>
+
+              {fileInfo?.fileList && (
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">Files detected ({fileInfo.fileList.length}):</p>
+                  <div className="max-h-24 overflow-y-auto space-y-0.5">
+                    {fileInfo.fileList.map((f, i) => (
+                      <p key={i} className="text-xs text-slate-500 font-mono">{f}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700">
+                ⏳ Processing may take 10–30 seconds depending on the number of range polygons.
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => { reset(); setOpen(false); }}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={handleShapefileImport}
+                >
+                  Import IUCN Range Data
+                </Button>
+              </div>
             </div>
           )}
 
