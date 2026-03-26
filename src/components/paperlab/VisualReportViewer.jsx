@@ -89,7 +89,7 @@ function VisualPlaceholder({ type, genus }) {
     },
   };
 
-  const p = placeholders[type] || { title: type, description: 'Visual placeholder' };
+  const p = placeholders[type] || { title: type, description: 'Visual placeholder', icon: BarChart3 };
   const Icon = p.icon;
 
   return (
