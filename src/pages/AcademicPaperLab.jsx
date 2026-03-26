@@ -169,7 +169,7 @@ export default function AcademicPaperLab() {
   <div class="watermark">⚠ PRIVATE DEVELOPER DRAFT — AI-GENERATED — FOR EVALUATION ONLY — NOT FOR DISTRIBUTION</div>
   <h1>${title}</h1>
   <div class="meta">
-    <strong>Genus:</strong> ${genus} &nbsp;|&nbsp;
+    <strong>Taxon:</strong> ${activeDraft?.genus || taxon} &nbsp;|&nbsp;
     <strong>Style:</strong> ${citation_style} &nbsp;|&nbsp;
     <strong>Words:</strong> ~${word_count?.toLocaleString()} &nbsp;|&nbsp;
     <strong>Similarity:</strong> ${similarity_scores?.overall ?? '?'}% &nbsp;|&nbsp;
@@ -387,7 +387,7 @@ export default function AcademicPaperLab() {
                 <div className="flex flex-col gap-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
                   <p className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1">DataWinder Evidence Report</p>
                   <p className="text-xs text-slate-500 leading-relaxed mb-1">
-                    Visual companion showing everything DataWinder collected — maps, charts, species images, outlier flags and completeness matrix for <em>{genus}</em>.
+                    Visual companion showing everything DataWinder collected — maps, charts, species images, outlier flags and completeness matrix for <em>{activeDraft?.genus || taxon}</em>.
                   </p>
                   <Button
                     variant="outline"
@@ -521,7 +521,7 @@ export default function AcademicPaperLab() {
             </Card>
 
             {/* Evolutionary ecology frameworks */}
-            <EvolutionaryContextPanel genus={genus} />
+            <EvolutionaryContextPanel genus={activeDraft?.genus || taxon} />
 
             {/* Figures */}
             {activeDraft?.figures_data && (
