@@ -16,13 +16,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   FlaskConical, Loader2, Download, BookOpen, Trash2,
   FileText, History, AlertTriangle, Lock, Printer,
-  Share2, ShieldCheck, Hash, CheckCircle2, BarChart2
+  Share2, ShieldCheck, Hash, CheckCircle2, BarChart2, Eye, BookMarked
 } from 'lucide-react';
 import { toast } from 'sonner';
 import PaperViewer from '@/components/paperlab/PaperViewer';
 import PaperFigures from '@/components/paperlab/PaperFigures';
 import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
 import EvolutionaryContextPanel from '@/components/paperlab/EvolutionaryContextPanel';
+import VisualReportViewer from '@/components/paperlab/VisualReportViewer';
 
 const GENERA = ['Callithrix', 'Papio', 'Gorilla', 'Pan', 'Pongo', 'Macaca'];
 const CITATION_STYLES = ['Harvard', 'APA', 'Vancouver'];
@@ -66,6 +67,7 @@ export default function AcademicPaperLab() {
   const [shareLink, setShareLink] = useState(null);
   const [registering, setRegistering] = useState(false);
   const [authorshipRecord, setAuthorshipRecord] = useState(null);
+  const [reportMode, setReportMode] = useState('text'); // 'text' or 'visual'
 
   // Auth check
   const { data: user, isLoading: authLoading } = useQuery({
@@ -514,9 +516,43 @@ export default function AcademicPaperLab() {
 
           {/* Right: Paper viewer */}
           <div className="lg:col-span-2">
-            {activeDraft ? (
-              <PaperViewer draft={activeDraft} />
-            ) : (
+            {activeDraft && (
+              <div className="space-y-4">
+                {/* Mode toggle */}
+                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1">
+                  <button
+                    onClick={() => setReportMode('text')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
+                      reportMode === 'text'
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <BookMarked className="w-4 h-4" />
+                    Text Report
+                  </button>
+                  <button
+                    onClick={() => setReportMode('visual')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
+                      reportMode === 'visual'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Eye className="w-4 h-4" />
+                    Visual Report
+                  </button>
+                </div>
+
+                {/* Content */}
+                {reportMode === 'text' ? (
+                  <PaperViewer draft={activeDraft} />
+                ) : (
+                  <VisualReportViewer draft={activeDraft} />
+                )}
+              </div>
+            )}
+            {!activeDraft && (
               <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-300 rounded-2xl">
                 <div className="text-center space-y-2 text-slate-400">
                   <BookOpen className="w-10 h-10 mx-auto opacity-30" />
