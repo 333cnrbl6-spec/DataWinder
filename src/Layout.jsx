@@ -59,6 +59,7 @@ const NAV_CATEGORIES = [
     icon: Shield,
     items: [
       { label: 'Threat Assessment', page: 'ThreatAssessment', icon: AlertCircle },
+      { label: 'Report Generator', page: 'SpeciesReportGenerator', icon: FileOutput },
     ]
   },
   {
