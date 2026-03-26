@@ -166,9 +166,23 @@ export default function AcademicPaperLab() {
           return `<div style="display: inline-block; width: 30px; height: 150px; margin: 5px; background: linear-gradient(to top, ${colors[i % colors.length]} ${height}%, #f0f0f0 ${height}%); border: 1px solid #ddd;"></div>`;
         }).join('');
         chartHtml = `<div style="text-align: center; margin: 15px 0;">${bars}</div>`;
+      } else if (Array.isArray(fig.data) && fig.data.length > 0) {
+        // Render table for array data (fallback for any array structure)
+        const headers = Object.keys(fig.data[0]);
+        const rows = fig.data.map((d, idx) => `
+          <tr style="border-bottom: 1px solid #ddd;">
+            ${headers.map(h => `<td style="padding: 6px 8px; font-size: 9pt; text-align: left;">${d[h]}</td>`).join('')}
+          </tr>
+        `).join('');
+        chartHtml = `<table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9pt;">
+          <thead style="background: #f0f0f0; font-weight: bold;">
+            <tr>${headers.map(h => `<th style="padding: 6px 8px; text-align: left; border-bottom: 2px solid #ddd;">${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
       } else {
         // Fallback placeholder
-        chartHtml = `<div style="text-align: center; margin: 15px 0; padding: 20px; background: #f5f5f5; border-radius: 4px; color: #999;">Figure visualization unavailable</div>`;
+        chartHtml = `<div style="text-align: center; margin: 15px 0; padding: 20px; background: #f5f5f5; border-radius: 4px; color: #999;">Chart data: ${fig.description || 'Figure'}</div>`;
       }
       
       return `
