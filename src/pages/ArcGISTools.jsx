@@ -17,6 +17,7 @@ import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
 import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
 import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
+import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
@@ -34,6 +35,11 @@ export default function ArcGISTools() {
   const { data: allRangeData = [], refetch: refetchRangeData } = useQuery({
     queryKey: ['allRangeData'],
     queryFn: () => base44.entities.IUCNRangeData.list('-created_date', 10000)
+  });
+
+  const { data: allAssessments = [], refetch: refetchAssessments } = useQuery({
+    queryKey: ['allAssessments'],
+    queryFn: () => base44.entities.IUCNAssessment.list('-created_date', 10000)
   });
 
   // Build a lookup: species_id → range GeoJSON
@@ -605,6 +611,19 @@ export default function ArcGISTools() {
           </AlertDescription>
         </Alert>
       </main>
+
+      {/* Sticky IUCN Manual Download Checklist */}
+      {allSpecies.length > 0 && (
+        <IUCNManualDownloadChecklist
+          species={enrichedSpecies}
+          rangeData={allRangeData}
+          assessmentData={allAssessments}
+          onUploaded={() => {
+            refetchRangeData();
+            refetchAssessments();
+          }}
+        />
+      )}
 
       {/* ArcGIS Terms Modal */}
       <ArcGISTermsModal 
