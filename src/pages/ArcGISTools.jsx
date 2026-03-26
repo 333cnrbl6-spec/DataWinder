@@ -16,6 +16,7 @@ import SpatialJoinAnalysis from '@/components/arcgis/SpatialJoinAnalysis';
 import AnalysisResultsViewer from '@/components/arcgis/AnalysisResultsViewer';
 import HybridizationMapper from '@/components/arcgis/HybridizationMapper';
 import MissingRangeDataPrompt from '@/components/MissingRangeDataPrompt';
+import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
@@ -30,7 +31,7 @@ export default function ArcGISTools() {
     queryFn: () => base44.entities.Species.list('-created_date', 10000)
   });
 
-  const { data: allRangeData = [] } = useQuery({
+  const { data: allRangeData = [], refetch: refetchRangeData } = useQuery({
     queryKey: ['allRangeData'],
     queryFn: () => base44.entities.IUCNRangeData.list('-created_date', 10000)
   });
@@ -105,15 +106,20 @@ export default function ArcGISTools() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Missing Range Data Prompt */}
+        {/* IUCN File Fetcher + Missing Range Data Prompt */}
         {enrichedSpecies.length > 0 && speciesWithRangeData.length < enrichedSpecies.length && (
-          <MissingRangeDataPrompt 
-            speciesCount={enrichedSpecies.length - speciesWithRangeData.length}
-            onDataReady={() => {
-              // Refetch species to pick up newly uploaded range data
-              window.location.reload();
-            }}
-          />
+          <div className="space-y-4 mb-6">
+            <IUCNRangeFetcher
+              species={enrichedSpecies}
+              onComplete={() => {
+                refetchRangeData();
+              }}
+            />
+            <MissingRangeDataPrompt 
+              speciesCount={enrichedSpecies.length - speciesWithRangeData.length}
+              onDataReady={() => window.location.reload()}
+            />
+          </div>
         )}
 
         {/* ArcGIS Map Viewer */}
