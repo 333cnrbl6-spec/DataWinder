@@ -459,10 +459,10 @@ export default function AcademicPaperLab() {
             {activeDraft && (
               <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Paper actions */}
-                <div className="flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Paper</p>
-                  <Button variant="outline" onClick={printPaper} className="justify-start gap-2 text-xs h-8">
-                    <Printer className="w-3.5 h-3.5" /> Print / Read Paper
+                <div className="flex flex-col gap-2 p-3 bg-amber-50 rounded-xl border-2 border-amber-300">
+                  <p className="text-xs font-bold text-amber-700 uppercase tracking-wide mb-1">📄 Paper</p>
+                  <Button onClick={printPaper} className="justify-start gap-2 text-xs h-9 bg-amber-600 hover:bg-amber-700 text-white font-semibold border-0">
+                    <Printer className="w-4 h-4" /> Print / Read Full Paper
                   </Button>
                   <Button variant="outline" onClick={exportMarkdown} className="justify-start gap-2 text-xs h-8">
                     <Download className="w-3.5 h-3.5" /> Export Markdown

@@ -93,63 +93,73 @@ function VisualPlaceholder({ type, genus }) {
   const Icon = p.icon;
 
   return (
-    <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-6 text-center space-y-3">
+    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-solid border-blue-300 rounded-lg p-8 text-center space-y-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-center">
-        <div className="p-3 bg-slate-200/50 rounded-lg">
-          <Icon className="w-6 h-6 text-slate-400" />
+        <div className="p-4 bg-blue-200/40 rounded-xl">
+          <Icon className="w-8 h-8 text-blue-600" />
         </div>
       </div>
       <div>
-        <h4 className="text-sm font-semibold text-slate-700">{p.title}</h4>
-        <p className="text-xs text-slate-500 mt-1">{p.description}</p>
+        <h4 className="text-base font-bold text-slate-900">{p.title}</h4>
+        <p className="text-sm text-slate-600 mt-2 leading-relaxed max-w-sm mx-auto">{p.description}</p>
       </div>
-      <div className="text-xs text-slate-400 italic">
-        [ Map/chart visualization placeholder — integration point for ArcGIS, Leaflet, Recharts data ]
+      <div className="text-xs text-blue-700 italic font-medium pt-2">
+        📊 Interactive visualization — Maps, Charts, Density Plots
       </div>
     </div>
   );
 }
 
 function VisualSection({ sectionKey, label, content, visuals, genus, defaultOpen = false }) {
-  const [open, setOpen] = useState(defaultOpen);
-  const config = SECTION_CONFIG[sectionKey];
+   const [open, setOpen] = useState(defaultOpen || sectionKey === 'results' || sectionKey === 'discussion');
+   const config = SECTION_CONFIG[sectionKey];
+   const hasVisuals = config?.hasVisuals && config?.visualTypes && config.visualTypes.length > 0;
 
-  return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden">
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-3 bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-colors"
-      >
-        <span className="text-sm font-bold text-slate-800">{label}</span>
-        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-      </button>
+   return (
+     <div className="border-2 border-slate-300 rounded-xl overflow-hidden bg-white shadow-sm">
+       <button
+         onClick={() => setOpen(v => !v)}
+         className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-blue-50 to-slate-50 hover:from-blue-100 hover:to-slate-100 transition-colors border-b-2 border-slate-200"
+       >
+         <div className="flex items-center gap-3">
+           <span className="text-sm font-bold text-slate-900">{label}</span>
+           {hasVisuals && (
+             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 text-white rounded text-xs font-semibold">
+               <Eye className="w-3 h-3" /> Visual Evidence
+             </span>
+           )}
+         </div>
+         {open ? <ChevronUp className="w-4 h-4 text-slate-600" /> : <ChevronDown className="w-4 h-4 text-slate-600" />}
+       </button>
 
-      {open && (
-        <div className="space-y-6 px-6 py-5 bg-white">
-          {/* Text content */}
-          <div className="prose prose-sm prose-slate max-w-none text-sm leading-relaxed">
-            <ReactMarkdown>{content || '*Section not generated.*'}</ReactMarkdown>
-          </div>
+       {open && (
+         <div className="space-y-8 px-6 py-6 bg-white">
+           {/* Text content */}
+           {content && (
+             <div className="prose prose-sm prose-slate max-w-none text-sm leading-relaxed">
+               <ReactMarkdown>{content}</ReactMarkdown>
+             </div>
+           )}
 
-          {/* Visuals */}
-          {config?.hasVisuals && config?.visualTypes && (
-            <div className="space-y-4 border-t border-slate-100 pt-6">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-wide">
-                <Eye className="w-3.5 h-3.5" />
-                Visual Evidence
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                {config.visualTypes.map((vType, idx) => (
-                  <VisualPlaceholder key={idx} type={vType} genus={genus} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+           {/* Visuals */}
+           {hasVisuals && (
+             <div className="space-y-5 border-t-2 border-slate-200 pt-8">
+               <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-lg">
+                 <Eye className="w-4 h-4" />
+                 Visual Evidence & Maps
+               </div>
+               <div className="grid grid-cols-1 gap-6">
+                 {config.visualTypes.map((vType, idx) => (
+                   <VisualPlaceholder key={idx} type={vType} genus={genus} />
+                 ))}
+               </div>
+             </div>
+           )}
+         </div>
+       )}
+     </div>
+   );
+ }
 
 export default function VisualReportViewer({ draft }) {
   if (!draft) return null;
@@ -184,7 +194,7 @@ export default function VisualReportViewer({ draft }) {
       </div>
 
       {/* Sections with visuals */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {sectionOrder.map((sKey, i) => (
           <VisualSection
             key={sKey}
@@ -192,7 +202,7 @@ export default function VisualReportViewer({ draft }) {
             label={SECTION_CONFIG[sKey]?.label || sKey}
             content={sections?.[sKey]}
             genus={genus}
-            defaultOpen={i === 0}
+            defaultOpen={sKey === 'abstract' || sKey === 'results' || sKey === 'discussion'}
           />
         ))}
       </div>
