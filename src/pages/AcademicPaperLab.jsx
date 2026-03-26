@@ -102,6 +102,7 @@ export default function AcademicPaperLab() {
         save_draft: true,
       });
       const data = res.data;
+      console.log('Generated paper data:', data);
       setActiveDraft({
         title: data.title,
         genus: data.taxon || taxon,
@@ -118,6 +119,7 @@ export default function AcademicPaperLab() {
       refetchDrafts();
       toast.success(`Draft generated — ${data.word_count?.toLocaleString()} words`);
     } catch (e) {
+      console.error('Generation error:', e);
       toast.error('Generation failed: ' + e.message);
     } finally {
       setGenerating(false);
