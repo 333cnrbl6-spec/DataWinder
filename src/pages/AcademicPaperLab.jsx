@@ -158,6 +158,10 @@ export default function AcademicPaperLab() {
           return `<path d="${path}" fill="${colors[i % colors.length]}" stroke="white" stroke-width="2" />`;
         }).join('');
         chartHtml = `<svg width="200" height="200" viewBox="0 0 200 200" style="margin: 10px auto; display: block;">${slices}</svg>`;
+      } else if (fig.image_url || fig.src) {
+        // Render image if available
+        const imgUrl = fig.image_url || fig.src;
+        chartHtml = `<div style="text-align: center; margin: 10px 0;"><img src="${imgUrl}" style="max-width: 100%; max-height: 400px; border: 1px solid #ddd; border-radius: 4px;" /></div>`;
       } else if (Array.isArray(fig.data) && fig.data.length > 0 && fig.data[0]?.value) {
         // Bar chart placeholder
         const maxValue = Math.max(...fig.data.map(d => d.value || 0));
