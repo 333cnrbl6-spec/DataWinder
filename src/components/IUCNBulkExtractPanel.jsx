@@ -113,13 +113,13 @@ export default function IUCNBulkExtractPanel({ onDone }) {
   };
 
   // ── Run extraction against a file_uri ─────────────────────────────────────
-  const runExtraction = async (file_uri, iucnVersion) => {
+  const runExtraction = async (file_uri, iucnVersion, modeType = 'shared_library') => {
     setExtracting(true);
     setExtractError('');
     setPhase('extract');
 
     try {
-      const payload = { file_uri };
+      const payload = modeType === 'app_data' ? { mode: 'app_data' } : { file_uri };
       if (genusFilter.trim()) payload.genus_filter = genusFilter.trim();
 
       const result = await base44.functions.invoke('extractIUCNBulkSpecies', {
@@ -144,13 +144,13 @@ export default function IUCNBulkExtractPanel({ onDone }) {
   // ── Confirm: start extract based on chosen mode ───────────────────────────
   const handleConfirm = () => {
     if (mode === 'app_data') {
-      onDone?.();
+      runExtraction(null, null, 'app_data');
       return;
     }
     if (mode === 'shared_library') {
       const entry = library.find(l => l.id === selectedLibraryId);
       if (!entry) return;
-      runExtraction(entry.file_uri, entry.iucn_version);
+      runExtraction(entry.file_uri, entry.iucn_version, 'shared_library');
       return;
     }
     if (mode === 'my_upload') {
@@ -392,12 +392,12 @@ export default function IUCNBulkExtractPanel({ onDone }) {
           className="w-full bg-blue-600 hover:bg-blue-700"
           disabled={!canConfirm || uploading || extracting}
           onClick={handleConfirm}
-        >
+          >
           {uploading
-            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading to library…</>
-            : mode === 'app_data'
-              ? <><Database className="w-4 h-4 mr-2" />Use existing app data</>
-              : <><Globe className="w-4 h-4 mr-2" />Extract species ranges →</>
+          ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading to library…</>
+          : mode === 'app_data'
+            ? <><Database className="w-4 h-4 mr-2" />Extract from app data →</>
+            : <><Globe className="w-4 h-4 mr-2" />Extract species ranges →</>
           }
         </Button>
       )}
