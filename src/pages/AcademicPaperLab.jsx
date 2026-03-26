@@ -141,7 +141,7 @@ export default function AcademicPaperLab() {
       const colors = ['#1f2937', '#059669', '#d97706', '#2563eb', '#7c3aed'];
       let chartHtml = '';
       
-      if (fig.type === 'pie') {
+      if (fig.type === 'pie' && Array.isArray(fig.data) && fig.data.length > 0) {
         // Simple pie chart as SVG
         const total = fig.data.reduce((sum, d) => sum + d.value, 0);
         let angle = 0;
