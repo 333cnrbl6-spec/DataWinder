@@ -521,7 +521,7 @@ export default function AcademicPaperLab() {
             </Card>
 
             {/* Evolutionary ecology frameworks */}
-            <EvolutionaryContextPanel genus={activeDraft?.genus || taxon} />
+            <EvolutionaryContextPanel genus={activeDraft?.genus || activeDraft?.taxon || taxon} />
 
             {/* Figures */}
             {activeDraft?.figures_data && (
@@ -577,7 +577,7 @@ export default function AcademicPaperLab() {
               <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-300 rounded-2xl">
                 <div className="text-center space-y-2 text-slate-400">
                   <BookOpen className="w-10 h-10 mx-auto opacity-30" />
-                  <p className="text-sm font-medium">Select a genus and click Generate</p>
+                  <p className="text-sm font-medium">Select a {taxonRank} and click Generate</p>
                   <p className="text-xs">Paper will appear here with all sections, figures and similarity scores</p>
                 </div>
               </div>
