@@ -4,11 +4,20 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
+import { Lock, Layers } from 'lucide-react';
+
+const BASEMAPS = [
+  { id: 'satellite', label: '🛰 Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: true },
+  { id: 'light',     label: '🗺 Light',     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '&copy; OpenStreetMap contributors', labels: false },
+  { id: 'topo',      label: '🏔 Topo',      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: false },
+  { id: 'dark',      label: '🌑 Dark',      url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', attr: '&copy; Stadia Maps', labels: false },
+  { id: 'outline',   label: '📐 Outline',   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', attr: '&copy; Esri', labels: true },
+];
 
 export default function ArcGISMap({ species, height = '600px', hasAgreedToTerms = false, onRequestTermsAgreement }) {
   const [mapCenter, setMapCenter] = useState([20, 0]);
   const [zoom, setZoom] = useState(2);
+  const [basemap, setBasemap] = useState('satellite');
 
   // Calculate center from observations if available
   useEffect(() => {
@@ -68,18 +77,41 @@ export default function ArcGISMap({ species, height = '600px', hasAgreedToTerms 
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
+        {/* Basemap switcher */}
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 m-3 w-fit">
+          <Layers className="w-3.5 h-3.5 text-slate-500 ml-1 mr-0.5" />
+          {BASEMAPS.map(bm => (
+            <button
+              key={bm.id}
+              onClick={() => setBasemap(bm.id)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                basemap === bm.id ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {bm.label}
+            </button>
+          ))}
+        </div>
         <MapContainer 
           center={mapCenter} 
           zoom={zoom} 
           style={{ height, width: '100%' }}
           className="rounded-b-xl"
         >
-          {/* ArcGIS World Imagery (Satellite) */}
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            attribution='&copy; Esri, DigitalGlobe, Earthstar Geographics'
-            name="Satellite"
-          />
+          {(() => {
+            const bm = BASEMAPS.find(b => b.id === basemap) || BASEMAPS[0];
+            return (
+              <>
+                <TileLayer key={bm.id} url={bm.url} attribution={bm.attr} />
+                {bm.labels && bm.id === 'satellite' && (
+                  <TileLayer
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                    attribution="&copy; Esri" opacity={0.7}
+                  />
+                )}
+              </>
+            );
+          })()}
 
           {/* Range data as GeoJSON if available */}
           {species?.range_data_geojson && (

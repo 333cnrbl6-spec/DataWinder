@@ -1,9 +1,64 @@
 import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, LayersControl } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Eye, EyeOff, Download, Info } from 'lucide-react';
+import { AlertTriangle, Eye, EyeOff, Download, Info, Layers } from 'lucide-react';
+
+const BASEMAPS = [
+  {
+    id: 'satellite',
+    label: '🛰 Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; Esri, DigitalGlobe',
+    labels: true,
+  },
+  {
+    id: 'light',
+    label: '🗺 Light',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+    labels: false,
+  },
+  {
+    id: 'topo',
+    label: '🏔 Topo',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; Esri',
+    labels: false,
+  },
+  {
+    id: 'dark',
+    label: '🌑 Dark',
+    url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; Stadia Maps, OpenMapTiles, OpenStreetMap',
+    labels: false,
+  },
+  {
+    id: 'outline',
+    label: '📐 Outline',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: '&copy; Esri',
+    labels: true,
+  },
+];
+
+// Component to swap TileLayer reactively
+function BasemapLayer({ basemapId }) {
+  const bm = BASEMAPS.find(b => b.id === basemapId) || BASEMAPS[0];
+  return (
+    <>
+      <TileLayer key={bm.id} url={bm.url} attribution={bm.attribution} />
+      {bm.labels && bm.id === 'satellite' && (
+        <TileLayer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+          attribution="&copy; Esri"
+          opacity={0.7}
+        />
+      )}
+    </>
+  );
+}
 
 // 12 visually distinct colours for species
 const SPECIES_COLOURS = [
@@ -56,6 +111,7 @@ export default function HybridizationMapper({ species = [] }) {
   );
   const [showRanges, setShowRanges] = useState(true);
   const [showPoints, setShowPoints] = useState(true);
+  const [basemap, setBasemap] = useState('satellite');
 
   const selectedSpecies = speciesWithData.filter(sp => selectedIds.includes(sp.id));
 
@@ -159,8 +215,24 @@ export default function HybridizationMapper({ species = [] }) {
         )}
       </div>
 
-      {/* Layer toggles & export */}
+      {/* Basemap switcher + layer toggles + export */}
       <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+          <Layers className="w-3.5 h-3.5 text-slate-500 ml-1 mr-0.5" />
+          {BASEMAPS.map(bm => (
+            <button
+              key={bm.id}
+              onClick={() => setBasemap(bm.id)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                basemap === bm.id
+                  ? 'bg-white shadow text-slate-800'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {bm.label}
+            </button>
+          ))}
+        </div>
         <Button size="sm" variant={showRanges ? 'default' : 'outline'} onClick={() => setShowRanges(v => !v)}>
           {showRanges ? <Eye className="w-3.5 h-3.5 mr-1" /> : <EyeOff className="w-3.5 h-3.5 mr-1" />}
           Range Polygons
@@ -206,15 +278,7 @@ export default function HybridizationMapper({ species = [] }) {
           zoom={4}
           style={{ height: '600px', width: '100%' }}
         >
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            attribution="&copy; Esri, DigitalGlobe, Earthstar Geographics"
-          />
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-            attribution="&copy; Esri"
-            opacity={0.6}
-          />
+          <BasemapLayer basemapId={basemap} />
 
           {/* Range polygons */}
           {showRanges && selectedSpecies.map(sp => {
