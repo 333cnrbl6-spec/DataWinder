@@ -330,7 +330,7 @@ Return a JSON object with these exact keys:
 
     const rawLLM = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: llmPrompt,
-      model: 'claude_sonnet_4_6',
+      model: 'gemini_3_flash',
     });
 
     // Parse the LLM response — it may return a JSON string or an object
