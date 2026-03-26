@@ -536,53 +536,57 @@ export default function AcademicPaperLab() {
           </div>
 
           {/* Right: Paper viewer */}
-          <div className="lg:col-span-2">
-            {activeDraft && (
-              <div className="space-y-4">
-                {/* Mode toggle */}
-                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1">
-                  <button
-                    onClick={() => setReportMode('text')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
-                      reportMode === 'text'
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <BookMarked className="w-4 h-4" />
-                    Text Report
-                  </button>
-                  <button
-                    onClick={() => setReportMode('visual')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
-                      reportMode === 'visual'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <Eye className="w-4 h-4" />
-                    Visual Report
-                  </button>
-                </div>
+           <div className="lg:col-span-2 space-y-4">
+             {activeDraft && (
+               <>
+                 {/* Mode toggle */}
+                 <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 sticky top-6">
+                   <button
+                     onClick={() => setReportMode('text')}
+                     className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
+                       reportMode === 'text'
+                         ? 'bg-slate-900 text-white'
+                         : 'text-slate-600 hover:bg-slate-100'
+                     }`}
+                   >
+                     <BookMarked className="w-4 h-4" />
+                     Text Report
+                   </button>
+                   <button
+                     onClick={() => setReportMode('visual')}
+                     className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
+                       reportMode === 'visual'
+                         ? 'bg-blue-600 text-white'
+                         : 'text-slate-600 hover:bg-slate-100'
+                     }`}
+                   >
+                     <Eye className="w-4 h-4" />
+                     Visual Report
+                   </button>
+                 </div>
 
-                {/* Content */}
-                {reportMode === 'text' ? (
-                  <PaperViewer draft={activeDraft} />
-                ) : (
-                  <VisualReportViewer draft={activeDraft} />
-                )}
-              </div>
-            )}
-            {!activeDraft && (
-              <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-300 rounded-2xl">
-                <div className="text-center space-y-2 text-slate-400">
-                  <BookOpen className="w-10 h-10 mx-auto opacity-30" />
-                  <p className="text-sm font-medium">Select a {taxonRank} and click Generate</p>
-                  <p className="text-xs">Paper will appear here with all sections, figures and similarity scores</p>
-                </div>
-              </div>
-            )}
-          </div>
+                 {/* Content */}
+                 {reportMode === 'text' ? (
+                   <PaperViewer draft={activeDraft} />
+                 ) : activeDraft?.figures_data || activeDraft?.sections ? (
+                   <VisualReportViewer draft={activeDraft} />
+                 ) : (
+                   <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-200 rounded-lg">
+                     <p className="text-sm text-slate-400">No visual data available for this draft.</p>
+                   </div>
+                 )}
+               </>
+             )}
+             {!activeDraft && (
+               <div className="h-96 flex items-center justify-center bg-white border border-dashed border-slate-300 rounded-2xl">
+                 <div className="text-center space-y-2 text-slate-400">
+                   <BookOpen className="w-10 h-10 mx-auto opacity-30" />
+                   <p className="text-sm font-medium">Select a {taxonRank} and click Generate</p>
+                   <p className="text-xs">Paper will appear here with all sections, figures and similarity scores</p>
+                 </div>
+               </div>
+             )}
+           </div>
         </div>
       </div>
     </div>
