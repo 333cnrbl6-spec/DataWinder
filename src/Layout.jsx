@@ -142,13 +142,12 @@ export default function Layout({ children, currentPageName }) {
                   }
                   
                   return (
-                   <NavigationMenuItem key={category.label} className="relative">
+                   <NavigationMenuItem key={category.label}>
                      <NavigationMenuTrigger className="text-xs font-semibold text-slate-600 hover:text-bangor-red hover:bg-bangor-red/10 data-[state=open]:bg-bangor-red/10 data-[state=open]:text-bangor-red">
                        {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
                        {category.label}
-                       <ChevronDown className="w-3 h-3 ml-0.5" />
                      </NavigationMenuTrigger>
-                     <NavigationMenuContent className="absolute left-0 top-full mt-0 w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50 text-slate-700">
+                     <NavigationMenuContent className="w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 text-slate-700">
                        <div className="space-y-1">
                          {category.items.map(({ label, page, icon: Icon }) => {
                            const isActive = currentPageName === page;
