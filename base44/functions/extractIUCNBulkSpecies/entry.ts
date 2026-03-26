@@ -128,7 +128,8 @@ function normaliseIucnAttributes(row) {
 
 // ── Main Handler ──────────────────────────────────────────────────────────────
 // Accepts:
-//   file_uri       — private storage URI of the saved bulk ZIP
+//   mode           — 'app_data' to use existing species, or omit for file_uri mode
+//   file_uri       — private storage URI of the saved bulk ZIP (required if mode !== 'app_data')
 //   target_species — array of scientific names to extract (optional)
 //   genus_filter   — string prefix to filter e.g. "Callithrix" (optional)
 //   iucn_version   — version string to stamp on IUCNVersionRecord (optional)
@@ -139,9 +140,46 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { file_uri, target_species, genus_filter, iucn_version } = body;
+    const { mode, file_uri, target_species, genus_filter, iucn_version, species_list } = body;
 
-    if (!file_uri) return Response.json({ error: 'Missing file_uri' }, { status: 400 });
+    // Mode: app_data — extract from Species already in database
+    if (mode === 'app_data') {
+      console.log('Extracting from app data (existing Species records)...');
+      
+      // Fetch all species
+      const allSpecies = await base44.asServiceRole.entities.Species.list('-created_date', 10000);
+      
+      // Apply filters
+      const targetSet = species_list?.length > 0
+        ? new Set(species_list.map(s => s.toLowerCase()))
+        : null;
+      const genusPrefix = genus_filter ? genus_filter.toLowerCase().trim() : null;
+      
+      const filtered = allSpecies.filter(sp => {
+        const nameLower = (sp.scientific_name || '').toLowerCase();
+        if (targetSet && !targetSet.has(nameLower)) return false;
+        if (genusPrefix && !nameLower.startsWith(genusPrefix)) return false;
+        return true;
+      });
+      
+      const results = filtered.map(sp => ({
+        scientific_name: sp.scientific_name,
+        iucn_status: sp.iucn_status,
+        iucn_id: sp.iucn_id,
+        feature_count: 0,
+        action: 'exists'
+      }));
+      
+      return Response.json({
+        status: 'success',
+        species_count: results.length,
+        species: results,
+        message: `Found ${results.length} species in app database${genusPrefix ? ` matching ${genusPrefix}` : ''}`
+      });
+    }
+
+    // Mode: bulk file — extract from uploaded ZIP
+    if (!file_uri) return Response.json({ error: 'Missing file_uri or mode' }, { status: 400 });
 
     // 1. Get a signed URL for the private file then download it
     console.log(`Getting signed URL for stored bulk file: ${file_uri}`);
