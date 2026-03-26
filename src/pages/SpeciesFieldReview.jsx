@@ -156,7 +156,7 @@ export default function SpeciesFieldReview() {
 
   const { data: pending = [], isLoading } = useQuery({
     queryKey: ['pendingSpeciesUpdates'],
-    queryFn: () => base44.entities.PendingSpeciesUpdate.filter({ status: 'pending', data_source: 'AI Auto-Complete' }, '-created_date'),
+    queryFn: () => base44.entities.PendingSpeciesUpdate.filter({ status: 'pending' }, '-created_date'),
     refetchInterval: 10000,
   });
 
