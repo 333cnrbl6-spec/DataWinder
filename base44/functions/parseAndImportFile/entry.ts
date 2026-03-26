@@ -93,8 +93,38 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'The file only has a header row and no data rows. Please check the file content.' }, { status: 400 });
       }
 
+      // Skip IUCN-style metadata preamble lines (e.g. "GENERAL:", "Date generated:", "Search URL:")
+      // These appear before the real CSV header in IUCN bulk download files
+      // The real header is the first line that contains a comma or tab and doesn't end with ":"
+      // Strategy: skip lines that look like "KEY: value" metadata (colon at end of first token, no comma/tab separation into many fields)
+      let headerLineIndex = 0;
+      for (let i = 0; i < Math.min(lines.length, 30); i++) {
+        const l = lines[i];
+        // A metadata line typically looks like "GENERAL:" or "Date generated:,2024-01-01" (only 1-2 fields)
+        // A real header has many comma/tab-separated fields OR contains known field names
+        const tabCount = (l.match(/\t/g) || []).length;
+        const commaCount = (l.match(/,/g) || []).length;
+        const fieldCount = Math.max(tabCount, commaCount) + 1;
+        // If the line has 3+ fields, treat it as the header
+        if (fieldCount >= 3) {
+          headerLineIndex = i;
+          break;
+        }
+        // Also accept if it clearly looks like a header with known field names
+        const lLower = l.toLowerCase();
+        if (lLower.includes('scientificname') || lLower.includes('scientific_name') ||
+            lLower.includes('speciesname') || lLower.includes('redlistcategory') ||
+            lLower.includes('taxonid') || lLower.includes('kingdom')) {
+          headerLineIndex = i;
+          break;
+        }
+        console.log(`Skipping preamble line ${i}: ${l.slice(0, 100)}`);
+        headerLineIndex = i + 1;
+      }
+      console.log(`Using line ${headerLineIndex} as header row`);
+
       // Auto-detect delimiter: tab > pipe > semicolon > comma
-      const firstLine = lines[0];
+      const firstLine = lines[headerLineIndex] || lines[0];
       let delimiter = ',';
       if (firstLine.includes('\t')) delimiter = '\t';
       else if (firstLine.includes('|') && firstLine.split('|').length > 2) delimiter = '|';
@@ -121,7 +151,7 @@ Deno.serve(async (req) => {
         return result;
       };
 
-      const rawHeaders = parseCSVLine(lines[0]);
+      const rawHeaders = parseCSVLine(lines[headerLineIndex]);
       // Strip quotes, BOM remnants, invisible chars, trailing whitespace
       const headers = rawHeaders
         .map(h => h.replace(/^["'\u200B\uFEFF]+|["'\u200B\uFEFF]+$/g, '').trim())
@@ -132,7 +162,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'Could not detect column headers in the file. Ensure the first row contains column names.' }, { status: 400 });
       }
 
-      for (let i = 1; i < lines.length; i++) {
+      for (let i = headerLineIndex + 1; i < lines.length; i++) {
         const values = parseCSVLine(lines[i]);
         if (values.length === 0 || (values.length === 1 && !values[0])) continue;
         const row = {};
