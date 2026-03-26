@@ -78,8 +78,12 @@ Deno.serve(async (req) => {
         records = [parsed];
       }
     } else {
-      // CSV / TSV / TXT — normalise line endings
-      const normalised = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      // CSV / TSV / TXT — strip BOM, normalise line endings, strip non-printable chars
+      const cleaned = text
+        .replace(/^\uFEFF/, '')           // UTF-8 BOM
+        .replace(/^\uFFFE/, '')           // UTF-16 BOM
+        .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]/g, ''); // non-printable (keep tab, newlines, printable)
+      const normalised = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const lines = normalised.split('\n').filter(l => l.trim());
 
       if (lines.length < 1) {
@@ -89,11 +93,13 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'The file only has a header row and no data rows. Please check the file content.' }, { status: 400 });
       }
 
-      // Auto-detect delimiter: tab > comma > semicolon
+      // Auto-detect delimiter: tab > pipe > semicolon > comma
       const firstLine = lines[0];
       let delimiter = ',';
       if (firstLine.includes('\t')) delimiter = '\t';
+      else if (firstLine.includes('|') && firstLine.split('|').length > 2) delimiter = '|';
       else if (firstLine.split(';').length > firstLine.split(',').length) delimiter = ';';
+      console.log(`Detected delimiter: "${delimiter === '\t' ? 'TAB' : delimiter}" | First line: ${firstLine.slice(0, 200)}`);
 
       const parseCSVLine = (line) => {
         const result = [];
@@ -116,7 +122,11 @@ Deno.serve(async (req) => {
       };
 
       const rawHeaders = parseCSVLine(lines[0]);
-      const headers = rawHeaders.map(h => h.replace(/^"|"$/g, '').trim()).filter(Boolean);
+      // Strip quotes, BOM remnants, invisible chars, trailing whitespace
+      const headers = rawHeaders
+        .map(h => h.replace(/^["'\u200B\uFEFF]+|["'\u200B\uFEFF]+$/g, '').trim())
+        .filter(Boolean);
+      console.log(`Detected headers (${headers.length}): ${JSON.stringify(headers.slice(0, 20))}`);
 
       if (headers.length === 0) {
         return Response.json({ error: 'Could not detect column headers in the file. Ensure the first row contains column names.' }, { status: 400 });
@@ -149,6 +159,7 @@ Deno.serve(async (req) => {
 
     const targetFields = entitySchemas[suggested_entity] || entitySchemas['Species'];
     const sourceKeys = Object.keys(records[0] || {});
+    console.log(`Source columns (${sourceKeys.length}): ${JSON.stringify(sourceKeys.slice(0, 20))}`);
 
     if (sourceKeys.length === 0) {
       return Response.json({ error: 'Records have no fields. File may be malformed.' }, { status: 400 });
@@ -162,18 +173,20 @@ Deno.serve(async (req) => {
     // Map source columns to target fields via LLM
     console.log(`Running LLM field mapping for entity: ${suggested_entity}`);
     const mappingResult = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a data mapping expert. Map source CSV columns to target database fields.
+      prompt: `You are a data mapping expert. Map source CSV columns to target database fields for biodiversity data.
 Source columns: ${JSON.stringify(sourceKeys)}
 Sample row: ${sampleRow}
 Target entity: ${suggested_entity}
 Target fields: ${JSON.stringify(targetFields)}
 Rules:
-- latitude/lat/decimalLatitude/Latitude → latitude (but this is not a target field for Species, skip)
-- longitude/lon/lng/decimalLongitude/Longitude → longitude (same, skip if not in target)
-- species/taxon/scientificName/scientific_name/Species → scientific_name
-- commonName/common_name/vernacularName/English → common_name
-- iucnCategory/category/redlistCategory/iucnRedListCategory → iucn_status
-- Only map fields that clearly correspond. Return null for target fields with no clear match.
+- species/taxon/scientificName/scientific_name/Species/Taxon/name/latin_name/binomial/verbatimScientificName/acceptedName/canonicalName/taxon_name → scientific_name
+- commonName/common_name/vernacularName/English/vernacular/commonname/english_name → common_name
+- iucnCategory/category/redlistCategory/iucnRedListCategory/status/threatCategory/iucn_category → iucn_status
+- populationTrend/trend/population_trend → population_trend
+- observationCount/obs_count/observation_count/observations → observation_count
+- taxonKey/gbif_id/gbifId/usageKey → gbif_id
+- taxonId/inat_taxon_id/inatTaxonId → inat_taxon_id
+- Only map fields that clearly correspond to a target field. Return null for target fields with no clear match.
 Return ONLY a valid JSON object like {"target_field": "source_column_or_null"} with no extra text, no markdown.`,
       response_json_schema: {
         type: 'object',
@@ -189,11 +202,21 @@ Return ONLY a valid JSON object like {"target_field": "source_column_or_null"} w
           mapped[targetField] = row[sourceCol];
         }
       }
-      // Fallback: if scientific_name still missing, try common column names directly
+      // Fallback: if scientific_name still missing, do case-insensitive key search
       if (suggested_entity === 'Species' && !mapped.scientific_name) {
-        mapped.scientific_name =
-          row['scientific_name'] || row['scientificName'] || row['taxon'] ||
-          row['species'] || row['Species'] || row['Taxon'] || null;
+        const sciNameAliases = [
+          'scientific_name', 'scientificname', 'taxon', 'species', 'taxonname',
+          'name', 'latin_name', 'latinname', 'binomial', 'full_name',
+          'verbatimscientificname', 'accepted_name', 'acceptedname',
+          'canonicalname', 'canonical_name', 'taxon_name'
+        ];
+        const rowLower = Object.fromEntries(Object.entries(row).map(([k, v]) => [k.toLowerCase().replace(/\s+/g, '_'), { key: k, val: v }]));
+        for (const alias of sciNameAliases) {
+          if (rowLower[alias]?.val) {
+            mapped.scientific_name = rowLower[alias].val;
+            break;
+          }
+        }
       }
       return mapped;
     }).filter(r => {
@@ -204,9 +227,11 @@ Return ONLY a valid JSON object like {"target_field": "source_column_or_null"} w
     console.log(`Field mapping complete: ${mappedRecords.length} of ${records.length} records mapped successfully`);
 
     if (mappedRecords.length === 0) {
-      return Response.json({
-        error: `Field mapping produced 0 records. For Species, a "scientific_name" column (or equivalent like "species", "taxon", "scientificName") is required. Detected columns: ${sourceKeys.slice(0, 10).join(', ')}`,
-      }, { status: 400 });
+      const colSample = sourceKeys.slice(0, 15).join(', ');
+      const hint = suggested_entity === 'Species'
+        ? `For Species, a scientific name column is required. Accepted names: scientific_name, scientificName, species, taxon, name, binomial, latin_name, canonicalName, acceptedName, verbatimScientificName. Detected columns: ${colSample}`
+        : `No mappable fields found. Detected columns: ${colSample}`;
+      return Response.json({ error: hint }, { status: 400 });
     }
 
     return Response.json({
