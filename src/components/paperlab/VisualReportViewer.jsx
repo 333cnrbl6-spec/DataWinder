@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
 import ResultsMapViewer from './ResultsMapViewer';
+import MethodsVisualsPanel from './MethodsVisualsPanel';
 
 const SECTION_CONFIG = {
   abstract: {
@@ -19,7 +20,8 @@ const SECTION_CONFIG = {
   methods: {
     label: '2. Materials & Methods',
     hasVisuals: true,
-    visualTypes: ['data_sources', 'occurrence_map'],
+    visualTypes: ['data_sources', 'variable_selection', 'spatial_thinning'],
+    useCustomComponent: true,
   },
   results: {
     label: '3. Results',
@@ -148,6 +150,8 @@ function VisualSection({ sectionKey, label, content, visuals, genus, defaultOpen
              <div className="space-y-5 border-t-2 border-slate-200 pt-8">
                {config.useCustomComponent && sectionKey === 'results' ? (
                  <ResultsMapViewer genus={genus} draft={{}} />
+               ) : config.useCustomComponent && sectionKey === 'methods' ? (
+                 <MethodsVisualsPanel genus={genus} />
                ) : (
                  <>
                    <div className="flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-lg">
