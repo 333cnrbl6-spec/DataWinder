@@ -1,0 +1,112 @@
+{
+  "name": "Literature",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Paper title"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of authors"
+    },
+    "year": {
+      "type": "number",
+      "description": "Publication year"
+    },
+    "journal": {
+      "type": "string",
+      "description": "Journal or publication name"
+    },
+    "doi": {
+      "type": "string",
+      "description": "Digital Object Identifier"
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "SDM",
+        "Conservation",
+        "Ecology",
+        "Phylogenetics",
+        "Review",
+        "Other"
+      ],
+      "description": "Type of research paper"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the uploaded PDF"
+    },
+    "methods_summary": {
+      "type": "string",
+      "description": "Extracted methods summary"
+    },
+    "key_results": {
+      "type": "string",
+      "description": "Extracted key findings"
+    },
+    "key_limitations": {
+      "type": "string",
+      "description": "Stated limitations of the study"
+    },
+    "species_studied": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scientific_name": {
+            "type": "string"
+          },
+          "common_name": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Species mentioned in the paper"
+    },
+    "climate_variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Climate/environmental variables used"
+    },
+    "occurrence_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Data sources for occurrence records"
+    },
+    "replicability_score": {
+      "type": "number",
+      "description": "Score 1-10 for how replicable the methods are"
+    },
+    "replication_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Steps to replicate in DataWinder"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom tags for organization"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes on the paper"
+    }
+  },
+  "required": [
+    "title",
+    "file_url"
+  ]
+}

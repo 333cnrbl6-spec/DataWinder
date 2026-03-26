@@ -63,7 +63,7 @@ Return a JSON object with these exact keys:
             }
         });
 
-        return Response.json({
+        const result = {
             status: "success",
             title: title || "Untitled Paper",
             authors: authors || "",
@@ -72,7 +72,33 @@ Return a JSON object with these exact keys:
             doi: doi || "",
             file_url,
             ...extracted
-        });
+        };
+
+        // Automatically save to Literature entity
+        try {
+            await base44.entities.Literature.create({
+                title: result.title,
+                authors: typeof result.authors === 'string' ? result.authors.split(',').map(a => a.trim()) : result.authors || [],
+                year: result.year,
+                journal: result.journal,
+                doi: result.doi,
+                file_url: result.file_url,
+                paper_type: result.paper_type,
+                methods_summary: result.methods_summary,
+                key_results: result.key_results,
+                key_limitations: result.key_limitations,
+                species_studied: result.species_studied || [],
+                climate_variables: result.climate_variables || [],
+                occurrence_sources: result.occurrence_sources || [],
+                replicability_score: result.replicability_score,
+                replication_steps: result.replication_steps || []
+            });
+        } catch (saveError) {
+            console.warn('Could not save to Literature entity:', saveError.message);
+            // Don't fail the response if save fails - user still gets extracted data
+        }
+
+        return Response.json(result);
 
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
