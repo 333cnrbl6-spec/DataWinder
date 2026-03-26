@@ -12,65 +12,77 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 const HILL_WINDER_STRUCTURE = {
-  abstract: `Structured as: Aims / Location / Taxon / Methods / Results / Main conclusions. 
-    ~250 words. Academic register. No first-person plural beyond "we".
-    Must mention: climate change, species distribution modelling, island biogeography theory, hybridisation potential.`,
-  introduction: `~700 words. 5 paragraphs:
-    1. Broad conservation context — why SDMs matter for primates / biodiversity under climate change.
-    2. The focal taxon — its ecology, IUCN status, distribution, known hybridisation zones (if any).
-    3. Island Biogeography theory (MacArthur & Wilson, 1967): explain how climate-driven habitat fragmentation 
-       creates de-facto ecological islands — isolated refugia subject to genetic drift, reduced gene flow, 
-       and elevated extinction risk. Cite Hanski (1998) metapopulation theory. Apply this explicitly to the focal genus.
-    4. Hybridisation and speciation: explain how climate-driven range shifts bring previously allopatric lineages 
-       into secondary contact, creating hybridisation zones. Distinguish genetic swamping (threat) from 
-       adaptive introgression and homoploid hybrid speciation (evolutionary opportunity). Cite Mallet (2007) 
-       and Abbott et al. (2013). Reference known hybridisation zones in the focal genus if applicable.
-    5. Gaps in existing knowledge and numbered study objectives — including explicit objectives to 
-       (a) identify future fragmented refugia via island biogeography lens, and 
-       (b) predict new potential hybridisation contact zones under warming scenarios.`,
-  methods: `~700 words. Sub-sections:
-    2.1 Study species and occurrence data — sources (GBIF, iNaturalist), record counts, quality filtering.
-    2.2 Environmental predictors — bioclimatic variables (WorldClim), resolution, collinearity screening.
-    2.3 Species distribution modelling — algorithm (MAXENT), regularisation, cross-validation, AUC.
-    2.4 Future projections — climate scenarios (SSP2-4.5, SSP5-8.5), GCMs, time horizons (2050, 2070).
-    2.5 Fragmentation analysis — patch isolation metrics applied to projected suitable habitat to quantify 
-        island biogeography effects (mean patch size, connectivity index, nearest-neighbour distance).
-    2.6 Hybridisation zone prediction — range overlap analysis between sister species under future scenarios 
-        to identify predicted new or expanding contact zones; hybridisation risk scored as overlap area × 
-        range contraction rate.`,
-  results: `~600 words. Sub-sections matching methods:
-    3.1 Data summary — final occurrence counts per species after filtering.
-    3.2 Model performance — AUC values, omission rates.
-    3.3 Variable importance — top environmental predictors per species.
-    3.4 Current predicted distributions — area of suitable habitat.
-    3.5 Future projections — gain/loss under scenarios, % change per species.
-    3.6 Fragmentation outcomes — predicted number of isolated refugia patches under each scenario by 2070; 
-        species with most fragmented future ranges highlighted as high island-biogeography risk.
-    3.7 Hybridisation contact zone predictions — which species pairs are predicted to come into new contact 
-        under warming; estimated area of predicted overlap by 2050 and 2070.`,
-  discussion: `~900 words. 5 paragraphs:
-    1. Interpretation of variable importance and range change findings.
-    2. Island Biogeography implications: interpret which species face the most fragmented future ranges and 
-       what this means for long-term viability. Invoke species-area relationship quantitatively. Discuss 
-       connectivity and corridor conservation as mitigation. Cite MacArthur & Wilson (1967), Hanski (1998).
-    3. Hybridisation zone dynamics: discuss predicted new contact zones, their evolutionary implications 
-       (adaptive introgression vs. genetic swamping), and whether hybridisation represents opportunity or 
-       threat for each species pair. Reference Mallet (2007), Abbott et al. (2013), and any empirical 
-       hybridisation studies for the focal genus.
-    4. Comparison with existing IUCN assessments — argue that IUCN criteria do not currently capture 
-       island biogeography fragmentation effects nor hybridisation zone dynamics, and that SDM-derived 
-       metrics should augment Red List assessments.
-    5. Limitations: modelling assumptions, data gaps, climate model uncertainty, limits of MAXENT for 
-       predicting novel climate space.`,
-  conclusion: `~180 words. Synthesises: (1) which species face greatest climate-driven range loss, 
-    (2) which face island biogeography extinction risk from fragmentation, 
-    (3) which are predicted to enter new hybridisation contact zones. 
-    Policy recommendations: protected area connectivity, hybrid zone monitoring, 
-    integration of evolutionary potential into IUCN assessments. 
-    Future research directions.`,
-  references: `Harvard format. All in-text citations listed. MUST include: Hill & Winder (2019), 
-    MacArthur & Wilson (1967), Hanski (1998), Mallet (2007), Abbott et al. (2013), 
-    and the 3 Callithrix benchmark papers as mandatory references.`
+  abstract: `EXACTLY as in a high-impact journal (e.g. Journal of Biogeography, Molecular Phylogenetics and Evolution, Systematic Biology, PLoS Genetics).
+    Structure: AIMS — one sentence. LOCATION — one sentence. TAXON — one sentence. METHODS — 3–4 sentences describing modelling approach, data sources, analytical frameworks. RESULTS — 4–5 sentences with specific quantitative findings (percentages, species counts, AUC values, scenario comparisons). MAIN CONCLUSIONS — 2–3 sentences.
+    Total: 280–320 words. Dense, no bullet points, continuous prose. Every sentence must add factual content.
+    Scientific species names italicised (use *italics*). Third person only. No hedging language like "may potentially". 
+    Must explicitly mention: island biogeography theory, hybridisation zone dynamics, reticulate evolution, MAXENT, SSP scenarios, specific species names from the genus.`,
+
+  introduction: `TARGET: 1,800–2,500 words. This is the most important section. Model on Nagamachi et al. (1999), Perelman et al. (2011), and Fabre et al. (2009).
+    
+    PARAGRAPH 1 (300–400 words): Global context. Open with a sweeping statement about biodiversity loss under anthropogenic climate change. Discuss the importance of species distribution modelling (SDM) for conservation planning, citing foundational SDM papers (Phillips et al., 2006; Elith & Leathwick, 2009). Explain why primates are a particularly important group for SDM research — high IUCN threat levels, complex social structures, role as ecosystem engineers. Provide statistics: number of primate species globally, percentage threatened, rate of habitat loss in tropical forests. Cite at least 5 different sources in this paragraph.
+    
+    PARAGRAPH 2 (400–500 words): The focal taxon in detail. Introduce the genus/family with its full taxonomic context (order, family, subfamilies if applicable). Describe distribution range in specific geographic detail (countries, biomes, elevational ranges). Summarise the IUCN status of each species using the live data provided — give each species its conservation status explicitly (e.g. "*Callithrix aurita* is assessed as Endangered (EN) by the IUCN, with a decreasing population trend"). Discuss ecology: diet, social structure, habitat preferences, home range size. Discuss documented hybridisation zones if known for this taxon — be specific about which species pairs and where. Reference 6–8 papers in this paragraph including taxon-specific literature.
+    
+    PARAGRAPH 3 (400–500 words): Island Biogeography Theory (MacArthur & Wilson, 1967) applied. Introduce the theory formally — species richness as a function of island area and immigration/extinction rates. Explain how climate-driven habitat fragmentation creates de facto ecological islands from what was once continuous forest. Apply the species-area relationship mathematically: S = cA^z. Discuss how this predicts extinction debt in remnant habitat patches. Invoke metapopulation theory (Hanski, 1998) — threshold patch sizes for population persistence, rescue effects, regional stochasticity. Apply ALL of this explicitly to the focal genus: which species are most exposed to fragmentation given their current range sizes? Discuss genetic consequences of isolation: drift, inbreeding depression, loss of adaptive potential. Argue that connectivity between refugia is as critical as the refugia themselves for long-term persistence.
+    
+    PARAGRAPH 4 (350–450 words): Hybridisation and speciation. Explain the evolutionary significance of secondary contact zones between previously allopatric lineages. Distinguish: (a) adaptive introgression — beneficial alleles transferred across species boundaries; (b) genetic swamping — loss of rare taxon's genome through backcrossing; (c) homoploid hybrid speciation — formation of reproductively isolated hybrid lineage without polyploidy. Discuss reticulate evolution (Arnold, 1997; Fontaine et al., 2015) — where lineages do not merely branch (bifurcate) but also merge, requiring phylogenetic networks rather than trees. Apply to the focal genus: known or predicted hybrid zones, contact zones that may expand under warming. Cite Mallet (2007), Abbott et al. (2013), and taxon-specific hybridisation literature.
+    
+    PARAGRAPH 5 (250–350 words): Knowledge gaps and study objectives. Clearly articulate what is NOT known. State the study objectives as a numbered list embedded in prose: (i) to compile multi-source occurrence data; (ii) to model current distributions using MAXENT; (iii) to project future suitable habitat under SSP2-4.5 and SSP5-8.5 by 2050 and 2070; (iv) to quantify fragmentation using island biogeography metrics; (v) to predict new hybridisation contact zones under warming. State the conservation relevance of each objective.`,
+
+  methods: `TARGET: 1,500–2,000 words. Use numbered subsections exactly as below. Write in past tense, passive voice where appropriate. Be precise about numbers, thresholds, and software.
+    
+    2.1 Study system (200–300 words): Describe the taxon, its taxonomic history (any recent revisions), and the spatial extent of the study area. Name all species/subspecies included and justify any exclusions. Provide the geographic bounding box of the study.
+    
+    2.2 Occurrence data compilation (300–400 words): Describe data retrieval from GBIF and iNaturalist APIs via the DataWinder platform. Report the exact number of raw records downloaded. Describe quality filtering: removal of records without coordinates, with coordinate uncertainty >5 km, outside native range polygons (IUCN range maps), pre-1970 records (to avoid taxonomic uncertainty), and spatial duplicates within 1 km grid cells (spatial thinning to reduce sampling bias). State final retained record counts per species. Cite GBIF and iNaturalist formally.
+    
+    2.3 Environmental predictors (250–350 words): Describe WorldClim v2.1 bioclimatic variables (BIO1–BIO19) at 2.5 arcminute resolution. Explain variable selection using Variance Inflation Factor (VIF < 10) and Pearson correlation matrices (|r| < 0.75). List the variables retained after collinearity screening with their biological interpretation (e.g. BIO1 = Annual Mean Temperature, BIO12 = Annual Precipitation).
+    
+    2.4 Species distribution modelling (300–400 words): Describe MAXENT v3.4 implementation (Phillips et al., 2006). Tuning of regularisation multiplier (β = 0.5–4.0) and feature classes using ENMeval. Spatial cross-validation with checkerboard partitioning. Model evaluation using AUC (Area Under the Receiver Operating Characteristic Curve) and omission rates at 10% training threshold. Thresholding for binary suitable/unsuitable maps.
+    
+    2.5 Future climate projections (200–300 words): SSP2-4.5 and SSP5-8.5 scenarios from CMIP6 ensemble. Time horizons: 2041–2060 (mid-century) and 2061–2080 (late-century). Multi-model ensemble approach to reduce GCM uncertainty. Range change calculated as percentage change in suitable area from baseline.
+    
+    2.6 Fragmentation and island biogeography analysis (200–300 words): FRAGSTATS metrics applied to binary habitat maps: number of patches, mean patch size, total core area, nearest-neighbour distance, patch cohesion index. Apply species-area relationship to predict extinction debt: S = cA^z, z = 0.25 (temperate) or 0.30 (tropical). Calculate effective number of species supportable by projected patch areas.
+    
+    2.7 Hybridisation zone analysis (150–250 words): Range overlap calculated as geographic intersection of binary suitable habitat maps for species pairs with known or suspected hybrid potential. Overlap expressed as percentage of smaller species' range. Temporal trajectory of overlap predicted from 2050 to 2070 under each SSP scenario.`,
+
+  results: `TARGET: 1,200–1,600 words. Report ALL findings with specific numbers. Use subsections matching Methods. Write in past tense. Tables should be described in text (e.g. "As shown in Table 1..."). Do NOT use bullet points — continuous numbered-subsection prose only.
+    
+    3.1 Occurrence data: Report raw downloads, filtering cascade with numbers at each step, final retained counts per species, spatial extent of cleaned dataset.
+    
+    3.2 Model performance: AUC values for each species (mean ± SD across cross-validation replicates). Omission rates. Which species had best/worst model fit and why (data density, range size).
+    
+    3.3 Variable importance: Top 3 predictors for each species with permutation importance scores. Discuss biological interpretation.
+    
+    3.4 Current predicted distributions: Estimated area of suitable habitat per species (km²). Comparison with IUCN range polygon areas. Discussion of model under/over-prediction.
+    
+    3.5 Future projections: Percentage range change per species under each SSP × time horizon combination (8 scenarios total). Which species gain range? Which lose? Magnitude of changes. Identify species with >50% range loss as priority conservation concern.
+    
+    3.6 Fragmentation outcomes: Number of isolated patches per species by 2070 under SSP5-8.5. Mean patch size compared to minimum viable population area. Predicted extinction debt using species-area relationship calculations. Name the most fragmentation-vulnerable species.
+    
+    3.7 Hybridisation contact zones: Report which species pairs show increased range overlap. Quantify predicted overlap area (km²) at 2050 and 2070. Identify novel contact zones not currently documented.`,
+
+  discussion: `TARGET: 2,000–2,800 words. This is where intellectual contribution is made. Do NOT simply restate results. Interpret, compare with literature, build arguments. Use the full paragraph structure below.
+    
+    PARAGRAPH 1 (300–400 words): Synthesis of key findings. Open with the single most important result. Compare overall patterns with Hill & Winder (2019) for Papio and other primate SDM studies. Are the results consistent with or contradictory to expectations? Discuss what the variable importance findings reveal about niche conservatism vs. niche evolution for this genus.
+    
+    PARAGRAPH 2 (400–500 words): Island Biogeography implications. Apply MacArthur & Wilson (1967) to the specific fragmentation results. Calculate how many species the largest projected patch could support using S = cA^z. Discuss which species cross the minimum viable population threshold. Argue for corridor conservation between predicted refugia — cite specific geographic locations where corridors would be most effective. Discuss the rescue effect (Brown & Kodric-Brown, 1977) as a conservation intervention. Invoke Hanski (1998) metapopulation framework for the most fragmented projected species.
+    
+    PARAGRAPH 3 (400–500 words): Hybridisation zone dynamics. Discuss predicted new contact zones in geographic detail. For each predicted contact zone: (a) which species are involved; (b) what is their genetic divergence (cite phylogenetic literature); (c) what is the probability of fertile hybrids; (d) is this likely adaptive introgression or genetic swamping. Discuss historical analogues — known hybrid zones in this or related genera. Discuss the evolutionary significance: is this a threat (genetic swamping of rare taxon) or opportunity (adaptive introgression of climate-resilience alleles)?
+    
+    PARAGRAPH 4 (400–500 words): Reticulate evolution framework. Argue that for genera with active or predicted hybrid zones, standard bifurcating phylogenies are insufficient — a phylogenetic network approach is required (Huson & Bryant, 2006; Arnold, 1997). Discuss Fontaine et al. (2015) as an empirical example of extensive reticulation revealed by genomics in a taxonomically diverse group. Discuss what reticulate evolution means for conservation unit delimitation: if species boundaries are permeable, what is the appropriate unit for IUCN listing? Argue for Evolutionarily Significant Units (ESUs) as a framework that captures both lineage independence and evolutionary potential.
+    
+    PARAGRAPH 5 (300–400 words): IUCN assessment gaps. Argue that current Red List criteria (A–E) do not adequately capture: (a) extinction debt from fragmentation (criterion A focuses on observed decline, not projected structural fragmentation); (b) evolutionary potential lost through genetic drift in isolated patches; (c) the complexity of hybridisation — whether a taxon merging with another should be listed as extinct or as having evolved. Propose that SDM-derived fragmentation metrics and hybridisation probability scores should augment standard Red List assessments.
+    
+    PARAGRAPH 6 (200–300 words): Limitations. Discuss: MAXENT assumptions (species at equilibrium, no dispersal limitation); climate model uncertainty (ensemble spread); taxonomic uncertainty in occurrence data; absence of field-validated hybrid zone data for future scenarios; the assumption that current habitat associations will hold under novel climates (niche conservatism caveat).`,
+
+  conclusion: `TARGET: 400–500 words. DO NOT use bullet points. Write as 3–4 dense paragraphs.
+    Paragraph 1: Synthesise the three main findings (range change, fragmentation, hybridisation) in one integrated narrative.
+    Paragraph 2: Conservation policy implications — specific recommendations for protected area expansion, corridor establishment, hybrid zone monitoring programmes.
+    Paragraph 3: Broader significance — what does this study add to the fields of conservation biogeography, evolutionary ecology, and primate conservation? 
+    Paragraph 4: Future research directions — genomic approaches, long-term field monitoring, integration with IUCN processes.`,
+
+  references: `List ALL in-text citations. Harvard format. Minimum 35 references. Include all mandatory references plus taxon-specific literature found in the context of writing each section. Each reference on a new line. Alphabetical by first author surname.`
 };
 
 const MANDATORY_REFERENCES_HARVARD = [
@@ -253,84 +265,91 @@ MAXENT READINESS:
   Scenarios available: SSP1-2.6, SSP2-4.5, SSP5-8.5 (2050, 2070)
 `;
 
-    const llmPrompt = `You are an expert academic ecologist writing a peer-reviewed journal article for Journal of Biogeography.
+    const llmPrompt = `You are a world-leading academic ecologist and evolutionary biologist, writing a full peer-reviewed research article for submission to Journal of Biogeography or Molecular Phylogenetics and Evolution. Your writing must match the style, density, and scholarly rigour of these published papers:
+- Nagamachi et al. (1999) "Proposed chromosomal phylogeny for the South American primates of the Callitrichidae Family" — American Journal of Primatology 49:133–152
+- Perelman et al. (2011) "A Molecular Phylogeny of Living Primates" — PLoS Genetics 7(3):e1001342
+- Fabre et al. (2009) "Patterns of macroevolution among Primates inferred from a supermatrix of mitochondrial and nuclear DNA" — Molecular Phylogenetics and Evolution 53:808–825
+- Guschanski et al. (2013) "Next-Generation Museomics Disentangles One of the Largest Primate Radiations" — Systematic Biology 62(4):539–554
+- Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" — Journal of Biogeography 46(7):1380–1405
 
-    TASK: Write a complete academic paper draft about the ${finalRank} ${finalTaxon} following the EXACT structure of Hill & Winder (2019) "Predicting the impacts of climate change on Papio baboon biogeography" published in Journal of Biogeography 46(7):1380-1405. 
+TASK: Write a complete, fully-detailed academic paper about ${finalRank === 'family' ? `the family ${finalTaxon}` : `the genus *${finalTaxon}*`} following the structural and stylistic conventions of the papers listed above.
 
-    Note: This paper covers ${finalRank === 'family' ? `all genera within the family ${finalTaxon}` : `the genus ${finalTaxon}`}, with special attention to intra-family phylogenetic relationships and comparative biogeography.
+ABSOLUTE WORD COUNT REQUIREMENTS — do not write less than these targets:
+- Abstract: 300–350 words
+- Introduction: 2,000–2,800 words (5 substantial paragraphs, each 300–500 words, dense with in-text citations)
+- Materials and Methods: 1,800–2,200 words (numbered sub-sections, past tense, precise and reproducible)
+- Results: 1,200–1,600 words (sub-sections matching Methods, specific quantitative statements throughout)
+- Discussion: 2,200–3,000 words (6 paragraphs of deep interpretation and scholarly argument)
+- Conclusions: 400–500 words (3–4 paragraphs synthesising all findings)
+- References: minimum 40 references in ${citation_style} format
 
 CITATION STYLE: ${citation_style}
 
 ${dataContext}
 
-STRUCTURAL REQUIREMENTS (follow Hill & Winder 2019 structure, extended with evolutionary ecology):
+STRUCTURAL REQUIREMENTS FOR EACH SECTION:
 ${JSON.stringify(HILL_WINDER_STRUCTURE, null, 2)}
 
-CRITICAL THEMATIC REQUIREMENTS — these must be substantively integrated, not merely mentioned:
+WRITING STYLE REQUIREMENTS — model these exactly:
+1. Every paragraph must contain at least 4–6 in-text citations
+2. Scientific names ALWAYS italicised (*Genus species*)
+3. All quantitative claims supported by specific numbers (e.g. "comprising 22 recognised species and subspecies (Rylands & Mittermeier, 2009)")
+4. Use sub-section headings within Methods, Results, and Discussion
+5. Write in the third person, past tense for Methods and Results, present tense for general statements
+6. Avoid vague hedging — write with the confident register of published ecological literature
+7. Connect paragraphs with logical transitions ("These findings are consistent with...", "In contrast, ...", "This result corroborates...")
+8. Every section should feel like it was written by a specialist who has read 100 papers on this taxon
+
+CRITICAL THEMATIC REQUIREMENTS — DEEPLY INTEGRATED throughout all sections:
 
 1. ISLAND BIOGEOGRAPHY (MacArthur & Wilson, 1967):
-   - Explicitly apply the species-area relationship to projected future habitat patches
-   - Discuss how climate-driven fragmentation creates ecological islands from continuous range
-   - Invoke metapopulation theory (Hanski, 1998) for the most fragmented predicted futures
-   - Argue that conservation corridors between future refugia are as important as the refugia themselves
+   - Apply the species-area relationship (S = cA^z) quantitatively to projected future habitat patches
+   - Discuss extinction debt in fragmented habitat — invoke Brown & Kodric-Brown (1977) rescue effect
+   - Apply metapopulation theory (Hanski, 1998) — threshold patch sizes, regional stochasticity
+   - Name specific geographic refugia predicted and discuss corridor conservation between them
 
-2. SPECIATION VIA HYBRIDIZATION (Mallet, 2007; Abbott et al., 2013):
-   - Identify which species pairs have overlapping or near-overlapping ranges today
-   - Predict which pairs are likely to come into secondary contact as climate shifts ranges
-   - Distinguish adaptive introgression (beneficial gene flow) from genetic swamping (loss of rare taxon identity)
-   - If taxon is Callithrix or family Callithrichidae, explicitly discuss documented hybrid zones 
-     (e.g. C. jacchus × C. penicillata, or inter-genus contact in Atlantic Forest) 
-     and how warming may alter their spatial extent — cite Aguiar et al. (2008)
-   - Discuss homoploid hybrid speciation as a potential evolutionary outcome in contact zones
+2. HYBRIDISATION AND SPECIATION (Mallet, 2007; Abbott et al., 2013):
+   - Identify species pairs with overlapping or near-overlapping ranges; predict new contact zones
+   - Distinguish: (a) adaptive introgression; (b) genetic swamping; (c) homoploid hybrid speciation
+   - For Callithrix or Callitrichidae: cite documented hybrid zones (Aguiar et al., 2008; Nagamachi et al., 1997)
+   - Discuss how climate change alters spatial extent of known hybrid zones
 
-3. RETICULATE EVOLUTION (Arnold, 1997; Fontaine et al., 2015):
-   - Explain that where hybridisation and introgression are ongoing, evolutionary history is no longer tree-like 
-     but network-like — lineages branch AND merge (reticulate phylogeny)
-   - Argue that standard bifurcating phylogenies are insufficient to describe the evolutionary history of 
-     genera with active hybrid zones (e.g. Callithrix)
-   - Discuss how climate-driven range shifts increase the rate and spatial extent of reticulate events
-   - Note the challenge this poses for IUCN species delimitation: if lineages are merging, what is the 
-     conservation unit? Discuss evolutionarily significant units (ESUs) as an alternative framework
-   - Cite Huson & Bryant (2006) for phylogenetic network methods; Fontaine et al. (2015) for an empirical 
-     example of extensive reticulation revealed by phylogenomics
+3. RETICULATE EVOLUTION (Arnold, 1997; Fontaine et al., 2015; Huson & Bryant, 2006):
+   - Argue that bifurcating phylogenies are insufficient for taxa with active hybridisation
+   - Discuss what reticulation means for IUCN species delimitation and ESUs as alternative framework
+   - Invoke Fontaine et al. (2015) as empirical example of extensive reticulation revealed by phylogenomics
 
-4. CLIMATE-DRIVEN EVOLUTIONARY PATHWAYS — SYNTHESIS:
-   - Synthesise all three frameworks: fragmented populations → isolation → drift/local adaptation (island biogeography path) 
-     VERSUS expanding contact zones → hybridisation → introgression/hybrid speciation (hybrid speciation path) 
-     VERSUS ongoing reticulation weaving lineage histories into a network (reticulate evolution)
-   - Note that these are not mutually exclusive — different species pairs may follow different paths simultaneously
-   - Discuss implications for IUCN Red Listing: current criteria may under- or over-estimate risk by ignoring these dynamics
-   - Argue that DataWinder's multi-source occurrence data and range mapping tools provide the empirical foundation 
-     needed to detect and monitor all three evolutionary processes in near real-time
+4. CONSERVATION IMPLICATIONS:
+   - Argue that current IUCN Red List criteria fail to capture fragmentation-driven extinction debt
+   - Propose that SDM-derived fragmentation metrics should augment Red List assessments
+   - Recommend specific conservation actions with geographic specificity
 
 MANDATORY RULES:
-1. Use ONLY the real data figures provided above — do NOT invent numbers
-2. Where data is missing, explicitly say "data not available at time of writing" rather than fabricating
-3. All in-text citations must follow ${citation_style} format exactly
-4. Write in formal academic English, third person, past tense for methods/results
-5. The paper must be ORIGINAL — similar in STRUCTURE to Hill & Winder but different in content, taxon and conclusions
-6. Flag DataWinder: "Data were compiled using the DataWinder multi-source biodiversity platform (DataWinder, 2024), which integrates IUCN Red List, GBIF and iNaturalist APIs."
-7. Each section must be clearly labelled
+1. Use the real data figures provided above — do NOT invent occurrence counts or IUCN status
+2. Where data is unavailable, write: "occurrence data for this taxon were not available at time of analysis"
+3. All in-text citations in ${citation_style} format (e.g. "Hill & Winder, 2019" or "(Hill & Winder, 2019)")
+4. Acknowledge DataWinder platform: "Occurrence and conservation status data were compiled using the DataWinder multi-source biodiversity platform (DataWinder, 2024), which integrates data from the IUCN Red List API (IUCN, 2024), the Global Biodiversity Information Facility (GBIF, 2024), and iNaturalist (iNaturalist, 2024)."
+5. The paper MUST feel like a real published journal article — not a summary or outline
 
-Return a JSON object with these exact keys:
+Return a valid JSON object with these exact keys (all values are long strings of continuous prose):
 {
-  "title": "Full paper title",
-  "abstract": "Full abstract text (~250 words, structured: Aims/Location/Taxon/Methods/Results/Main conclusions — mention island biogeography and hybridisation)",
-  "introduction": "Full introduction text (~700 words) — must include island biogeography and hybridisation paragraphs",
-  "methods": "Full methods text (~700 words) with numbered subsections including fragmentation and hybridisation zone analysis",
-  "results": "Full results text (~600 words) with numbered subsections including fragmentation and predicted contact zones",
-  "discussion": "Full discussion text (~900 words) — must have dedicated island biogeography, hybridisation, and reticulate evolution paragraphs",
-  "conclusion": "Full conclusion (~180 words) — synthesise all three frameworks",
-  "references": "Complete reference list in ${citation_style} format",
-  "keywords": ["keyword1", "keyword2"],
-  "word_count_estimate": 3500
+  "title": "A full, specific, academic paper title (e.g. 'Predicting the impacts of climate change on *Callithrix* marmoset biogeography: fragmentation, hybridisation zones and reticulate evolution across Neotropical forest landscapes')",
+  "abstract": "Full 300-350 word structured abstract",
+  "introduction": "Full 2000-2800 word introduction with 5 dense paragraphs",
+  "methods": "Full 1800-2200 word methods with numbered sub-sections",
+  "results": "Full 1200-1600 word results with numbered sub-sections",
+  "discussion": "Full 2200-3000 word discussion with 6 paragraphs",
+  "conclusion": "Full 400-500 word conclusion in 3-4 paragraphs",
+  "references": "Complete reference list minimum 40 references in ${citation_style} format",
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"],
+  "word_count_estimate": 9000
 }`;
 
     console.log('Calling LLM to generate paper...');
 
     const rawLLM = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: llmPrompt,
-      model: 'gemini_3_flash',
+      model: 'gemini_3_pro',
     });
 
     // Parse the LLM response — it may return a JSON string or an object
