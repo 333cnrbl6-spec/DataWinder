@@ -76,20 +76,24 @@ Deno.serve(async (req) => {
             const occurrenceData = await occurrenceRes.json();
             occurrenceCount = occurrenceData.count || 0;
 
-            occurrences = occurrenceData.results.map(occ => ({
-              latitude: occ.decimalLatitude,
-              longitude: occ.decimalLongitude,
-              location: occ.locality || occ.stateProvince || occ.country || '',
-              date: occ.eventDate || occ.year ? `${occ.year}` : '',
-              basis_of_record: occ.basisOfRecord,
-              institution: occ.institutionCode || occ.publisher || '',
-              catalog_number: occ.catalogNumber || ''
-            }));
+            if (occurrenceData.results && Array.isArray(occurrenceData.results)) {
+              occurrences = occurrenceData.results
+                .filter(occ => occ.decimalLatitude && occ.decimalLongitude)
+                .map(occ => ({
+                  latitude: occ.decimalLatitude || 0,
+                  longitude: occ.decimalLongitude || 0,
+                  location: occ.locality || occ.stateProvince || occ.country || '',
+                  date: occ.eventDate || (occ.year ? `${occ.year}` : ''),
+                  basis_of_record: occ.basisOfRecord || 'UNKNOWN',
+                  institution: occ.institutionCode || occ.publisher || '',
+                  catalog_number: occ.catalogNumber || ''
+                }));
 
-            occurrenceData.results.forEach(occ => {
-              const basis = occ.basisOfRecord || 'UNKNOWN';
-              basisOfRecord[basis] = (basisOfRecord[basis] || 0) + 1;
-            });
+              occurrenceData.results.forEach(occ => {
+                const basis = occ.basisOfRecord || 'UNKNOWN';
+                basisOfRecord[basis] = (basisOfRecord[basis] || 0) + 1;
+              });
+            }
           }
 
           return {
@@ -151,20 +155,22 @@ Deno.serve(async (req) => {
 
     const occurrenceData = await occurrenceRes.json();
 
-    // Process occurrences
-    const occurrences = occurrenceData.results.map(occ => ({
-      latitude: occ.decimalLatitude,
-      longitude: occ.decimalLongitude,
-      location: occ.locality || occ.stateProvince || occ.country || '',
-      date: occ.eventDate || occ.year ? `${occ.year}` : '',
-      basis_of_record: occ.basisOfRecord,
-      institution: occ.institutionCode || occ.publisher || '',
-      catalog_number: occ.catalogNumber || ''
-    }));
+    // Process occurrences with validation
+    const occurrences = (occurrenceData.results || [])
+      .filter(occ => occ.decimalLatitude && occ.decimalLongitude)
+      .map(occ => ({
+        latitude: occ.decimalLatitude || 0,
+        longitude: occ.decimalLongitude || 0,
+        location: occ.locality || occ.stateProvince || occ.country || '',
+        date: occ.eventDate || (occ.year ? `${occ.year}` : ''),
+        basis_of_record: occ.basisOfRecord || 'UNKNOWN',
+        institution: occ.institutionCode || occ.publisher || '',
+        catalog_number: occ.catalogNumber || ''
+      }));
 
     // Count basis of record types
     const basisOfRecord = {};
-    occurrenceData.results.forEach(occ => {
+    (occurrenceData.results || []).forEach(occ => {
       const basis = occ.basisOfRecord || 'UNKNOWN';
       basisOfRecord[basis] = (basisOfRecord[basis] || 0) + 1;
     });

@@ -134,6 +134,12 @@ Deno.serve(async (req) => {
 
         const data = await iucnResponse.json();
         
+        // Validate response has expected structure
+        if (!data) {
+          console.warn(`[IUCN v4] Empty response for ${endpoint}/${term}`);
+          return Response.json({ status: 'error', message: 'IUCN API returned empty response', statusCode: 502 }, { status: 502 });
+        }
+        
         // Cache successful response
         responseCache.set(cacheKey, { data, timestamp: Date.now() });
         
