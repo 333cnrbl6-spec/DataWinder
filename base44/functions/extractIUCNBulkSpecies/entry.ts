@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { file_uri, target_species, genus_filter } = body;
+    const { file_uri, target_species, genus_filter, iucn_version } = body;
 
     if (!file_uri) return Response.json({ error: 'Missing file_uri' }, { status: 400 });
 
@@ -299,6 +299,22 @@ Deno.serve(async (req) => {
       });
 
       console.log(`Processed ${attrs.scientific_name}: ${features.length} polygon(s), action=${existingSpecies ? 'updated' : 'created'}`);
+    }
+
+    // Stamp imported_version on the IUCNVersionRecord if provided
+    if (iucn_version) {
+      try {
+        const versionRecords = await base44.asServiceRole.entities.IUCNVersionRecord.list();
+        const vr = versionRecords?.[0];
+        if (vr) {
+          await base44.asServiceRole.entities.IUCNVersionRecord.update(vr.id, {
+            imported_version: iucn_version,
+            update_available: false
+          });
+        }
+      } catch (e) {
+        console.warn('Could not stamp imported_version:', e.message);
+      }
     }
 
     return Response.json({

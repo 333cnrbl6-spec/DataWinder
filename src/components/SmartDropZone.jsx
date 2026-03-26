@@ -122,7 +122,24 @@ export default function SmartDropZone({ onImported, targetSpecies = null }) {
 
             try {
               const saved = await base44.integrations.Core.UploadPrivateFile({ file });
-              setFileUri(saved.file_uri);
+              const file_uri = saved.file_uri;
+              setFileUri(file_uri);
+
+              // Add to shared library so all users can reuse
+              try {
+                const user = await base44.auth.me();
+                await base44.entities.IUCNBulkLibrary.create({
+                  label: file.name.replace(/\.zip$/i, ''),
+                  taxon_group: /marine|fish|shark|ray/i.test(file.name) ? 'Marine' : 'Terrestrial Mammals',
+                  file_uri,
+                  file_size_mb: Math.round(file.size / 1024 / 1024 * 10) / 10,
+                  uploaded_by_email: user?.email || '',
+                  uploaded_by_name: user?.full_name || '',
+                });
+              } catch (libErr) {
+                console.warn('Could not add to shared library:', libErr.message);
+              }
+
               setStep('bulk_mammals');
             } catch (e) {
               setErrorMsg(`Failed to save file to backend: ${e.message}`);

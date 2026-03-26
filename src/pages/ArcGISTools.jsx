@@ -20,6 +20,7 @@ import IUCNRangeFetcher from '@/components/IUCNRangeFetcher';
 import IUCNManualDownloadChecklist from '@/components/IUCNManualDownloadChecklist';
 import IUCNSplitView from '@/components/IUCNSplitView';
 import IUCNVersionBanner from '@/components/IUCNVersionBanner';
+import IUCNBulkExtractPanel from '@/components/IUCNBulkExtractPanel';
 import { useSpecies } from '@/lib/SpeciesContext';
 import { useAnalysisState } from '@/hooks/useAnalysisState';
 
@@ -135,6 +136,28 @@ export default function ArcGISTools() {
             />
           </div>
         )}
+
+        {/* IUCN Bulk Data Source Selector */}
+        <div className="mb-6">
+          <Card className="shadow-lg border-indigo-200">
+            <CardHeader className="border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+              <CardTitle className="text-indigo-700 flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                IUCN Spatial Data — Extract Range Polygons
+              </CardTitle>
+              <CardDescription>
+                Choose your data source: use existing app data, pick a shared bulk file, or upload your own. 
+                All bulk uploads are stored securely and shared with other users.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <IUCNBulkExtractPanel
+                targetSpecies={enrichedSpecies.map(sp => sp.scientific_name)}
+                onDone={() => { refetchRangeData(); refetchAssessments(); }}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
         {/* ArcGIS Map Viewer */}
         <div className="mb-6">

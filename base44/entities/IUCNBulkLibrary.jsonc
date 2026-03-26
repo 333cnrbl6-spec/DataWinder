@@ -1,0 +1,46 @@
+{
+  "name": "IUCNBulkLibrary",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Human-readable name, e.g. 'Terrestrial Mammals 2025-2' or 'Marine Fish 2024-1'"
+    },
+    "taxon_group": {
+      "type": "string",
+      "description": "Taxonomic group this file covers, e.g. 'Terrestrial Mammals', 'Marine Fish', 'Reptiles'"
+    },
+    "iucn_version": {
+      "type": "string",
+      "description": "IUCN Red List version this file represents, e.g. '2025-2'"
+    },
+    "file_uri": {
+      "type": "string",
+      "description": "Private storage URI of the uploaded bulk ZIP"
+    },
+    "file_size_mb": {
+      "type": "number",
+      "description": "Approximate file size in MB"
+    },
+    "uploaded_by_email": {
+      "type": "string",
+      "description": "Email of the user who uploaded this file"
+    },
+    "uploaded_by_name": {
+      "type": "string",
+      "description": "Display name of the uploader"
+    },
+    "species_count_hint": {
+      "type": "number",
+      "description": "Approximate number of species in this file (optional)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about this bulk file"
+    }
+  },
+  "required": [
+    "label",
+    "file_uri"
+  ]
+}
