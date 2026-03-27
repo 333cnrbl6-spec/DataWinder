@@ -86,10 +86,10 @@ export default function AcademicPaperLab() {
   });
 
   // Load saved drafts
-  const { data: drafts = [], refetch: refetchDrafts } = useQuery({
+  const { data: drafts = [], refetch: refetchDrafts, isLoading: draftsLoading } = useQuery({
     queryKey: ['paper_drafts'],
-    queryFn: () => base44.entities.PaperDraft.list('-created_date', 20),
-    enabled: user?.role === 'admin',
+    queryFn: () => base44.entities.PaperDraft.list('-created_date', 50),
+    enabled: !authLoading,
   });
 
   const generate = async () => {
@@ -583,21 +583,26 @@ export default function AcademicPaperLab() {
           <div className="space-y-4">
 
             {/* Draft History */}
-            {drafts.length > 0 && (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <History className="w-4 h-4 text-slate-500" />
-                    <h3 className="text-sm font-bold text-slate-700">Saved Drafts</h3>
-                    <Badge variant="outline" className="text-xs ml-auto">{drafts.length}</Badge>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <History className="w-4 h-4 text-slate-500" />
+                  <h3 className="text-sm font-bold text-slate-700">Saved Drafts</h3>
+                  <Badge variant="outline" className="text-xs ml-auto">{drafts.length}</Badge>
+                </div>
+                {draftsLoading ? (
+                  <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading drafts…
                   </div>
+                ) : drafts.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-2">No drafts yet — generate one above.</p>
+                ) : (
                   <div>
                     {drafts.map(d => (
                       <DraftHistoryItem
                         key={d.id}
                         draft={d}
                         onLoad={(draft) => {
-                          // Validate draft before loading
                           if (!draft.sections || !draft.title) {
                             toast.error('Draft is incomplete');
                             return;
@@ -615,9 +620,9 @@ export default function AcademicPaperLab() {
                       />
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </CardContent>
+            </Card>
 
             {/* Similarity meter */}
             {activeDraft?.similarity_scores && (
