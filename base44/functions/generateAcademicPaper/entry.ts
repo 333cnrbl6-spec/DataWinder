@@ -130,21 +130,47 @@ async function fetchLiveData(taxon, iucnToken, rank = 'genus') {
     }
   } catch (e) { console.error('IUCN fetch error:', e.message); }
 
-  // FALLBACK: if IUCN data is unavailable, use synthetic data
+  // FALLBACK: if IUCN data is unavailable, use genus-appropriate synthetic data
   if (!data.iucn || data.iucn.count === 0) {
     console.log(`IUCN data unavailable for ${taxon} — using synthetic fallback`);
-    data.iucn = {
-      species: [
+    const fallbackSpecies = {
+      Papio: [
+        { name: 'Papio ursinus', status: 'LC', trend: 'stable', iucn_id: null },
+        { name: 'Papio anubis', status: 'LC', trend: 'stable', iucn_id: null },
+        { name: 'Papio hamadryas', status: 'LC', trend: 'decreasing', iucn_id: null },
+        { name: 'Papio kindae', status: 'LC', trend: 'unknown', iucn_id: null },
+        { name: 'Papio cynocephalus', status: 'LC', trend: 'decreasing', iucn_id: null },
+        { name: 'Papio papio', status: 'NT', trend: 'decreasing', iucn_id: null },
+      ],
+      Gorilla: [
+        { name: 'Gorilla gorilla', status: 'CR', trend: 'decreasing', iucn_id: null },
+        { name: 'Gorilla beringei', status: 'EN', trend: 'increasing', iucn_id: null },
+      ],
+      Pan: [
+        { name: 'Pan troglodytes', status: 'EN', trend: 'decreasing', iucn_id: null },
+        { name: 'Pan paniscus', status: 'EN', trend: 'decreasing', iucn_id: null },
+      ],
+      Pongo: [
+        { name: 'Pongo pygmaeus', status: 'CR', trend: 'decreasing', iucn_id: null },
+        { name: 'Pongo abelii', status: 'CR', trend: 'decreasing', iucn_id: null },
+        { name: 'Pongo tapanuliensis', status: 'CR', trend: 'decreasing', iucn_id: null },
+      ],
+      Macaca: [
+        { name: 'Macaca mulatta', status: 'LC', trend: 'stable', iucn_id: null },
+        { name: 'Macaca fascicularis', status: 'VU', trend: 'decreasing', iucn_id: null },
+        { name: 'Macaca sylvanus', status: 'EN', trend: 'decreasing', iucn_id: null },
+      ],
+      Callithrix: [
         { name: 'Callithrix jacchus', status: 'LC', trend: 'stable', iucn_id: null },
         { name: 'Callithrix penicillata', status: 'LC', trend: 'stable', iucn_id: null },
         { name: 'Callithrix aurita', status: 'EN', trend: 'decreasing', iucn_id: null },
-        { name: 'Saguinus imperator', status: 'LC', trend: 'unknown', iucn_id: null },
-        { name: 'Leontopithecus rosalia', status: 'EN', trend: 'increasing', iucn_id: null }
       ],
-      count: 5,
-      rank_label: 'Family',
-      source: 'synthetic_fallback'
     };
+    const species = fallbackSpecies[taxon] || [
+      { name: `${taxon} sp. 1`, status: 'DD', trend: 'unknown', iucn_id: null },
+      { name: `${taxon} sp. 2`, status: 'DD', trend: 'unknown', iucn_id: null },
+    ];
+    data.iucn = { species, count: species.length, rank_label: rank === 'family' ? 'Family' : 'Genus', source: 'synthetic_fallback' };
   }
 
   // iNaturalist — search for family or genus
@@ -222,9 +248,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin only' }, { status: 403 });
     }
 
-    const { taxon = 'Callithrix', taxon_rank = 'genus', citation_style = 'Harvard', save_draft = true } = await req.json();
-    // Support both old 'genus' param and new 'taxon' param for backward compatibility
-    const finalTaxon = taxon || req.json.genus || 'Callithrix';
+    const body = await req.json();
+    const { taxon = 'Callithrix', taxon_rank = 'genus', citation_style = 'Harvard', save_draft = true } = body;
+    const finalTaxon = taxon || 'Callithrix';
     const finalRank = taxon_rank || 'genus';
 
     console.log(`=== PAPER GENERATION START: ${finalTaxon} (${finalRank}) [${citation_style}] ===`);
@@ -311,7 +337,7 @@ CRITICAL THEMATIC REQUIREMENTS — DEEPLY INTEGRATED throughout all sections:
 2. HYBRIDISATION AND SPECIATION (Mallet, 2007; Abbott et al., 2013):
    - Identify species pairs with overlapping or near-overlapping ranges; predict new contact zones
    - Distinguish: (a) adaptive introgression; (b) genetic swamping; (c) homoploid hybrid speciation
-   - For Callithrix or Callitrichidae: cite documented hybrid zones (Aguiar et al., 2008; Nagamachi et al., 1997)
+   - Identify documented or predicted hybrid zones for ${finalTaxon}; cite relevant taxon-specific hybridisation literature
    - Discuss how climate change alters spatial extent of known hybrid zones
 
 3. RETICULATE EVOLUTION (Arnold, 1997; Fontaine et al., 2015; Huson & Bryant, 2006):
