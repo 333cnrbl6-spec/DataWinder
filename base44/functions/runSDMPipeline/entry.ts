@@ -255,13 +255,22 @@ Deno.serve(async (req) => {
     const cleanedPoints = removeOutliers(rawPoints, outlier_handling);
     const afterOutlierCount = cleanedPoints.length;
 
-    // ── STAGE 3: Spatial thinning ─────────────────────────────────────────
-    await updateRun({ status: 'thinning', progress_pct: 30, progress_message: `Spatial thinning at ${thinning_km}km minimum distance…` });
-    const thinnedPoints = thinning_km > 0 ? spatialThin(cleanedPoints, thinning_km) : cleanedPoints;
+    // ── STAGE 3: Spatial thinning (adaptive) ─────────────────────────────
+    let effectiveThinning = thinning_km;
+    let thinnedPoints = cleanedPoints;
+    if (thinning_km > 0) {
+      thinnedPoints = spatialThin(cleanedPoints, effectiveThinning);
+      // Adaptively halve thinning distance until we have ≥5 points (min 0.5km)
+      while (thinnedPoints.length < 5 && effectiveThinning > 0.5) {
+        effectiveThinning = parseFloat((effectiveThinning / 2).toFixed(2));
+        thinnedPoints = spatialThin(cleanedPoints, effectiveThinning);
+      }
+    }
     const afterThinCount = thinnedPoints.length;
+    const thinningNote = effectiveThinning !== thinning_km ? ` (auto-reduced from ${thinning_km}km to ${effectiveThinning}km)` : '';
 
     if (afterThinCount < 5) {
-      await updateRun({ status: 'failed', error_message: `Only ${afterThinCount} occurrence points remain after cleaning. Need ≥5. Try reducing thinning distance or adding more species.` });
+      await updateRun({ status: 'failed', error_message: `Only ${afterThinCount} occurrence points remain after cleaning. Need ≥5. Try adding more species or data sources.` });
       return Response.json({ error: 'Too few points after thinning' }, { status: 400 });
     }
 
