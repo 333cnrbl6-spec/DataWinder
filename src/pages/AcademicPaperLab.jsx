@@ -16,7 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   FlaskConical, Loader2, Download, BookOpen, Trash2,
   FileText, History, AlertTriangle, Lock, Printer,
-  Share2, ShieldCheck, Hash, CheckCircle2, BarChart2, Eye, BookMarked
+  Share2, ShieldCheck, Hash, CheckCircle2, BarChart2, Eye, BookMarked,
+  GitCompare, ArrowLeftRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
@@ -25,6 +26,7 @@ import PaperFigures from '@/components/paperlab/PaperFigures';
 import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
 import EvolutionaryContextPanel from '@/components/paperlab/EvolutionaryContextPanel';
 import VisualReportViewer from '@/components/paperlab/VisualReportViewer';
+import ComparativeMetricsPanel from '@/components/paperlab/ComparativeMetricsPanel';
 
 const TAXA = [
   { name: 'Callithrix', rank: 'genus' },
@@ -77,7 +79,11 @@ export default function AcademicPaperLab() {
   const [shareLink, setShareLink] = useState(null);
   const [registering, setRegistering] = useState(false);
   const [authorshipRecord, setAuthorshipRecord] = useState(null);
-  const [reportMode, setReportMode] = useState('text'); // 'text' or 'visual'
+  const [reportMode, setReportMode] = useState('text'); // 'text' | 'visual' | 'comparative'
+  // Compare mode
+  const [compareMode, setCompareMode] = useState(false);
+  const [taxonB, setTaxonB] = useState('Papio');
+  const [taxonRankB, setTaxonRankB] = useState('genus');
 
   // Auth check
   const { data: user, isLoading: authLoading } = useQuery({
@@ -96,20 +102,29 @@ export default function AcademicPaperLab() {
     setGenerating(true);
     setActiveDraft(null);
     try {
-      const res = await base44.functions.invoke('generateAcademicPaper', {
-        taxon,
-        taxon_rank: taxonRank,
-        citation_style: citationStyle,
-        save_draft: true,
-      });
-      const data = res.data;
-
-      // Validate critical fields exist
-      if (!data.sections || !data.title) {
-        throw new Error('Backend returned incomplete paper data');
+      let data;
+      if (compareMode) {
+        const res = await base44.functions.invoke('generateComparativePaper', {
+          taxon_a: taxon,
+          rank_a: taxonRank,
+          taxon_b: taxonB,
+          rank_b: taxonRankB,
+          citation_style: citationStyle,
+          save_draft: true,
+        });
+        data = res.data;
+      } else {
+        const res = await base44.functions.invoke('generateAcademicPaper', {
+          taxon,
+          taxon_rank: taxonRank,
+          citation_style: citationStyle,
+          save_draft: true,
+        });
+        data = res.data;
       }
 
-      // Ensure sections are properly formed with non-empty content
+      if (!data.sections || !data.title) throw new Error('Backend returned incomplete paper data');
+
       const validSections = {
         abstract: data.sections.abstract || '',
         introduction: data.sections.introduction || '',
@@ -119,20 +134,11 @@ export default function AcademicPaperLab() {
         conclusion: data.sections.conclusion || '',
         references: data.sections.references || ''
       };
-
-      // Ensure figures_data is always an array
       const figuresData = Array.isArray(data.figures_data) ? data.figures_data : [];
-
-      console.log('Generated paper:', {
-        title: data.title,
-        sections_keys: Object.keys(validSections),
-        figures_count: figuresData.length,
-        word_count: data.word_count
-      });
 
       setActiveDraft({
         title: data.title,
-        genus: data.taxon || taxon,
+        genus: compareMode ? `${taxon} vs ${taxonB}` : (data.taxon || taxon),
         taxon: data.taxon || taxon,
         taxon_rank: data.taxon_rank || taxonRank,
         citation_style: citationStyle,
@@ -141,10 +147,20 @@ export default function AcademicPaperLab() {
         similarity_scores: data.similarity_scores || {},
         keywords: data.keywords || [],
         word_count: data.word_count || 0,
-        id: data.draft_id
+        id: data.draft_id,
+        // Comparative-specific fields
+        is_comparative: compareMode,
+        taxon_a: compareMode ? taxon : undefined,
+        taxon_b: compareMode ? taxonB : undefined,
+        comparative_metrics: data.comparative_metrics || null,
+        raw_data: data.raw_data || null,
       });
+
+      // Auto-switch to comparative report mode
+      if (compareMode) setReportMode('comparative');
+
       refetchDrafts();
-      toast.success(`Draft generated — ${data.word_count?.toLocaleString()} words`);
+      toast.success(`${compareMode ? 'Comparative draft' : 'Draft'} generated — ${data.word_count?.toLocaleString()} words`);
     } catch (e) {
       console.error('Generation error:', e);
       toast.error('Generation failed: ' + e.message);
@@ -423,54 +439,100 @@ export default function AcademicPaperLab() {
           </div>
 
           {/* Controls */}
-          <div className="mt-5 flex flex-wrap gap-3 items-end">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-600">Taxon</label>
-              <Select 
-                value={`${taxon}|${taxonRank}`} 
-                onValueChange={(val) => {
-                  const [t, r] = val.split('|');
-                  setTaxon(t);
-                  setTaxonRank(r);
-                }}
+          <div className="mt-5 space-y-3">
+            {/* Mode toggle */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCompareMode(false)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${!compareMode ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
               >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TAXA.map(t => (
-                    <SelectItem key={`${t.name}|${t.rank}`} value={`${t.name}|${t.rank}`}>
-                      {t.name} <span className="text-xs text-slate-400 ml-2">({t.rank})</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <BookOpen className="w-3.5 h-3.5" /> Single Taxon
+              </button>
+              <button
+                onClick={() => setCompareMode(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${compareMode ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5" /> Compare Mode
+              </button>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-600">Citation Style</label>
-              <Select value={citationStyle} onValueChange={setCitationStyle}>
-                <SelectTrigger className="w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CITATION_STYLES.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="flex flex-wrap gap-3 items-end">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-600">{compareMode ? 'Taxon A' : 'Taxon'}</label>
+                <Select 
+                  value={`${taxon}|${taxonRank}`} 
+                  onValueChange={(val) => { const [t, r] = val.split('|'); setTaxon(t); setTaxonRank(r); }}
+                >
+                  <SelectTrigger className="w-44">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TAXA.map(t => (
+                      <SelectItem key={`${t.name}|${t.rank}`} value={`${t.name}|${t.rank}`}>
+                        {t.name} <span className="text-xs text-slate-400 ml-2">({t.rank})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {compareMode && (
+                <>
+                  <div className="flex items-center pb-1">
+                    <ArrowLeftRight className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-red-600">Taxon B</label>
+                    <Select
+                      value={`${taxonB}|${taxonRankB}`}
+                      onValueChange={(val) => { const [t, r] = val.split('|'); setTaxonB(t); setTaxonRankB(r); }}
+                    >
+                      <SelectTrigger className="w-44 border-red-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TAXA.map(t => (
+                          <SelectItem key={`${t.name}|${t.rank}`} value={`${t.name}|${t.rank}`}>
+                            {t.name} <span className="text-xs text-slate-400 ml-2">({t.rank})</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-600">Citation Style</label>
+                <Select value={citationStyle} onValueChange={setCitationStyle}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CITATION_STYLES.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                onClick={generate}
+                disabled={generating || (compareMode && taxon === taxonB)}
+                className={compareMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-bangor-red hover:bg-bangor-red/90 text-white'}
+              >
+                {generating
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating…</>
+                  : compareMode
+                    ? <><GitCompare className="w-4 h-4 mr-2" />Compare {taxon} vs {taxonB}</>
+                    : <><BookOpen className="w-4 h-4 mr-2" />Generate Paper</>
+                }
+              </Button>
             </div>
-            <Button
-              onClick={generate}
-              disabled={generating}
-              className="bg-bangor-red hover:bg-bangor-red/90 text-white"
-            >
-              {generating
-                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating…</>
-                : <><BookOpen className="w-4 h-4 mr-2" />Generate Paper</>
-              }
-            </Button>
-            {activeDraft && (
-              <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          </div>
+
+          {activeDraft && (
+            <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Paper actions */}
                 <div className="flex flex-col gap-2 p-3 bg-amber-50 rounded-xl border-2 border-amber-300">
                   <p className="text-xs font-bold text-amber-700 uppercase tracking-wide mb-1">📄 Paper</p>
@@ -525,7 +587,6 @@ export default function AcademicPaperLab() {
                 </div>
               </div>
             )}
-          </div>
 
           {generating && (
             <div className="mt-4 bg-bangor-red/5 border border-bangor-red/20 rounded-xl p-4 text-sm text-bangor-red flex items-center gap-3">
@@ -671,36 +732,47 @@ export default function AcademicPaperLab() {
              {activeDraft && (
                <>
                  {/* Mode toggle */}
-                 <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 sticky top-6">
-                   <button
-                     onClick={() => setReportMode('text')}
-                     className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
-                       reportMode === 'text'
-                         ? 'bg-slate-900 text-white'
-                         : 'text-slate-600 hover:bg-slate-100'
-                     }`}
-                   >
-                     <BookMarked className="w-4 h-4" />
-                     Text Report
-                   </button>
-                   <button
-                     onClick={() => setReportMode('visual')}
-                     className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold transition-all ${
-                       reportMode === 'visual'
-                         ? 'bg-blue-600 text-white'
-                         : 'text-slate-600 hover:bg-slate-100'
-                     }`}
-                   >
-                     <Eye className="w-4 h-4" />
-                     Visual Report
-                   </button>
+                 <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 sticky top-6 flex-wrap">
+                  <button
+                    onClick={() => setReportMode('text')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition-all ${
+                      reportMode === 'text' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <BookMarked className="w-4 h-4" /> Text Report
+                  </button>
+                  <button
+                    onClick={() => setReportMode('visual')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition-all ${
+                      reportMode === 'visual' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Eye className="w-4 h-4" /> Visual Report
+                  </button>
+                  {activeDraft?.is_comparative && (
+                    <button
+                      onClick={() => setReportMode('comparative')}
+                      className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition-all ${
+                        reportMode === 'comparative' ? 'bg-green-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <GitCompare className="w-4 h-4" /> Comparative
+                    </button>
+                  )}
                  </div>
 
                  {/* Content */}
-                 {reportMode === 'text' ? (
-                   <PaperViewer draft={activeDraft} />
-                 ) : (
-                   <VisualReportViewer draft={activeDraft} />
+                 {reportMode === 'text' && <PaperViewer draft={activeDraft} />}
+                 {reportMode === 'visual' && <VisualReportViewer draft={activeDraft} />}
+                 {reportMode === 'comparative' && activeDraft?.is_comparative && (
+                  <div className="space-y-4">
+                    <ComparativeMetricsPanel
+                      metrics={activeDraft.comparative_metrics}
+                      figures={activeDraft.figures_data}
+                      rawData={activeDraft.raw_data}
+                    />
+                    <PaperViewer draft={activeDraft} />
+                  </div>
                  )}
                </>
              )}
