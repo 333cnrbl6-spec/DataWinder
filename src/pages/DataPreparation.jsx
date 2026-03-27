@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PackageOpen, Loader2, RefreshCw, X, ShieldAlert, GitMerge } from 'lucide-react';
+import { PackageOpen, Loader2, RefreshCw, X, ShieldAlert, GitMerge, Map } from 'lucide-react';
 import TaxonomicSelector from '@/components/dataprep/TaxonomicSelector';
 import { detectOutliers } from '@/components/outlierDetection';
 import DataTypeSelector from '@/components/dataprep/DataTypeSelector';
 import ExportFileCard from '@/components/dataprep/ExportFileCard';
 import SpatialThinningPanel from '@/components/dataprep/SpatialThinningPanel';
+import RangeOverlayMap from '@/components/species/RangeOverlayMap';
 
 const STEP = ({ n, label }) => (
   <span className="flex items-center gap-2">
@@ -253,6 +254,32 @@ export default function DataPreparation() {
             )}
           </CardContent>
         </Card>
+
+        {/* ── Distribution Map Preview ── */}
+        {selectedSpeciesIds.length > 0 && (
+          <Card className="shadow-lg border-bangor-sun/20">
+            <CardHeader className="border-b border-bangor-sun/20 bg-gradient-to-r from-bangor-red/10 to-bangor-sun/10">
+              <CardTitle className="text-bangor-red flex items-center gap-2 text-base">
+                <Map className="w-4 h-4" />
+                Distribution Map
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Occurrence points (iNaturalist/GBIF) and IUCN range polygons for selected species
+              </p>
+            </CardHeader>
+            <CardContent className="p-4">
+              <RangeOverlayMap species={selectedSpecies} height="380px" />
+              <div className="mt-2 flex gap-4 text-xs text-slate-500">
+                <span>
+                  <strong>{selectedSpecies.reduce((s, sp) => s + (sp.observations?.length || 0) + (sp.gbif_occurrences?.length || 0), 0).toLocaleString()}</strong> occurrence points
+                </span>
+                <span>
+                  <strong>{selectedSpecies.filter(sp => sp.range_data_geojson).length}</strong> species with IUCN range polygons
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── Outlier Handling ── */}
         <Card className="shadow-lg border-bangor-sun/20">

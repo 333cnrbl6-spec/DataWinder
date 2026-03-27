@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw, ShieldAlert } from 'lucide-react';
+import { Database, Trash2, Search, Download, FolderOpen, Calendar, ExternalLink, Eye, FileText, Filter, X, CheckCircle, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import StatusBadge from '@/components/species/StatusBadge';
 import TrendIndicator from '@/components/species/TrendIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import DataIntegrityChecker from '@/components/DataIntegrityChecker.jsx';
-import OutlierDetectionModal from '@/components/species/OutlierDetectionModal.jsx';
+import SpeciesDetailMap from '@/components/species/SpeciesDetailMap';
 
 export default function SavedData() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +24,6 @@ export default function SavedData() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [conservationFilter, setConservationFilter] = useState('all');
   const [showIntegrityChecker, setShowIntegrityChecker] = useState(false);
-  const [outlierSpecies, setOutlierSpecies] = useState(null);
   const queryClient = useQueryClient();
 
   // Subscribe to real-time Species updates
@@ -414,15 +413,6 @@ export default function SavedData() {
 
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              {(species.observations?.length > 0 || species.gbif_occurrences?.length > 0) && (
-                                <Button
-                                  size="icon"
-                                  onClick={() => setOutlierSpecies(species)}
-                                  className="h-8 w-8 bg-amber-500 text-white font-semibold hover:bg-amber-600"
-                                  title="Detect Observation Outliers">
-                                  <ShieldAlert className="w-4 h-4" />
-                                </Button>
-                              )}
                               {(species.range_data_geojson || species.search_summary_json || species.observations) &&
                             <Button
                               variant="ghost"
@@ -522,19 +512,6 @@ export default function SavedData() {
         </div>
       </main>
 
-      {/* Outlier Detection Modal */}
-      {outlierSpecies && (
-        <OutlierDetectionModal
-          species={outlierSpecies}
-          open={!!outlierSpecies}
-          onClose={() => setOutlierSpecies(null)}
-          onComplete={() => {
-            queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
-            setOutlierSpecies(null);
-          }}
-        />
-      )}
-
       {/* Data Integrity Checker */}
       {showIntegrityChecker &&
       <DataIntegrityChecker
@@ -560,6 +537,20 @@ export default function SavedData() {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
+                {/* Distribution Map */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    🗺️ Distribution Map
+                    <span className="text-xs font-normal text-slate-400">
+                      {selectedSpecies.range_data_geojson ? '· IUCN range polygon loaded' : '· No range polygon'}
+                      {(selectedSpecies.observations?.length > 0 || selectedSpecies.gbif_occurrences?.length > 0)
+                        ? ` · ${(selectedSpecies.observations?.length || 0) + (selectedSpecies.gbif_occurrences?.length || 0)} occurrence points`
+                        : ' · No occurrence points'}
+                    </span>
+                  </h3>
+                  <SpeciesDetailMap species={selectedSpecies} height="300px" />
+                </div>
+
                 {/* Image */}
                 {selectedSpecies.image_url &&
               <div className="rounded-lg overflow-hidden">

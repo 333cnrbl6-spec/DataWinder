@@ -1,4 +1,5 @@
 import { jsPDF } from 'npm:jspdf@4.0.0';
+import autoTable from 'npm:jspdf-autotable@3.8.3';
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
@@ -18,7 +19,7 @@ Deno.serve(async (req) => {
 
     // Fetch species data
     const speciesData = await Promise.all(
-      species_ids.map(id => base44.entities.Species.get('Species', id))
+      species_ids.map(id => base44.asServiceRole.entities.Species.get(id))
     );
 
     // Calculate aggregated metrics
@@ -83,7 +84,7 @@ Deno.serve(async (req) => {
 
     pdf.setFontSize(9);
     pdf.setFont(undefined, 'normal');
-    pdf.autoTable({
+    autoTable(pdf, {
       startY: yPos,
       head: [metricsTable[0]],
       body: metricsTable.slice(1),
@@ -125,7 +126,7 @@ Deno.serve(async (req) => {
 
     pdf.setFontSize(9);
     pdf.setFont(undefined, 'normal');
-    pdf.autoTable({
+    autoTable(pdf, {
       startY: yPos,
       head: [statusData[0]],
       body: statusData.slice(1),
@@ -156,7 +157,7 @@ Deno.serve(async (req) => {
 
     pdf.setFontSize(8);
     pdf.setFont(undefined, 'normal');
-    pdf.autoTable({
+    autoTable(pdf, {
       startY: yPos,
       head: [['Scientific Name', 'Common Name', 'IUCN Status', 'Observations']],
       body: speciesList,
