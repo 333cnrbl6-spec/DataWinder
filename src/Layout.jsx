@@ -38,6 +38,7 @@ const NAV_CATEGORIES = [
     label: 'Modeling',
     icon: Layers,
     items: [
+      { label: 'SDM Pipeline', page: 'SDMPipeline', icon: Zap },
       { label: 'MAXENT Modeller', page: 'MAXENTModeler', icon: Layers },
       { label: 'Variable Filter', page: 'VariableSelector', icon: BarChart2 },
       { label: 'QC Checklist', page: 'ModelReadinessCheck', icon: ClipboardCheck },

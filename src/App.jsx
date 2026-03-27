@@ -40,6 +40,7 @@ import SecureView from './pages/SecureView';
 import IUCNDataValidation from './pages/IUCNDataValidation';
 import DataValidation from './pages/DataValidation';
 import SpeciesReportGenerator from './pages/SpeciesReportGenerator';
+import SDMPipeline from './pages/SDMPipeline';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -136,6 +137,8 @@ const AuthenticatedApp = () => {
       <Route path="/DataValidation" element={<LayoutWrapper currentPageName="DataValidation"><DataValidation /></LayoutWrapper>} />
       {/* Multi-Species Report Generator */}
       <Route path="/SpeciesReportGenerator" element={<LayoutWrapper currentPageName="SpeciesReportGenerator"><SpeciesReportGenerator /></LayoutWrapper>} />
+      {/* Automated SDM Pipeline */}
+      <Route path="/SDMPipeline" element={<LayoutWrapper currentPageName="SDMPipeline"><SDMPipeline /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
