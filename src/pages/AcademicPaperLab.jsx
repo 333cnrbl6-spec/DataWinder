@@ -27,6 +27,7 @@ import SimilarityMeter from '@/components/paperlab/SimilarityMeter';
 import EvolutionaryContextPanel from '@/components/paperlab/EvolutionaryContextPanel';
 import VisualReportViewer from '@/components/paperlab/VisualReportViewer';
 import ComparativeMetricsPanel from '@/components/paperlab/ComparativeMetricsPanel';
+import GenerationConfigPanel from '@/components/paperlab/GenerationConfigPanel';
 
 const TAXA = [
   { name: 'Callithrix', rank: 'genus' },
@@ -84,6 +85,8 @@ export default function AcademicPaperLab() {
   const [compareMode, setCompareMode] = useState(false);
   const [taxonB, setTaxonB] = useState('Papio');
   const [taxonRankB, setTaxonRankB] = useState('genus');
+  // Generation config
+  const [genConfig, setGenConfig] = useState({ conservatism: 70, narrativeStyle: 'balanced' });
 
   // Auth check
   const { data: user, isLoading: authLoading } = useQuery({
@@ -111,6 +114,8 @@ export default function AcademicPaperLab() {
           rank_b: taxonRankB,
           citation_style: citationStyle,
           save_draft: true,
+          conservatism: genConfig.conservatism,
+          narrative_style: genConfig.narrativeStyle,
         });
         data = res.data;
       } else {
@@ -119,6 +124,8 @@ export default function AcademicPaperLab() {
           taxon_rank: taxonRank,
           citation_style: citationStyle,
           save_draft: true,
+          conservatism: genConfig.conservatism,
+          narrative_style: genConfig.narrativeStyle,
         });
         data = res.data;
       }
@@ -529,6 +536,11 @@ export default function AcademicPaperLab() {
                 }
               </Button>
             </div>
+          </div>
+
+          {/* AI Generation Config */}
+          <div className="mt-3">
+            <GenerationConfigPanel config={genConfig} onChange={setGenConfig} />
           </div>
 
           {activeDraft && (
