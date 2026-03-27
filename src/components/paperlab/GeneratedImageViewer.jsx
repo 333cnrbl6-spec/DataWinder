@@ -11,26 +11,37 @@ export default function GeneratedImageViewer({ type, genus, sectionContent }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Determine likely geographic region based on genus
+  const genusRegion = {
+    Papio: 'sub-Saharan Africa and the African savanna, woodland and semi-arid zones',
+    Gorilla: 'Central Africa, Congo Basin and montane forests of east Africa',
+    Pan: 'Central and West Africa, equatorial forest belt',
+    Pongo: 'Borneo and Sumatra, Southeast Asian tropical rainforest',
+    Macaca: 'Asia, ranging from Japan to North Africa and Gibraltar',
+    Callithrix: 'Brazil, Atlantic Forest and Cerrado biomes of South America',
+    Callitrichidae: 'Neotropical forests of South and Central America',
+  }[genus] || 'the native range of this taxon';
+
   const imagePrompts = {
-    range_map: `Professional biogeographic map showing the current geographic range distribution of the genus ${genus}. Display species ranges as distinct colored polygons overlaid on a map of South America showing country borders, major geographic features (Atlantic Forest, Amazon, Cerrado biomes), and occurrence points as black dots. Use scientific cartography style with lat/long grid, scale bar, and legend showing each species' IUCN status (EN/VU/LC). High resolution, publication-quality.`,
+    range_map: `Professional biogeographic map showing the current geographic range distribution of the genus ${genus}. The map should depict ${genusRegion}. Display species ranges as distinct colored polygons overlaid on the correct continent/region showing country borders, major geographic features and biomes, and occurrence points as black dots. Use scientific cartography style with lat/long grid, scale bar, and legend showing each species' IUCN status (EN/VU/LC). High resolution, publication-quality.`,
     
-    hybridization_zones: `Scientific map showing predicted hybridization zones and secondary contact areas for the genus ${genus}. Display overlapping species ranges with hatched patterns or heat maps showing contact zones in red/orange. Include altitude shading and vegetation boundaries. Add legend explaining the probability of interspecific encounters and genetic contact. Publication-quality scientific illustration.`,
+    hybridization_zones: `Scientific map showing predicted hybridization zones and secondary contact areas for the genus ${genus} across ${genusRegion}. Display overlapping species ranges with hatched patterns or heat maps showing contact zones in red/orange. Include altitude shading and vegetation boundaries. Add legend explaining the probability of interspecific encounters and genetic contact. Publication-quality scientific illustration.`,
     
-    occurrence_map: `Detailed occurrence point map for ${genus} showing all quality-filtered field observations and museum specimens from GBIF, iNaturalist, and speciesLink. Use density heatmaps with concentration in warmer colors (red = high density, blue = low). Overlay on topographic map showing elevation contours. Include data source legend and quality flags. Professional scientific cartography.`,
+    occurrence_map: `Detailed occurrence point map for ${genus} across ${genusRegion}, showing all quality-filtered field observations and museum specimens from GBIF, iNaturalist, and speciesLink. Use density heatmaps with concentration in warmer colors (red = high density, blue = low). Overlay on topographic map showing elevation contours. Include data source legend and quality flags. Professional scientific cartography.`,
     
     occurrence_chart: `Professional bar chart showing occurrence records for ${genus} by data source. Compare GBIF, iNaturalist, speciesLink, and IUCN assessments with bars colored by source. Include absolute counts and percentages. Use clean scientific visualization style with gridlines and clear axis labels. Professional publication-quality figure.`,
     
-    suitability_map: `MAXENT habitat suitability model output for ${genus}. Display continuous raster surface with color gradient (blue=low suitability, red=high suitability) overlaid on map of Brazil and adjacent regions. Overlay current species occurrence points as black dots. Include 0.5 threshold contour line. Add scale bar, legend, and bioclimatic context. ArcGIS-style professional cartography.`,
+    suitability_map: `MAXENT habitat suitability model output for ${genus} across ${genusRegion}. Display continuous raster surface with color gradient (blue=low suitability, red=high suitability) overlaid on the correct map region. Overlay current species occurrence points as black dots. Include 0.5 threshold contour line. Add scale bar, legend, and bioclimatic context. ArcGIS-style professional cartography.`,
     
-    climate_projection: `Comparative climate change impact visualization for ${genus}. Show stacked bar charts for 4 species displaying: baseline suitable area (gray), 2050 projection (orange), and 2070 projection (red) under SSP5-8.5 scenario. Include percentage loss labels. Below, show a map with current range (solid green) and 2070 suitable area (hatched red) showing range contraction. Publication-quality scientific figure.`,
+    climate_projection: `Comparative climate change impact visualization for ${genus}. Show stacked bar charts for species displaying: baseline suitable area (gray), 2050 projection (orange), and 2070 projection (red) under SSP5-8.5 scenario. Include percentage loss labels. Below, show a map of ${genusRegion} with current range (solid green) and 2070 suitable area (hatched red) showing range contraction. Publication-quality scientific figure.`,
     
-    threat_analysis: `Integrated threat assessment dashboard for ${genus}. Display a comprehensive visualization combining: (1) radar chart showing threat components (habitat loss, climate change, population decline, protection gap) for each species, (2) threat score ranking from 1-5 species, (3) conservation priority matrix. Use color scale from green (low threat) to red (critical). Scientific style, publication-ready.`,
+    threat_analysis: `Integrated threat assessment dashboard for ${genus}. Display a comprehensive visualization combining: (1) radar chart showing threat components (habitat loss, climate change, population decline, protection gap) for each species, (2) threat score ranking, (3) conservation priority matrix. Use color scale from green (low threat) to red (critical). Scientific style, publication-ready.`,
     
     data_sources: `Data completeness matrix table for ${genus}. Show species (rows) vs data sources (IUCN, GBIF, iNaturalist, speciesLink) as columns. Green cells = complete, gray = partial/missing. Include row summaries showing overall completeness percentage. Use professional table styling with borders and clear typography. Include caption indicating data requirements and gaps.`,
     
-    species_overview: `Taxonomic overview infographic for the genus ${genus}. Display all recognized species with: species name (italicized), IUCN Red List status with color coding (green=LC, yellow=NT/VU, orange=EN, red=CR), population trend arrows, geographic distribution mini-maps, and key characteristics. Professional scientific illustration with consistent iconography.`,
+    species_overview: `Taxonomic overview infographic for the genus ${genus}, native to ${genusRegion}. Display all recognized species with: species name (italicized), IUCN Red List status with color coding (green=LC, yellow=NT/VU, orange=EN, red=CR), population trend arrows, geographic distribution mini-maps, and key characteristics. Professional scientific illustration with consistent iconography.`,
     
-    variable_selection: `Environmental variable importance bar chart for ${genus} MAXENT models. Show top 10 bioclimatic variables (BIO1, BIO4, BIO12, etc.) ranked by permutation importance (%). Use gradient colors from dark blue (100%) to light blue (0%). Include gridlines and percentage labels. Add brief legend explaining variable meanings (temperature, precipitation seasonality, etc.). Professional scientific publication style.`,
+    variable_selection: `Environmental variable importance bar chart for ${genus} MAXENT models. Show top 10 bioclimatic variables (BIO1, BIO4, BIO12, etc.) ranked by permutation importance (%). Use gradient colors from dark blue (100%) to light blue (0%). Include gridlines and percentage labels. Add brief legend explaining variable meanings. Professional scientific publication style.`,
     
     spatial_thinning: `Spatial sampling effects visualization for ${genus}. Show before/after comparison: (left) raw occurrence points showing heavy spatial clustering, (right) spatially thinned points at 1km resolution showing uniform sampling. Display density difference with heatmaps. Include statistics: original points, retained points, percentage reduction. Professional cartography style with scale bar.`,
   };
