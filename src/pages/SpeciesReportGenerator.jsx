@@ -58,14 +58,19 @@ export default function SpeciesReportGenerator() {
         report_name: reportName,
       });
 
-      if (response.data?.pdf_url) {
-        window.open(response.data.pdf_url, '_blank');
-        toast.success('Report generated successfully');
-        setSelectedSpecies([]);
-        setReportName('');
-      } else {
-        toast.error('Failed to generate report');
-      }
+      // Response is raw HTML — create a Blob and trigger download
+      const htmlContent = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reportName.replace(/[^a-zA-Z0-9-_]/g, '_')}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast.success('Report downloaded successfully');
+      setSelectedSpecies([]);
+      setReportName('');
     } catch (error) {
       toast.error(`Error: ${error.message}`);
     } finally {
@@ -89,7 +94,7 @@ export default function SpeciesReportGenerator() {
             </div>
             <h1 className="text-3xl font-bold text-slate-900">Multi-Species Report Generator</h1>
           </div>
-          <p className="text-slate-600 ml-12">Create comprehensive PDF summaries for conservation grant applications</p>
+          <p className="text-slate-600 ml-12">Create comprehensive HTML reports for conservation grant applications — downloads instantly as a formatted file</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -250,7 +255,7 @@ export default function SpeciesReportGenerator() {
                   ) : (
                     <>
                       <Download className="w-4 h-4" />
-                      Generate PDF
+                      Generate Report
                     </>
                   )}
                 </Button>

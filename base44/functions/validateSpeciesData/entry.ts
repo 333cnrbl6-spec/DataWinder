@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
         } : null,
         gbifData: gbifData ? {
           key: gbifData.key || null,
-          matchType: gbifJson?.results?.[0]?.matchType || 'Unknown',
+          matchType: gbifData.matchType || 'Unknown',
           acceptedName: gbifData.acceptedUsageName || null,
           datasetKey: gbifData.datasetKey || null,
         } : null,
