@@ -28,7 +28,7 @@ import VisualReportViewer from '@/components/paperlab/VisualReportViewer';
 
 const TAXA = [
   { name: 'Callithrix', rank: 'genus' },
-  { name: 'Callithrichidae', rank: 'family' },
+  { name: 'Callitrichidae', rank: 'family' },
   { name: 'Papio', rank: 'genus' },
   { name: 'Gorilla', rank: 'genus' },
   { name: 'Pan', rank: 'genus' },

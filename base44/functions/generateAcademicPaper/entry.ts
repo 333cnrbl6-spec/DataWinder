@@ -165,6 +165,14 @@ async function fetchLiveData(taxon, iucnToken, rank = 'genus') {
         { name: 'Callithrix penicillata', status: 'LC', trend: 'stable', iucn_id: null },
         { name: 'Callithrix aurita', status: 'EN', trend: 'decreasing', iucn_id: null },
       ],
+      Callitrichidae: [
+        { name: 'Callithrix jacchus', status: 'LC', trend: 'stable', iucn_id: null },
+        { name: 'Callithrix aurita', status: 'EN', trend: 'decreasing', iucn_id: null },
+        { name: 'Cebuella pygmaea', status: 'VU', trend: 'decreasing', iucn_id: null },
+        { name: 'Saguinus oedipus', status: 'CR', trend: 'decreasing', iucn_id: null },
+        { name: 'Leontopithecus rosalia', status: 'EN', trend: 'stable', iucn_id: null },
+        { name: 'Mico argentatus', status: 'LC', trend: 'stable', iucn_id: null },
+      ],
     };
     const species = fallbackSpecies[taxon] || [
       { name: `${taxon} sp. 1`, status: 'DD', trend: 'unknown', iucn_id: null },
@@ -442,8 +450,20 @@ Return a valid JSON object with these exact keys (all values are long strings of
     console.log('Generating AI scientific figures...');
     const generatedFigures = [];
     try {
+      // Determine the correct geographic region for the map prompt
+      const regionMap = {
+        Papio: 'sub-Saharan Africa and the Arabian Peninsula',
+        Gorilla: 'Central Africa and the Congo Basin',
+        Pan: 'Central and West Africa',
+        Pongo: 'Borneo and Sumatra in Southeast Asia',
+        Macaca: 'Asia, from Japan to the Maghreb',
+        Callithrix: 'Brazil — Atlantic Forest, Cerrado, and Caatinga biomes',
+        Callitrichidae: 'Neotropical forests of South and Central America',
+      };
+      const geoRegion = regionMap[finalTaxon] || `the native range of ${finalTaxon}`;
+
       const imgResult = await base44.asServiceRole.integrations.Core.GenerateImage({
-        prompt: `Professional biogeographic map showing the geographic range distribution of the genus ${finalTaxon}. Display species ranges as distinct colored polygons overlaid on a map of South America/Neotropics showing country borders and biomes. Use scientific cartography style with scale bar and legend. Based on ${liveData.iucn?.count || 0} species and ${(liveData.gbif?.total_occurrences || 0) + (liveData.inat?.research_grade_count || 0)} occurrence records.`,
+        prompt: `Professional biogeographic map showing the geographic range distribution of the ${finalRank === 'family' ? 'family' : 'genus'} ${finalTaxon}. The map must correctly depict ${geoRegion}. Display species ranges as distinct colored polygons on the correct continent/region, showing country borders and biomes. Use scientific cartography style with lat/long grid, scale bar and legend showing IUCN status. Based on ${liveData.iucn?.count || 0} species and ${(liveData.gbif?.total_occurrences || 0) + (liveData.inat?.research_grade_count || 0)} occurrence records. Publication-quality.`,
         existing_image_urls: []
       });
       if (imgResult?.url) {
