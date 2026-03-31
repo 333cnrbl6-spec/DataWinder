@@ -116,8 +116,14 @@ function PendingUpdateCard({ update, onApprove, onReject, isApproving, isRejecti
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-600">{FIELD_LABELS[key] || key}</p>
-                        {currentVal && <p className="text-xs text-slate-400 line-through mb-1">Was: {currentVal}</p>}
-                        <p className="text-sm text-slate-800">{newVal}</p>
+                        {currentVal && (
+                          <p className="text-xs text-slate-400 line-through mb-1">
+                            Was: {typeof currentVal === 'object' ? JSON.stringify(currentVal) : String(currentVal)}
+                          </p>
+                        )}
+                        <p className="text-sm text-slate-800">
+                          {typeof newVal === 'object' ? JSON.stringify(newVal, null, 2) : String(newVal)}
+                        </p>
                       </div>
                     </div>
                   );
