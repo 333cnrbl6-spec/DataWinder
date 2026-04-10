@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Download, Loader2, Upload } from 'lucide-react';
+import { MapPin, Download, Loader2, Upload, AlertTriangle } from 'lucide-react';
 import * as turf from '@turf/turf';
 import { toast } from 'sonner';
 

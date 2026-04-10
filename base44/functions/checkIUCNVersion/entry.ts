@@ -4,11 +4,10 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Fetch current IUCN Red List version from their API
-    const resp = await fetch('https://api.iucnredlist.org/api/v4/red-list/version', {
-      headers: {
-        'Authorization': `Token token=${Deno.env.get('IUCN_API_KEY')}`
-      }
+    // Fetch current IUCN Red List version from their API (v4 endpoint)
+    const apiKey = Deno.env.get('IUCN_API_KEY');
+    const resp = await fetch('https://api.iucnredlist.org/api/v4/information/red_list_version', {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
     });
 
     if (!resp.ok) {
@@ -16,8 +15,8 @@ Deno.serve(async (req) => {
     }
 
     const data = await resp.json();
-    // Response shape: { version: "2025-2" }
-    const latestVersion = data.version || data.latest_version || String(data);
+    // v4 response shape: { version: "2025-2" } or { red_list_version: "2025-2" }
+    const latestVersion = data.version || data.red_list_version || data.latest_version || String(data);
 
     console.log(`IUCN latest version: ${latestVersion}`);
 

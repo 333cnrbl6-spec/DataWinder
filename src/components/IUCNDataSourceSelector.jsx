@@ -36,7 +36,7 @@ const MODES = [
     id: 'app_data',
     icon: Database,
     title: 'Use app data',
-    subtitle: 'Extract from species already in this app's database',
+    subtitle: "Extract from species already in this app's database",'s database',
     color: 'border-blue-300 bg-blue-50 text-blue-800',
     activeColor: 'border-blue-500 ring-2 ring-blue-300 bg-blue-50'
   },
