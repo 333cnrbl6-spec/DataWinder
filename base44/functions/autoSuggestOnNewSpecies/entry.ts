@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
   // Invoke the main suggestion function as service role
   try {
     const result = await base44.asServiceRole.functions.invoke('suggestSpeciesFields', { species_id });
-    console.log('Auto-suggest result:', JSON.stringify(result.data));
+    console.log('Auto-suggest result:', result.data?.success, result.data?.species_id);
     return Response.json({ success: true, result: result.data });
   } catch (e) {
     console.error('Auto-suggest error:', e.message);
