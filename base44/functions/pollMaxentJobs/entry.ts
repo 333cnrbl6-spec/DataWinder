@@ -4,14 +4,6 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Allow scheduled automation (no user) or admin user
-    const isAuthenticated = await base44.auth.isAuthenticated();
-    if (isAuthenticated) {
-      const user = await base44.auth.me();
-      if (user?.role !== 'admin') {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    }
 
     const MAXENT_API_URL = Deno.env.get('MAXENT_API_URL');
     const MAXENT_API_KEY = Deno.env.get('MAXENT_API_KEY');
