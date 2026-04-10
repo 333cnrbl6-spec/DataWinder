@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
 
     // Fetch current IUCN Red List version from their API (v4 endpoint)
     const apiKey = Deno.env.get('IUCN_API_KEY');
-    const resp = await fetch('https://api.iucnredlist.org/api/v4/information/red_list_version', {
+    const resp = await fetch('https://api.iucnredlist.org/api/v4/information/api_version', {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
 
