@@ -1,0 +1,83 @@
+{
+  "name": "OccurrenceNote",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Scientific name for display"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Occurrence latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Occurrence longitude"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "iNaturalist",
+        "GBIF",
+        "SpeciesLink",
+        "Manual"
+      ],
+      "description": "Data source of the occurrence"
+    },
+    "occurrence_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the observation"
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "unreviewed",
+        "valid",
+        "questionable",
+        "invalid"
+      ],
+      "default": "unreviewed",
+      "description": "Expert validation status"
+    },
+    "note_text": {
+      "type": "string",
+      "description": "Expert comment or field validation note"
+    },
+    "expert_email": {
+      "type": "string",
+      "description": "Email of expert who added the note"
+    },
+    "expert_name": {
+      "type": "string",
+      "description": "Display name of expert"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for organizing notes (e.g., habitat_issue, identification_concern)"
+    },
+    "confidence_score": {
+      "type": "number",
+      "description": "Expert confidence in occurrence validity (0-100)"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Field photos or reference images"
+    }
+  },
+  "required": [
+    "species_id",
+    "latitude",
+    "longitude"
+  ]
+}
