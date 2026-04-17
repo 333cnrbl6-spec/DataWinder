@@ -45,6 +45,7 @@ import BoardInvitations from './pages/BoardInvitations';
 import HealthDashboard from './pages/HealthDashboard';
 import SpeciesAIEnhancement from './pages/SpeciesAIEnhancement';
 import SpeciesMapViewer from './pages/SpeciesMapViewer';
+import ValidationMonitor from './pages/ValidationMonitor';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -151,6 +152,8 @@ const AuthenticatedApp = () => {
       <Route path="/SpeciesAIEnhancement" element={<LayoutWrapper currentPageName="SpeciesAIEnhancement"><SpeciesAIEnhancement /></LayoutWrapper>} />
       {/* Species Map Viewer */}
       <Route path="/SpeciesMapViewer" element={<LayoutWrapper currentPageName="SpeciesMapViewer"><SpeciesMapViewer /></LayoutWrapper>} />
+      {/* Validation Monitor */}
+      <Route path="/ValidationMonitor" element={<LayoutWrapper currentPageName="ValidationMonitor"><ValidationMonitor /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
