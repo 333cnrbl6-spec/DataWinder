@@ -12,6 +12,7 @@ export default function HealthDashboard() {
   const [threatData, setThreatData] = useState([]);
   const [sdmData, setSDMData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filteredSpecies, setFilteredSpecies] = useState([]);
   const [metrics, setMetrics] = useState({
     totalSpecies: 0,
     criticalCount: 0,
@@ -36,12 +37,13 @@ export default function HealthDashboard() {
       const species = allSpecies;
 
       // Filter by conservation status
-      let filteredSpecies = species;
+      let filtered = species;
       if (selectedStatus !== 'all') {
-        filteredSpecies = species.filter(s => s.iucn_status === selectedStatus);
+        filtered = species.filter(s => s.iucn_status === selectedStatus);
       }
 
-      const speciesIds = new Set(filteredSpecies.map(s => s.id));
+      setFilteredSpecies(filtered);
+      const speciesIds = new Set(filtered.map(s => s.id));
 
       // Build threat level chart data
       const threatByStatus = {};
@@ -94,7 +96,7 @@ export default function HealthDashboard() {
         : 0;
 
       setMetrics({
-        totalSpecies: filteredSpecies.length,
+        totalSpecies: filtered.length,
         criticalCount: criticalThreats,
         avgModelAuc: avgAuc.toFixed(3)
       });
