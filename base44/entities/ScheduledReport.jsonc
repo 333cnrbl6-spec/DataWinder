@@ -1,0 +1,126 @@
+{
+  "name": "ScheduledReport",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the scheduled report"
+    },
+    "description": {
+      "type": "string",
+      "description": "Report description and purpose"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "biodiversity_health",
+        "validation_summary",
+        "occurrence_inventory",
+        "threat_assessment"
+      ],
+      "description": "Type of report to generate"
+    },
+    "export_format": {
+      "type": "string",
+      "enum": [
+        "pdf",
+        "csv",
+        "both"
+      ],
+      "default": "both",
+      "description": "Export format(s)"
+    },
+    "schedule_type": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annually",
+        "manual"
+      ],
+      "default": "monthly",
+      "description": "Report schedule frequency"
+    },
+    "day_of_week": {
+      "type": "integer",
+      "description": "Day for weekly reports (0=Sunday, 6=Saturday)"
+    },
+    "day_of_month": {
+      "type": "integer",
+      "description": "Day for monthly reports (1-31)"
+    },
+    "filters": {
+      "type": "object",
+      "description": "Report filters and parameters",
+      "properties": {
+        "species_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "iucn_status": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "threat_level": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "date_range_days": {
+          "type": "integer"
+        },
+        "include_validation_flags": {
+          "type": "boolean"
+        },
+        "flag_severity": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "geographic_region": {
+          "type": "string"
+        },
+        "include_statistics": {
+          "type": "boolean"
+        }
+      }
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Email addresses of report recipients"
+    },
+    "last_generated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the report was last generated"
+    },
+    "last_generated_file_uri": {
+      "type": "string",
+      "description": "Storage URI of the last generated report"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this scheduled report is active"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of user who created this report"
+    }
+  },
+  "required": [
+    "name",
+    "report_type",
+    "schedule_type"
+  ]
+}
