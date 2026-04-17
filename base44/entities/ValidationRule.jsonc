@@ -1,0 +1,116 @@
+{
+  "name": "ValidationRule",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the validation rule"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this rule checks"
+    },
+    "rule_type": {
+      "type": "string",
+      "enum": [
+        "geographic",
+        "temporal",
+        "biological",
+        "statistical"
+      ],
+      "description": "Category of validation rule"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Target species ID (empty = apply to all)"
+    },
+    "constraint_type": {
+      "type": "string",
+      "enum": [
+        "range",
+        "threshold",
+        "pattern",
+        "comparison"
+      ],
+      "description": "Type of constraint being applied"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Rule parameters (structure varies by rule type)",
+      "properties": {
+        "lat_min": {
+          "type": "number"
+        },
+        "lat_max": {
+          "type": "number"
+        },
+        "lon_min": {
+          "type": "number"
+        },
+        "lon_max": {
+          "type": "number"
+        },
+        "elevation_min": {
+          "type": "number"
+        },
+        "elevation_max": {
+          "type": "number"
+        },
+        "date_min": {
+          "type": "string",
+          "format": "date"
+        },
+        "date_max": {
+          "type": "string",
+          "format": "date"
+        },
+        "days_from_present_max": {
+          "type": "number"
+        },
+        "outlier_threshold": {
+          "type": "number"
+        },
+        "min_confidence": {
+          "type": "number"
+        },
+        "habitat_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude_countries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "default": "warning",
+      "description": "Severity level when rule is violated"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this rule is active"
+    },
+    "auto_correct": {
+      "type": "boolean",
+      "default": false,
+      "description": "Automatically flag for correction"
+    }
+  },
+  "required": [
+    "name",
+    "rule_type",
+    "constraint_type"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "name": "ValidationFlag",
+  "type": "object",
+  "properties": {
+    "occurrence_id": {
+      "type": "string",
+      "description": "ID of the flagged occurrence record"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Species ID"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Species scientific name"
+    },
+    "rule_id": {
+      "type": "string",
+      "description": "ID of the triggered validation rule"
+    },
+    "rule_name": {
+      "type": "string",
+      "description": "Name of the validation rule"
+    },
+    "flag_type": {
+      "type": "string",
+      "enum": [
+        "geographic",
+        "temporal",
+        "biological",
+        "statistical"
+      ],
+      "description": "Category of flag"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "description": "Severity level"
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable flag message"
+    },
+    "occurrence_data": {
+      "type": "object",
+      "description": "Snapshot of the flagged occurrence data"
+    },
+    "suggested_correction": {
+      "type": "object",
+      "description": "Suggested values or corrections"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "flagged",
+        "reviewed",
+        "corrected",
+        "dismissed"
+      ],
+      "default": "flagged",
+      "description": "Review status"
+    },
+    "reviewer_email": {
+      "type": "string",
+      "description": "Email of user who reviewed this flag"
+    },
+    "reviewer_note": {
+      "type": "string",
+      "description": "Notes from the reviewer"
+    }
+  },
+  "required": [
+    "occurrence_id",
+    "species_id",
+    "rule_id",
+    "flag_type"
+  ]
+}
