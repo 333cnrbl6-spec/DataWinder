@@ -43,6 +43,7 @@ import SpeciesReportGenerator from './pages/SpeciesReportGenerator';
 import SDMPipeline from './pages/SDMPipeline';
 import BoardInvitations from './pages/BoardInvitations';
 import HealthDashboard from './pages/HealthDashboard';
+import SpeciesAIEnhancement from './pages/SpeciesAIEnhancement';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -145,6 +146,8 @@ const AuthenticatedApp = () => {
       <Route path="/BoardInvitations" element={<LayoutWrapper currentPageName="BoardInvitations"><BoardInvitations /></LayoutWrapper>} />
       {/* Health Dashboard */}
       <Route path="/HealthDashboard" element={<LayoutWrapper currentPageName="HealthDashboard"><HealthDashboard /></LayoutWrapper>} />
+      {/* Species AI Enhancement */}
+      <Route path="/SpeciesAIEnhancement" element={<LayoutWrapper currentPageName="SpeciesAIEnhancement"><SpeciesAIEnhancement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
