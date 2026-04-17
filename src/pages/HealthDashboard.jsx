@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import ThreatLevelChart from '@/components/dashboard/ThreatLevelChart';
 import SDMPerformanceChart from '@/components/dashboard/SDMPerformanceChart';
 import ConservationStatusFilter from '@/components/dashboard/ConservationStatusFilter';
+import DistributionHeatmap from '@/components/maps/DistributionHeatmap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 
@@ -30,8 +31,9 @@ export default function HealthDashboard() {
       // Fetch SDM runs
       const sdmRuns = await base44.entities.SDMRun.list();
 
-      // Fetch species for filtering
-      const species = await base44.entities.Species.list();
+      // Fetch species for filtering and maps
+      const allSpecies = await base44.entities.Species.list();
+      const species = allSpecies;
 
       // Filter by conservation status
       let filteredSpecies = species;
@@ -170,6 +172,9 @@ export default function HealthDashboard() {
           <ThreatLevelChart data={threatData} />
           <SDMPerformanceChart data={sdmData} />
         </div>
+
+        {/* Distribution Map */}
+        <DistributionHeatmap species={filteredSpecies} />
       </div>
     </div>
   );
