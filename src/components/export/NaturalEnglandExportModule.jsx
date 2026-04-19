@@ -23,7 +23,7 @@ import {
   Quote
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { toast } from 'sonner";
+import { toast } from 'sonner';
 
 export default function NaturalEnglandExportModule({ selectedSpecies = [], onClose }) {
   const [format, setFormat] = useState('pdf');
