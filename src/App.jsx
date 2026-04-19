@@ -48,6 +48,7 @@ import SpeciesMapViewer from './pages/SpeciesMapViewer';
 import ValidationMonitor from './pages/ValidationMonitor';
 import BiodiversityReporting from './pages/BiodiversityReporting';
 import GeographicOutlierCorrection from './pages/GeographicOutlierCorrection';
+import DataIngestion from './pages/DataIngestion';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -160,6 +161,7 @@ const AuthenticatedApp = () => {
       <Route path="/BiodiversityReporting" element={<LayoutWrapper currentPageName="BiodiversityReporting"><BiodiversityReporting /></LayoutWrapper>} />
       {/* Geographic Outlier Correction */}
       <Route path="/GeographicOutlierCorrection" element={<LayoutWrapper currentPageName="GeographicOutlierCorrection"><GeographicOutlierCorrection /></LayoutWrapper>} />
+      <Route path="/DataIngestion" element={<LayoutWrapper currentPageName="DataIngestion"><DataIngestion /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
