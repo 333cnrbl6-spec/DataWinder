@@ -231,8 +231,19 @@ export default function SDMPipeline() {
   const { data: runs = [] } = useQuery({
     queryKey: ['sdmRuns'],
     queryFn: () => base44.entities.SDMRun.list('-created_date', 50),
-    refetchInterval: 5000,
+    refetchInterval: 3000, // Faster polling for active runs
   });
+
+  // Real-time subscription to SDM run updates
+  useEffect(() => {
+    const unsubscribe = base44.entities.SDMRun.subscribe((event) => {
+      if (event.type === 'update' || event.type === 'create') {
+        queryClient.invalidateQueries({ queryKey: ['sdmRuns'] });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [queryClient]);
 
   // Poll active runs
   useEffect(() => {
@@ -322,18 +333,33 @@ export default function SDMPipeline() {
   };
 
   const openRun = runs.find(r => r.id === openRunId);
+  const activeRunsCount = runs.filter(r => !['completed', 'failed'].includes(r.status)).length;
+  const completedRunsCount = runs.filter(r => r.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/20">
       {/* Header */}
       <header className="bg-white border-b-2 border-bangor-red shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
-          <div className="p-2 bg-bangor-red/10 rounded-xl">
-            <Activity className="w-6 h-6 text-bangor-red" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="p-2 bg-bangor-red/10 rounded-xl">
+              <Activity className="w-6 h-6 text-bangor-red" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-bangor-red">Automated SDM Pipeline</h1>
+              <p className="text-sm text-slate-500">Clean outliers → spatial thin → WorldClim bioclim → MaxEnt → prediction map</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-bangor-red">Automated SDM Pipeline</h1>
-            <p className="text-sm text-slate-500">Clean outliers → spatial thin → WorldClim bioclim → MaxEnt → prediction map</p>
+          <div className="flex items-center gap-4 text-sm">
+            {activeRunsCount > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                <span className="text-amber-800 font-semibold">{activeRunsCount} active</span>
+              </div>
+            )}
+            {completedRunsCount > 0 && (
+              <div className="text-green-700 font-semibold">{completedRunsCount} completed</div>
+            )}
           </div>
         </div>
       </header>
