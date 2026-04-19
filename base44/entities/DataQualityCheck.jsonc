@@ -1,0 +1,149 @@
+{
+  "name": "DataQualityCheck",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Species being checked"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Scientific name for display"
+    },
+    "check_type": {
+      "type": "string",
+      "enum": [
+        "duplicate_detection",
+        "taxonomic_validation",
+        "coordinate_outlier",
+        "temporal_validation",
+        "comprehensive"
+      ],
+      "description": "Type of quality check performed"
+    },
+    "total_records": {
+      "type": "number",
+      "description": "Total occurrence records checked"
+    },
+    "issues_found": {
+      "type": "number",
+      "description": "Number of issues detected"
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "occurrence_id": {
+            "type": "string"
+          },
+          "issue_type": {
+            "type": "string",
+            "enum": [
+              "potential_duplicate",
+              "taxonomy_mismatch",
+              "extreme_coordinate",
+              "suspicious_date",
+              "name_variation"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "suggested_action": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "reference_source": {
+            "type": "string",
+            "enum": [
+              "gbif",
+              "inaturalist",
+              "internal",
+              "statistical"
+            ]
+          },
+          "external_match_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Detailed list of detected issues"
+    },
+    "summary": {
+      "type": "object",
+      "description": "Summary statistics",
+      "properties": {
+        "duplicates_count": {
+          "type": "number"
+        },
+        "taxonomy_issues_count": {
+          "type": "number"
+        },
+        "outliers_count": {
+          "type": "number"
+        },
+        "temporal_issues_count": {
+          "type": "number"
+        },
+        "data_completeness": {
+          "type": "number"
+        }
+      }
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Overall data quality 0-100"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Actionable recommendations for improvement"
+    },
+    "run_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the check was performed"
+    },
+    "run_by": {
+      "type": "string",
+      "description": "Email of user who initiated"
+    },
+    "run_by_name": {
+      "type": "string",
+      "description": "Display name of user"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "in_progress",
+        "failed"
+      ],
+      "default": "in_progress",
+      "description": "Check completion status"
+    }
+  },
+  "required": [
+    "project_id",
+    "species_id",
+    "check_type",
+    "total_records"
+  ]
+}

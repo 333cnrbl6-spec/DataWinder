@@ -56,6 +56,7 @@ import ProjectWorkspace from './pages/ProjectWorkspace';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import GISLayerManager from './pages/GISLayerManager';
 import SDMComparisonViewer from './pages/SDMComparisonViewer';
+import DataQualityWizard from './pages/DataQualityWizard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -177,6 +178,7 @@ const AuthenticatedApp = () => {
       <Route path="/GISLayerManager/:projectId" element={<LayoutWrapper currentPageName="GISLayerManager"><GISLayerManager /></LayoutWrapper>} />
       <Route path="/SDMComparisonViewer/:projectId" element={<LayoutWrapper currentPageName="SDMComparisonViewer"><SDMComparisonViewer /></LayoutWrapper>} />
       <Route path="/SDMComparisonViewer/:projectId/:speciesId" element={<LayoutWrapper currentPageName="SDMComparisonViewer"><SDMComparisonViewer /></LayoutWrapper>} />
+      <Route path="/DataQualityWizard/:projectId" element={<LayoutWrapper currentPageName="DataQualityWizard"><DataQualityWizard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
