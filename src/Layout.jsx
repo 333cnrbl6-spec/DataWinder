@@ -31,6 +31,7 @@ const NAV_CATEGORIES = [
       { label: 'Data Validation', page: 'DataValidation', icon: CheckCircle },
       { label: 'IUCN Validation', page: 'IUCNDataValidation', icon: CheckCircle },
       { label: 'Outlier Correction', page: 'GeographicOutlierCorrection', icon: AlertTriangle },
+      { label: 'Version History', page: 'VersionHistory', icon: History },
       { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
       { label: 'Climate Data', page: 'ClimateProjections', icon: CloudRain },
     ]

@@ -1,0 +1,72 @@
+{
+  "name": "RecordVersion",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "Species",
+        "Occurrence"
+      ],
+      "description": "Type of entity being versioned"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the original species or occurrence record"
+    },
+    "entity_name": {
+      "type": "string",
+      "description": "Species name or occurrence identifier for display"
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Incremental version number for this entity"
+    },
+    "snapshot": {
+      "type": "object",
+      "description": "Complete immutable copy of the record at this version"
+    },
+    "changed_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of field names that changed from previous version"
+    },
+    "change_summary": {
+      "type": "object",
+      "description": "Object with before/after values for changed fields",
+      "properties": {}
+    },
+    "modified_by": {
+      "type": "string",
+      "description": "Email of user who made the change"
+    },
+    "modified_by_name": {
+      "type": "string",
+      "description": "Display name of user who made the change"
+    },
+    "version_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when this version was created"
+    },
+    "change_reason": {
+      "type": "string",
+      "description": "Optional note explaining why the change was made"
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this is the current active version"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "version_number",
+    "snapshot",
+    "modified_by",
+    "version_timestamp"
+  ]
+}
