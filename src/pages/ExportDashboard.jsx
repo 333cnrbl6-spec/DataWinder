@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, FileText, Database, Brain, Flag, Loader2, CheckCircle2, AlertCircle, ArrowDown } from 'lucide-react';
+import { Download, FileText, Database, Brain, Flag, Loader2, CheckCircle2, AlertCircle, ArrowDown, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ExportDashboard() {
