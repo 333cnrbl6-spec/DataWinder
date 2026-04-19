@@ -1,0 +1,114 @@
+{
+  "name": "ExportJob",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Project name for display"
+    },
+    "export_type": {
+      "type": "string",
+      "enum": [
+        "csv",
+        "geojson",
+        "shapefile_zip",
+        "bundle"
+      ],
+      "description": "Type of export format"
+    },
+    "data_components": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "species_metadata",
+          "occurrence_records",
+          "occurrence_notes",
+          "sdm_results",
+          "validation_flags"
+        ]
+      },
+      "description": "Which data to include in export"
+    },
+    "filters": {
+      "type": "object",
+      "description": "Applied filters for export",
+      "properties": {
+        "species_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sdm_run_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "date_from": {
+          "type": "string",
+          "format": "date"
+        },
+        "date_to": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "queued",
+      "description": "Export job status"
+    },
+    "progress_pct": {
+      "type": "number",
+      "description": "Progress 0-100"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Download URL for completed export"
+    },
+    "file_size_mb": {
+      "type": "number",
+      "description": "Size of exported file in MB"
+    },
+    "record_count": {
+      "type": "number",
+      "description": "Number of records exported"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Email of user who requested export"
+    },
+    "requested_by_name": {
+      "type": "string",
+      "description": "Display name of requester"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When export completed"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error details if export failed"
+    }
+  },
+  "required": [
+    "project_id",
+    "export_type",
+    "data_components",
+    "requested_by"
+  ]
+}

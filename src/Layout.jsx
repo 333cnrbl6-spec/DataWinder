@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download } from 'lucide-react';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
@@ -64,6 +64,7 @@ const NAV_CATEGORIES = [
     items: [
       { label: 'Threat Assessment', page: 'ThreatAssessment', icon: AlertCircle },
       { label: 'Report Generator', page: 'SpeciesReportGenerator', icon: FileOutput },
+      { label: 'Data Export', page: 'ExportDashboard', icon: Download },
     ]
   },
   {
