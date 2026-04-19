@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp } from 'lucide-react';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
@@ -75,6 +75,12 @@ const NAV_CATEGORIES = [
       { label: 'FAQ Assistant', page: 'FAQBot', icon: MessageCircle },
       { label: 'About & Help', page: 'About', icon: MessageCircle },
     ]
+  },
+  {
+    label: 'Analytics',
+    page: 'AnalyticsDashboard',
+    icon: TrendingUp,
+    standalone: true
   },
   {
     label: 'Testing & QA',

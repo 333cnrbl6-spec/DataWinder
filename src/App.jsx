@@ -53,6 +53,7 @@ import VersionHistory from './pages/VersionHistory';
 import SDMAnnotationViewer from './pages/SDMAnnotationViewer';
 import ExportDashboard from './pages/ExportDashboard';
 import ProjectWorkspace from './pages/ProjectWorkspace';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -170,6 +171,7 @@ const AuthenticatedApp = () => {
       <Route path="/SDMAnnotationViewer" element={<LayoutWrapper currentPageName="SDMAnnotationViewer"><SDMAnnotationViewer /></LayoutWrapper>} />
       <Route path="/ExportDashboard" element={<LayoutWrapper currentPageName="ExportDashboard"><ExportDashboard /></LayoutWrapper>} />
       <Route path="/ProjectWorkspace/:projectId" element={<LayoutWrapper currentPageName="ProjectWorkspace"><ProjectWorkspace /></LayoutWrapper>} />
+      <Route path="/AnalyticsDashboard" element={<LayoutWrapper currentPageName="AnalyticsDashboard"><AnalyticsDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
