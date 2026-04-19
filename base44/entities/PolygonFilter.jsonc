@@ -1,0 +1,92 @@
+{
+  "name": "PolygonFilter",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the filter"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Species to filter"
+    },
+    "polygon_coordinates": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "GeoJSON polygon coordinates [[lon, lat], ...]"
+    },
+    "bounds": {
+      "type": "object",
+      "description": "Bounding box of polygon",
+      "properties": {
+        "min_lat": {
+          "type": "number"
+        },
+        "min_lon": {
+          "type": "number"
+        },
+        "max_lat": {
+          "type": "number"
+        },
+        "max_lon": {
+          "type": "number"
+        }
+      }
+    },
+    "occurrences_included": {
+      "type": "number",
+      "description": "Number of occurrences within polygon"
+    },
+    "occurrences_excluded": {
+      "type": "number",
+      "description": "Number of occurrences outside polygon"
+    },
+    "filter_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "applied"
+      ],
+      "default": "draft",
+      "description": "Status of the filter"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of creator"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Display name of creator"
+    },
+    "color": {
+      "type": "string",
+      "default": "#ef4444",
+      "description": "Hex color for visualization"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes about this filter"
+    }
+  },
+  "required": [
+    "name",
+    "project_id",
+    "polygon_coordinates"
+  ]
+}

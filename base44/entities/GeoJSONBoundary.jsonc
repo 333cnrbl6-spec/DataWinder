@@ -1,0 +1,71 @@
+{
+  "name": "GeoJSONBoundary",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the boundary layer"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the boundary"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to GeoJSON file"
+    },
+    "geojson_data": {
+      "type": "object",
+      "description": "Embedded GeoJSON object"
+    },
+    "bounds": {
+      "type": "object",
+      "description": "Map bounds [min_lat, min_lon, max_lat, max_lon]",
+      "properties": {
+        "min_lat": {
+          "type": "number"
+        },
+        "min_lon": {
+          "type": "number"
+        },
+        "max_lat": {
+          "type": "number"
+        },
+        "max_lon": {
+          "type": "number"
+        }
+      }
+    },
+    "feature_count": {
+      "type": "number",
+      "description": "Number of features in GeoJSON"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email of user who uploaded"
+    },
+    "uploaded_by_name": {
+      "type": "string",
+      "description": "Display name of uploader"
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether layer is visible on map"
+    },
+    "color": {
+      "type": "string",
+      "default": "#3b82f6",
+      "description": "Hex color for layer visualization"
+    }
+  },
+  "required": [
+    "name",
+    "project_id",
+    "geojson_data"
+  ]
+}
