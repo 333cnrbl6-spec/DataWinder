@@ -1,0 +1,65 @@
+{
+  "name": "TeamInvitation",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Project name for display"
+    },
+    "inviter_email": {
+      "type": "string",
+      "description": "Email of user who sent the invitation"
+    },
+    "inviter_name": {
+      "type": "string",
+      "description": "Display name of inviter"
+    },
+    "invitee_email": {
+      "type": "string",
+      "description": "Email of invited user"
+    },
+    "invited_role": {
+      "type": "string",
+      "enum": [
+        "editor",
+        "viewer"
+      ],
+      "default": "viewer",
+      "description": "Role to be assigned if accepted"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "revoked"
+      ],
+      "default": "pending",
+      "description": "Invitation status"
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional message from inviter"
+    },
+    "invited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitation was sent"
+    },
+    "responded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitee responded"
+    }
+  },
+  "required": [
+    "project_id",
+    "inviter_email",
+    "invitee_email"
+  ]
+}
