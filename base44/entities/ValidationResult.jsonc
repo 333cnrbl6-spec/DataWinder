@@ -1,0 +1,80 @@
+{
+  "name": "ValidationResult",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Scientific name for display"
+    },
+    "validation_type": {
+      "type": "string",
+      "enum": [
+        "llm_cross_reference",
+        "geographic_check",
+        "taxonomic_check",
+        "data_quality"
+      ],
+      "description": "Type of validation performed"
+    },
+    "validation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When validation was performed"
+    },
+    "overall_score": {
+      "type": "number",
+      "description": "Overall confidence score 0-1"
+    },
+    "taxonomy_score": {
+      "type": "number",
+      "description": "Taxonomic validation confidence 0-1"
+    },
+    "geography_score": {
+      "type": "number",
+      "description": "Geographic validation confidence 0-1"
+    },
+    "flags_count": {
+      "type": "number",
+      "description": "Total validation flags raised"
+    },
+    "error_count": {
+      "type": "number",
+      "description": "Critical errors found"
+    },
+    "warning_count": {
+      "type": "number",
+      "description": "Warnings found"
+    },
+    "validation_details": {
+      "type": "object",
+      "description": "Complete validation results from LLM"
+    },
+    "validated_by": {
+      "type": "string",
+      "description": "Email of user who ran validation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "warning",
+        "failed"
+      ],
+      "description": "Overall validation status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional validation notes"
+    }
+  },
+  "required": [
+    "species_id",
+    "species_name",
+    "validation_type",
+    "overall_score"
+  ]
+}
