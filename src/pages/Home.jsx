@@ -6,6 +6,13 @@ import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchIUCNSpecies } from '@/hooks/useIUCNSearch';
 import { createCommunityMember, completeOnboarding } from '@/lib/onboardingValidator';
+import {
+  enrichWithINaturalist,
+  enrichWithGBIF,
+  enrichWithSpeciesLink,
+  persistNonIUCNSpecies,
+  enrichSingleSpeciesWithINat,
+} from '@/hooks/useDataSources';
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
@@ -24,7 +31,6 @@ import ResultsPanel from '@/components/home/ResultsPanel';
 
 export default function Home() {
   const [species, setSpecies] = useState([]);
-  const [savedSpeciesScientificNames, setSavedSpeciesScientificNames] = useState(new Set());
   const [selectedIds, setSelectedIds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
@@ -53,9 +59,12 @@ export default function Home() {
     queryFn: () => base44.entities.SavedSearch.list('-created_date')
   });
 
+  // Derive saved scientific names from the already-loaded allSpecies — no second fetch
+  const savedSpeciesScientificNamesSet = new Set(allSpecies.map(sp => sp.scientific_name));
+
   // Subscribe to real-time updates
   useEffect(() => {
-    const unsubscribe = base44.entities.Species.subscribe((event) => {
+    const unsubscribe = base44.entities.Species.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ['allSpecies'] });
     });
     return unsubscribe;
@@ -70,24 +79,12 @@ export default function Home() {
         } else {
           setOnboardingChecked(true);
         }
-      } catch (error) {
-        // User not logged in, redirect to login with next URL
+      } catch {
         base44.auth.redirectToLogin(window.location.pathname);
       }
     };
     checkOnboarding();
-
-    const fetchSavedSpecies = async () => {
-      try {
-        const savedSpecies = await base44.entities.Species.list();
-        const scientificNames = new Set(savedSpecies.map(sp => sp.scientific_name));
-        setSavedSpeciesScientificNames(scientificNames);
-      } catch (err) {
-        console.error('Error fetching saved species:', err);
-      }
-    };
-    fetchSavedSpecies();
-    }, []);
+  }, []);
 
   const handleOnboardingComplete = async (communityData) => {
     try {
@@ -116,414 +113,26 @@ export default function Home() {
     setSpecies([]);
     setSelectedIds([]);
     startTicking(4000);
-    setSearchInfo({ 
-      level, 
-      terms: terms.join(', '),
-      includeINaturalist,
-      includeGBIF,
-      includeSpeciesLink,
-      iucnToken: !!iucnToken
-    });
+    setSearchInfo({ level, terms: terms.join(', '), includeINaturalist, includeGBIF, includeSpeciesLink, iucnToken: !!iucnToken });
 
     try {
-      // Fetch all species data from IUCN using refactored hook
+      // ── IUCN ──
       let allSpeciesMap = {};
       try {
         allSpeciesMap = await fetchIUCNSpecies(terms, level, false, iucnToken);
       } catch (err) {
         setError(err.message || 'Failed to fetch IUCN data');
-        stopTicking();
-        playError();
-        setIsLoading(false);
+        stopTicking(); playError(); setIsLoading(false);
         return;
       }
 
-      // Search iNaturalist if enabled
-      if (includeINaturalist) {
-        for (const term of terms) {
-          try {
-            let iNatTaxa = [];
+      // ── iNaturalist, GBIF, SpeciesLink — delegated to hook ──
+      if (includeINaturalist) await enrichWithINaturalist(null, level, terms, allSpeciesMap);
+      if (includeGBIF) await enrichWithGBIF(level, terms, allSpeciesMap);
+      if (includeSpeciesLink && speciesLinkApiKey) await enrichWithSpeciesLink(speciesLinkApiKey, terms, allSpeciesMap);
 
-            // For higher-order searches, find the parent taxon first
-            if (level !== 'species') {
-              const parentUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=${level}&per_page=1`;
-              const parentRes = await fetch(parentUrl);
-              if (parentRes.ok) {
-                const parentData = await parentRes.json();
-                if (parentData.results?.[0]) {
-                  const parentId = parentData.results[0].id;
-                  // Get species within this taxon
-                  const speciesUrl = `https://api.inaturalist.org/v1/taxa?taxon_id=${parentId}&rank=species&per_page=60`;
-                  const speciesRes = await fetch(speciesUrl);
-                  if (speciesRes.ok) {
-                    const speciesData = await speciesRes.json();
-                    iNatTaxa = speciesData.results || [];
-                  }
-                }
-              }
-            }
-            
-            // Fallback to text search if no results
-            if (iNatTaxa.length === 0) {
-              const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(term)}&rank=species&per_page=300`;
-              const taxonRes = await fetch(taxonUrl);
-              if (taxonRes.ok) {
-                const taxonData = await taxonRes.json();
-                iNatTaxa = taxonData.results || [];
-              }
-            }
-
-            if (iNatTaxa.length === 0) {
-              console.warn(`No iNaturalist species found for ${term}`);
-              continue;
-            }
-
-            // Process each species (up to 300)
-            for (const taxon of iNatTaxa.slice(0, 300)) {
-              const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=200&order=desc&order_by=created_at&quality_grade=research`;
-
-              const obsRes = await fetch(obsUrl);
-              let observationData = null;
-              if (obsRes.ok) {
-                observationData = await obsRes.json();
-              }
-
-              const observations = observationData?.results || [];
-
-              const observationsWithCoords = observations
-                .filter(obs => obs.location)
-                .map(obs => ({
-                  latitude: parseFloat(obs.location.split(',')[0]),
-                  longitude: parseFloat(obs.location.split(',')[1]),
-                  location: obs.place_guess || '',
-                  observed_on: obs.observed_on,
-                  user: obs.user?.login || 'Unknown',
-                  photo_url: obs.photos?.[0]?.url || ''
-                }));
-
-              let inatObservationsCsvFileUri = null;
-              if (observationsWithCoords.length > 0) {
-                const csvContent = [
-                  'latitude,longitude,location,date,observer,photo_url',
-                  ...observationsWithCoords.map(obs => 
-                    `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-                  )
-                ].join('\n');
-                
-                const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-                const csvFile = new File([csvBlob], `${taxon.name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
-                const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-                inatObservationsCsvFileUri = csvUri;
-              }
-
-              const inatSpeciesData = {
-                id: `inat-${taxon.id}`,
-                scientific_name: taxon.name,
-                common_name: taxon.preferred_common_name || '',
-                iucn_status: 'NE',
-                inat_taxon_id: taxon.id,
-                inat_wikipedia_url: taxon.wikipedia_url || null,
-                observation_count: taxon.observations_count || 0,
-                observations: observationsWithCoords,
-                last_observed: observations[0]?.observed_on || null,
-                inat_observations_csv_file_uri: inatObservationsCsvFileUri,
-                data_source: 'iNaturalist',
-                image_url: taxon.default_photo?.medium_url || null,
-                dataset_name: term
-              };
-
-              if (allSpeciesMap[inatSpeciesData.scientific_name]) {
-                const existing = allSpeciesMap[inatSpeciesData.scientific_name];
-                allSpeciesMap[inatSpeciesData.scientific_name] = {
-                  ...existing,
-                  inat_taxon_id: inatSpeciesData.inat_taxon_id,
-                  inat_wikipedia_url: inatSpeciesData.inat_wikipedia_url,
-                  observation_count: inatSpeciesData.observation_count,
-                  observations: inatSpeciesData.observations,
-                  last_observed: inatSpeciesData.last_observed,
-                  inat_observations_csv_file_uri: inatSpeciesData.inat_observations_csv_file_uri,
-                  data_source: 'IUCN + iNaturalist',
-                  image_url: existing.image_url || inatSpeciesData.image_url
-                };
-              } else {
-                allSpeciesMap[inatSpeciesData.scientific_name] = inatSpeciesData;
-              }
-            }
-          } catch (err) {
-            console.error(`Error fetching iNaturalist data for ${term}:`, err);
-          }
-        }
-      }
-
-      // Search GBIF if enabled
-      if (includeGBIF) {
-        // For higher taxonomic searches, search once per term
-        if (level && level !== 'species') {
-          for (const term of terms) {
-            try {
-              const gbifResult = await base44.functions.invoke('fetchGBIFData', {
-                scientificName: term.trim(),
-                level: level
-              });
-
-              if (gbifResult?.data?.status === 'success') {
-                const gbifSpeciesList = Array.isArray(gbifResult?.data?.data) 
-                  ? gbifResult.data.data 
-                  : [gbifResult?.data?.data];
-
-                for (const gbifData of gbifSpeciesList) {
-                  // Create CSV of GBIF occurrences
-                  let gbifOccurrencesCsvFileUri = null;
-                  if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
-                    const csvContent = [
-                      'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
-                      ...gbifData.gbif_occurrences.map(occ => 
-                        `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
-                      )
-                    ].join('\n');
-
-                    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-                    const csvFile = new File([csvBlob], `${gbifData.scientific_name.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
-                    const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-                    gbifOccurrencesCsvFileUri = csvUri;
-                  }
-
-                  // Merge GBIF data with existing species or create new entry
-                  if (allSpeciesMap[gbifData.scientific_name]) {
-                    allSpeciesMap[gbifData.scientific_name] = {
-                      ...allSpeciesMap[gbifData.scientific_name],
-                      gbif_id: gbifData.gbif_id,
-                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                      gbif_occurrences: gbifData.gbif_occurrences,
-                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                      data_source: allSpeciesMap[gbifData.scientific_name].data_source === 'IUCN + iNaturalist' ? 
-                        'IUCN + iNaturalist + GBIF' : 
-                        allSpeciesMap[gbifData.scientific_name].data_source ? 
-                          `${allSpeciesMap[gbifData.scientific_name].data_source} + GBIF` : 
-                          'GBIF'
-                    };
-                  } else {
-                    // Create new species entry from GBIF data
-                    allSpeciesMap[gbifData.scientific_name] = {
-                      id: `gbif-${gbifData.gbif_id}`,
-                      scientific_name: gbifData.scientific_name,
-                      common_name: gbifData.common_name || '',
-                      kingdom: gbifData.kingdom,
-                      phylum: gbifData.phylum,
-                      class_name: gbifData.class_name,
-                      order_name: gbifData.order_name,
-                      family: gbifData.family,
-                      genus: gbifData.genus,
-                      iucn_status: 'NE',
-                      gbif_id: gbifData.gbif_id,
-                      gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                      gbif_occurrences: gbifData.gbif_occurrences,
-                      gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                      gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                      gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                      data_source: 'GBIF',
-                      dataset_name: terms.join(', ')
-                    };
-                  }
-                }
-              }
-            } catch (err) {
-              console.error(`Error fetching GBIF data for ${term}:`, err);
-            }
-          }
-        } else {
-          // For species-level searches, query each scientific name
-          const scientificNames = Object.keys(allSpeciesMap).length > 0 
-            ? Object.keys(allSpeciesMap)
-            : terms.filter(t => t.trim());
-
-          for (const scientificName of scientificNames) {
-            try {
-              const gbifResult = await base44.functions.invoke('fetchGBIFData', {
-                scientificName: scientificName,
-                level: 'species'
-              });
-
-              if (gbifResult?.data?.status === 'success') {
-                const gbifData = gbifResult?.data?.data;
-
-                // Create CSV of GBIF occurrences
-                let gbifOccurrencesCsvFileUri = null;
-                if (gbifData.gbif_occurrences && gbifData.gbif_occurrences.length > 0) {
-                  const csvContent = [
-                    'latitude,longitude,location,date,basis_of_record,institution,catalog_number',
-                    ...gbifData.gbif_occurrences.map(occ => 
-                      `${occ.latitude},${occ.longitude},"${occ.location}",${occ.date},"${occ.basis_of_record}","${occ.institution}","${occ.catalog_number}"`
-                    )
-                  ].join('\n');
-
-                  const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-                  const csvFile = new File([csvBlob], `${scientificName.replace(/ /g, '_')}_gbif_occurrences.csv`, { type: 'text/csv' });
-                  const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-                  gbifOccurrencesCsvFileUri = csvUri;
-                }
-
-                // Merge GBIF data with existing species or create new entry
-                if (allSpeciesMap[scientificName]) {
-                  allSpeciesMap[scientificName] = {
-                    ...allSpeciesMap[scientificName],
-                    gbif_id: gbifData.gbif_id,
-                    gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                    gbif_occurrences: gbifData.gbif_occurrences,
-                    gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                    gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                    gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                    data_source: allSpeciesMap[scientificName].data_source === 'IUCN + iNaturalist' ? 
-                      'IUCN + iNaturalist + GBIF' : 
-                      allSpeciesMap[scientificName].data_source ? 
-                        `${allSpeciesMap[scientificName].data_source} + GBIF` : 
-                        'GBIF'
-                  };
-                } else {
-                  // Create new species entry from GBIF data
-                  allSpeciesMap[scientificName] = {
-                    id: `gbif-${gbifData.gbif_id}`,
-                    scientific_name: gbifData.scientific_name,
-                    common_name: gbifData.common_name || '',
-                    kingdom: gbifData.kingdom,
-                    phylum: gbifData.phylum,
-                    class_name: gbifData.class_name,
-                    order_name: gbifData.order_name,
-                    family: gbifData.family,
-                    genus: gbifData.genus,
-                    iucn_status: 'NE',
-                    gbif_id: gbifData.gbif_id,
-                    gbif_occurrence_count: gbifData.gbif_occurrence_count,
-                    gbif_occurrences: gbifData.gbif_occurrences,
-                    gbif_basis_of_record: gbifData.gbif_basis_of_record,
-                    gbif_last_occurrence: gbifData.gbif_last_occurrence,
-                    gbif_occurrences_csv_file_uri: gbifOccurrencesCsvFileUri,
-                    data_source: 'GBIF',
-                    dataset_name: terms.join(', ')
-                  };
-                }
-              }
-            } catch (err) {
-              console.error(`Error fetching GBIF data for ${scientificName}:`, err);
-            }
-          }
-        }
-      }
-
-      // Search speciesLink if enabled
-      if (includeSpeciesLink && speciesLinkApiKey) {
-        const namesToSearch = Object.keys(allSpeciesMap).length > 0
-          ? Object.keys(allSpeciesMap)
-          : terms.filter(t => t.trim());
-
-        for (const scientificName of namesToSearch) {
-          try {
-            const slResult = await base44.functions.invoke('fetchSpeciesLinkData', {
-              scientificName,
-              apiKey: speciesLinkApiKey,
-              limit: 200
-            });
-
-            if (slResult.data?.status === 'success') {
-              const slData = slResult.data.data;
-
-              // Build CSV file
-              let slCsvFileUri = null;
-              if (slData.specieslink_occurrences?.length > 0) {
-                const csvContent = [
-                  'latitude,longitude,location,date,basis_of_record,institution,collection,catalog_number,recorded_by,type_status',
-                  ...slData.specieslink_occurrences.map(o =>
-                    `${o.latitude},${o.longitude},"${o.location}",${o.date || ''},"${o.basis_of_record}","${o.institution}","${o.collection}","${o.catalog_number}","${o.recorded_by}","${o.type_status}"`
-                  )
-                ].join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const file = new File([blob], `${scientificName.replace(/ /g, '_')}_specieslink.csv`, { type: 'text/csv' });
-                const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
-                slCsvFileUri = file_uri;
-              }
-
-              if (allSpeciesMap[scientificName]) {
-                allSpeciesMap[scientificName] = {
-                  ...allSpeciesMap[scientificName],
-                  specieslink_occurrence_count: slData.specieslink_occurrence_count,
-                  specieslink_occurrences: slData.specieslink_occurrences,
-                  specieslink_last_collected: slData.specieslink_last_collected,
-                  specieslink_occurrences_csv_file_uri: slCsvFileUri,
-                  data_source: allSpeciesMap[scientificName].data_source
-                    ? `${allSpeciesMap[scientificName].data_source} + speciesLink`
-                    : 'speciesLink'
-                };
-              } else {
-                allSpeciesMap[scientificName] = {
-                  id: `specieslink-${scientificName}`,
-                  scientific_name: scientificName,
-                  common_name: '',
-                  iucn_status: 'NE',
-                  specieslink_occurrence_count: slData.specieslink_occurrence_count,
-                  specieslink_occurrences: slData.specieslink_occurrences,
-                  specieslink_last_collected: slData.specieslink_last_collected,
-                  specieslink_occurrences_csv_file_uri: slCsvFileUri,
-                  data_source: 'speciesLink',
-                  dataset_name: terms.join(', ')
-                };
-              }
-            }
-          } catch (err) {
-            console.error(`Error fetching speciesLink data for ${scientificName}:`, err);
-          }
-        }
-      }
-
-      // Persist all iNat-only and GBIF-only species to DB (IUCN ones are already saved above)
-      for (const sp of Object.values(allSpeciesMap)) {
-        if (sp.data_source === 'IUCN Red List') continue; // already saved
-        try {
-          const existing = await base44.entities.Species.filter({ scientific_name: sp.scientific_name });
-          const dbFields = {
-            scientific_name: sp.scientific_name,
-            common_name: sp.common_name || '',
-            kingdom: sp.kingdom || '',
-            phylum: sp.phylum || '',
-            class_name: sp.class_name || '',
-            order_name: sp.order_name || '',
-            family: sp.family || '',
-            genus: sp.genus || '',
-            iucn_status: sp.iucn_status || 'NE',
-            inat_taxon_id: sp.inat_taxon_id || null,
-            inat_wikipedia_url: sp.inat_wikipedia_url || null,
-            observation_count: sp.observation_count || 0,
-            observations: sp.observations || [],
-            last_observed: sp.last_observed || null,
-            inat_observations_csv_file_uri: sp.inat_observations_csv_file_uri || null,
-            gbif_id: sp.gbif_id || null,
-            gbif_occurrence_count: sp.gbif_occurrence_count || 0,
-            gbif_occurrences: sp.gbif_occurrences || [],
-            gbif_basis_of_record: sp.gbif_basis_of_record || null,
-            gbif_last_occurrence: sp.gbif_last_occurrence || null,
-            gbif_occurrences_csv_file_uri: sp.gbif_occurrences_csv_file_uri || null,
-            specieslink_occurrence_count: sp.specieslink_occurrence_count || 0,
-            specieslink_occurrences: sp.specieslink_occurrences || [],
-            specieslink_last_collected: sp.specieslink_last_collected || null,
-            specieslink_occurrences_csv_file_uri: sp.specieslink_occurrences_csv_file_uri || null,
-            image_url: sp.image_url || null,
-          };
-          if (existing.length > 0) {
-            // Merge new observation/occurrence data into existing IUCN record
-            const updates = {};
-            if (sp.inat_taxon_id && !existing[0].inat_taxon_id) { updates.inat_taxon_id = sp.inat_taxon_id; updates.observation_count = sp.observation_count; updates.observations = sp.observations; updates.last_observed = sp.last_observed; updates.inat_observations_csv_file_uri = sp.inat_observations_csv_file_uri; }
-            if (sp.gbif_id && !existing[0].gbif_id) { updates.gbif_id = sp.gbif_id; updates.gbif_occurrence_count = sp.gbif_occurrence_count; updates.gbif_occurrences = sp.gbif_occurrences; updates.gbif_basis_of_record = sp.gbif_basis_of_record; updates.gbif_last_occurrence = sp.gbif_last_occurrence; updates.gbif_occurrences_csv_file_uri = sp.gbif_occurrences_csv_file_uri; }
-            if (sp.specieslink_occurrence_count && !existing[0].specieslink_occurrence_count) { updates.specieslink_occurrence_count = sp.specieslink_occurrence_count; updates.specieslink_occurrences = sp.specieslink_occurrences; updates.specieslink_last_collected = sp.specieslink_last_collected; updates.specieslink_occurrences_csv_file_uri = sp.specieslink_occurrences_csv_file_uri; }
-            if (!existing[0].image_url && sp.image_url) updates.image_url = sp.image_url;
-            if (Object.keys(updates).length > 0) await base44.entities.Species.update(existing[0].id, updates);
-          } else {
-            await base44.entities.Species.create(dbFields);
-          }
-        } catch (e) {
-          console.error(`Error persisting ${sp.scientific_name} to DB:`, e.message);
-        }
-      }
+      // ── Persist non-IUCN species to DB ──
+      await persistNonIUCNSpecies(allSpeciesMap);
 
       const allSpecies = Object.values(allSpeciesMap);
 
@@ -536,7 +145,7 @@ export default function Home() {
       
       setSpecies(allSpecies.map(sp => ({
         ...sp,
-        is_new: !savedSpeciesScientificNames.has(sp.scientific_name)
+        is_new: !savedSpeciesScientificNamesSet.has(sp.scientific_name),
       })));
       stopTicking();
       playSuccess();
@@ -592,87 +201,11 @@ export default function Home() {
     }
   };
 
-  const enrichWithINaturalist = async (species) => {
+  const handleEnrichWithINaturalist = async (species) => {
     setIsLoading(true);
     setError(null);
-
     try {
-      // Fetch iNaturalist data for this specific species
-      const taxonUrl = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(species.scientific_name)}&rank=species`;
-      const taxonRes = await fetch(taxonUrl);
-      
-      if (!taxonRes.ok) {
-        throw new Error('Failed to fetch iNaturalist data');
-      }
-
-      const taxonData = await taxonRes.json();
-      if (!taxonData.results || taxonData.results.length === 0) {
-        setError(`No iNaturalist data found for ${species.scientific_name}`);
-        setIsLoading(false);
-        return;
-      }
-
-      const taxon = taxonData.results[0];
-
-      // Fetch observations
-      const obsUrl = `https://api.inaturalist.org/v1/observations?taxon_id=${taxon.id}&per_page=100&order=desc&order_by=created_at&photos=true&quality_grade=research`;
-      const obsRes = await fetch(obsUrl);
-      let observationData = null;
-      if (obsRes.ok) {
-        observationData = await obsRes.json();
-      }
-
-      const observations = observationData?.results || [];
-
-      // Store observations with coordinates
-      const observationsWithCoords = observations
-        .filter(obs => obs.location)
-        .map(obs => ({
-          latitude: parseFloat(obs.location.split(',')[0]),
-          longitude: parseFloat(obs.location.split(',')[1]),
-          location: obs.place_guess || '',
-          observed_on: obs.observed_on,
-          user: obs.user?.login || 'Unknown',
-          photo_url: obs.photos?.[0]?.url || ''
-        }));
-
-      // Create CSV of observations
-      let inatObservationsCsvFileUri = null;
-      if (observationsWithCoords.length > 0) {
-        const csvContent = [
-          'latitude,longitude,location,date,observer,photo_url',
-          ...observationsWithCoords.map(obs => 
-            `${obs.latitude},${obs.longitude},"${obs.location}",${obs.observed_on},${obs.user},"${obs.photo_url}"`
-          )
-        ].join('\n');
-        
-        const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-        const csvFile = new File([csvBlob], `${species.scientific_name.replace(/ /g, '_')}_inat_observations.csv`, { type: 'text/csv' });
-        const { file_uri: csvUri } = await base44.integrations.Core.UploadPrivateFile({ file: csvFile });
-        inatObservationsCsvFileUri = csvUri;
-      }
-
-      // Prepare update data
-      const updateData = {
-        inat_taxon_id: taxon.id,
-        inat_wikipedia_url: taxon.wikipedia_url || null,
-        observation_count: taxon.observations_count || 0,
-        observations: observationsWithCoords,
-        last_observed: observations[0]?.observed_on || null,
-        inat_observations_csv_file_uri: inatObservationsCsvFileUri
-      };
-
-      // Add common name if missing
-      if (!species.common_name && taxon.preferred_common_name) {
-        updateData.common_name = taxon.preferred_common_name;
-      }
-
-      // Add image if missing
-      if (!species.image_url && taxon.default_photo?.medium_url) {
-        updateData.image_url = taxon.default_photo.medium_url;
-      }
-
-      // Check if saved in DB already
+      const updateData = await enrichSingleSpeciesWithINat(species);
       const existing = await base44.entities.Species.filter({ scientific_name: species.scientific_name });
       if (existing.length > 0) {
         await base44.entities.Species.update(existing[0].id, updateData);
@@ -680,19 +213,16 @@ export default function Home() {
           sp.scientific_name === species.scientific_name ? { ...sp, ...updateData, id: existing[0].id } : sp
         ));
       } else {
-        // Save to DB as new record then update local state
         const created = await base44.entities.Species.create({
           scientific_name: species.scientific_name,
           common_name: species.common_name,
           iucn_status: species.iucn_status,
-          ...updateData
+          ...updateData,
         });
         setSpecies(prev => prev.map(sp =>
           sp.scientific_name === species.scientific_name ? { ...sp, ...updateData, id: created.id } : sp
         ));
       }
-
-      setError(null);
     } catch (err) {
       console.error('Error enriching with iNaturalist:', err);
       setError(`Failed to enrich ${species.scientific_name} with iNaturalist data.`);
@@ -724,7 +254,7 @@ export default function Home() {
                 onManageLists={() => setShowListManager(true)}
                 onAddNote={(sp) => { setNoteSpecies(sp); setShowNotes(true); }}
                 onSaveSearch={() => setShowSaveSearch(true)}
-                onEnrichWithINaturalist={enrichWithINaturalist}
+                onEnrichWithINaturalist={handleEnrichWithINaturalist}
                 onDelete={handleDeleteSpecies}
               />
             )}

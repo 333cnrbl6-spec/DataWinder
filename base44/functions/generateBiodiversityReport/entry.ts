@@ -64,36 +64,48 @@ Deno.serve(async (req) => {
 });
 
 async function fetchOccurrenceData(base44, filters = {}) {
-  let query = {};
+  let occurrences = await base44.entities.OccurrenceNote.list();
 
+  // Filter by species IDs
   if (filters.species_ids?.length > 0) {
-    // Filter by species - would need to fetch and match
+    occurrences = occurrences.filter(o => filters.species_ids.includes(o.species_id));
   }
 
+  // Filter by date range
   if (filters.date_range_days) {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - filters.date_range_days);
-    // Would add date filtering to query
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - filters.date_range_days);
+    occurrences = occurrences.filter(o => {
+      if (!o.occurrence_date) return true;
+      return new Date(o.occurrence_date) >= cutoff;
+    });
   }
 
-  // Fetch all available occurrence notes as proxy for occurrence data
-  const occurrences = await base44.entities.OccurrenceNote.list();
+  // Filter by geographic region (basic name match)
+  if (filters.geographic_region) {
+    const region = filters.geographic_region.toLowerCase();
+    occurrences = occurrences.filter(o =>
+      !o.region || o.region.toLowerCase().includes(region)
+    );
+  }
 
   return occurrences;
 }
 
 async function fetchValidationFlags(base44, filters = {}) {
-  let flagQuery = {};
+  if (filters.include_validation_flags === false) return [];
 
+  let flags = await base44.entities.ValidationFlag.list();
+
+  // Filter by severity
   if (filters.flag_severity?.length > 0) {
-    // Would filter by severity if API supports it
+    flags = flags.filter(f => filters.flag_severity.includes(f.severity));
   }
 
-  if (filters.include_validation_flags === false) {
-    return [];
+  // Filter by species IDs
+  if (filters.species_ids?.length > 0) {
+    flags = flags.filter(f => filters.species_ids.includes(f.species_id));
   }
-
-  const flags = await base44.entities.ValidationFlag.list();
 
   return flags;
 }
