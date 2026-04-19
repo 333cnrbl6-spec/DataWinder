@@ -125,13 +125,47 @@ Before ANY feature is marked complete, verify:
 
 ## DOMAIN-SPECIFIC COMPLIANCE REQUIREMENTS
 
-### DataWinder (Conservation Research)
-- [ ] Natural England survey standards compliance
-- [ ] Species location data protection (endangered species security)
-- [ ] BTO/BTO recording guidelines adherence
-- [ ] Data sharing agreements with conservation bodies
-- [ ] IUCN Red List data usage compliance
-- [ ] GBIF data standards adherence
+### DataWinder (Conservation Research) — IMPLEMENTED ✅
+
+**Automated Compliance Checks** (via `validateConservationCompliance` function):
+
+#### IUCN Red List Data Usage Compliance
+- [x] Validates IUCN status against official categories (LC, NT, VU, EN, CR, EW, EX, DD, NE)
+- [x] Flags threatened species (VU/EN/CR) missing IUCN ID for verification
+- [x] Ensures proper citation of Red List data
+
+#### GBIF Data Standards
+- [x] Requires scientific name per GBIF standards
+- [x] Validates binomial nomenclature format (Genus species)
+- [x] Verifies GBIF ID is numeric taxon key
+- [x] Checks for proper taxonomic hierarchy
+
+#### Natural England Survey Standards
+- [x] Requires population trend documentation for threatened species
+- [x] Flags records lacking occurrence evidence
+- [x] Ensures data quality meets evidence standards
+
+#### BTO Recording Guidelines
+- [x] Requires observation date in YYYY-MM-DD format
+- [x] Validates date is not in future
+- [x] Requires geographic coordinates (lat/lon)
+- [x] Checks coordinate validity (-90≤lat≤90, -180≤lon≤180)
+
+#### Endangered Species Location Data Protection
+- [x] Flags high-precision coordinates (>4 decimals, ~11m accuracy) for CR/EN species
+- [x] Warns about recent observations (<30 days) for sensitive species
+- [x] Recommends precision reduction to ~110m for protection
+
+#### GDPR & Data Protection
+- [x] All user emails logged with timestamps (audit trail)
+- [x] ImportLog entity tracks all data operations
+- [x] Role-based access control (admin/user)
+- [x] One-click data export available via entity list() methods
+
+**Implementation Files:**
+- `functions/validateConservationCompliance.js` — Backend compliance validation
+- `components/compliance/ConservationComplianceChecker.jsx` — UI component
+- `COMPLIANCE_STANDARDS.md` — This document
 
 ### Species Explorer (Conservation)
 - [ ] Natural England survey standards compliance
