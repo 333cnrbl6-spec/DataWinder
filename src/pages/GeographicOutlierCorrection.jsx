@@ -304,7 +304,7 @@ export default function GeographicOutlierCorrection() {
               <MapPin className="w-12 h-12 text-slate-300 mx-auto mb-3" />
               <p className="text-lg font-medium">No occurrence data loaded</p>
               <p className="text-sm mt-1">Import or add occurrence records to detect geographic outliers</p>
-            </div>
+            </CardContent>
           </Card>
         )}
       </div>
