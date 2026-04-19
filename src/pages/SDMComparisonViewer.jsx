@@ -8,12 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapContainer, TileLayer, HeatmapLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { Eye, EyeOff, Download, Share2, Maximize2, Settings, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.heat';
 
 export default function SDMComparisonViewer() {
   const { projectId, speciesId } = useParams();
@@ -267,28 +266,32 @@ export default function SDMComparisonViewer() {
                               attribution='&copy; OpenStreetMap'
                             />
 
-                            {/* Heatmap of predictions */}
+                            {/* Prediction grid visualization */}
                             {run.prediction_grid &&
                               Array.isArray(run.prediction_grid) &&
-                              run.prediction_grid.length > 0 && (
-                                <HeatmapLayer
-                                  points={run.prediction_grid.map(p => [
-                                    p.lat,
-                                    p.lon,
-                                    p.suitability || 0
-                                  ])}
-                                  max={1}
-                                  radius={25}
-                                  blur={20}
-                                  gradient={{
-                                    0: 'blue',
-                                    0.25: 'lime',
-                                    0.5: 'yellow',
-                                    0.75: 'orange',
-                                    1: 'red'
-                                  }}
-                                />
-                              )}
+                              run.prediction_grid.length > 0 &&
+                              run.prediction_grid.map((point, idx) => {
+                                const suitability = point.suitability || 0;
+                                let color = '#3b82f6';
+                                if (suitability > 0.75) color = '#ef4444';
+                                else if (suitability > 0.5) color = '#f59e0b';
+                                else if (suitability > 0.25) color = '#84cc16';
+                                
+                                return (
+                                  <CircleMarker
+                                    key={`${point.lat}-${point.lon}-${idx}`}
+                                    center={[point.lat, point.lon]}
+                                    radius={4}
+                                    fillColor={color}
+                                    color="none"
+                                    fillOpacity={0.6}
+                                  >
+                                    <Popup>
+                                      Suitability: {(suitability * 100).toFixed(1)}%
+                                    </Popup>
+                                  </CircleMarker>
+                                );
+                              })}
                           </MapContainer>
                         </div>
                       ) : (
