@@ -50,6 +50,7 @@ import BiodiversityReporting from './pages/BiodiversityReporting';
 import GeographicOutlierCorrection from './pages/GeographicOutlierCorrection';
 import DataIngestion from './pages/DataIngestion';
 import VersionHistory from './pages/VersionHistory';
+import SDMAnnotationViewer from './pages/SDMAnnotationViewer';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -164,6 +165,7 @@ const AuthenticatedApp = () => {
       <Route path="/GeographicOutlierCorrection" element={<LayoutWrapper currentPageName="GeographicOutlierCorrection"><GeographicOutlierCorrection /></LayoutWrapper>} />
       <Route path="/DataIngestion" element={<LayoutWrapper currentPageName="DataIngestion"><DataIngestion /></LayoutWrapper>} />
       <Route path="/VersionHistory" element={<LayoutWrapper currentPageName="VersionHistory"><VersionHistory /></LayoutWrapper>} />
+      <Route path="/SDMAnnotationViewer" element={<LayoutWrapper currentPageName="SDMAnnotationViewer"><SDMAnnotationViewer /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>

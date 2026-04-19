@@ -49,6 +49,7 @@ const NAV_CATEGORIES = [
       { label: 'Interpretation', page: 'MaxentInterpretation', icon: BarChart2 },
       { label: 'Batch Submit', page: 'MaxentBatchSubmit', icon: ListChecks },
       { label: 'Scenario Compare', page: 'ClimateScenarioComparison', icon: GitCompare },
+      { label: 'Annotations', page: 'SDMAnnotationViewer', icon: MessageCircle },
     ]
   },
   {

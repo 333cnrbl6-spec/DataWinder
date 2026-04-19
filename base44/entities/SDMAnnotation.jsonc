@@ -1,0 +1,133 @@
+{
+  "name": "SDMAnnotation",
+  "type": "object",
+  "properties": {
+    "sdm_run_id": {
+      "type": "string",
+      "description": "Reference to SDMRun record"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Species ID for context"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Species scientific name for display"
+    },
+    "annotation_type": {
+      "type": "string",
+      "enum": [
+        "comment",
+        "flag",
+        "rerun_request"
+      ],
+      "description": "Type of annotation"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "info",
+      "description": "Severity level for flags and rerun requests"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude of annotation location"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude of annotation location"
+    },
+    "radius_km": {
+      "type": "number",
+      "description": "Radius in km for area-based annotations (optional)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short title or subject of the annotation"
+    },
+    "content": {
+      "type": "string",
+      "description": "Detailed comment or flag description"
+    },
+    "inconsistency_type": {
+      "type": "string",
+      "enum": [
+        "false_positive",
+        "false_negative",
+        "boundary_issue",
+        "data_quality",
+        "climate_mismatch",
+        "other"
+      ],
+      "description": "Type of inconsistency if flagged"
+    },
+    "rerun_parameters": {
+      "type": "object",
+      "description": "Suggested parameter changes for model re-run",
+      "properties": {
+        "regularization": {
+          "type": "number"
+        },
+        "test_fraction": {
+          "type": "number"
+        },
+        "bioclim_vars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of user who created annotation"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Display name of creator"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this annotation has been addressed"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "Email of user who resolved it"
+    },
+    "resolved_by_name": {
+      "type": "string",
+      "description": "Display name of resolver"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "Notes on how the annotation was resolved"
+    },
+    "linked_rerun_id": {
+      "type": "string",
+      "description": "ID of SDMRun created from rerun request"
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of team members mentioned in comment"
+    }
+  },
+  "required": [
+    "sdm_run_id",
+    "species_id",
+    "annotation_type",
+    "latitude",
+    "longitude",
+    "title",
+    "content",
+    "created_by"
+  ]
+}
