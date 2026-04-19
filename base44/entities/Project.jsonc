@@ -1,0 +1,109 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description and objectives"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the project owner"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Display name of the project owner"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived",
+        "completed"
+      ],
+      "default": "active",
+      "description": "Project status"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project end date"
+    },
+    "species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of species included in this project"
+    },
+    "occurrence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of occurrence records included in this project"
+    },
+    "sdm_run_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of SDM runs associated with this project"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "viewer"
+            ]
+          },
+          "added_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Team members with access to this project"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Project tags for organization"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional project notes"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the project is publicly accessible"
+    }
+  },
+  "required": [
+    "title",
+    "owner_email"
+  ]
+}

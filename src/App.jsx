@@ -50,6 +50,7 @@ import BiodiversityReporting from './pages/BiodiversityReporting';
 import GeographicOutlierCorrection from './pages/GeographicOutlierCorrection';
 import DataIngestion from './pages/DataIngestion';
 import SpeciesReportGenerator from './pages/SpeciesReportGenerator';
+import ProjectDashboard from './pages/ProjectDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -164,6 +165,7 @@ const AuthenticatedApp = () => {
       <Route path="/GeographicOutlierCorrection" element={<LayoutWrapper currentPageName="GeographicOutlierCorrection"><GeographicOutlierCorrection /></LayoutWrapper>} />
       <Route path="/DataIngestion" element={<LayoutWrapper currentPageName="DataIngestion"><DataIngestion /></LayoutWrapper>} />
       <Route path="/SpeciesReportGenerator" element={<LayoutWrapper currentPageName="SpeciesReportGenerator"><SpeciesReportGenerator /></LayoutWrapper>} />
+      <Route path="/ProjectDashboard" element={<LayoutWrapper currentPageName="ProjectDashboard"><ProjectDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </ErrorBoundary>
