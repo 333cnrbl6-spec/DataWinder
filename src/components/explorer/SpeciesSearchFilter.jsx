@@ -266,3 +266,5 @@ function FilterSection({ title, expanded, onToggle, children }) {
     </div>
   );
 }
+
+export { SpeciesSearchFilter };

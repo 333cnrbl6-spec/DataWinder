@@ -62,6 +62,10 @@ import ProductOverview from './pages/ProductOverview';
 import SDMReportingDashboard from './pages/SDMReportingDashboard';
 import MapAnnotationEditor from './pages/MapAnnotationEditor';
 import BoardPricingVote from './pages/BoardPricingVote';
+import BiodiversityDashboard from './pages/BiodiversityDashboard';
+import SpeciesIdentificationLab from './pages/SpeciesIdentificationLab';
+import ConservationProjectTracker from './pages/ConservationProjectTracker';
+import SpeciesExplorerHub from './pages/SpeciesExplorerHub';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -191,6 +195,10 @@ const AuthenticatedApp = () => {
       <Route path="/SDMReportingDashboard" element={<LayoutWrapper currentPageName="SDMReportingDashboard"><SDMReportingDashboard /></LayoutWrapper>} />
       <Route path="/MapAnnotationEditor/:sdmRunId" element={<LayoutWrapper currentPageName="MapAnnotationEditor"><MapAnnotationEditor /></LayoutWrapper>} />
       <Route path="/BoardPricingVote" element={<LayoutWrapper currentPageName="BoardPricingVote"><BoardPricingVote /></LayoutWrapper>} />
+      <Route path="/BiodiversityDashboard" element={<LayoutWrapper currentPageName="BiodiversityDashboard"><BiodiversityDashboard /></LayoutWrapper>} />
+      <Route path="/SpeciesIdentificationLab" element={<LayoutWrapper currentPageName="SpeciesIdentificationLab"><SpeciesIdentificationLab /></LayoutWrapper>} />
+      <Route path="/ConservationProjectTracker" element={<LayoutWrapper currentPageName="ConservationProjectTracker"><ConservationProjectTracker /></LayoutWrapper>} />
+      <Route path="/SpeciesExplorerHub" element={<LayoutWrapper currentPageName="SpeciesExplorerHub"><SpeciesExplorerHub /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>

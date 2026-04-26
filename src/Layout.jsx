@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target } from 'lucide-react';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
@@ -102,6 +102,15 @@ const NAV_CATEGORIES = [
     page: 'ForKids',
     icon: Leaf,
     standalone: true
+  },
+  {
+    label: 'Species Explorer',
+    icon: Leaf,
+    items: [
+      { label: 'Live Dashboard', page: 'BiodiversityDashboard', icon: TrendingUp },
+      { label: 'AI Identification', page: 'SpeciesIdentificationLab', icon: Sparkles },
+      { label: 'Project Tracker', page: 'ConservationProjectTracker', icon: Target },
+    ]
   },
 ];
 
