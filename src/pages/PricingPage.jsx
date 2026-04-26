@@ -3,18 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Download, Zap, Users, Database, Gauge, AlertCircle } from 'lucide-react';
-import { COMMERCIAL_CONFIG } from '@/lib/commercialConfig';
+import { DATAWINDER_PRICING } from '@/components/pricing/UnifiedPricingManager';
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = useMemo(() => {
-    const rawPlans = Object.values(COMMERCIAL_CONFIG?.PLANS || {});
-    if (!rawPlans || rawPlans.length === 0) {
-      console.warn('No pricing plans configured');
-      return [];
-    }
-    return rawPlans;
+    return Object.values(DATAWINDER_PRICING.tiers || {});
   }, []);
 
   const comparisonFeatures = [
@@ -125,54 +120,52 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {plans.filter(p => p && p.id).map(plan => {
-            if (!plan || !plan.features || !Array.isArray(plan.features)) return null;
-            
-            return (
-              <Card
-                key={plan.id}
-                className={`relative transition-all flex flex-col ${
-                  plan.badge
-                    ? 'ring-2 ring-blue-500 md:scale-105 md:shadow-xl'
-                    : 'hover:shadow-lg'
-                }`}
-              >
-                {plan.badge && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white">
-                    {plan.badge}
-                  </Badge>
-                )}
+          {plans.map(plan => (
+            <Card
+              key={plan.id}
+              className={`relative transition-all flex flex-col ${
+                plan.badge
+                  ? 'ring-2 ring-blue-500 md:scale-105 md:shadow-xl'
+                  : 'hover:shadow-lg'
+              }`}
+            >
+              {plan.badge && (
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white">
+                  {plan.badge}
+                </Badge>
+              )}
 
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name || 'Plan'}</CardTitle>
-                  <CardDescription>{plan.description || ''}</CardDescription>
-                  <div className="mt-4">
-                    <div className="text-4xl font-bold text-slate-900">
-                      {plan.price_gbp === 0 ? 'Free' : `£${plan.price_gbp || 0}`}
+              <CardHeader>
+                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="mt-4">
+                  <div className="text-4xl font-bold text-slate-900">
+                    {plan.price_gbp_monthly === 0 ? 'Free' : `£${plan.price_gbp_monthly}`}
+                  </div>
+                  {plan.price_gbp_monthly > 0 && (
+                    <div className="text-sm text-slate-600 mt-1">
+                      /month or £{plan.price_gbp_annual}/year (save 20%)
                     </div>
-                    {plan.price_gbp > 0 && (
-                      <div className="text-sm text-slate-600 mt-1">{plan.price_monthly_label || '/month'}</div>
-                    )}
-                  </div>
-                </CardHeader>
+                  )}
+                </div>
+              </CardHeader>
 
-                <CardContent className="space-y-6 flex-1 flex flex-col">
-                  <Button className="w-full" size="lg">
-                    {plan.price_gbp === 0 ? 'Get Started Free' : 'Start Free Trial'}
-                  </Button>
+              <CardContent className="space-y-6 flex-1 flex flex-col">
+                <Button className="w-full" size="lg">
+                  {plan.price_gbp_monthly === 0 ? 'Get Started Free' : 'Start Free Trial'}
+                </Button>
 
-                  <div className="space-y-3 flex-1">
-                    {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-slate-700">{feature || ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                <div className="space-y-3 flex-1">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-slate-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Why DataWinder Stands Out */}

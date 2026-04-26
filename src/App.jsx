@@ -61,6 +61,7 @@ import PricingPage from './pages/PricingPage';
 import ProductOverview from './pages/ProductOverview';
 import SDMReportingDashboard from './pages/SDMReportingDashboard';
 import MapAnnotationEditor from './pages/MapAnnotationEditor';
+import BoardPricingVote from './pages/BoardPricingVote';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -189,6 +190,7 @@ const AuthenticatedApp = () => {
       <Route path="/ProductOverview" element={<ProductOverview />} />
       <Route path="/SDMReportingDashboard" element={<LayoutWrapper currentPageName="SDMReportingDashboard"><SDMReportingDashboard /></LayoutWrapper>} />
       <Route path="/MapAnnotationEditor/:sdmRunId" element={<LayoutWrapper currentPageName="MapAnnotationEditor"><MapAnnotationEditor /></LayoutWrapper>} />
+      <Route path="/BoardPricingVote" element={<LayoutWrapper currentPageName="BoardPricingVote"><BoardPricingVote /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
