@@ -59,6 +59,7 @@ import SDMComparisonViewer from './pages/SDMComparisonViewer';
 import DataQualityWizard from './pages/DataQualityWizard';
 import PricingPage from './pages/PricingPage';
 import ProductOverview from './pages/ProductOverview';
+import SDMReportingDashboard from './pages/SDMReportingDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -185,6 +186,7 @@ const AuthenticatedApp = () => {
       <Route path="/DataQualityWizard/:projectId" element={<LayoutWrapper currentPageName="DataQualityWizard"><DataQualityWizard /></LayoutWrapper>} />
       <Route path="/Pricing" element={<LayoutWrapper currentPageName="Pricing"><PricingPage /></LayoutWrapper>} />
       <Route path="/ProductOverview" element={<ProductOverview />} />
+      <Route path="/SDMReportingDashboard" element={<LayoutWrapper currentPageName="SDMReportingDashboard"><SDMReportingDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
