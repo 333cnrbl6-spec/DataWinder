@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Users, UserPlus, Shield, Eye, Trash2, Loader2, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
+import { Users, UserPlus, Shield, Eye, Trash2, Loader2, CheckCircle2, AlertCircle, Copy, History } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
+import WorkspaceOverview from '@/components/workspace/WorkspaceOverview';
+import ProjectAssets from '@/components/workspace/VersionHistory';
 
 export default function ProjectWorkspace() {
   const { projectId } = useParams();
@@ -55,6 +57,18 @@ export default function ProjectWorkspace() {
         50
       ),
     enabled: !!currentUser?.email
+  });
+
+  // Fetch project version history
+  const { data: versionHistory = [] } = useQuery({
+    queryKey: ['project-versions', projectId],
+    queryFn: () =>
+      base44.entities.RecordVersion.filter(
+        { entity_type: 'Project', entity_id: projectId },
+        '-version_timestamp',
+        20
+      ),
+    enabled: !!projectId
   });
 
   // Send invite mutation
@@ -196,13 +210,25 @@ export default function ProjectWorkspace() {
           </Card>
         )}
 
-        <Tabs defaultValue="members" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="members">Team Members</TabsTrigger>
-            <TabsTrigger value="invites">Pending Invites</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="assets">Assets</TabsTrigger>
+            <TabsTrigger value="members">Team</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
-          {/* Members Tab */}
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <WorkspaceOverview project={project} />
+          </TabsContent>
+
+          {/* Assets Tab */}
+          <TabsContent value="assets" className="space-y-6">
+            <ProjectAssets project={project} />
+          </TabsContent>
+
+          {/* Team Tab */}
           <TabsContent value="members" className="space-y-6">
             <Card>
               <CardHeader>
@@ -384,46 +410,51 @@ export default function ProjectWorkspace() {
             )}
           </TabsContent>
 
-          {/* Invites Tab */}
-          <TabsContent value="invites" className="space-y-6">
-            {canManage ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Pending Invitations</CardTitle>
-                  <CardDescription>Manage outstanding team invitations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {pendingInvites.length === 0 ? (
-                    <p className="text-sm text-slate-600 italic">No pending invitations</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {pendingInvites.map(invite => (
-                        <div key={invite.id} className="p-4 rounded-lg border border-slate-200 flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{invite.invitee_email}</div>
-                            <div className="text-xs text-slate-600 mt-1 space-y-1">
-                              <div>Invited by {invite.inviter_name}</div>
-                              <div>Role: {invite.invited_role}</div>
-                              <div>Sent {format(new Date(invite.invited_at), 'PP')}</div>
-                            </div>
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  Project Version History
+                </CardTitle>
+                <CardDescription>Track all changes made to this project</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {versionHistory.length === 0 ? (
+                  <p className="text-sm text-slate-600 italic text-center py-8">No version history available</p>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {versionHistory.map((version, idx) => (
+                      <div key={version.id} className="p-4 rounded-lg border border-slate-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="font-medium text-sm text-slate-900">
+                              Version {version.version_number}
+                            </p>
+                            <p className="text-xs text-slate-600 mt-1">
+                              {version.modified_by_name || version.modified_by}
+                            </p>
                           </div>
-                          <Badge variant="outline" className="bg-yellow-50 text-yellow-800">
-                            Pending
+                          <Badge variant="outline" className="text-xs">
+                            {format(new Date(version.version_timestamp), 'PPp')}
                           </Badge>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-600">Only editors and project owners can view pending invitations</p>
-                </CardContent>
-              </Card>
-            )}
+                        {version.change_reason && (
+                          <p className="text-xs text-slate-600 mb-2 italic">"{version.change_reason}"</p>
+                        )}
+                        {version.changed_fields?.length > 0 && (
+                          <div className="text-xs">
+                            <span className="text-slate-600">Changed fields: </span>
+                            <span className="font-medium text-slate-700">{version.changed_fields.join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
