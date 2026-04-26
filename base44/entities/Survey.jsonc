@@ -1,0 +1,92 @@
+{
+  "name": "Survey",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Survey name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Survey description"
+    },
+    "location": {
+      "type": "string",
+      "description": "Survey location"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Survey center latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Survey center longitude"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "active",
+        "completed",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "habitat_type": {
+      "type": "string",
+      "enum": [
+        "woodland",
+        "wetland",
+        "coastal",
+        "grassland",
+        "urban",
+        "agricultural",
+        "mixed"
+      ]
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated conservation project"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "occurrence_count": {
+      "type": "number",
+      "description": "Total observations recorded"
+    },
+    "species_recorded": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Species IDs recorded"
+    }
+  },
+  "required": [
+    "name",
+    "location"
+  ]
+}

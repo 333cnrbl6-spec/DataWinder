@@ -1,0 +1,81 @@
+{
+  "name": "Occurrence",
+  "type": "object",
+  "properties": {
+    "species_name": {
+      "type": "string",
+      "description": "Species name (common or scientific)"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "survey_id": {
+      "type": "string",
+      "description": "Associated survey"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "observation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observer_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Field notes"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ai_identified": {
+      "type": "boolean",
+      "description": "Was species identified via AI?"
+    },
+    "ai_confidence": {
+      "type": "number",
+      "description": "AI identification confidence 0-1"
+    },
+    "conservation_status": {
+      "type": "string",
+      "enum": [
+        "LC",
+        "NT",
+        "VU",
+        "EN",
+        "CR",
+        "EW",
+        "EX",
+        "DD",
+        "NE"
+      ]
+    },
+    "threat_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "species_name",
+    "latitude",
+    "longitude"
+  ]
+}

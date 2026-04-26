@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, AlertTriangle, Leaf, TrendingUp } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
 import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard';
+import EnhancedGISMap from '@/components/maps/EnhancedGISMap';
 
 export default function BiodiversityDashboard() {
   const [selectedSpecies, setSelectedSpecies] = useState(null);
@@ -114,53 +114,8 @@ export default function BiodiversityDashboard() {
         </Card>
       )}
 
-      {/* Map View */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-bangor-red" />
-            Live Species Distribution Map
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-96 rounded-lg overflow-hidden border border-slate-200">
-            <MapContainer center={mapCenter} zoom={11} style={{ height: '100%', width: '100%' }}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              {occurrences.map(occ => {
-                const threatColor = {
-                  critical: '#ef4444',
-                  high: '#f97316',
-                  medium: '#eab308',
-                  low: '#22c55e'
-                }[occ.threat_level] || '#3b82f6';
-
-                return (
-                  <CircleMarker
-                    key={occ.id}
-                    center={[occ.latitude, occ.longitude]}
-                    radius={occ.ai_confidence ? occ.ai_confidence * 8 : 5}
-                    fillColor={threatColor}
-                    color={threatColor}
-                    weight={2}
-                    opacity={0.8}
-                    fillOpacity={0.6}
-                  >
-                    <Popup>
-                      <div className="text-sm">
-                        <p className="font-semibold">{occ.species_name}</p>
-                        {occ.ai_identified && (
-                          <Badge className="text-xs mt-1">AI: {Math.round(occ.ai_confidence * 100)}%</Badge>
-                        )}
-                        <p className="text-xs text-slate-600 mt-1">{occ.threat_level} threat</p>
-                      </div>
-                    </Popup>
-                  </CircleMarker>
-                );
-              })}
-            </MapContainer>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Enhanced GIS Map with Interactive Layers */}
+      <EnhancedGISMap occurrences={occurrences} mapCenter={mapCenter} />
 
       {/* Analytics */}
       <AnalyticsDashboard species={species} surveys={surveys} observations={occurrences} />

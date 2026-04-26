@@ -1,0 +1,101 @@
+{
+  "name": "ConservationProject",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "organization": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "active",
+        "monitoring",
+        "completed"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "species_targeted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Species IDs being conserved"
+    },
+    "surveys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Survey IDs"
+    },
+    "impact_metrics": {
+      "type": "object",
+      "properties": {
+        "species_protected": {
+          "type": "number"
+        },
+        "habitat_restored_hectares": {
+          "type": "number"
+        },
+        "population_increase_percent": {
+          "type": "number"
+        },
+        "area_monitored_hectares": {
+          "type": "number"
+        },
+        "funding_raised": {
+          "type": "number"
+        }
+      }
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "publications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Generated research papers"
+    }
+  },
+  "required": [
+    "name",
+    "organization"
+  ]
+}
