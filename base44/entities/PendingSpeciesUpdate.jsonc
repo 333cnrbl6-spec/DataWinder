@@ -1,0 +1,42 @@
+{
+  "name": "PendingSpeciesUpdate",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "ID of the existing species record"
+    },
+    "scientific_name": {
+      "type": "string",
+      "description": "Scientific name for reference"
+    },
+    "current_data": {
+      "type": "object",
+      "description": "Current species data before update"
+    },
+    "new_data": {
+      "type": "object",
+      "description": "New data fields to be updated"
+    },
+    "data_source": {
+      "type": "string",
+      "description": "Source of the new data (IUCN, iNaturalist, etc.)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Review status"
+    }
+  },
+  "required": [
+    "species_id",
+    "scientific_name",
+    "new_data",
+    "data_source"
+  ]
+}

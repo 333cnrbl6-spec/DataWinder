@@ -1,0 +1,31 @@
+{
+  "name": "SavedSearch",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name for this saved search"
+    },
+    "taxonomy_level": {
+      "type": "string",
+      "enum": [
+        "species",
+        "genus",
+        "family",
+        "order",
+        "class"
+      ]
+    },
+    "search_term": {
+      "type": "string"
+    },
+    "species_count": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "name",
+    "taxonomy_level",
+    "search_term"
+  ]
+}

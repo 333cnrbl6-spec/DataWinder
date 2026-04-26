@@ -1,0 +1,37 @@
+{
+  "name": "Phylogeny",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the phylogenetic tree"
+    },
+    "description": {
+      "type": "string",
+      "description": "Tree description and source"
+    },
+    "species_count": {
+      "type": "number",
+      "description": "Number of species in tree"
+    },
+    "newick_format": {
+      "type": "string",
+      "description": "Phylogenetic tree in Newick format"
+    },
+    "newick_file_uri": {
+      "type": "string",
+      "description": "Private storage URI for Newick file"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source or reference of the phylogeny"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "ImportLog",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user who performed the import"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Display name of user"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Target entity/table that was imported into"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original file name that was uploaded"
+    },
+    "record_count": {
+      "type": "number",
+      "description": "Number of records imported"
+    },
+    "record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of the records that were created during this import"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "reverted"
+      ],
+      "default": "completed",
+      "description": "Current status of this import"
+    },
+    "reverted_at": {
+      "type": "string",
+      "description": "ISO timestamp of when this import was reverted"
+    },
+    "reverted_by": {
+      "type": "string",
+      "description": "Email of user who reverted this import"
+    }
+  },
+  "required": [
+    "entity_type",
+    "record_count"
+  ]
+}

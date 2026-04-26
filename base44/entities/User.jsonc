@@ -1,0 +1,17 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "frozen"
+      ],
+      "default": "user",
+      "description": "User role \u2014 'frozen' suspends access"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,173 @@
+{
+  "name": "SDMRun",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "User-given name for this SDM run"
+    },
+    "species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of Species records included"
+    },
+    "species_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Scientific names for display"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "cleaning",
+        "thinning",
+        "fetching_climate",
+        "modeling",
+        "completed",
+        "failed"
+      ],
+      "default": "queued",
+      "description": "Pipeline stage"
+    },
+    "progress_pct": {
+      "type": "number",
+      "description": "Overall progress 0-100"
+    },
+    "progress_message": {
+      "type": "string",
+      "description": "Human-readable status message"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Pipeline parameters used",
+      "properties": {
+        "outlier_handling": {
+          "type": "string"
+        },
+        "thinning_km": {
+          "type": "number"
+        },
+        "bioclim_vars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regularization": {
+          "type": "number"
+        },
+        "test_fraction": {
+          "type": "number"
+        }
+      }
+    },
+    "occurrence_stats": {
+      "type": "object",
+      "description": "Occurrence counts at each cleaning stage",
+      "properties": {
+        "raw_count": {
+          "type": "number"
+        },
+        "after_outlier_removal": {
+          "type": "number"
+        },
+        "after_thinning": {
+          "type": "number"
+        }
+      }
+    },
+    "climate_vars_fetched": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Bioclimatic variables successfully retrieved"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Model evaluation metrics",
+      "properties": {
+        "auc": {
+          "type": "number"
+        },
+        "tss": {
+          "type": "number"
+        },
+        "sensitivity": {
+          "type": "number"
+        },
+        "specificity": {
+          "type": "number"
+        },
+        "kappa": {
+          "type": "number"
+        },
+        "omission_rate": {
+          "type": "number"
+        },
+        "n_train": {
+          "type": "number"
+        },
+        "n_test": {
+          "type": "number"
+        }
+      }
+    },
+    "variable_importance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variable": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "number"
+          },
+          "permutation_importance": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Ranked bioclimatic variable importance scores"
+    },
+    "prediction_grid": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Suitability predictions: [{lat, lon, suitability}]"
+    },
+    "response_curves": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Per-variable response curves [{variable, points:[{x,y}]}]"
+    },
+    "occurrence_points": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Final cleaned+thinned occurrence points used [{lat, lon, species}]"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error details if status=failed"
+    },
+    "runtime_seconds": {
+      "type": "number",
+      "description": "Total pipeline runtime in seconds"
+    }
+  },
+  "required": [
+    "name",
+    "species_ids"
+  ]
+}

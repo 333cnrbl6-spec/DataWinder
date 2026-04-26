@@ -1,0 +1,33 @@
+{
+  "name": "SpeciesList",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the species list"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the list"
+    },
+    "species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of species IDs (scientific names)"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this list is shared publicly"
+    },
+    "share_token": {
+      "type": "string",
+      "description": "Unique token for sharing the list"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

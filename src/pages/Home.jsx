@@ -74,12 +74,14 @@ export default function Home() {
     const checkOnboarding = async () => {
       try {
         const user = await base44.auth.me();
-        if (!user.onboarding_completed) {
-          setShowOnboarding(true);
-        } else {
-          setOnboardingChecked(true);
+        if (!user || !user.email) {
+          base44.auth.redirectToLogin(window.location.pathname);
+          return;
         }
-      } catch {
+        setOnboardingChecked(!user.onboarding_completed);
+        if (!user.onboarding_completed) setShowOnboarding(true);
+      } catch (err) {
+        console.error('Auth check failed:', err);
         base44.auth.redirectToLogin(window.location.pathname);
       }
     };
@@ -101,12 +103,17 @@ export default function Home() {
   };
 
   const handleSearch = async (searchParams) => {
-    const { level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '' } = searchParams;
+    if (!searchParams || !searchParams.terms || searchParams.terms.length === 0) {
+      setError('Please enter at least one search term.');
+      return;
+    }
 
     if (!onboardingChecked) {
       setShowOnboarding(true);
       return;
     }
+
+    const { level, terms, iucnToken, includeINaturalist = false, includeGBIF = false, includeSpeciesLink = false, speciesLinkApiKey = '' } = searchParams;
 
     setIsLoading(true);
     setError(null);
@@ -116,44 +123,69 @@ export default function Home() {
     setSearchInfo({ level, terms: terms.join(', '), includeINaturalist, includeGBIF, includeSpeciesLink, iucnToken: !!iucnToken });
 
     try {
-      // ── IUCN ──
       let allSpeciesMap = {};
+      
+      // IUCN is mandatory for search
       try {
         allSpeciesMap = await fetchIUCNSpecies(terms, level, false, iucnToken);
       } catch (err) {
-        setError(err.message || 'Failed to fetch IUCN data');
-        stopTicking(); playError(); setIsLoading(false);
+        const errorMsg = err?.message || 'Failed to fetch IUCN Red List data. Please check your API key or try again.';
+        setError(errorMsg);
+        stopTicking();
+        playError();
         return;
       }
 
-      // ── iNaturalist, GBIF, SpeciesLink — delegated to hook ──
-      if (includeINaturalist) await enrichWithINaturalist(null, level, terms, allSpeciesMap);
-      if (includeGBIF) await enrichWithGBIF(level, terms, allSpeciesMap);
-      if (includeSpeciesLink && speciesLinkApiKey) await enrichWithSpeciesLink(speciesLinkApiKey, terms, allSpeciesMap);
+      // Optional enrichment sources
+      try {
+        if (includeINaturalist) await enrichWithINaturalist(null, level, terms, allSpeciesMap);
+      } catch (err) {
+        console.warn('iNaturalist enrichment partial failure:', err);
+        toast.warning('iNaturalist data partially unavailable');
+      }
 
-      // ── Persist non-IUCN species to DB ──
-      await persistNonIUCNSpecies(allSpeciesMap);
+      try {
+        if (includeGBIF) await enrichWithGBIF(level, terms, allSpeciesMap);
+      } catch (err) {
+        console.warn('GBIF enrichment partial failure:', err);
+        toast.warning('GBIF data partially unavailable');
+      }
+
+      try {
+        if (includeSpeciesLink && speciesLinkApiKey) await enrichWithSpeciesLink(speciesLinkApiKey, terms, allSpeciesMap);
+      } catch (err) {
+        console.warn('SpeciesLink enrichment partial failure:', err);
+        toast.warning('SpeciesLink data partially unavailable');
+      }
+
+      // Persist new species
+      try {
+        await persistNonIUCNSpecies(allSpeciesMap);
+      } catch (err) {
+        console.warn('Species persistence partial failure:', err);
+      }
 
       const allSpecies = Object.values(allSpeciesMap);
 
       if (!allSpecies || allSpecies.length === 0) {
+        setError(`No species found matching "${terms.join(', ')}" at the ${level} level.`);
         stopTicking();
         playError();
-        setError('No species found for the search terms.');
         return;
       }
-      
+
       setSpecies(allSpecies.map(sp => ({
         ...sp,
         is_new: !savedSpeciesScientificNamesSet.has(sp.scientific_name),
       })));
       stopTicking();
       playSuccess();
+      toast.success(`Found ${allSpecies.length} species`);
     } catch (err) {
       console.error('Search error:', err);
       stopTicking();
       playError();
-      setError('Failed to fetch data. Please check your connection and try again.');
+      setError('Search failed. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -189,29 +221,46 @@ export default function Home() {
   };
 
   const handleDeleteSpecies = async (sp) => {
-    // Remove from local results immediately
+    if (!sp || !sp.scientific_name) return;
+
     setSpecies(prev => prev.filter(s => (s.id || s.scientific_name) !== (sp.id || sp.scientific_name)));
     setSelectedIds(prev => prev.filter(id => id !== (sp.id || sp.scientific_name)));
-    // If it has a DB record, delete it
+
     if (sp.id) {
-      await base44.entities.Species.delete(sp.id);
-      toast.success(`Deleted ${sp.scientific_name}`);
+      try {
+        await base44.entities.Species.delete(sp.id);
+        toast.success(`Deleted ${sp.scientific_name}`);
+      } catch (err) {
+        console.error('Delete failed:', err);
+        toast.error(`Failed to delete ${sp.scientific_name}`);
+        // Refetch to restore state
+        refetchSpecies();
+      }
     } else {
       toast.success(`Removed ${sp.scientific_name} from results`);
     }
   };
 
   const handleEnrichWithINaturalist = async (species) => {
+    if (!species || !species.scientific_name) return;
+
     setIsLoading(true);
     setError(null);
     try {
       const updateData = await enrichSingleSpeciesWithINat(species);
+      if (!updateData || Object.keys(updateData).length === 0) {
+        toast.warning(`No additional iNaturalist data found for ${species.scientific_name}`);
+        return;
+      }
+
       const existing = await base44.entities.Species.filter({ scientific_name: species.scientific_name });
+      
       if (existing.length > 0) {
         await base44.entities.Species.update(existing[0].id, updateData);
         setSpecies(prev => prev.map(sp =>
           sp.scientific_name === species.scientific_name ? { ...sp, ...updateData, id: existing[0].id } : sp
         ));
+        toast.success(`${species.scientific_name} enriched with iNaturalist data`);
       } else {
         const created = await base44.entities.Species.create({
           scientific_name: species.scientific_name,
@@ -222,10 +271,11 @@ export default function Home() {
         setSpecies(prev => prev.map(sp =>
           sp.scientific_name === species.scientific_name ? { ...sp, ...updateData, id: created.id } : sp
         ));
+        toast.success(`${species.scientific_name} created with iNaturalist data`);
       }
     } catch (err) {
       console.error('Error enriching with iNaturalist:', err);
-      setError(`Failed to enrich ${species.scientific_name} with iNaturalist data.`);
+      toast.error(`Failed to enrich ${species.scientific_name}. Please try again.`);
     } finally {
       setIsLoading(false);
     }

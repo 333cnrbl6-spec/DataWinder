@@ -1,0 +1,94 @@
+{
+  "name": "MaxentRun",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "A user-given name for this run"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "ID of the Species record"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Scientific name of the species"
+    },
+    "climate_dataset_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of selected ClimateDataset records"
+    },
+    "climate_dataset_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of selected climate layers"
+    },
+    "occurrence_count": {
+      "type": "number",
+      "description": "Total occurrence records used in this run"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "MAXENT model parameters",
+      "properties": {
+        "regularization_multiplier": {
+          "type": "number"
+        },
+        "max_iterations": {
+          "type": "number"
+        },
+        "convergence_threshold": {
+          "type": "number"
+        },
+        "replicates": {
+          "type": "number"
+        },
+        "output_type": {
+          "type": "string"
+        },
+        "feature_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "running",
+        "completed",
+        "failed"
+      ],
+      "default": "draft",
+      "description": "Current status of the model run"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes or system messages about this run"
+    },
+    "external_job_id": {
+      "type": "string",
+      "description": "Job ID returned by the external MAXENT service"
+    },
+    "occurrence_csv_url": {
+      "type": "string",
+      "description": "URL to the formatted occurrence CSV generated for this run"
+    },
+    "results": {
+      "type": "object",
+      "description": "Results object populated when the run completes"
+    }
+  },
+  "required": [
+    "species_name"
+  ]
+}

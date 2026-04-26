@@ -1,0 +1,103 @@
+{
+  "name": "PaperDraft",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Generated paper title"
+    },
+    "genus": {
+      "type": "string",
+      "description": "Target genus (e.g. Callithrix)"
+    },
+    "citation_style": {
+      "type": "string",
+      "enum": [
+        "Harvard",
+        "APA",
+        "Vancouver"
+      ],
+      "default": "Harvard"
+    },
+    "benchmark_papers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Reference paper IDs used as structural templates"
+    },
+    "sections": {
+      "type": "object",
+      "description": "Paper sections: abstract, introduction, methods, results, discussion, conclusion, references",
+      "properties": {
+        "abstract": {
+          "type": "string"
+        },
+        "introduction": {
+          "type": "string"
+        },
+        "methods": {
+          "type": "string"
+        },
+        "results": {
+          "type": "string"
+        },
+        "discussion": {
+          "type": "string"
+        },
+        "conclusion": {
+          "type": "string"
+        },
+        "references": {
+          "type": "string"
+        }
+      }
+    },
+    "figures_data": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Chart/figure data objects for rendering"
+    },
+    "similarity_scores": {
+      "type": "object",
+      "description": "Similarity % against each benchmark paper",
+      "properties": {
+        "hill_winder_2019": {
+          "type": "number"
+        },
+        "rylands_2009": {
+          "type": "number"
+        },
+        "zinner_2013": {
+          "type": "number"
+        },
+        "freitas_2019": {
+          "type": "number"
+        },
+        "overall": {
+          "type": "number"
+        }
+      }
+    },
+    "raw_data_snapshot": {
+      "type": "object",
+      "description": "Snapshot of live data used to generate this draft"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "complete"
+      ],
+      "default": "draft"
+    },
+    "word_count": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "genus"
+  ]
+}

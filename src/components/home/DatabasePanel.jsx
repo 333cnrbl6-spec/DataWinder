@@ -14,22 +14,44 @@ export default function DatabasePanel({ allSpecies, savedSearches, onLoadSpecies
   const handleImportFile = async () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.csv,.json';
+    input.accept = '.csv,.json,.xlsx';
     input.onchange = async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
       if (!file) return;
+
+      // Validate file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error('File too large. Maximum size is 50MB.');
+        return;
+      }
+
+      setIsLoadingSearch(true);
       try {
         const records = await parseUploadedFile(file);
-        const { created, errors } = await importSpeciesRecords(records);
-        toast.success(`Import complete! ${created} new species added.`);
-        if (errors.length > 0) {
-          console.warn('Import errors:', errors);
+        if (!records || records.length === 0) {
+          toast.error('File is empty or invalid format.');
+          return;
         }
+
+        const { created, errors } = await importSpeciesRecords(records);
+        
+        if (created === 0 && errors.length > 0) {
+          toast.error(`Import failed: ${errors[0]}`);
+        } else if (created > 0 && errors.length > 0) {
+          toast.warning(`Import complete: ${created} added, ${errors.length} failed`);
+        } else {
+          toast.success(`Import complete! ${created} new species added.`);
+        }
+        
         onRefetch();
       } catch (err) {
-        toast.error('Import failed: ' + err.message);
+        console.error('Import error:', err);
+        toast.error(`Import failed: ${err?.message || 'Unknown error'}`);
+      } finally {
+        setIsLoadingSearch(false);
       }
     };
+    
     input.click();
   };
 
@@ -45,28 +67,36 @@ export default function DatabasePanel({ allSpecies, savedSearches, onLoadSpecies
         <CardContent className="p-6 space-y-6">
           {/* Database Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-cardinal/10 rounded-lg p-4">
-              <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
-              <div className="text-sm text-slate-600 mt-1">Total Species</div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
-              <div className="text-3xl font-bold text-blue-600">
-                {allSpecies.filter(sp => sp.range_data_geojson).length}
+            {allSpecies && allSpecies.length > 0 ? (
+              <>
+                <div className="bg-gradient-to-br from-bangor-red/10 to-bangor-cardinal/10 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-bangor-red">{allSpecies.length}</div>
+                  <div className="text-sm text-slate-600 mt-1">Total Species</div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {(allSpecies || []).filter(sp => sp?.range_data_geojson).length}
+                  </div>
+                  <div className="text-sm text-slate-600 mt-1">With Range Data</div>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-green-600">
+                    {(allSpecies || []).filter(sp => sp?.observations?.length > 0 || sp?.gbif_occurrences?.length > 0).length}
+                  </div>
+                  <div className="text-sm text-slate-600 mt-1">With Occurrences</div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {[...new Set((allSpecies || []).map(sp => sp?.family))].filter(Boolean).length}
+                  </div>
+                  <div className="text-sm text-slate-600 mt-1">Families</div>
+                </div>
+              </>
+            ) : (
+              <div className="col-span-2 text-center py-8 text-slate-500">
+                <p>No species in database yet. Search or import data to get started.</p>
               </div>
-              <div className="text-sm text-slate-600 mt-1">With Range Data</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
-              <div className="text-3xl font-bold text-green-600">
-                {allSpecies.filter(sp => sp.observations?.length > 0 || sp.gbif_occurrences?.length > 0).length}
-              </div>
-              <div className="text-sm text-slate-600 mt-1">With Occurrences</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
-              <div className="text-3xl font-bold text-purple-600">
-                {[...new Set(allSpecies.map(sp => sp.family))].filter(Boolean).length}
-              </div>
-              <div className="text-sm text-slate-600 mt-1">Families</div>
-            </div>
+            )}
           </div>
 
           {/* ArcGIS Tools */}
@@ -193,7 +223,7 @@ export default function DatabasePanel({ allSpecies, savedSearches, onLoadSpecies
                         disabled={isLoadingSearch}
                       >
                         <FolderOpen className="w-3 h-3 mr-2" />
-                        {search.name} ({search.species_count})
+                        {search?.name || 'Unnamed'} ({search?.species_count || 0})
                       </Button>
                     ))}
                   </div>

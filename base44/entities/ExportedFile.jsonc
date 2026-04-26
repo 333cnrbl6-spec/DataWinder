@@ -1,0 +1,54 @@
+{
+  "name": "ExportedFile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "User-given name for this export"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description shown on hover in the UI"
+    },
+    "file_uri": {
+      "type": "string",
+      "description": "Private storage URI of the generated ZIP file"
+    },
+    "file_type": {
+      "type": "string",
+      "default": "ZIP",
+      "description": "File format (ZIP, CSV, GeoJSON)"
+    },
+    "species_count": {
+      "type": "number",
+      "description": "Number of species included in this export"
+    },
+    "species_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Scientific names of included species"
+    },
+    "data_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Data types included in the export"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "generating",
+        "ready",
+        "failed"
+      ],
+      "default": "generating",
+      "description": "Export generation status"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

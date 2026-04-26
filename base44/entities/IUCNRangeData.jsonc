@@ -1,0 +1,54 @@
+{
+  "name": "IUCNRangeData",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "scientific_name": {
+      "type": "string",
+      "description": "Species scientific name"
+    },
+    "range_data_geojson": {
+      "type": "object",
+      "description": "Range polygon geometry in GeoJSON format"
+    },
+    "range_geojson_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for range GeoJSON file"
+    },
+    "range_shp_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for range SHP file"
+    },
+    "range_csv_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for range CSV file"
+    },
+    "range_map_jpg_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for range map JPG file"
+    },
+    "range_data_shp_url": {
+      "type": "string",
+      "description": "IUCN Range data polygons (SHP) download URL"
+    },
+    "range_data_csv_url": {
+      "type": "string",
+      "description": "IUCN Range data points (CSV) download URL"
+    },
+    "range_map_jpg_url": {
+      "type": "string",
+      "description": "IUCN Range map (JPG) download URL"
+    },
+    "area_km2": {
+      "type": "number",
+      "description": "Range area in km\u00b2"
+    }
+  },
+  "required": [
+    "species_id",
+    "scientific_name"
+  ]
+}

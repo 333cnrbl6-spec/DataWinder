@@ -1,0 +1,126 @@
+{
+  "name": "ThreatAssessment",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "scientific_name": {
+      "type": "string",
+      "description": "Species scientific name"
+    },
+    "assessment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of threat assessment"
+    },
+    "habitat_loss_percent": {
+      "type": "number",
+      "description": "Estimated habitat loss percentage (0-100)"
+    },
+    "habitat_loss_source": {
+      "type": "string",
+      "description": "Source of habitat loss data"
+    },
+    "protected_area_coverage": {
+      "type": "number",
+      "description": "Percentage of range in protected areas (0-100)"
+    },
+    "population_trend": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "decreasing",
+        "unknown"
+      ],
+      "description": "Population trajectory"
+    },
+    "iucn_status": {
+      "type": "string",
+      "enum": [
+        "LC",
+        "NT",
+        "VU",
+        "EN",
+        "CR",
+        "EW",
+        "EX",
+        "DD",
+        "NE"
+      ],
+      "description": "Current IUCN Red List category"
+    },
+    "range_area_km2": {
+      "type": "number",
+      "description": "Extent of occurrence in km\u00b2"
+    },
+    "climate_suitability_change": {
+      "type": "number",
+      "description": "Projected change in suitable area (%) under 2050 climate"
+    },
+    "occurrence_count": {
+      "type": "number",
+      "description": "Number of occurrence records available"
+    },
+    "disease_risk_score": {
+      "type": "number",
+      "description": "Disease risk proxy (0-100) based on occurrence density"
+    },
+    "threat_score": {
+      "type": "number",
+      "description": "Composite threat score (0-100, higher = more threatened)"
+    },
+    "threat_category": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "High",
+        "Moderate",
+        "Low"
+      ],
+      "description": "Threat level classification"
+    },
+    "threat_breakdown": {
+      "type": "object",
+      "description": "Component scores: habitat_loss, population_decline, climate, disease, protection_gap",
+      "properties": {
+        "habitat_loss_score": {
+          "type": "number"
+        },
+        "population_decline_score": {
+          "type": "number"
+        },
+        "climate_change_score": {
+          "type": "number"
+        },
+        "disease_risk_score": {
+          "type": "number"
+        },
+        "protection_gap_score": {
+          "type": "number"
+        }
+      }
+    },
+    "priority_rank": {
+      "type": "number",
+      "description": "Conservation priority ranking (1 = highest)"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conservation action recommendations"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional assessment notes"
+    }
+  },
+  "required": [
+    "species_id",
+    "scientific_name"
+  ]
+}

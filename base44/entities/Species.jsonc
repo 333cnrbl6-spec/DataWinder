@@ -1,0 +1,159 @@
+{
+  "name": "Species",
+  "type": "object",
+  "properties": {
+    "scientific_name": {
+      "type": "string",
+      "description": "Scientific name of the species"
+    },
+    "common_name": {
+      "type": "string",
+      "description": "Common name of the species"
+    },
+    "iucn_status": {
+      "type": "string",
+      "enum": [
+        "LC",
+        "NT",
+        "VU",
+        "EN",
+        "CR",
+        "EW",
+        "EX",
+        "DD",
+        "NE"
+      ],
+      "description": "IUCN Red List category"
+    },
+    "population_trend": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "decreasing",
+        "unknown"
+      ]
+    },
+    "population_details": {
+      "type": "string",
+      "description": "Detailed population information and estimates"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "all_images_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "All available images for this species"
+    },
+    "iucn_id": {
+      "type": "number"
+    },
+    "assessment_id": {
+      "type": "number",
+      "description": "IUCN Assessment ID for API calls"
+    },
+    "search_summary_json": {
+      "type": "object",
+      "description": "Comprehensive search summary data from IUCN"
+    },
+    "search_summary_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for search summary JSON file"
+    },
+    "search_results_csv_url": {
+      "type": "string",
+      "description": "IUCN search results export (CSV)"
+    },
+    "inat_taxon_id": {
+      "type": "number",
+      "description": "iNaturalist taxon ID"
+    },
+    "inat_wikipedia_url": {
+      "type": "string",
+      "description": "Wikipedia URL from iNaturalist"
+    },
+    "observation_count": {
+      "type": "number",
+      "description": "Total iNaturalist observations"
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Recent observations with coordinates from iNaturalist"
+    },
+    "last_observed": {
+      "type": "string",
+      "description": "Date of most recent iNaturalist observation"
+    },
+    "inat_observations_csv_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for iNaturalist observations CSV file"
+    },
+    "gbif_id": {
+      "type": "number",
+      "description": "GBIF species key/ID"
+    },
+    "gbif_occurrence_count": {
+      "type": "number",
+      "description": "Total GBIF occurrence records"
+    },
+    "gbif_occurrences": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "GBIF occurrence data with coordinates"
+    },
+    "gbif_basis_of_record": {
+      "type": "object",
+      "description": "GBIF occurrence types breakdown (specimens, observations, etc.)"
+    },
+    "gbif_last_occurrence": {
+      "type": "string",
+      "description": "Date of most recent GBIF occurrence"
+    },
+    "gbif_occurrences_csv_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for GBIF occurrences CSV file"
+    },
+    "specieslink_occurrence_count": {
+      "type": "number",
+      "description": "Total speciesLink specimen/occurrence records"
+    },
+    "specieslink_occurrences": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "speciesLink occurrence records with coordinates and specimen data"
+    },
+    "specieslink_last_collected": {
+      "type": "string",
+      "description": "Date of most recent speciesLink record"
+    },
+    "specieslink_occurrences_csv_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for speciesLink occurrences CSV file"
+    },
+    "iucn_assessment_id": {
+      "type": "string",
+      "description": "Reference to IUCNAssessment record"
+    },
+    "iucn_range_data_id": {
+      "type": "string",
+      "description": "Reference to IUCNRangeData record"
+    },
+    "iucn_taxonomy_id": {
+      "type": "string",
+      "description": "Reference to IUCNTaxonomy record"
+    }
+  },
+  "required": [
+    "scientific_name"
+  ]
+}

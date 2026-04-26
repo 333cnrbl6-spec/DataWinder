@@ -1,0 +1,49 @@
+{
+  "name": "SecureShare",
+  "type": "object",
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "One-time access token (UUID)"
+    },
+    "draft_id": {
+      "type": "string",
+      "description": "Reference to PaperDraft record"
+    },
+    "paper_content": {
+      "type": "object",
+      "description": "Encrypted snapshot of paper sections at time of share"
+    },
+    "paper_title": {
+      "type": "string"
+    },
+    "created_by_email": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "description": "ISO timestamp after which link is invalid"
+    },
+    "viewed_at": {
+      "type": "string",
+      "description": "ISO timestamp of first (and only) view \u2014 null if not yet viewed"
+    },
+    "viewer_ip": {
+      "type": "string",
+      "description": "IP address recorded on view"
+    },
+    "burned": {
+      "type": "boolean",
+      "default": false,
+      "description": "True after first view \u2014 link permanently dead"
+    },
+    "audio_enabled": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "token",
+    "paper_content"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "CommunityMember",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email address of the community member"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "institution": {
+      "type": "string",
+      "description": "Institution or organisation"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country"
+    },
+    "research_area": {
+      "type": "string",
+      "description": "Primary research or interest area"
+    },
+    "field_of_interest": {
+      "type": "string",
+      "description": "Specific biodiversity / ecology field"
+    },
+    "app_goals": {
+      "type": "string",
+      "description": "What they want from DataWinder"
+    },
+    "beta_tester": {
+      "type": "boolean",
+      "default": false
+    },
+    "newsletter": {
+      "type": "boolean",
+      "default": false
+    },
+    "share_profile": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consented to public directory listing"
+    },
+    "membership_tier": {
+      "type": "string",
+      "enum": [
+        "Founding Member",
+        "Beta Tester",
+        "Standard"
+      ],
+      "default": "Standard",
+      "description": "Membership tier"
+    }
+  },
+  "required": [
+    "user_email",
+    "full_name"
+  ]
+}

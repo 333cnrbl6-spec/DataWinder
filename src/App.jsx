@@ -62,6 +62,7 @@ import ProductOverview from './pages/ProductOverview';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import ErrorBoundaryProduction from '@/components/ErrorBoundaryProduction';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -96,8 +97,9 @@ const AuthenticatedApp = () => {
 
   // Render the main app with error boundary
   return (
-    <ErrorBoundary>
-      <Routes>
+    <ErrorBoundaryProduction>
+      <ErrorBoundary>
+        <Routes>
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
@@ -185,7 +187,8 @@ const AuthenticatedApp = () => {
       <Route path="/ProductOverview" element={<ProductOverview />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ErrorBoundaryProduction>
   );
 };
 

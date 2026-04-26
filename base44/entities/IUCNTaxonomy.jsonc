@@ -1,0 +1,92 @@
+{
+  "name": "IUCNTaxonomy",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "scientific_name": {
+      "type": "string",
+      "description": "Species scientific name"
+    },
+    "common_name": {
+      "type": "string",
+      "description": "Common name"
+    },
+    "kingdom": {
+      "type": "string"
+    },
+    "phylum": {
+      "type": "string"
+    },
+    "class_name": {
+      "type": "string",
+      "description": "Taxonomic class"
+    },
+    "order_name": {
+      "type": "string",
+      "description": "Taxonomic order"
+    },
+    "family": {
+      "type": "string"
+    },
+    "genus": {
+      "type": "string"
+    },
+    "habitats_detailed": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Detailed habitat codes and suitability from IUCN"
+    },
+    "threats_detailed": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Detailed threat codes and severity from IUCN"
+    },
+    "status_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Historical conservation status changes"
+    },
+    "geographic_distribution": {
+      "type": "object",
+      "properties": {
+        "countries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Geographic distribution"
+    }
+  },
+  "required": [
+    "species_id",
+    "scientific_name"
+  ]
+}

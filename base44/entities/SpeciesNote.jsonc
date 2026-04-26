@@ -1,0 +1,34 @@
+{
+  "name": "SpeciesNote",
+  "type": "object",
+  "properties": {
+    "species_scientific_name": {
+      "type": "string",
+      "description": "Scientific name of the species"
+    },
+    "note": {
+      "type": "string",
+      "description": "Personal observation or note"
+    },
+    "observation_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of observation"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location of observation"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing notes"
+    }
+  },
+  "required": [
+    "species_scientific_name",
+    "note"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "ClimateDataset",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Dataset name"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "WorldClim",
+        "CHELSA",
+        "ERA5",
+        "MODIS",
+        "ESA CCI",
+        "CGIAR",
+        "TerraClimate",
+        "ISIMIP",
+        "CMIP6/ESGF",
+        "Other"
+      ]
+    },
+    "variable_category": {
+      "type": "string",
+      "enum": [
+        "Bioclimatic",
+        "Temperature",
+        "Precipitation",
+        "Vegetation/NDVI",
+        "Land Cover",
+        "Aridity",
+        "Compound"
+      ]
+    },
+    "scenario": {
+      "type": "string",
+      "enum": [
+        "Historical/Baseline",
+        "SSP1-2.6",
+        "SSP2-4.5",
+        "SSP3-7.0",
+        "SSP5-8.5",
+        "Multiple SSPs",
+        "All SSPs"
+      ]
+    },
+    "time_period": {
+      "type": "string"
+    },
+    "resolution": {
+      "type": "string"
+    },
+    "gcm": {
+      "type": "string",
+      "description": "General Circulation Model(s) used"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "string"
+    },
+    "download_url": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes on this dataset"
+    },
+    "maxent_ready": {
+      "type": "boolean",
+      "default": false
+    },
+    "species_associations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Scientific names of species this dataset is linked to"
+    }
+  },
+  "required": [
+    "name",
+    "source"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "name": "PendingSpeciesReview",
+  "type": "object",
+  "properties": {
+    "review_group_id": {
+      "type": "string",
+      "description": "Unique identifier for this group of potential duplicates"
+    },
+    "duplicate_species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of species IDs identified as potential duplicates"
+    },
+    "duplicate_species_data": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Full data of duplicate species for comparison"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "AI's explanation for why these are duplicates"
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Confidence score 0-100"
+        },
+        "suggested_canonical_id": {
+          "type": "string",
+          "description": "ID of suggested master record"
+        },
+        "merge_recommendations": {
+          "type": "object",
+          "description": "AI's recommended field mappings for merge"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "merged",
+        "dismissed"
+      ],
+      "default": "pending",
+      "description": "Review status"
+    },
+    "user_decision": {
+      "type": "object",
+      "properties": {
+        "canonical_id": {
+          "type": "string",
+          "description": "User-selected master record ID"
+        },
+        "merged_data": {
+          "type": "object",
+          "description": "Final merged data selected by user"
+        },
+        "records_to_delete": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of records to delete after merge"
+        }
+      }
+    }
+  },
+  "required": [
+    "review_group_id",
+    "duplicate_species_ids",
+    "ai_analysis"
+  ]
+}

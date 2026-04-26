@@ -1,0 +1,80 @@
+{
+  "name": "IUCNAssessment",
+  "type": "object",
+  "properties": {
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record"
+    },
+    "scientific_name": {
+      "type": "string",
+      "description": "Species scientific name"
+    },
+    "iucn_id": {
+      "type": "number",
+      "description": "IUCN species ID"
+    },
+    "assessment_id": {
+      "type": "number",
+      "description": "IUCN Assessment ID"
+    },
+    "assessment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Assessment date"
+    },
+    "iucn_status": {
+      "type": "string",
+      "enum": [
+        "LC",
+        "NT",
+        "VU",
+        "EN",
+        "CR",
+        "EW",
+        "EX",
+        "DD",
+        "NE"
+      ],
+      "description": "Conservation status"
+    },
+    "population_trend": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "decreasing",
+        "unknown"
+      ],
+      "description": "Population trend"
+    },
+    "habitat": {
+      "type": "string",
+      "description": "Habitat description"
+    },
+    "threats": {
+      "type": "string",
+      "description": "Threats description"
+    },
+    "conservation_actions": {
+      "type": "string",
+      "description": "Conservation actions"
+    },
+    "range_description": {
+      "type": "string",
+      "description": "Range description"
+    },
+    "assessment_pdf_file_uri": {
+      "type": "string",
+      "description": "Backend storage URI for assessment PDF"
+    },
+    "assessment_pdf_url": {
+      "type": "string",
+      "description": "IUCN Assessment PDF download URL"
+    }
+  },
+  "required": [
+    "species_id",
+    "scientific_name"
+  ]
+}

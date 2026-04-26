@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Download, Zap, Users, Database, Gauge } from 'lucide-react';
+import { Check, X, Download, Zap, Users, Database, Gauge, AlertCircle } from 'lucide-react';
 import { COMMERCIAL_CONFIG } from '@/lib/commercialConfig';
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
-  const plans = Object.values(COMMERCIAL_CONFIG.PLANS);
+  const plans = useMemo(() => {
+    const rawPlans = Object.values(COMMERCIAL_CONFIG?.PLANS || {});
+    if (!rawPlans || rawPlans.length === 0) {
+      console.warn('No pricing plans configured');
+      return [];
+    }
+    return rawPlans;
+  }, []);
 
   const comparisonFeatures = [
     { category: 'Data Management', features: ['Data Sources', 'Species Limit', 'Cloud Storage', 'Export Formats'] },
@@ -59,6 +66,24 @@ export default function PricingPage() {
     },
   ];
 
+  if (!plans || plans.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-bangor-red/5 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-amber-600 mb-3">
+              <AlertCircle className="w-5 h-5" />
+              <p className="font-semibold">Pricing Not Configured</p>
+            </div>
+            <p className="text-sm text-slate-600">
+              Pricing plans are currently unavailable. Please contact support or try again later.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-bangor-red/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -80,6 +105,7 @@ export default function PricingPage() {
                   ? 'bg-white text-bangor-red shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
+              aria-pressed={billingCycle === 'monthly'}
             >
               Monthly
             </button>
@@ -90,6 +116,7 @@ export default function PricingPage() {
                   ? 'bg-white text-bangor-red shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
+              aria-pressed={billingCycle === 'annual'}
             >
               Annual <span className="text-xs text-green-600 font-bold">Save 20%</span>
             </button>
@@ -98,50 +125,54 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {plans.map(plan => (
-            <Card
-              key={plan.id}
-              className={`relative transition-all ${
-                plan.badge
-                  ? 'ring-2 ring-blue-500 md:scale-105 md:shadow-xl'
-                  : 'hover:shadow-lg'
-              }`}
-            >
-              {plan.badge && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white">
-                  {plan.badge}
-                </Badge>
-              )}
+          {plans.filter(p => p && p.id).map(plan => {
+            if (!plan || !plan.features || !Array.isArray(plan.features)) return null;
+            
+            return (
+              <Card
+                key={plan.id}
+                className={`relative transition-all flex flex-col ${
+                  plan.badge
+                    ? 'ring-2 ring-blue-500 md:scale-105 md:shadow-xl'
+                    : 'hover:shadow-lg'
+                }`}
+              >
+                {plan.badge && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white">
+                    {plan.badge}
+                  </Badge>
+                )}
 
-              <CardHeader>
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <div className="text-4xl font-bold text-slate-900">
-                    {plan.price_gbp === 0 ? 'Free' : `£${plan.price_gbp}`}
-                  </div>
-                  {plan.price_gbp > 0 && (
-                    <div className="text-sm text-slate-600 mt-1">{plan.price_monthly_label}</div>
-                  )}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <Button className="w-full" size="lg">
-                  {plan.price_gbp === 0 ? 'Get Started Free' : 'Start Free Trial'}
-                </Button>
-
-                <div className="space-y-3">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700">{feature}</span>
+                <CardHeader>
+                  <CardTitle className="text-2xl">{plan.name || 'Plan'}</CardTitle>
+                  <CardDescription>{plan.description || ''}</CardDescription>
+                  <div className="mt-4">
+                    <div className="text-4xl font-bold text-slate-900">
+                      {plan.price_gbp === 0 ? 'Free' : `£${plan.price_gbp || 0}`}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    {plan.price_gbp > 0 && (
+                      <div className="text-sm text-slate-600 mt-1">{plan.price_monthly_label || '/month'}</div>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-6 flex-1 flex flex-col">
+                  <Button className="w-full" size="lg">
+                    {plan.price_gbp === 0 ? 'Get Started Free' : 'Start Free Trial'}
+                  </Button>
+
+                  <div className="space-y-3 flex-1">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-700">{feature || ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Why DataWinder Stands Out */}
@@ -237,7 +268,12 @@ export default function PricingPage() {
           <p className="text-lg text-slate-600 mb-8">
             Start free today. No credit card required.
           </p>
-          <Button size="lg" className="bg-bangor-red hover:bg-bangor-red/90">
+          <Button 
+            size="lg" 
+            className="bg-bangor-red hover:bg-bangor-red/90"
+            onClick={() => window.location.href = '/ProductOverview'}
+            aria-label="Download product overview"
+          >
             <Download className="w-4 h-4 mr-2" />
             Download Product Overview
           </Button>

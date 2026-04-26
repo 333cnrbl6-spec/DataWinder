@@ -1,0 +1,43 @@
+{
+  "name": "AuthorshipRecord",
+  "type": "object",
+  "properties": {
+    "draft_id": {
+      "type": "string",
+      "description": "Reference to PaperDraft record"
+    },
+    "paper_title": {
+      "type": "string"
+    },
+    "genus": {
+      "type": "string"
+    },
+    "content_hash": {
+      "type": "string",
+      "description": "SHA-256 hex hash of full paper content \u2014 immutable proof of content at this moment"
+    },
+    "word_count": {
+      "type": "number"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "description": "ISO UTC timestamp of registration \u2014 do not modify"
+    },
+    "certificate_text": {
+      "type": "string",
+      "description": "Human-readable certificate statement"
+    },
+    "sections_fingerprint": {
+      "type": "object",
+      "description": "Per-section SHA-256 hashes for granular proof"
+    }
+  },
+  "required": [
+    "content_hash",
+    "author_email",
+    "timestamp_utc"
+  ]
+}
