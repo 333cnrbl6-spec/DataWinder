@@ -26,7 +26,7 @@ export default function FAQMessage({ message, botAvatar }) {
         {message.isLoading ? (
           <div className="flex items-center gap-2 text-slate-400">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            <span className="text-xs">DataWinder is thinking…</span>
+            <span className="text-xs">Ollie is thinking…</span>
           </div>
         ) : isUser ? (
           <p>{message.content}</p>

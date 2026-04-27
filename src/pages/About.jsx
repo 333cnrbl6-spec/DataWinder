@@ -167,7 +167,7 @@ export default function About() {
       color: 'bg-green-100 text-green-700'
     },
     {
-      title: 'Phase 3B: Phylogenetic Comparative Analysis',
+      title: 'Phase 3B: Multi-species Comparative Analysis',
       status: 'Planned',
       icon: Leaf,
       color: 'bg-slate-100 text-slate-700'
@@ -202,10 +202,10 @@ export default function About() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-slate-700 leading-relaxed">
-                DataWinder is a comprehensive web-based platform for species distribution modelling and conservation assessment. It integrates primary biodiversity databases (IUCN, iNaturalist, GBIF) with state-of-the-art climate data and MAXENT species distribution models to support evidence-based conservation planning.
+                DataWinder is a comprehensive web-based platform for species distribution modelling and conservation assessment. It integrates primary biodiversity databases (IUCN Red List, iNaturalist, GBIF) with climate data and MAXENT species distribution models to support evidence-based conservation planning.
               </p>
               <p className="text-slate-700 leading-relaxed">
-                Built on peer-reviewed research frameworks (Duran et al. 2013, Chapman et al. 2020, Hill & Winder 2019), DataWinder enables researchers to assess climate-driven habitat shifts, profile conservation threats, and prioritize species for intervention.
+                DataWinder applies established conservation science best practices — including IUCN Red List criteria, Natural England statutory guidance, and UK Biodiversity Action Plan (BAP) methodology — to enable researchers to assess climate-driven habitat shifts, profile conservation threats, and prioritise species for intervention.
               </p>
             </CardContent>
           </Card>
@@ -382,7 +382,7 @@ export default function About() {
           </div>
         </section>
 
-        {/* References */}
+        {/* Scientific Foundation */}
         <section>
           <Card className="bg-slate-50 border-slate-200">
             <CardHeader>
@@ -392,9 +392,10 @@ export default function About() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-slate-700">
-              <p>• Duran et al. (2013) - Climate-driven species distribution modelling methodology</p>
-              <p>• Chapman et al. (2020) - Ensemble approaches for biodiversity assessment</p>
-              <p>• Hill & Winder (2019) - Conservation threat profiling and prioritization</p>
+              <p>• <strong>IUCN Red List Categories & Criteria</strong> — Internationally recognised species threat classification (publicly available: iucnredlist.org)</p>
+              <p>• <strong>Natural England Statutory Guidance</strong> — UK protected species advice, habitat management standards, and ecological survey guidelines</p>
+              <p>• <strong>UK Biodiversity Action Plan (BAP) Methodology</strong> — Priority species and habitat assessment framework for UK conservation planning</p>
+              <p>• <strong>MAXENT Species Distribution Modelling</strong> — Maximum entropy approach for habitat suitability prediction from occurrence and environmental data</p>
             </CardContent>
           </Card>
         </section>
