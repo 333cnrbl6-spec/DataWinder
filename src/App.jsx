@@ -70,6 +70,7 @@ import ResearcherDashboard from './pages/ResearcherDashboard';
 import FieldPhotoProcessor from './pages/FieldPhotoProcessor';
 import BiodiversityDataComparison from './pages/BiodiversityDataComparison';
 import SurveyDetail from './pages/SurveyDetail';
+import SDMWorkspace from './pages/SDMWorkspace';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -208,6 +209,7 @@ const AuthenticatedApp = () => {
       <Route path="/FieldPhotoProcessor" element={<LayoutWrapper currentPageName="FieldPhotoProcessor"><FieldPhotoProcessor /></LayoutWrapper>} />
       <Route path="/BiodiversityDataComparison" element={<LayoutWrapper currentPageName="BiodiversityDataComparison"><BiodiversityDataComparison /></LayoutWrapper>} />
       <Route path="/SurveyDetail/:surveyId" element={<LayoutWrapper currentPageName="SurveyDetail"><SurveyDetail /></LayoutWrapper>} />
+      <Route path="/SDMWorkspace/:projectId" element={<LayoutWrapper currentPageName="SDMWorkspace"><SDMWorkspace /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
