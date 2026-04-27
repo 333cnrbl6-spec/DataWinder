@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, ChevronRight, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, ShieldCheck } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, ChevronRight, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, ShieldCheck, Globe } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
 
@@ -15,6 +15,12 @@ const NAV_CATEGORIES = [
     label: 'Species Search',
     page: 'Home',
     icon: Search,
+    standalone: true
+  },
+  {
+    label: 'Data Comparison',
+    page: 'BiodiversityDataComparison',
+    icon: Globe,
     standalone: true
   },
   {
