@@ -6,6 +6,12 @@ import AssistantPanel from '@/components/AssistantPanel';
 
 const NAV_CATEGORIES = [
   {
+    label: 'Dashboard',
+    page: 'ResearcherDashboard',
+    icon: BarChart2,
+    standalone: true
+  },
+  {
     label: 'Species Search',
     page: 'Home',
     icon: Search,

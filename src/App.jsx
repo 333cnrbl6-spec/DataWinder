@@ -66,6 +66,7 @@ import BiodiversityDashboard from './pages/BiodiversityDashboard';
 import SpeciesIdentificationLab from './pages/SpeciesIdentificationLab';
 import ConservationProjectTracker from './pages/ConservationProjectTracker';
 import SpeciesExplorerHub from './pages/SpeciesExplorerHub';
+import ResearcherDashboard from './pages/ResearcherDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -200,6 +201,7 @@ const AuthenticatedApp = () => {
       <Route path="/SpeciesIdentificationLab" element={<LayoutWrapper currentPageName="SpeciesIdentificationLab"><SpeciesIdentificationLab /></LayoutWrapper>} />
       <Route path="/ConservationProjectTracker" element={<LayoutWrapper currentPageName="ConservationProjectTracker"><ConservationProjectTracker /></LayoutWrapper>} />
       <Route path="/SpeciesExplorerHub" element={<LayoutWrapper currentPageName="SpeciesExplorerHub"><SpeciesExplorerHub /></LayoutWrapper>} />
+      <Route path="/ResearcherDashboard" element={<LayoutWrapper currentPageName="ResearcherDashboard"><ResearcherDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
