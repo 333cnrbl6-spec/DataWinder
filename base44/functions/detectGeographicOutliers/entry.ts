@@ -1,120 +1,156 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import L from 'npm:leaflet@1.9.4';
-
-// Point-in-polygon test using ray casting algorithm
-function isPointInPolygon(lat, lng, polygonCoords) {
-  let inside = false;
-  for (let i = 0, j = polygonCoords.length - 1; i < polygonCoords.length; j = i++) {
-    const xi = polygonCoords[i][0], yi = polygonCoords[i][1];
-    const xj = polygonCoords[j][0], yj = polygonCoords[j][1];
-    
-    const intersect = ((yi > lat) !== (yj > lat)) &&
-        (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-function isPointInMultiPolygon(lat, lng, geojson) {
-  if (!geojson) return false;
-  
-  const type = geojson.type;
-  const coordinates = geojson.coordinates;
-  
-  if (type === 'Polygon') {
-    // Exterior ring only (simplified - ignoring holes)
-    return isPointInPolygon(lat, lng, coordinates[0]);
-  }
-  
-  if (type === 'MultiPolygon') {
-    // Check each polygon
-    for (const polygon of coordinates) {
-      if (isPointInPolygon(lat, lng, polygon[0])) {
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const body = await req.json();
+    const { species_ids = [], z_threshold = 2.5 } = body;
 
-    const body = await req.json().catch(() => ({}));
-    const speciesIds = body.species_ids || null;
-
-    // Load occurrences
-    let occurrences = await base44.entities.OccurrenceNote.list();
-    if (speciesIds && speciesIds.length > 0) {
-      occurrences = occurrences.filter(o => speciesIds.includes(o.species_id));
+    if (!species_ids || species_ids.length === 0) {
+      return Response.json(
+        { error: 'species_ids required' },
+        { status: 400 }
+      );
     }
 
-    if (occurrences.length === 0) {
-      return Response.json({ outliers: [], summary: { total: 0, outliers: 0, within_range: 0 } });
-    }
+    const results = [];
 
-    // Load IUCN range data
-    const ranges = await base44.entities.IUCNRangeData.list();
-    const rangeMap = new Map();
-    for (const range of ranges) {
-      if (range.range_data_geojson) {
-        rangeMap.set(range.species_id, range.range_data_geojson);
-      }
-    }
+    // Process each species
+    for (const speciesId of species_ids) {
+      const occurrences = await base44.entities.Occurrence.filter({
+        species_id: speciesId
+      }, '-observation_date', 1000);
 
-    // Detect outliers
-    const outliers = [];
-    const withinRange = [];
+      if (occurrences.length === 0) continue;
 
-    for (const occ of occurrences) {
-      if (occ.latitude == null || occ.longitude == null) {
-        outliers.push({
-          ...occ,
-          outlier_reason: 'missing_coordinates',
-          message: 'Missing coordinates',
+      // Extract numeric values for Z-score calculation
+      const latitudes = occurrences.map(o => o.latitude).filter(v => v !== null && v !== undefined);
+      const longitudes = occurrences.map(o => o.longitude).filter(v => v !== null && v !== undefined);
+
+      if (latitudes.length < 3 || longitudes.length < 3) {
+        // Not enough data for meaningful outlier detection
+        results.push({
+          species_id: speciesId,
+          total_records: occurrences.length,
+          outliers: [],
+          message: 'Insufficient records for outlier detection'
         });
         continue;
       }
 
-      const rangeGeojson = rangeMap.get(occ.species_id);
-      
-      if (!rangeGeojson) {
-        // No range data available - can't validate
-        withinRange.push({ ...occ, has_range_data: false });
-        continue;
-      }
+      // Calculate mean and standard deviation
+      const calculateStats = (values) => {
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+        const std = Math.sqrt(variance);
+        return { mean, std };
+      };
 
-      const isInside = isPointInMultiPolygon(occ.latitude, occ.longitude, rangeGeojson);
-      
-      if (!isInside) {
-        outliers.push({
-          ...occ,
-          outlier_reason: 'outside_range',
-          message: 'Occurrence is outside IUCN known range polygon',
-          distance_to_range_km: null, // Could be calculated with more complex geometry
-        });
-      } else {
-        withinRange.push({ ...occ, has_range_data: true });
-      }
+      const latStats = calculateStats(latitudes);
+      const lonStats = calculateStats(longitudes);
+
+      // Calculate Z-scores and identify outliers
+      const outliers = [];
+      occurrences.forEach((occurrence) => {
+        const outlierFlags = [];
+        let isOutlier = false;
+
+        // Geographic outliers
+        if (occurrence.latitude !== null && occurrence.latitude !== undefined) {
+          const latZScore = Math.abs(
+            (occurrence.latitude - latStats.mean) / (latStats.std || 1)
+          );
+          if (latZScore > z_threshold) {
+            outlierFlags.push({
+              type: 'latitude_outlier',
+              z_score: latZScore.toFixed(2),
+              value: occurrence.latitude,
+              threshold: z_threshold
+            });
+            isOutlier = true;
+          }
+        }
+
+        if (occurrence.longitude !== null && occurrence.longitude !== undefined) {
+          const lonZScore = Math.abs(
+            (occurrence.longitude - lonStats.mean) / (lonStats.std || 1)
+          );
+          if (lonZScore > z_threshold) {
+            outlierFlags.push({
+              type: 'longitude_outlier',
+              z_score: lonZScore.toFixed(2),
+              value: occurrence.longitude,
+              threshold: z_threshold
+            });
+            isOutlier = true;
+          }
+        }
+
+        // Temporal outliers (if observation_date exists)
+        if (occurrence.observation_date) {
+          const dates = occurrences
+            .map(o => o.observation_date)
+            .filter(d => d)
+            .map(d => new Date(d).getTime());
+          
+          if (dates.length > 2) {
+            const dateStats = calculateStats(dates);
+            const dateValue = new Date(occurrence.observation_date).getTime();
+            const dateZScore = Math.abs((dateValue - dateStats.mean) / (dateStats.std || 1));
+            
+            if (dateZScore > z_threshold) {
+              outlierFlags.push({
+                type: 'temporal_outlier',
+                z_score: dateZScore.toFixed(2),
+                value: occurrence.observation_date,
+                threshold: z_threshold
+              });
+              isOutlier = true;
+            }
+          }
+        }
+
+        if (isOutlier) {
+          outliers.push({
+            occurrence_id: occurrence.id,
+            species_name: occurrence.species_name,
+            latitude: occurrence.latitude,
+            longitude: occurrence.longitude,
+            observation_date: occurrence.observation_date,
+            outlier_flags: outlierFlags,
+            observer_name: occurrence.observer_name,
+            notes: occurrence.notes
+          });
+        }
+      });
+
+      results.push({
+        species_id: speciesId,
+        total_records: occurrences.length,
+        outliers_count: outliers.length,
+        outlier_percentage: ((outliers.length / occurrences.length) * 100).toFixed(1),
+        outliers: outliers.slice(0, 50), // Return first 50 for display
+        clean_records_count: occurrences.length - outliers.length
+      });
     }
 
     return Response.json({
-      outliers,
-      within_range: withinRange,
+      success: true,
+      z_threshold,
+      results,
+      timestamp: new Date().toISOString(),
       summary: {
-        total: occurrences.length,
-        outliers: outliers.length,
-        within_range: withinRange.length,
-        no_range_data: withinRange.filter(o => !o.has_range_data).length,
-      },
+        total_species: results.length,
+        total_outliers: results.reduce((sum, r) => sum + r.outliers_count, 0),
+        total_records: results.reduce((sum, r) => sum + r.total_records, 0)
+      }
     });
 
   } catch (error) {
-    console.error('detectGeographicOutliers error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Outlier detection error:', error);
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 });
