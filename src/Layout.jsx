@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, ChevronRight, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, ShieldCheck, Globe } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
+import { base44 } from '@/api/base44Client';
 
 const NAV_CATEGORIES = [
   {
@@ -176,6 +177,11 @@ function NavCategoryDropdown({ category, currentPageName, isMobile = false }) {
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => setCurrentUser(null));
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -211,6 +217,11 @@ export default function Layout({ children, currentPageName }) {
         {sidebarOpen && (
           <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
             {NAV_CATEGORIES.map((category) => {
+              // Hide "For Kids" unless user is admin
+              if (category.page === 'ForKids' && currentUser?.role !== 'admin') {
+                return null;
+              }
+
               if (category.standalone) {
                 const isActive = currentPageName === category.page;
                 return (
