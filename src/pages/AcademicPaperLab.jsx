@@ -389,7 +389,7 @@ export default function AcademicPaperLab() {
     URL.revokeObjectURL(url);
   };
 
-  // Access control
+  // SECURITY: Strict access control — admin only, no exceptions
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -398,13 +398,20 @@ export default function AcademicPaperLab() {
     );
   }
 
-  if (user?.role !== 'admin') {
+  // Block all non-admin access — return 403-equivalent UI
+  if (!user || user.role !== 'admin') {
+    console.warn(`Unauthorized access attempt to AcademicPaperLab. User role: ${user?.role || 'none'}`);
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center space-y-3 p-8">
-          <Lock className="w-10 h-10 text-slate-400 mx-auto" />
-          <h2 className="font-bold text-slate-700">Access Restricted</h2>
-          <p className="text-sm text-slate-500">This tool is for authorised developers only.</p>
+        <div className="text-center space-y-4 p-8 max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="font-bold text-slate-900 text-lg">Access Denied</h2>
+          <p className="text-sm text-slate-600">This tool is restricted to administrator accounts only. If you believe you should have access, contact your organisation's administrator.</p>
+          <div className="text-xs text-slate-400 bg-slate-100 p-3 rounded-lg mt-4 font-mono">
+            Reason: insufficient_permissions
+          </div>
         </div>
       </div>
     );

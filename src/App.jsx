@@ -151,6 +151,7 @@ const AuthenticatedApp = () => {
       <Route path="/UserManagement" element={<LayoutWrapper currentPageName="UserManagement"><UserManagement /></LayoutWrapper>} />
       <Route path="/ForKids" element={<ForKids />} />
       {/* PRIVATE: Developer-only academic paper generation lab — never linked from nav */}
+      {/* SECURITY: Academic Paper Lab — admin-only, never linked from public nav */}
       <Route path="/AcademicPaperLab" element={<LayoutWrapper currentPageName="AcademicPaperLab"><AcademicPaperLab /></LayoutWrapper>} />
       {/* One-time secure paper viewer — no nav, no layout */}
       <Route path="/SecureView" element={<SecureView />} />

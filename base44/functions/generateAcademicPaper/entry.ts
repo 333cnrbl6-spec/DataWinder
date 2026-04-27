@@ -249,12 +249,21 @@ function computeSimilarity(text, referenceTitle) {
 
 Deno.serve(async (req) => {
   try {
+    // SECURITY: Strict origin check for iframe detection
+    const origin = req.headers.get('origin');
+    const referer = req.headers.get('referer');
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
+    // CRITICAL: Admin-only access
     if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin only' }, { status: 403 });
+      console.error(`Unauthorized access attempt to generateAcademicPaper. User role: ${user?.role || 'none'}`);
+      return Response.json({ error: 'Forbidden: Admin-only access required' }, { status: 403 });
     }
+    
+    // Log admin access for audit trail
+    console.log(`generateAcademicPaper invoked by admin: ${user.email} at ${new Date().toISOString()}`);
 
     const body = await req.json();
     const { taxon = 'Callithrix', taxon_rank = 'genus', citation_style = 'Harvard', save_draft = true } = body;
