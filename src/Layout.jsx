@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, ShieldCheck } from 'lucide-react';
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from '@/components/ui/navigation-menu';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, ListChecks, GitCompare, Users, MessageCircle, Folder, ChevronDown, ChevronRight, Shield, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, ShieldCheck } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
 
@@ -117,101 +116,87 @@ const NAV_CATEGORIES = [
   },
 ];
 
-export default function Layout({ children, currentPageName }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+function NavCategoryDropdown({ category, currentPageName, isMobile = false }) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className={isMobile ? "space-y-1" : ""}>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center justify-between w-full gap-2 px-3 py-2 rounded-lg font-medium transition-all ${
+          open
+            ? 'bg-bangor-red/10 text-bangor-red'
+            : 'text-slate-700 hover:bg-slate-100'
+        } ${isMobile ? 'text-sm' : 'text-xs'}`}
+      >
+        <div className="flex items-center gap-2">
+          {React.createElement(category.icon, { className: isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5' })}
+          {category.label}
+        </div>
+        <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
+      </button>
 
-      {/* ── Global Navigation ── */}
-      <nav className="bg-white border-b-4 border-bangor-red sticky top-0 z-50 shadow-md backdrop-blur-sm">
-        <div className="max-w-screen-2xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12 sm:h-14">
+      {open && (
+        <div className={`space-y-1 ${isMobile ? '' : 'pl-6'}`}>
+          {category.items.map(({ label, page, icon: Icon }) => {
+            const isActive = currentPageName === page;
+            return (
+              <Link
+                key={page}
+                to={`/${page}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  isActive
+                    ? 'bg-bangor-red text-white font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 text-sm'
+                }`}
+              >
+                {React.createElement(Icon, { className: isMobile ? 'w-3.5 h-3.5' : 'w-3 h-3' })}
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
-           {/* Brand Mark */}
-           <Link
-             to="/Home"
-             className="flex items-center gap-2 xs:gap-2.5 shrink-0 group"
-           >
-             <div className="w-7 xs:w-8 h-7 xs:h-8 bg-bangor-red rounded-lg flex items-center justify-center group-hover:opacity-90 transition-opacity">
-               <Leaf className="w-3.5 xs:w-4 h-3.5 xs:h-4 text-white" />
-             </div>
-             <div className="hidden xs:block sm:flex sm:flex-col leading-tight">
-               <div className="text-xs xs:text-sm font-bold text-bangor-red tracking-tight">DataWinder</div>
-               <div className="hidden xs:block text-xs text-slate-400 font-normal">Multi-Source Biodiversity</div>
-             </div>
-           </Link>
+export default function Layout({ children, currentPageName }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-            {/* Desktop Navigation */}
-            <NavigationMenu className="hidden lg:flex">
-              <NavigationMenuList className="gap-0">
-                {NAV_CATEGORIES.map((category) => {
-                  if (category.standalone) {
-                    const isActive = currentPageName === category.page;
-                    return (
-                      <NavigationMenuItem key={category.label}>
-                        <Link
-                          to={`/${category.page}`}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                            isActive
-                              ? 'bg-bangor-red text-white shadow-sm'
-                              : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
-                          }`}
-                        >
-                          {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                          {category.label}
-                        </Link>
-                      </NavigationMenuItem>
-                    );
-                  }
-                  
-                  return (
-                   <NavigationMenuItem key={category.label}>
-                     <NavigationMenuTrigger className="text-xs font-semibold text-slate-600 hover:text-bangor-red hover:bg-bangor-red/10 data-[state=open]:bg-bangor-red/10 data-[state=open]:text-bangor-red">
-                       {React.createElement(category.icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                       {category.label}
-                     </NavigationMenuTrigger>
-                     <NavigationMenuContent className="w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 text-slate-700">
-                       <div className="space-y-1">
-                         {category.items.map(({ label, page, icon: Icon }) => {
-                           const isActive = currentPageName === page;
-                           return (
-                             <Link
-                               key={page}
-                               to={`/${page}`}
-                               className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
-                                 isActive
-                                   ? 'bg-bangor-red/10 text-bangor-red'
-                                   : 'text-slate-600 hover:bg-slate-100'
-                               }`}
-                             >
-                               {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                               {label}
-                             </Link>
-                           );
-                         })}
-                       </div>
-                     </NavigationMenuContent>
-                   </NavigationMenuItem>
-                  );
-                })}
-              </NavigationMenuList>
-            </NavigationMenu>
+  return (
+    <div className="min-h-screen flex bg-slate-50">
 
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMenuOpen(v => !v)}
-              className="lg:hidden p-1.5 xs:p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-              aria-label="Toggle navigation menu"
-            >
-              {menuOpen ? <X className="w-4 xs:w-5 h-4 xs:h-5" /> : <Menu className="w-4 xs:w-5 h-4 xs:h-5" />}
-            </button>
-          </div>
+      {/* ── Sidebar Navigation (Desktop & Mobile) ── */}
+      <aside className={`fixed lg:relative h-screen bg-white border-r border-slate-200 shadow-sm z-40 transition-transform duration-300 ${
+        sidebarOpen ? 'w-64' : '-translate-x-full lg:translate-x-0 lg:w-16'
+      }`}>
+
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between gap-2 px-4 py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
+          <Link to="/Home" className="flex items-center gap-3 flex-1 min-w-0 group">
+            <div className="w-9 h-9 bg-bangor-red rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
+              <Leaf className="w-5 h-5 text-white" />
+            </div>
+            {sidebarOpen && (
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-bangor-red truncate">DataWinder</div>
+                <div className="text-xs text-slate-400 truncate">Conservation</div>
+              </div>
+            )}
+          </Link>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden p-1 rounded-lg hover:bg-slate-100 text-slate-600 shrink-0"
+            aria-label="Toggle sidebar"
+          >
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
 
-        {/* Mobile Dropdown */}
-        {menuOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-3 pb-3 pt-2 space-y-2 max-h-[70vh] overflow-y-auto">
+        {/* Sidebar Navigation */}
+        {sidebarOpen && (
+          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
             {NAV_CATEGORIES.map((category) => {
               if (category.standalone) {
                 const isActive = currentPageName === category.page;
@@ -219,11 +204,10 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={category.label}
                     to={`/${category.page}`}
-                    onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all ${
                       isActive
-                        ? 'bg-bangor-red text-white'
-                        : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
+                        ? 'bg-bangor-red text-white shadow-sm'
+                        : 'text-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     {React.createElement(category.icon, { className: 'w-4 h-4 shrink-0' })}
@@ -233,42 +217,49 @@ export default function Layout({ children, currentPageName }) {
               }
 
               return (
-                <div key={category.label}>
-                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-500 uppercase tracking-wide">
-                    {React.createElement(category.icon, { className: 'w-3.5 h-3.5' })}
-                    {category.label}
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 ml-2">
-                    {category.items.map(({ label, page, icon: Icon }) => {
-                      const isActive = currentPageName === page;
-                      return (
-                        <Link
-                          key={page}
-                          to={`/${page}`}
-                          onClick={() => setMenuOpen(false)}
-                          className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                            isActive
-                              ? 'bg-bangor-red text-white'
-                              : 'text-slate-600 hover:bg-bangor-red/10 hover:text-bangor-red'
-                          }`}
-                        >
-                          {React.createElement(Icon, { className: 'w-3.5 h-3.5 shrink-0' })}
-                          {label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
+                <NavCategoryDropdown
+                  key={category.label}
+                  category={category}
+                  currentPageName={currentPageName}
+                  isMobile={false}
+                />
               );
             })}
-          </div>
+          </nav>
         )}
-      </nav>
+      </aside>
 
-      {/* ── Page Content ── */}
-      <main className="flex-1">
-        {children}
-      </main>
+      {/* ── Overlay when sidebar open on mobile ── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 lg:hidden z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile Header */}
+        <div className="lg:hidden h-14 bg-white border-b-4 border-bangor-red flex items-center px-4 sticky top-0 z-20 shadow-sm">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1 rounded-lg hover:bg-slate-100 text-slate-600"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <div className="ml-3 flex items-center gap-2">
+            <div className="w-7 h-7 bg-bangor-red rounded-lg flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-sm font-bold text-bangor-red">DataWinder</div>
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <main className="flex-1">
+          {children}
+        </main>
 
       {/* ── In-page Assistant Panel ── */}
       {currentPageName !== 'FAQBot' && (
@@ -276,26 +267,23 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* ── Footer ── */}
-      <footer className="bg-white border-t border-slate-200 py-3 xs:py-4 sm:py-5 mt-auto">
-        <div className="max-w-screen-2xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-2 xs:gap-3">
-            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1 xs:gap-2 text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <div className="w-4 xs:w-5 h-4 xs:h-5 bg-bangor-red rounded flex items-center justify-center flex-shrink-0">
-                  <Leaf className="w-2.5 xs:w-3 h-2.5 xs:h-3 text-white" />
-                </div>
-                <span className="text-xs">© {new Date().getFullYear()} DataWinder</span>
-              </div>
-              <span className="italic text-xs">Always cite sources.</span>
+      <footer className="bg-white border-t border-slate-200 py-3 text-xs text-slate-400 mt-auto">
+        <div className="px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Leaf className="w-4 h-4 text-bangor-red shrink-0" />
+              <span>© {new Date().getFullYear()} DataWinder</span>
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <span className="text-xs text-slate-400 shrink-0">Powered by:</span>
-              <DataSourceBadges size="xs" />
-            </div>
+            <span className="italic">Always cite sources.</span>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2">
+            <span className="shrink-0">Powered by:</span>
+            <DataSourceBadges size="xs" />
           </div>
         </div>
       </footer>
+      </div>
 
-    </div>
-  );
+      </div>
+      );
 }
