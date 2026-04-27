@@ -29,6 +29,7 @@ const NAV_CATEGORIES = [
     label: 'Data Tidying',
     icon: PackageOpen,
     items: [
+      { label: 'Photo Processor', page: 'FieldPhotoProcessor', icon: Sparkles },
       { label: 'Smart Import', page: 'SmartImport', icon: PackageOpen },
       { label: 'Import History', page: 'ImportHistory', icon: History },
       { label: 'Data Preparation', page: 'DataPreparation', icon: FileOutput },

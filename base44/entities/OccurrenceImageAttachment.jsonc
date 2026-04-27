@@ -1,0 +1,136 @@
+{
+  "name": "OccurrenceImageAttachment",
+  "type": "object",
+  "properties": {
+    "occurrence_id": {
+      "type": "string",
+      "description": "Reference to Occurrence record"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Reference to Species record (if identified)"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL to the processed image file"
+    },
+    "extracted_latitude": {
+      "type": "number",
+      "description": "GPS latitude extracted from EXIF data"
+    },
+    "extracted_longitude": {
+      "type": "number",
+      "description": "GPS longitude extracted from EXIF data"
+    },
+    "gps_accuracy": {
+      "type": "number",
+      "description": "GPS accuracy in meters (if available from EXIF)"
+    },
+    "extracted_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp extracted from EXIF data"
+    },
+    "ai_identified_species": {
+      "type": "string",
+      "description": "Species name identified by AI image recognition"
+    },
+    "ai_confidence": {
+      "type": "number",
+      "description": "AI identification confidence score 0-1"
+    },
+    "ai_model": {
+      "type": "string",
+      "description": "AI model used for identification (e.g., InceptionV3, YOLOv8)"
+    },
+    "ai_top_suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_name": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Top 3-5 species suggestions from AI"
+    },
+    "manual_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether an expert has verified the AI identification"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "Email of user who verified the identification"
+    },
+    "verified_species": {
+      "type": "string",
+      "description": "Final verified species name if different from AI identification"
+    },
+    "photo_metadata": {
+      "type": "object",
+      "description": "Raw EXIF and image metadata",
+      "properties": {
+        "camera_make": {
+          "type": "string"
+        },
+        "camera_model": {
+          "type": "string"
+        },
+        "focal_length": {
+          "type": "string"
+        },
+        "iso": {
+          "type": "number"
+        },
+        "aperture": {
+          "type": "string"
+        },
+        "shutter_speed": {
+          "type": "string"
+        },
+        "image_width": {
+          "type": "number"
+        },
+        "image_height": {
+          "type": "number"
+        }
+      }
+    },
+    "processing_status": {
+      "type": "string",
+      "enum": [
+        "uploading",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "uploading",
+      "description": "Status of image processing pipeline"
+    },
+    "processing_error": {
+      "type": "string",
+      "description": "Error message if processing failed"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email of user who uploaded the image"
+    },
+    "uploaded_by_name": {
+      "type": "string",
+      "description": "Display name of uploader"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Field notes about the photo or species observed"
+    }
+  },
+  "required": [
+    "occurrence_id",
+    "image_url"
+  ]
+}
