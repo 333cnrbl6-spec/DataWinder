@@ -9,63 +9,77 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { invitation_id, response } = await req.json();
+    const { invitation_id, accept } = await req.json();
 
-    if (!invitation_id || !['accepted', 'declined'].includes(response)) {
-      return Response.json({ error: 'Invalid parameters' }, { status: 400 });
+    if (!invitation_id || accept === undefined) {
+      return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Fetch invitation
-    const invitations = await base44.entities.TeamInvitation.filter({ id: invitation_id });
-    if (!invitations || invitations.length === 0) {
-      return Response.json({ error: 'Invitation not found' }, { status: 404 });
-    }
+    // Get invitation
+    const invitation = await base44.entities.TeamInvitation.get(invitation_id);
 
-    const invitation = invitations[0];
-
-    // Verify invitation is for current user
     if (invitation.invitee_email !== user.email) {
       return Response.json({ error: 'This invitation is not for you' }, { status: 403 });
     }
 
-    // Check if already responded
     if (invitation.status !== 'pending') {
-      return Response.json({ error: 'Invitation already responded to' }, { status: 400 });
+      return Response.json({ error: 'This invitation has already been responded to' }, { status: 400 });
     }
 
     // Update invitation status
+    const newStatus = accept ? 'accepted' : 'declined';
     await base44.entities.TeamInvitation.update(invitation_id, {
-      status: response,
-      responded_at: new Date().toISOString()
+      status: newStatus,
+      responded_at: new Date().toISOString(),
     });
 
-    // If accepted, add user to project team
-    if (response === 'accepted') {
-      const project = await base44.entities.Project.filter({ id: invitation.project_id });
-      if (project && project.length > 0) {
-        const p = project[0];
-        const updatedMembers = p.team_members || [];
-
-        // Add new member
-        updatedMembers.push({
+    if (accept) {
+      // Add user to project team
+      const project = await base44.entities.Project.get(invitation.project_id);
+      const updatedTeam = [
+        ...(project.team_members || []),
+        {
           email: user.email,
           name: user.full_name,
           role: invitation.invited_role,
-          added_date: new Date().toISOString()
-        });
+          added_date: new Date().toISOString(),
+        },
+      ];
 
-        await base44.entities.Project.update(invitation.project_id, {
-          team_members: updatedMembers
-        });
-      }
+      await base44.entities.Project.update(invitation.project_id, {
+        team_members: updatedTeam,
+      });
+
+      // Notify inviter
+      await base44.integrations.Core.SendEmail({
+        to: invitation.inviter_email,
+        subject: `${user.full_name} accepted your project invitation`,
+        body: `${user.full_name} has accepted your invitation to collaborate on "${invitation.project_name}".`,
+      });
+
+      return Response.json({
+        success: true,
+        message: `You've joined the ${invitation.project_name} project!`,
+      });
+    } else {
+      // Notify inviter of decline
+      await base44.integrations.Core.SendEmail({
+        to: invitation.inviter_email,
+        subject: `${user.full_name} declined your project invitation`,
+        body: `${user.full_name} has declined your invitation to collaborate on "${invitation.project_name}".`,
+      });
+
+      return Response.json({
+        success: true,
+        message: 'You declined the invitation.',
+      });
     }
 
-    return Response.json({
-      success: true,
-      message: response === 'accepted' ? 'Added to project' : 'Invitation declined'
-    });
   } catch (error) {
-    console.error('Response error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Respond to invite error:', error);
+    return Response.json({
+      error: 'Failed to respond to invitation',
+      details: error.message,
+    }, { status: 500 });
   }
 });

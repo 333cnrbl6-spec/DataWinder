@@ -11,43 +11,45 @@ Deno.serve(async (req) => {
 
     const { project_id, member_email, new_role } = await req.json();
 
-    if (!project_id || !member_email || !['editor', 'viewer'].includes(new_role)) {
-      return Response.json({ error: 'Invalid parameters' }, { status: 400 });
+    if (!project_id || !member_email || !new_role) {
+      return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Fetch project
-    const projects = await base44.entities.Project.filter({ id: project_id });
-    if (!projects || projects.length === 0) {
-      return Response.json({ error: 'Project not found' }, { status: 404 });
-    }
-
-    const project = projects[0];
-
-    // Verify user is owner
+    // Verify user owns the project
+    const project = await base44.entities.Project.get(project_id);
     if (project.owner_email !== user.email) {
-      return Response.json({ error: 'Only project owner can modify permissions' }, { status: 403 });
+      return Response.json({ error: 'Only project owner can update permissions' }, { status: 403 });
     }
 
-    // Cannot remove owner
-    if (member_email === project.owner_email) {
-      return Response.json({ error: 'Cannot modify owner permissions' }, { status: 400 });
-    }
-
-    // Update member role
-    const updatedMembers = (project.team_members || []).map(m =>
-      m.email === member_email ? { ...m, role: new_role } : m
-    );
+    // Update team member role
+    const updatedTeam = (project.team_members || []).map(member => {
+      if (member.email === member_email) {
+        return { ...member, role: new_role };
+      }
+      return member;
+    });
 
     await base44.entities.Project.update(project_id, {
-      team_members: updatedMembers
+      team_members: updatedTeam,
+    });
+
+    // Notify member
+    await base44.integrations.Core.SendEmail({
+      to: member_email,
+      subject: `Your permissions have been updated on "${project.title}"`,
+      body: `Your role on the "${project.title}" project has been changed to: ${new_role === 'editor' ? 'Editor' : 'Viewer'}`,
     });
 
     return Response.json({
       success: true,
-      message: `Member role updated to ${new_role}`
+      message: `${member_email}'s permissions updated to ${new_role}`,
     });
+
   } catch (error) {
-    console.error('Permission update error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Update permission error:', error);
+    return Response.json({
+      error: 'Failed to update permissions',
+      details: error.message,
+    }, { status: 500 });
   }
 });

@@ -13,6 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format } from 'date-fns';
 import WorkspaceOverview from '@/components/workspace/WorkspaceOverview';
 import ProjectAssets from '@/components/workspace/VersionHistory';
+import SharedObservations from '@/components/workspace/SharedObservations';
+import SharedMediaGallery from '@/components/workspace/SharedMediaGallery';
+import SharedComplianceReports from '@/components/workspace/SharedComplianceReports';
 
 export default function ProjectWorkspace() {
   const { projectId } = useParams();
@@ -211,9 +214,11 @@ export default function ProjectWorkspace() {
         )}
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="assets">Assets</TabsTrigger>
+            <TabsTrigger value="observations">Observations</TabsTrigger>
+            <TabsTrigger value="media">Media</TabsTrigger>
+            <TabsTrigger value="compliance">Compliance</TabsTrigger>
             <TabsTrigger value="members">Team</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
@@ -223,9 +228,19 @@ export default function ProjectWorkspace() {
             <WorkspaceOverview project={project} />
           </TabsContent>
 
-          {/* Assets Tab */}
-          <TabsContent value="assets" className="space-y-6">
-            <ProjectAssets project={project} />
+          {/* Observations Tab */}
+          <TabsContent value="observations" className="space-y-6">
+            <SharedObservations projectId={projectId} />
+          </TabsContent>
+
+          {/* Media Tab */}
+          <TabsContent value="media" className="space-y-6">
+            <SharedMediaGallery projectId={projectId} />
+          </TabsContent>
+
+          {/* Compliance Tab */}
+          <TabsContent value="compliance" className="space-y-6">
+            <SharedComplianceReports projectId={projectId} />
           </TabsContent>
 
           {/* Team Tab */}
