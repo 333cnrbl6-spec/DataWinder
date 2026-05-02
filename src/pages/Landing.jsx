@@ -104,44 +104,79 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* SDM & Biodiversity Capabilities */}
       <section className="bg-slate-800/50 py-20 border-t border-slate-700/50">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-16">Powerful Tools for Conservation Science</h2>
+          <h2 className="text-4xl font-bold text-center mb-4">Advanced Species Distribution Modeling</h2>
+          <p className="text-center text-slate-400 mb-16">Complete toolkit for conservation researchers and biodiversity professionals</p>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: Database, title: 'Multi-Source Data', desc: 'Integrate IUCN, GBIF, iNaturalist, and custom datasets in seconds.' },
-              { icon: Zap, title: 'Automated SDM Pipeline', desc: 'Run MaxEnt, outlier detection, and variable selection automatically.' },
-              { icon: CheckCircle, title: 'Data Validation', desc: 'Detect duplicates, validate taxonomy, flag geographic outliers.' },
-              { icon: FileOutput, title: 'Report Generation', desc: 'Create publication-ready PDFs and interactive visualizations.' },
-              { icon: Users, title: 'Team Collaboration', desc: 'Share projects, assign roles, track changes and versions.' },
-              { icon: Shield, title: 'Enterprise Security', desc: 'Secure data storage, audit logs, compliance reporting.' },
+              { icon: Database, title: 'Multi-Source Data Integration', desc: 'Seamlessly combine IUCN Red List, GBIF, iNaturalist, SpeciesLink, and your field data into unified occurrence datasets.' },
+              { icon: Zap, title: 'Automated SDM Pipeline', desc: 'Run MaxEnt models with automatic outlier detection, geographic filtering, bioclimatic variable selection, and ensemble methods.' },
+              { icon: CheckCircle, title: 'AI-Powered Data Validation', desc: 'Detect duplicate records, validate taxonomy against external sources, identify geographic outliers, and flag suspicious observations.' },
+              { icon: FileOutput, title: 'Publication-Ready Reports', desc: 'Generate comprehensive conservation assessments, threat evaluations, and species reports with interactive maps and charts.' },
+              { icon: TrendingUp, title: 'Climate Scenario Projections', desc: 'Model species distribution under multiple climate futures (RCP 4.5, 8.5) to assess climate change impacts.' },
+              { icon: Globe, title: 'Global Reach, Local Impact', desc: 'Integrate with international conservation standards and contribute to global biodiversity monitoring efforts.' },
             ].map((item, i) => (
-              <div key={i} className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8 hover:border-bangor-red/50 transition">
-                <item.icon className="w-12 h-12 text-bangor-red mb-4" />
+              <div key={i} className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8 hover:border-bangor-red/50 transition group">
+                <item.icon className="w-12 h-12 text-bangor-red mb-4 group-hover:scale-110 transition" />
                 <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-slate-300 text-sm">{item.desc}</p>
+                <p className="text-slate-300 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* What's Included */}
       <section className="py-20 max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
-        <p className="text-center text-slate-400 mb-16">Free for Bangor University. Pro for everyone else.</p>
-        
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Tier */}
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold mb-2">Free</h3>
-            <p className="text-slate-400 mb-6">Bangor University only</p>
-            <div className="text-4xl font-bold mb-6">£0<span className="text-lg text-slate-400">/month</span></div>
-            <ul className="space-y-3 mb-8">
-              {['Up to 5 projects', '1,000 occurrences/month', 'Community support', 'Core SDM tools'].map((item, i) => (
+        <h2 className="text-3xl font-bold text-center mb-12">Comprehensive Conservation Toolkit</h2>
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold mb-6">Data Management & Quality</h3>
+            {['Ingest from 4+ global biodiversity databases', 'Automated duplicate detection and merging', 'Taxonomic validation with cross-references', 'Coordinate outlier identification', 'Version history and audit trails'].map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-300">{item}</span>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold mb-6">Modeling & Analysis</h3>
+            {['MaxEnt species distribution models', 'Ensemble model comparison', 'Climate scenario projections (4 futures)', 'Feature importance analysis', 'Response curve visualization', 'Model performance metrics (AUC, TSS)'].map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-300">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Detailed Pricing Comparison */}
+      <section className="py-20 max-w-7xl mx-auto px-6">
+        <h2 className="text-4xl font-bold text-center mb-4">Plans for Every Conservation Need</h2>
+        <p className="text-center text-slate-400 mb-16">Free Academic tier for Bangor researchers. Pro for everyone else.</p>
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+          {/* Free Academic Tier */}
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-slate-600 transition">
+            <h3 className="text-2xl font-bold mb-2">Free Academic</h3>
+            <p className="text-slate-400 mb-6">@bangor.ac.uk emails only</p>
+            <div className="text-4xl font-bold mb-2">£0<span className="text-lg text-slate-400">/month</span></div>
+            <p className="text-xs text-slate-500 mb-6">Auto-activated with Bangor email</p>
+            <ul className="space-y-3 mb-8 text-sm">
+              {[
+                'Up to 5 projects',
+                '1,000 occurrences/month',
+                'Core SDM tools (MaxEnt)',
+                'Data validation & QA',
+                '5 team members',
+                'Community support',
+              ].map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-slate-300">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                   {item}
                 </li>
               ))}
@@ -151,40 +186,82 @@ export default function Landing() {
             ) : (
               <button
                 onClick={() => base44.auth.redirectToLogin()}
-                className="w-full px-4 py-2 border border-slate-600 rounded-lg hover:bg-slate-700 transition"
+                className="w-full px-4 py-2 border border-slate-600 rounded-lg hover:bg-slate-700 transition font-medium"
               >
-                Get Started
+                Sign Up
               </button>
             )}
           </div>
 
           {/* Pro Tier */}
-          <div className="bg-gradient-to-br from-bangor-red/20 to-blue-600/10 border border-bangor-red/50 rounded-2xl p-8 relative">
-            <div className="absolute top-4 right-4 bg-bangor-red text-white px-3 py-1 rounded-full text-xs font-semibold">Popular</div>
+          <div className="bg-gradient-to-br from-bangor-red/20 to-blue-600/10 border-2 border-bangor-red/50 rounded-2xl p-8 relative transform md:scale-105">
+            <div className="absolute top-4 right-4 bg-bangor-red text-white px-3 py-1 rounded-full text-xs font-semibold">Most Popular</div>
             <h3 className="text-2xl font-bold mb-2">Pro</h3>
-            <p className="text-slate-400 mb-6">For professionals & organizations</p>
-            <div className="text-4xl font-bold mb-6">£99<span className="text-lg text-slate-400">/month</span></div>
-            <ul className="space-y-3 mb-8">
-              {['Unlimited projects', 'Unlimited occurrences', 'Priority email support', 'Advanced tools', 'API access', 'Custom integrations'].map((item, i) => (
+            <p className="text-slate-400 mb-6">Professional researchers & organizations</p>
+            <div className="text-4xl font-bold mb-2">£99<span className="text-lg text-slate-400">/month</span></div>
+            <p className="text-xs text-slate-500 mb-6">or £990/year (save 17%)</p>
+            <ul className="space-y-3 mb-8 text-sm">
+              {[
+                'Unlimited projects',
+                'Unlimited occurrences',
+                'Advanced SDM tools (ensemble methods)',
+                'Climate scenario projections',
+                'Unlimited team members',
+                'Priority email support',
+                'API access (read/write)',
+                'Custom integrations',
+              ].map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-slate-300">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                   {item}
                 </li>
               ))}
             </ul>
             {isAuthenticated && !isBangorUser ? (
               <Link to="/Pricing">
-                <Button className="w-full bg-bangor-red hover:bg-bangor-red/90">Upgrade to Pro</Button>
+                <Button className="w-full bg-bangor-red hover:bg-bangor-red/90">Upgrade Now</Button>
               </Link>
             ) : (
               <button
                 onClick={() => base44.auth.redirectToLogin()}
                 className="w-full px-4 py-2 bg-bangor-red hover:bg-bangor-red/90 rounded-lg transition font-semibold"
               >
-                Start Free Trial
+                Start 14-Day Trial
               </button>
             )}
           </div>
+        </div>
+
+        {/* Feature Comparison Table */}
+        <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-700/50">
+                <th className="text-left px-6 py-4 font-bold">Feature</th>
+                <th className="text-center px-6 py-4 font-bold">Free Academic</th>
+                <th className="text-center px-6 py-4 font-bold">Pro</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700/50">
+              {[
+                { feature: 'Projects', free: '5', pro: 'Unlimited' },
+                { feature: 'Occurrence Records/month', free: '1,000', pro: 'Unlimited' },
+                { feature: 'Team Members', free: '5', pro: 'Unlimited' },
+                { feature: 'Data Sources', free: '4 (read-only)', pro: 'All + custom' },
+                { feature: 'SDM Models', free: 'MaxEnt only', pro: 'MaxEnt + Ensemble' },
+                { feature: 'Climate Scenarios', free: 'Current climate', pro: '4 future scenarios' },
+                { feature: 'API Access', free: '❌', pro: '✓ Read/Write' },
+                { feature: 'Priority Support', free: '❌', pro: '✓ Email & chat' },
+                { feature: 'Custom Integrations', free: '❌', pro: '✓' },
+              ].map((row, i) => (
+                <tr key={i} className="hover:bg-slate-700/20 transition">
+                  <td className="px-6 py-4 font-medium text-slate-300">{row.feature}</td>
+                  <td className="text-center px-6 py-4 text-slate-400">{row.free}</td>
+                  <td className="text-center px-6 py-4 text-slate-300 font-medium">{row.pro}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -210,6 +287,33 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Legal & Compliance */}
+      <section className="bg-slate-800/50 border-t border-slate-700/50 py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Trust & Compliance</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8">
+              <Shield className="w-12 h-12 text-bangor-red mb-4" />
+              <h3 className="font-bold text-lg mb-3">Data Security</h3>
+              <p className="text-slate-300 text-sm mb-4">Enterprise-grade encryption, secure data storage, and regular security audits. Your biodiversity data is protected with industry standards.</p>
+              <Link to="/PrivacyPolicy" className="text-bangor-red hover:underline text-sm font-medium">Read Privacy Policy →</Link>
+            </div>
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8">
+              <CheckCircle className="w-12 h-12 text-bangor-red mb-4" />
+              <h3 className="font-bold text-lg mb-3">Compliance & Standards</h3>
+              <p className="text-slate-300 text-sm mb-4">Designed for academic and professional use. Compliant with data protection regulations and conservation best practices.</p>
+              <Link to="/TermsOfService" className="text-bangor-red hover:underline text-sm font-medium">View Terms of Service →</Link>
+            </div>
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8">
+              <Globe className="w-12 h-12 text-bangor-red mb-4" />
+              <h3 className="font-bold text-lg mb-3">Global Impact</h3>
+              <p className="text-slate-300 text-sm mb-4">Contributing to international conservation efforts. Integrate with IUCN, GBIF, and other global biodiversity initiatives.</p>
+              <a href="#" className="text-bangor-red hover:underline text-sm font-medium">Learn about our partners →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-slate-900 border-t border-slate-700/50 py-12">
         <div className="max-w-7xl mx-auto px-6">
@@ -219,8 +323,7 @@ export default function Landing() {
               <ul className="space-y-2 text-slate-400 text-sm">
                 <li><Link to="/Landing" className="hover:text-white transition">Home</Link></li>
                 <li><Link to="/Pricing" className="hover:text-white transition">Pricing</Link></li>
-                <li><Link to="/TermsOfService" className="hover:text-white transition">Terms</Link></li>
-                <li><Link to="/PrivacyPolicy" className="hover:text-white transition">Privacy</Link></li>
+                <li><Link to="/About" className="hover:text-white transition">About</Link></li>
               </ul>
             </div>
             <div>
@@ -232,19 +335,20 @@ export default function Landing() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Company</h4>
+              <h4 className="font-bold mb-4">Legal</h4>
               <ul className="space-y-2 text-slate-400 text-sm">
-                <li><Link to="/About" className="hover:text-white transition">About</Link></li>
-                <li><a href="https://github.com" className="hover:text-white transition">GitHub</a></li>
+                <li><Link to="/TermsOfService" className="hover:text-white transition">Terms of Service</Link></li>
+                <li><Link to="/PrivacyPolicy" className="hover:text-white transition">Privacy Policy</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-4">Contact</h4>
-              <p className="text-slate-400 text-sm">support@datawinder.app</p>
+              <p className="text-slate-400 text-sm mb-2">support@datawinder.app</p>
+              <p className="text-slate-500 text-xs">Built for conservation science</p>
             </div>
           </div>
           <div className="border-t border-slate-700/50 pt-8 text-center text-slate-400 text-sm">
-            <p>© 2026 DataWinder. Conservation science, simplified.</p>
+            <p>© 2026 DataWinder. Species distribution modeling, simplified.</p>
           </div>
         </div>
       </footer>
