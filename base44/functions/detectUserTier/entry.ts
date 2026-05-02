@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const tier = isBangorUser ? 'free' : 'free';
 
     // Track tier assignment
-    await base44.asServiceRole.analytics.track({
+    await base44.analytics.track({
       eventName: 'tier_assigned',
       properties: {
         user_email: user.email,

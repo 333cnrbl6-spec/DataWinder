@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
 
     // Check for iframe (preview mode)
     const origin = req.headers.get('origin');
-    if (origin?.includes('localhost') || origin?.includes('preview')) {
+    if (!origin || origin.includes('localhost') || origin.includes('preview')) {
       return Response.json({ 
         error: 'Checkout must be completed from published app' 
       }, { status: 400 });
