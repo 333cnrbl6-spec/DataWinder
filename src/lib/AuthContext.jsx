@@ -69,6 +69,14 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
+      
+      // Check if user just signed up (no tier assigned yet)
+      if (currentUser && !currentUser.tier) {
+        // Redirect to onboarding flow for new users
+        window.location.href = '/OnboardingFlow';
+        return;
+      }
+      
       setIsLoadingAuth(false);
     } catch (error) {
       console.error('User auth check failed:', error);

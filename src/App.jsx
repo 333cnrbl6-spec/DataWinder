@@ -76,6 +76,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Checkout from './pages/Checkout';
 import Home from './pages/Home';
+import PostSignupOnboarding from './pages/PostSignupOnboarding';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -118,6 +119,7 @@ const AuthenticatedApp = () => {
       <ErrorBoundary>
         <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/OnboardingFlow" element={<PostSignupOnboarding />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
