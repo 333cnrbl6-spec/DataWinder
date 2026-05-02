@@ -24,18 +24,31 @@ export default function Checkout() {
     setError(null);
 
     try {
-      const response = await base44.functions.invoke('createStripeCheckout', {
-        priceId: priceId,
-        planType: plan,
+      // Check if running in preview/iframe
+      if (window.self !== window.top || window.location.hostname.includes('preview')) {
+        setError('Checkout only works from the published app. Please visit the live site to upgrade.');
+        setLoading(false);
+        return;
+      }
+
+      // Track checkout event
+      await base44.analytics.track({
+        eventName: 'checkout_initiated',
+        properties: { plan }
       });
 
-      if (response.data?.url) {
-        window.location.href = response.data.url;
+      const response = await base44.functions.invoke('createStripeCheckout', {
+        plan_id: `datawinder-${plan}`,
+      });
+
+      if (response.data?.checkout_url) {
+        window.location.href = response.data.checkout_url;
       } else {
         setError('Failed to create checkout session');
       }
     } catch (err) {
-      setError(err.message || 'Checkout failed');
+      console.error('Checkout error:', err);
+      setError(err.message || 'Checkout failed. Please try again.');
     } finally {
       setLoading(false);
     }

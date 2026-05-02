@@ -38,21 +38,60 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const userEmail = session.metadata?.user_email;
+        const customerEmail = session.customer_email;
         const planId = session.metadata?.plan_id;
 
-        if (userEmail && planId) {
-          // Update user's subscription plan in DataWinder
+        if (customerEmail && planId) {
+          // Get user by email and update tier
           const users = await base44.asServiceRole.entities.User.list();
-          const targetUser = users.find(u => u.email === userEmail);
+          const targetUser = users.find(u => u.email === customerEmail);
+          
+          if (targetUser) {
+            const tierMap = {
+              'datawinder-starter': 'starter',
+              'datawinder-pro': 'pro',
+              'datawinder-enterprise': 'enterprise'
+            };
+
+            const tier = tierMap[planId] || 'pro';
+
+            await base44.asServiceRole.entities.User.update(targetUser.id, {
+              subscription_tier: tier,
+              subscription_status: 'active',
+              stripe_customer_id: session.customer,
+              subscription_started_at: new Date().toISOString(),
+            });
+
+            // Track upgrade event
+            await base44.asServiceRole.analytics.track({
+              eventName: 'payment_success',
+              properties: {
+                user_email: customerEmail,
+                tier,
+                session_id: session.id,
+                amount: session.amount_total
+              }
+            });
+
+            console.log(`✓ Payment successful: ${customerEmail} upgraded to ${tier}`);
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const sub = event.data.object;
+        const customer = await stripe.customers.retrieve(sub.customer);
+
+        if (customer.email) {
+          const users = await base44.asServiceRole.entities.User.list();
+          const targetUser = users.find(u => u.email === customer.email);
           
           if (targetUser) {
             await base44.asServiceRole.entities.User.update(targetUser.id, {
-              subscription_plan: planId,
-              subscription_status: 'active',
-              stripe_customer_id: session.customer,
+              subscription_status: sub.status === 'active' ? 'active' : 'inactive',
             });
-            console.log(`Updated subscription for ${userEmail} to ${planId}`);
+            console.log(`Subscription updated for ${customer.email}: ${sub.status}`);
           }
         }
         break;
@@ -60,25 +99,39 @@ Deno.serve(async (req) => {
 
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
-        const userEmail = sub.metadata?.user_email;
+        const customer = await stripe.customers.retrieve(sub.customer);
 
-        if (userEmail) {
+        if (customer.email) {
           const users = await base44.asServiceRole.entities.User.list();
-          const targetUser = users.find(u => u.email === userEmail);
+          const targetUser = users.find(u => u.email === customer.email);
           
           if (targetUser) {
+            // Check if Bangor user - revert to free academic
+            const isBangor = customer.email.endsWith('@bangor.ac.uk');
+            
             await base44.asServiceRole.entities.User.update(targetUser.id, {
-              subscription_plan: 'none',
+              subscription_tier: isBangor ? 'free' : 'free',
               subscription_status: 'cancelled',
             });
-            console.log(`Cancelled subscription for ${userEmail}`);
+
+            await base44.asServiceRole.analytics.track({
+              eventName: 'subscription_cancelled',
+              properties: {
+                user_email: customer.email,
+                reason: 'customer_cancelled'
+              }
+            });
+
+            console.log(`✗ Subscription cancelled: ${customer.email}`);
           }
         }
         break;
       }
 
-      case 'invoice.paid': {
-        console.log(`Invoice paid for customer: ${event.data.object.customer}`);
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        const customer = await stripe.customers.retrieve(invoice.customer);
+        console.warn(`⚠ Payment failed for ${customer.email}: ${invoice.id}`);
         break;
       }
 

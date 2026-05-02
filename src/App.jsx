@@ -75,6 +75,7 @@ import Landing from './pages/Landing';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 import Home from './pages/Home';
 import PostSignupOnboarding from './pages/PostSignupOnboarding';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -217,6 +218,7 @@ const AuthenticatedApp = () => {
       <Route path="/TermsOfService" element={<TermsOfService />} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
       <Route path="/Checkout" element={<LayoutWrapper currentPageName="Checkout"><Checkout /></LayoutWrapper>} />
+      <Route path="/checkout-success" element={<CheckoutSuccess />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
