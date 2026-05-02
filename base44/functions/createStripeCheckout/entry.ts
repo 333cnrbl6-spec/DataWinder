@@ -12,21 +12,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { plan_id } = await req.json();
+    const { plan_id, billing_interval = 'month' } = await req.json();
 
-    // Plan price mapping (in pence)
+    // Stripe product & price IDs
     const plans = {
-      'datawinder-free': null,
-      'datawinder-starter': 3900,    // £39
-      'datawinder-pro': 9900,        // £99
-      'datawinder-enterprise': 24900 // £249
+      'datawinder-pro-monthly': 'price_1TShi7Cw5m86DE5ZdM23voCq',   // £99/month
+      'datawinder-pro-annual': 'price_1TShi7Cw5m86DE5ZrlAacaWb'     // £990/year (2 months free)
     };
 
-    const amount = plans[plan_id];
-    if (amount === null) {
-      return Response.json({ error: 'Free plan does not require payment' }, { status: 400 });
-    }
-    if (!amount) {
+    const priceId = plans[plan_id];
+    if (!priceId) {
       return Response.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
@@ -57,17 +52,7 @@ Deno.serve(async (req) => {
       customer: customerId,
       line_items: [
         {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: `DataWinder ${plan_id.split('-')[1].toUpperCase()} Plan`,
-              description: 'Monthly subscription'
-            },
-            unit_amount: amount,
-            recurring: {
-              interval: 'month'
-            }
-          },
+          price: priceId,
           quantity: 1
         }
       ],
@@ -88,7 +73,7 @@ Deno.serve(async (req) => {
       properties: {
         plan_id,
         session_id: session.id,
-        amount
+        billing_interval
       }
     });
 
