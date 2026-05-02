@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, LogOut, Settings, AlertCircle } from 'lucide-react';
+import TrialCountdownBanner from '@/components/TrialCountdownBanner';
+import SubscriberPortal from '@/components/SubscriberPortal';
 
 export default function AccountSettings() {
   const [user, setUser] = useState(null);
@@ -57,6 +59,8 @@ export default function AccountSettings() {
           <p className="text-slate-400 mt-2">Manage your profile and subscription</p>
         </div>
 
+        <TrialCountdownBanner />
+
         {/* Profile Card */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardHeader>
@@ -80,6 +84,11 @@ export default function AccountSettings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Subscriber Portal */}
+        <div className="mb-6 bg-slate-800 border border-slate-700 rounded-lg p-6">
+          <SubscriberPortal />
+        </div>
 
         {/* Subscription Card */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
