@@ -73,10 +73,10 @@ export default function PricingPage() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
-            Simple, Transparent Pricing
+            Pricing Built for Research
           </h1>
           <p className="text-xl text-slate-600 mb-8">
-            From individual researchers to large institutions — DataWinder scales with you
+            Free for Bangor University. 14-day trial for everyone else. Then choose the plan that fits your team.
           </p>
 
           {/* Billing Toggle */}
@@ -111,11 +111,11 @@ export default function PricingPage() {
           {/* Free Tier - Bangor */}
           <Card className="hover:shadow-lg transition-all flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Free</CardTitle>
-              <CardDescription>For Bangor University</CardDescription>
+              <CardTitle className="text-2xl">Academic</CardTitle>
+              <CardDescription>For Bangor University researchers</CardDescription>
               <div className="mt-4">
                 <div className="text-4xl font-bold text-slate-900">£0</div>
-                <div className="text-sm text-slate-600 mt-1">Forever</div>
+                <div className="text-sm text-slate-600 mt-1">Forever — @bangor.ac.uk only</div>
               </div>
             </CardHeader>
 
@@ -129,7 +129,7 @@ export default function PricingPage() {
               </Button>
 
               <div className="space-y-3 flex-1">
-                {['Up to 5 projects', '1,000 occurrences/month', 'Core SDM tools', 'Data validation', 'Community support'].map((feature, idx) => (
+                {['Up to 5 projects', '1,000 occurrences/month', 'MaxEnt SDM modeling', 'AI data validation', 'Email support', 'Team of 5'].map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                     <span className="text-sm text-slate-700">{feature}</span>
@@ -147,13 +147,13 @@ export default function PricingPage() {
 
             <CardHeader>
               <CardTitle className="text-2xl">Pro</CardTitle>
-              <CardDescription>For professionals & organizations</CardDescription>
+              <CardDescription>14-day free trial, then £99/month</CardDescription>
               <div className="mt-4">
                 <div className="text-4xl font-bold text-slate-900">
                   {billingCycle === 'monthly' ? '£99' : '£990'}
                 </div>
                 <div className="text-sm text-slate-600 mt-1">
-                  /{billingCycle === 'monthly' ? 'month' : 'year'} {billingCycle === 'yearly' && '(save 17%)'}
+                  /{billingCycle === 'monthly' ? 'month' : 'year'} {billingCycle === 'annual' && '(save 17%)'}
                 </div>
               </div>
             </CardHeader>
@@ -168,7 +168,7 @@ export default function PricingPage() {
               </Button>
 
               <div className="space-y-3 flex-1">
-                {['Unlimited projects', 'Unlimited occurrences', 'Advanced SDM tools', 'Priority email support', 'API access', 'Custom integrations'].map((feature, idx) => (
+                {['Unlimited projects', 'Unlimited occurrences', 'Ensemble SDM methods', 'Climate scenario projections', 'Unlimited team members', 'Priority support', 'API access', 'Custom integrations'].map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                     <span className="text-sm text-slate-700">{feature}</span>
@@ -268,9 +268,9 @@ export default function PricingPage() {
 
         {/* CTA */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">Ready to get started?</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Start your journey in conservation science</h2>
           <p className="text-lg text-slate-600 mb-8">
-            Start free today. No credit card required.
+            Sign up today for a free 14-day Pro trial. No credit card required.
           </p>
           <Button 
             size="lg" 

@@ -56,10 +56,10 @@ export default function Landing() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Species Distribution Modeling <span className="text-bangor-red">Simplified</span>
+             Conservation Science, <span className="text-bangor-red">Accelerated</span>
             </h1>
             <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-              Integrate IUCN, GBIF, and field data. Run advanced SDM pipelines. Generate conservation reports. All in one platform.
+             Start your 14-day trial today — no credit card required. Integrate IUCN, GBIF, and field data. Run production-grade SDM models. Generate publication-ready reports.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
@@ -70,11 +70,11 @@ export default function Landing() {
                 </Link>
               ) : (
                 <button
-                  onClick={() => base44.auth.redirectToLogin()}
-                  className="px-8 py-3 bg-bangor-red hover:bg-bangor-red/90 rounded-lg font-semibold transition flex items-center justify-center gap-2"
-                >
-                  Start Free <ArrowRight className="w-4 h-4" />
-                </button>
+                    onClick={() => base44.auth.redirectToLogin()}
+                    className="px-8 py-3 bg-bangor-red hover:bg-bangor-red/90 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  >
+                    Start 14-Day Trial <ArrowRight className="w-4 h-4" />
+                  </button>
               )}
               <Button size="lg" variant="outline" className="border-slate-600 text-white hover:bg-slate-800">
                 View Docs
@@ -156,7 +156,7 @@ export default function Landing() {
       {/* Detailed Pricing Comparison */}
       <section className="py-20 max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-4">Plans for Every Conservation Need</h2>
-        <p className="text-center text-slate-400 mb-16">Free Academic tier for Bangor researchers. Pro for everyone else.</p>
+        <p className="text-center text-slate-400 mb-16">Free Academic for Bangor University. 14-day Pro trial for everyone else, then £99/month.</p>
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
@@ -165,7 +165,7 @@ export default function Landing() {
             <h3 className="text-2xl font-bold mb-2">Free Academic</h3>
             <p className="text-slate-400 mb-6">@bangor.ac.uk emails only</p>
             <div className="text-4xl font-bold mb-2">£0<span className="text-lg text-slate-400">/month</span></div>
-            <p className="text-xs text-slate-500 mb-6">Auto-activated with Bangor email</p>
+            <p className="text-xs text-slate-500 mb-6">Free forever for @bangor.ac.uk</p>
             <ul className="space-y-3 mb-8 text-sm">
               {[
                 'Up to 5 projects',
@@ -199,7 +199,7 @@ export default function Landing() {
             <h3 className="text-2xl font-bold mb-2">Pro</h3>
             <p className="text-slate-400 mb-6">Professional researchers & organizations</p>
             <div className="text-4xl font-bold mb-2">£99<span className="text-lg text-slate-400">/month</span></div>
-            <p className="text-xs text-slate-500 mb-6">or £990/year (save 17%)</p>
+            <p className="text-xs text-slate-500 mb-6">14-day free trial, then £990/year (save 17%)</p>
             <ul className="space-y-3 mb-8 text-sm">
               {[
                 'Unlimited projects',
@@ -226,7 +226,7 @@ export default function Landing() {
                 onClick={() => base44.auth.redirectToLogin()}
                 className="w-full px-4 py-2 bg-bangor-red hover:bg-bangor-red/90 rounded-lg transition font-semibold"
               >
-                Start 14-Day Trial
+                Start Your 14-Day Trial
               </button>
             )}
           </div>
@@ -268,8 +268,8 @@ export default function Landing() {
       {/* CTA */}
       <section className="bg-slate-800/50 border-t border-slate-700/50 py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to accelerate conservation science?</h2>
-          <p className="text-lg text-slate-300 mb-8">Join researchers worldwide using DataWinder for species distribution modeling.</p>
+          <h2 className="text-4xl font-bold mb-6">Ready to transform your conservation research?</h2>
+          <p className="text-lg text-slate-300 mb-8">Join hundreds of researchers using DataWinder for species distribution modeling. Start free today — 14-day trial, no credit card needed.</p>
           {isAuthenticated ? (
             <Link to="/ResearcherDashboard">
               <Button size="lg" className="bg-bangor-red hover:bg-bangor-red/90 gap-2">
@@ -281,7 +281,7 @@ export default function Landing() {
               onClick={() => base44.auth.redirectToLogin()}
               className="px-8 py-3 bg-bangor-red hover:bg-bangor-red/90 rounded-lg font-semibold transition inline-flex items-center gap-2"
             >
-              Start Free Today <ArrowRight className="w-4 h-4" />
+              Start Free 14-Day Trial <ArrowRight className="w-4 h-4" />
             </button>
           )}
         </div>

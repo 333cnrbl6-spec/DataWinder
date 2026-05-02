@@ -1,55 +1,50 @@
-SUBJECT: Free DataWinder Beta Access for Bangor University Researchers
+SUBJECT: DataWinder is Live — Free Access for Bangor University Researchers
 
 ---
 
 Dear Colleague,
 
-We are developing DataWinder — a pioneering biodiversity research platform designed to transform how ecologists, zoologists, and conservation scientists access and analyze multi-source species data.
+DataWinder is now live — a biodiversity research platform that transforms how conservation scientists access and analyze multi-source species data.
 
 **What is DataWinder?**
 
-DataWinder integrates species occurrence data from IUCN Red List, iNaturalist, GBIF, and SpeciesLink into a unified research workspace. It streamlines data preparation, enables species distribution modelling using MAXENT, and provides climate projection analysis — all in one intelligent platform.
+DataWinder integrates species occurrence data from IUCN Red List, iNaturalist, GBIF, and SpeciesLink into one unified workspace. Run production-grade species distribution models, validate data with AI, project climate futures, and generate publication-ready conservation reports — no complex software setup required.
 
-**Why We Need You**
+**Your Bangor Advantage**
 
-We're in active development and seeking feedback from practicing zoologists and conservation experts. Your insights into real-world research workflows, data challenges, and modelling needs will directly shape DataWinder's evolution.
+As a Bangor University researcher, you get:
 
-**Your Founder Membership Offer**
+✓ **Lifetime free access** — all features, unlimited species, unlimited analyses
+✓ **No trial, no credit card** — just sign up with your @bangor.ac.uk email
+✓ **Production-grade tools** — MaxEnt SDM, ensemble methods, climate projections
+✓ **Direct support** — dedicated feedback channel to our development team
+✓ **Global reach** — contribute to international conservation initiatives
 
-Sign up using your @bangor.ac.uk email address before [DATE] and receive:
+**How to Get Started**
 
-✓ **Full platform access** — all features, unlimited species, unlimited analyses
-✓ **1-year complimentary membership** — complete access at no cost
-✓ **Founder status** — recognized as an early tester who helped build this platform
-✓ **Direct input** — your feedback influences our development roadmap
-✓ **Early-adopter advantage** — master the platform before wider release
+1. Visit: [LANDING_PAGE_URL]
+2. Click "Start Free Trial" or sign in if you already have an account
+3. Use your @bangor.ac.uk email — lifetime free access is auto-activated
+4. Explore your dashboard and start uploading species data
 
-**What We're Asking**
+**Your Feedback Shapes What's Next**
 
-In exchange for this free access, we'd value your honest feedback:
-- Does the platform solve your research problems?
-- What features are missing or could work better?
-- Where do you encounter friction or barriers?
-- What would make this indispensable to your work?
+This platform is built for scientists. We're committed to making complex conservation science accessible — no cryptic dialogs, no unnecessary complexity. If you find anything confusing or missing, tell us. Your feedback drives our roadmap.
 
-Your feedback—whatever your background or learning style—directly shapes simpler, more accessible solutions for all researchers. We believe neurodiversity is a strength. Our designer understands this firsthand. Complex science is necessary; complex interfaces are not. Everyone brings valuable perspectives to this work.
+**We believe neurodiversity is a strength in science.** Our team designs for multiple thinking styles because diverse perspectives make better research tools for everyone.
 
-**We need you because different perspectives make DataWinder better for everyone.**
+**Questions?**
 
-**Get Started**
-
-Visit: [LANDING_PAGE_URL]
-
-Sign up with your @bangor.ac.uk email. Your founder membership is automatically activated.
-
-This is a unique opportunity to shape the future of biodiversity data science. We believe DataWinder will become essential infrastructure for your field — help us get there.
+- Visit our FAQ and user guides: [APP_URL]/About
+- Email support: support@datawinder.app
+- Feedback form: [APP_URL]/FAQBot
 
 Questions? Reply to this email or visit our FAQ at [APP_URL]/About
 
 Warm regards,
 
 [Your Name]
-DataWinder Development Team
-Bangor University
+DataWinder Team
+Bangor University, School of Natural Sciences
 
-P.S. Whether you use DataWinder daily or occasionally, your feedback matters. Even 15 minutes of testing and one observation can help us iterate toward something truly valuable.
+P.S. Know a colleague who'd benefit? Forward this email — they'll get the same free lifetime access with a @bangor.ac.uk email.
