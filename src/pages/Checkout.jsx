@@ -16,7 +16,18 @@ export default function Checkout() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => navigate('/'));
+    base44.auth.me().then(user => {
+      if (!user) {
+        navigate('/Landing');
+        return;
+      }
+      // Don't allow already-paid users to checkout
+      if (user.subscription_tier !== 'free') {
+        navigate('/ResearcherDashboard');
+        return;
+      }
+      setUser(user);
+    }).catch(() => navigate('/Landing'));
   }, [navigate]);
 
   const handleCheckout = async () => {
@@ -130,7 +141,7 @@ export default function Checkout() {
             {/* Checkout Button */}
             <Button
               onClick={handleCheckout}
-              disabled={loading || !priceId}
+              disabled={loading || !user}
               className="w-full bg-bangor-red hover:bg-bangor-red/90 disabled:opacity-50"
             >
               {loading ? (

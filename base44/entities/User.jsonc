@@ -11,6 +11,46 @@
       ],
       "default": "user",
       "description": "User role \u2014 'frozen' suspends access"
+    },
+    "subscription_tier": {
+      "type": "string",
+      "enum": [
+        "free",
+        "starter",
+        "pro",
+        "enterprise"
+      ],
+      "default": "free",
+      "description": "Subscription tier (auto-set for @bangor.ac.uk as 'free')"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "cancelled",
+        "suspended"
+      ],
+      "default": "active",
+      "description": "Current subscription status"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID for billing"
+    },
+    "subscription_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When paid subscription started"
+    },
+    "trial_expired_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether trial expiration email was sent"
+    },
+    "trial_expired_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When 14-day trial ended"
     }
   },
   "required": []

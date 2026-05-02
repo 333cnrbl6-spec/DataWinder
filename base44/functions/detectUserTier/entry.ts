@@ -10,27 +10,24 @@ Deno.serve(async (req) => {
     }
 
     // Detect tier based on email domain
-    let tier = 'trial';
-    let limits = {
-      maxProjects: 1,
-      maxOccurrencesPerMonth: 100,
-      support: 'Community',
-    };
+    const isBangorUser = user.email?.endsWith('@bangor.ac.uk');
+    const tier = isBangorUser ? 'free' : 'free';
 
-    if (user.email?.endsWith('@bangor.ac.uk')) {
-      tier = 'free_bangor';
-      limits = {
-        maxProjects: 5,
-        maxOccurrencesPerMonth: 1000,
-        support: 'Community',
-      };
-    }
+    // Track tier assignment
+    await base44.asServiceRole.analytics.track({
+      eventName: 'tier_assigned',
+      properties: {
+        user_email: user.email,
+        tier,
+        is_bangor_user: isBangorUser
+      }
+    });
 
     return Response.json({
       tier,
       email: user.email,
-      isBangorUser: user.email?.endsWith('@bangor.ac.uk'),
-      limits,
+      isBangorUser,
+      message: isBangorUser ? 'Free Academic tier unlocked' : 'Free tier assigned (14-day trial)'
     });
   } catch (error) {
     console.error('Tier detection error:', error);
