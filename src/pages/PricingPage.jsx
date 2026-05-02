@@ -1,42 +1,48 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Download, Zap, Users, Database, Gauge, AlertCircle } from 'lucide-react';
-import { DATAWINDER_PRICING } from '@/components/pricing/UnifiedPricingManager';
+import { Check, X, Download, Zap, Users, Database, Gauge, AlertCircle, ArrowRight } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 export default function PricingPage() {
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [user, setUser] = useState(null);
+  const [isBangorUser, setIsBangorUser] = useState(false);
 
-  const plans = useMemo(() => {
-    return Object.values(DATAWINDER_PRICING.tiers || {});
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      setIsBangorUser(u?.email?.endsWith('@bangor.ac.uk'));
+    }).catch(() => null);
   }, []);
 
-  const comparisonFeatures = [
-    { category: 'Data Management', features: ['Data Sources', 'Species Limit', 'Cloud Storage', 'Export Formats'] },
-    { category: 'Modeling', features: ['Concurrent Models', 'SDM Types', 'Climate Scenarios', 'Model Comparison'] },
-    { category: 'Team & Collaboration', features: ['Team Members', 'Projects', 'Annotation & Notes', 'Shared Workspaces'] },
-    { category: 'Support & Tools', features: ['Support Level', 'Data Quality Checks', 'API Access', 'Custom Integrations'] },
-  ];
-
-  const featureMatrix = {
-    'Data Sources': { researcher: '4 sources', professional: 'All sources', enterprise: 'All sources + custom' },
-    'Species Limit': { researcher: 'Unlimited', professional: 'Unlimited', enterprise: 'Unlimited' },
-    'Cloud Storage': { researcher: '5 GB', professional: '100 GB', enterprise: '1 TB' },
-    'Export Formats': { researcher: 'CSV, GeoJSON', professional: 'CSV, GeoJSON, Shapefile', enterprise: 'All formats + API' },
-    'Concurrent Models': { researcher: '1/month', professional: '50/month', enterprise: 'Unlimited' },
-    'SDM Types': { researcher: 'MAXENT', professional: 'MAXENT + Ensemble', enterprise: 'MAXENT + Ensemble + Custom' },
-    'Climate Scenarios': { researcher: 'Current only', professional: 'Current + 5 scenarios', enterprise: 'Custom scenarios' },
-    'Model Comparison': { researcher: '2 models', professional: 'Unlimited', enterprise: 'Unlimited + advanced' },
-    'Team Members': { researcher: '1', professional: '5', enterprise: 'Unlimited' },
-    'Projects': { researcher: '2', professional: 'Unlimited', enterprise: 'Unlimited' },
-    'Annotation & Notes': { researcher: 'Basic', professional: 'Advanced', enterprise: 'Premium' },
-    'Shared Workspaces': { researcher: 'No', professional: 'Yes', enterprise: 'Yes + permissions' },
-    'Support Level': { researcher: 'Email', professional: 'Priority email', enterprise: 'Slack + phone' },
-    'Data Quality Checks': { researcher: '10/month', professional: 'Unlimited', enterprise: 'Unlimited' },
-    'API Access': { researcher: 'Read-only', professional: 'Read/write', enterprise: 'Full + webhooks' },
-    'Custom Integrations': { researcher: 'No', professional: 'Basic', enterprise: 'Yes' },
+  // Stripe price IDs (from your Stripe products)
+  const priceIds = {
+    monthly: 'price_1TShNCCw5m86DE5Z2skevIqj',
+    yearly: 'price_1TShNCCw5m86DE5ZDMGTo7C5',
   };
+
+  const handleCheckout = (billing) => {
+    if (!user) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    const priceId = billing === 'monthly' ? priceIds.monthly : priceIds.yearly;
+    navigate(`/Checkout?priceId=${priceId}&plan=pro`);
+  };
+
+  const handleFreeTier = () => {
+    if (!user) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    navigate('/ResearcherDashboard');
+  };
+
+
 
   const standoutFeatures = [
     {
@@ -60,24 +66,6 @@ export default function PricingPage() {
       description: 'Integrated MAXENT modeling with climate scenario projection and ensemble methods'
     },
   ];
-
-  if (!plans || plans.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-bangor-red/5 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-amber-600 mb-3">
-              <AlertCircle className="w-5 h-5" />
-              <p className="font-semibold">Pricing Not Configured</p>
-            </div>
-            <p className="text-sm text-slate-600">
-              Pricing plans are currently unavailable. Please contact support or try again later.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-bangor-red/5">
@@ -119,53 +107,76 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {plans.map(plan => (
-            <Card
-              key={plan.id}
-              className={`relative transition-all flex flex-col ${
-                plan.badge
-                  ? 'ring-2 ring-blue-500 md:scale-105 md:shadow-xl'
-                  : 'hover:shadow-lg'
-              }`}
-            >
-              {plan.badge && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white">
-                  {plan.badge}
-                </Badge>
-              )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 max-w-4xl mx-auto">
+          {/* Free Tier - Bangor */}
+          <Card className="hover:shadow-lg transition-all flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-2xl">Free</CardTitle>
+              <CardDescription>For Bangor University</CardDescription>
+              <div className="mt-4">
+                <div className="text-4xl font-bold text-slate-900">£0</div>
+                <div className="text-sm text-slate-600 mt-1">Forever</div>
+              </div>
+            </CardHeader>
 
-              <CardHeader>
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <div className="text-4xl font-bold text-slate-900">
-                    {plan.price_gbp_monthly === 0 ? 'Free' : `£${plan.price_gbp_monthly}`}
+            <CardContent className="space-y-6 flex-1 flex flex-col">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleFreeTier}
+              >
+                {isBangorUser ? 'Go to Dashboard' : 'Sign Up'}
+              </Button>
+
+              <div className="space-y-3 flex-1">
+                {['Up to 5 projects', '1,000 occurrences/month', 'Core SDM tools', 'Data validation', 'Community support'].map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-slate-700">{feature}</span>
                   </div>
-                  {plan.price_gbp_monthly > 0 && (
-                    <div className="text-sm text-slate-600 mt-1">
-                      /month or £{plan.price_gbp_annual}/year (save 20%)
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-              <CardContent className="space-y-6 flex-1 flex flex-col">
-                <Button className="w-full" size="lg">
-                  {plan.price_gbp_monthly === 0 ? 'Get Started Free' : 'Start Free Trial'}
-                </Button>
+          {/* Pro Tier */}
+          <Card className="ring-2 ring-bangor-red relative transition-all flex flex-col shadow-xl">
+            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-bangor-red text-white">
+              Most Popular
+            </Badge>
 
-                <div className="space-y-3 flex-1">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700">{feature}</span>
-                    </div>
-                  ))}
+            <CardHeader>
+              <CardTitle className="text-2xl">Pro</CardTitle>
+              <CardDescription>For professionals & organizations</CardDescription>
+              <div className="mt-4">
+                <div className="text-4xl font-bold text-slate-900">
+                  {billingCycle === 'monthly' ? '£99' : '£990'}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div className="text-sm text-slate-600 mt-1">
+                  /{billingCycle === 'monthly' ? 'month' : 'year'} {billingCycle === 'yearly' && '(save 17%)'}
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-6 flex-1 flex flex-col">
+              <Button 
+                className="w-full bg-bangor-red hover:bg-bangor-red/90" 
+                size="lg"
+                onClick={() => handleCheckout(billingCycle)}
+              >
+                Upgrade to Pro <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+
+              <div className="space-y-3 flex-1">
+                {['Unlimited projects', 'Unlimited occurrences', 'Advanced SDM tools', 'Priority email support', 'API access', 'Custom integrations'].map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-slate-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Why DataWinder Stands Out */}

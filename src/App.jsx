@@ -71,6 +71,11 @@ import FieldPhotoProcessor from './pages/FieldPhotoProcessor';
 import BiodiversityDataComparison from './pages/BiodiversityDataComparison';
 import SurveyDetail from './pages/SurveyDetail';
 import SDMWorkspace from './pages/SDMWorkspace';
+import Landing from './pages/Landing';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Checkout from './pages/Checkout';
+import Home from './pages/Home';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SpeciesProvider } from '@/lib/SpeciesContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -112,11 +117,7 @@ const AuthenticatedApp = () => {
     <ErrorBoundaryProduction>
       <ErrorBoundary>
         <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      <Route path="/" element={<Home />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
@@ -210,6 +211,10 @@ const AuthenticatedApp = () => {
       <Route path="/BiodiversityDataComparison" element={<LayoutWrapper currentPageName="BiodiversityDataComparison"><BiodiversityDataComparison /></LayoutWrapper>} />
       <Route path="/SurveyDetail/:surveyId" element={<LayoutWrapper currentPageName="SurveyDetail"><SurveyDetail /></LayoutWrapper>} />
       <Route path="/SDMWorkspace/:projectId" element={<LayoutWrapper currentPageName="SDMWorkspace"><SDMWorkspace /></LayoutWrapper>} />
+      <Route path="/Landing" element={<Landing />} />
+      <Route path="/TermsOfService" element={<TermsOfService />} />
+      <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+      <Route path="/Checkout" element={<LayoutWrapper currentPageName="Checkout"><Checkout /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </ErrorBoundary>
