@@ -21,23 +21,20 @@ Deno.serve(async (req) => {
 
     // Get the customer and user email
     const customerEmail = session.customer_email || session.customer_details?.email;
-    if (!customerEmail) {
-      console.error(`No email found for session ${session_id}`);
-      return Response.json({ error: 'No email associated with payment' }, { status: 400 });
+    const userId = session.client_reference_id;
+
+    if (!customerEmail || !userId) {
+      console.error(`Missing data for session ${session_id}: email=${customerEmail}, userId=${userId}`);
+      return Response.json({ error: 'Missing customer data' }, { status: 400 });
     }
 
     // Update the user's subscription tier to 'pro' and mark as active
-    // This function is called by the webhook, so we need to look up user by email
-    // and update their subscription status
-    await base44.asServiceRole.entities.User.update(session.client_reference_id, {
+    await base44.asServiceRole.entities.User.update(userId, {
       subscription_tier: 'pro',
       subscription_status: 'active',
       subscription_started_at: new Date().toISOString(),
       stripe_customer_id: session.customer,
       stripe_session_id: session_id
-    }).catch(async () => {
-      // If update fails (user ID not available), log for admin review
-      console.log(`Checkout success for ${customerEmail} but user update failed. Session: ${session_id}`);
     });
 
     // Track subscription event
