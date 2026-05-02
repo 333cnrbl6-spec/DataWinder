@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Plus, Target, TrendingUp, Users, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function ConservationProjectTracker() {
+function ConservationProjectTrackerContent() {
   const [showNewProject, setShowNewProject] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -218,5 +219,13 @@ export default function ConservationProjectTracker() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConservationProjectTracker() {
+  return (
+    <ProFeatureGate featureName="Conservation Project Tracking">
+      <ConservationProjectTrackerContent />
+    </ProFeatureGate>
   );
 }

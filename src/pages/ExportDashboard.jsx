@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Download, FileText, Database, Brain, Flag, Loader2, CheckCircle2, AlertCircle, ArrowDown, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function ExportDashboard() {
+function ExportDashboardContent() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedComponents, setSelectedComponents] = useState(['species_metadata', 'occurrence_records']);
   const [exportFormat, setExportFormat] = useState('csv');
@@ -358,5 +359,13 @@ export default function ExportDashboard() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+export default function ExportDashboard() {
+  return (
+    <ProFeatureGate featureName="Data Export">
+      <ExportDashboardContent />
+    </ProFeatureGate>
   );
 }

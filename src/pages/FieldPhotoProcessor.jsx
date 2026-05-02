@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Search } from 'lucide-react';
 import FieldPhotoUploader from '@/components/fielddata/FieldPhotoUploader';
 import OccurrencePhotoGallery from '@/components/fielddata/OccurrencePhotoGallery';
 
-export default function FieldPhotoProcessor() {
+function FieldPhotoProcessorContent() {
   const [selectedOccurrenceId, setSelectedOccurrenceId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -111,5 +112,13 @@ export default function FieldPhotoProcessor() {
 
       </div>
     </div>
+  );
+}
+
+export default function FieldPhotoProcessor() {
+  return (
+    <ProFeatureGate featureName="Field Photo Processing">
+      <FieldPhotoProcessorContent />
+    </ProFeatureGate>
   );
 }

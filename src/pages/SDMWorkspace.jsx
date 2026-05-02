@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +13,7 @@ import OutputVisualization from '@/components/sdm/OutputVisualization';
 import { Zap, Play, Settings, BarChart3, AlertCircle, Loader } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function SDMWorkspace() {
+function SDMWorkspaceContent() {
   const { projectId } = useParams();
   const queryClient = useQueryClient();
   const [parameters, setParameters] = useState({});
@@ -271,5 +272,13 @@ export default function SDMWorkspace() {
 
       </div>
     </div>
+  );
+}
+
+export default function SDMWorkspace() {
+  return (
+    <ProFeatureGate featureName="Advanced SDM Workspace">
+      <SDMWorkspaceContent />
+    </ProFeatureGate>
   );
 }

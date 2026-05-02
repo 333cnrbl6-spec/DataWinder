@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, AlertCircle, Search } from 'lucide-react';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import ScenarioComparison from '@/components/scenario/ScenarioComparison';
 import RefugiaViewer from '@/components/scenario/RefugiaViewer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-export default function ClimateScenarioComparison() {
+function ClimateScenarioComparisonContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState(null);
   const [scenarioData, setScenarioData] = useState(null);
@@ -191,5 +192,13 @@ export default function ClimateScenarioComparison() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ClimateScenarioComparison() {
+  return (
+    <ProFeatureGate featureName="Climate Scenario Projections">
+      <ClimateScenarioComparisonContent />
+    </ProFeatureGate>
   );
 }

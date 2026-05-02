@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Upload, Loader2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function SpeciesIdentificationLab() {
+function SpeciesIdentificationLabContent() {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [locationInput, setLocationInput] = useState('');
   const [habitatInput, setHabitatInput] = useState('');
@@ -295,5 +296,13 @@ export default function SpeciesIdentificationLab() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function SpeciesIdentificationLab() {
+  return (
+    <ProFeatureGate featureName="AI Species Identification">
+      <SpeciesIdentificationLabContent />
+    </ProFeatureGate>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ProFeatureGate from '@/components/ProFeatureGate';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,7 @@ import { FileText, Download, Clock, CheckCircle2, AlertCircle, Search, Eye } fro
 import { format } from 'date-fns';
 import SDMReportGenerator from '@/components/reports/SDMReportGenerator';
 
-export default function SDMReportingDashboard() {
+function SDMReportingDashboardContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRun, setSelectedRun] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -318,5 +319,13 @@ export default function SDMReportingDashboard() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SDMReportingDashboard() {
+  return (
+    <ProFeatureGate featureName="SDM Report Generation">
+      <SDMReportingDashboardContent />
+    </ProFeatureGate>
   );
 }
