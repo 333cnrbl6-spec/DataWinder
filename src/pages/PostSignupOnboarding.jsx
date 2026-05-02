@@ -26,10 +26,15 @@ export default function PostSignupOnboarding() {
         const response = await base44.functions.invoke('detectUserTier', {});
         setTier(response.data.tier);
 
-        // Auto-save tier to user metadata
-        if (currentUser) {
-          await base44.auth.updateMe({ tier: response.data.tier });
-        }
+        // Auto-save tier to user metadata and set trial expiration (14 days from now)
+         if (currentUser) {
+           const trialExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+           await base44.auth.updateMe({ 
+             subscription_tier: response.data.tier,
+             trial_expires_at: trialExpiresAt,
+             subscription_status: 'active'
+           });
+         }
       } catch (error) {
         console.error('Tier detection failed:', error);
         setTier('free');
@@ -60,13 +65,13 @@ export default function PostSignupOnboarding() {
             <span className="text-2xl font-bold text-bangor-red">DataWinder</span>
           </div>
           <CardTitle>
-            {isBangorUser ? 'Welcome to DataWinder' : 'Upgrade to Pro'}
-          </CardTitle>
-          <CardDescription>
-            {isBangorUser
-              ? 'Your Free Academic account is ready'
-              : 'Choose your plan to get started'}
-          </CardDescription>
+            {isBangorUser ? 'Welcome to DataWinder' : 'Your 14-Day Trial Starts Now'}
+            </CardTitle>
+            <CardDescription>
+              {isBangorUser
+                ? 'Your Free Academic account is ready'
+                : 'Full Pro access for 14 days — no credit card required'}
+            </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -126,18 +131,18 @@ export default function PostSignupOnboarding() {
 
               <div className="space-y-3">
                 <div className="border rounded-lg p-4 space-y-3 hover:bg-slate-50 transition cursor-pointer"
-                  onClick={() => navigate('/Pricing?plan=free')}>
+                  onClick={() => navigate('/Pricing?plan=trial')}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-semibold text-slate-900">Free Trial</p>
-                      <p className="text-sm text-slate-600">Limited access for 14 days</p>
+                      <p className="font-semibold text-slate-900">14-Day Trial</p>
+                      <p className="text-sm text-slate-600">Full Pro access for 14 days</p>
                     </div>
-                    <p className="text-lg font-bold text-slate-900">$0</p>
+                    <p className="text-lg font-bold text-slate-900">£0</p>
                   </div>
                   <ul className="text-sm text-slate-600 space-y-1">
-                    <li>✓ 3 projects</li>
-                    <li>✓ Core tools only</li>
-                    <li>✓ Community support</li>
+                    <li>✓ Unlimited projects</li>
+                    <li>✓ Advanced SDM tools</li>
+                    <li>✓ Priority support</li>
                   </ul>
                 </div>
 
@@ -145,10 +150,10 @@ export default function PostSignupOnboarding() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-slate-900">Pro (Recommended)</p>
-                        <span className="text-xs bg-bangor-red text-white px-2 py-0.5 rounded">POPULAR</span>
+                        <p className="font-semibold text-slate-900">Upgrade After Trial</p>
+                        <span className="text-xs bg-bangor-red text-white px-2 py-0.5 rounded">AFTER DAY 14</span>
                       </div>
-                      <p className="text-sm text-slate-600">Full access + priority support</p>
+                      <p className="text-sm text-slate-600">Continue with Pro at £99/month</p>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-bangor-red">£99</p>
@@ -158,7 +163,7 @@ export default function PostSignupOnboarding() {
                   <ul className="text-sm text-slate-700 space-y-1 font-medium">
                     <li>✓ Unlimited projects</li>
                     <li>✓ Advanced SDM tools</li>
-                    <li>✓ Priority support</li>
+                    <li>✓ Climate projections</li>
                     <li>✓ API access</li>
                   </ul>
                 </div>

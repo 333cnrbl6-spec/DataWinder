@@ -117,15 +117,15 @@ export default function AccountSettings() {
                 </div>
               </div>
 
-              {user?.subscription_tier === 'free' && !user?.email?.endsWith('@bangor.ac.uk') && (
+              {user?.subscription_tier === 'trial' && (
                 <div className="text-sm text-slate-300">
-                  Your 14-day trial includes full Pro access.
+                  Your 14-day trial includes full Pro access. Upgrade anytime to continue after day 14.
                 </div>
               )}
 
               {user?.subscription_tier === 'free' && user?.email?.endsWith('@bangor.ac.uk') && (
                 <div className="text-sm text-slate-300">
-                  Free Academic plan for Bangor University members.
+                  Free Academic plan for Bangor University members — no expiration.
                 </div>
               )}
 
@@ -155,7 +155,7 @@ export default function AccountSettings() {
               </div>
             )}
 
-            {user?.subscription_tier === 'free' && !user?.email?.endsWith('@bangor.ac.uk') && (
+            {user?.subscription_tier === 'trial' && (
               <a href="/Pricing">
                 <Button className="w-full bg-bangor-red hover:bg-bangor-red/90">
                   Upgrade to Pro

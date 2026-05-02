@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
 
     // Detect tier based on email domain
     const isBangorUser = user.email?.endsWith('@bangor.ac.uk');
-    const tier = isBangorUser ? 'free' : 'free';
+    const tier = isBangorUser ? 'free' : 'trial';
 
     // Track tier assignment
     await base44.analytics.track({
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
       tier,
       email: user.email,
       isBangorUser,
-      message: isBangorUser ? 'Free Academic tier unlocked' : 'Free tier assigned (14-day trial)'
+      message: isBangorUser ? 'Free Academic tier unlocked' : 'Trial tier assigned (14-day trial)'
     });
   } catch (error) {
     console.error('Tier detection error:', error);
