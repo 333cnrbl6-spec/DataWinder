@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import SDMPredictionMap from '@/components/sdm/SDMPredictionMap';
 import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
+import SDMReportGenerator from '@/components/reports/SDMReportGenerator';
 
 const BIOCLIM_OPTIONS = [
   { id: 'bio1',  label: 'BIO1 — Mean Annual Temp',       icon: Thermometer },
@@ -122,7 +123,7 @@ function RunCard({ run, onOpen, isOpen, onDelete }) {
   );
 }
 
-function ResultsPanel({ run, navigate }) {
+function ResultsPanel({ run, navigate, allSpecies = [] }) {
   const [tab, setTab] = useState('map');
   if (!run || !run.metrics) return null;
   const auc = run.metrics.auc;
@@ -215,7 +216,23 @@ function ResultsPanel({ run, navigate }) {
               </div>
             ) : <p className="text-sm text-slate-400 text-center py-8">No response curve data</p>}
           </TabsContent>
+
+          <TabsContent value="export">
+            <SDMReportGenerator 
+              sdmRunId={run.id}
+              species={allSpecies.filter(s => run.species_ids?.includes(s.id))}
+            />
+          </TabsContent>
         </Tabs>
+
+        {/* Report Export Section */}
+        <div className="mt-4 pt-4 border-t">
+          <p className="text-xs font-semibold text-slate-600 mb-3">📄 Generate Publication-Ready PDF Report</p>
+          <SDMReportGenerator 
+            sdmRunId={run.id}
+            species={allSpecies.filter(s => run.species_ids?.includes(s.id))}
+          />
+        </div>
       </CardContent>
     </Card>
   );
@@ -554,10 +571,10 @@ export default function SDMPipeline() {
                       onDelete={handleDelete}
                     />
                     {openRunId === run.id && run.status === 'completed' && (
-                      <div className="mt-2">
-                        <ResultsPanel run={run} navigate={navigate} />
-                      </div>
-                    )}
+                       <div className="mt-2">
+                         <ResultsPanel run={run} navigate={navigate} allSpecies={allSpecies} />
+                       </div>
+                     )}
                   </div>
                 ))}
               </div>
