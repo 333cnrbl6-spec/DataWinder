@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, Download, Loader2, CheckCircle2, XCircle, Filter, Eye, EyeOff } from 'lucide-react';
@@ -176,23 +177,26 @@ export default function SpeciesReportGenerator() {
                   </label>
                 </div>
 
-                <Button
-                  onClick={handleGenerateReport}
-                  disabled={generating || selectedCount === 0}
-                  className="w-full bg-bangor-red hover:bg-bangor-red/90 text-white h-10 gap-2"
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      Generate PDF
-                    </>
-                  )}
-                </Button>
+                {generating ? (
+                  <ProcessingFeedback
+                    label="Generating PDF report…"
+                    detail={`Composing professional report with data from ${selectedCount} species.`}
+                    tips={[
+                      'Report generation includes SDM maps, variable importance, and conservation assessments.',
+                      'Larger reports may take 1-2 minutes. Grab a cup of tea!',
+                      'Once complete, your PDF will download automatically.',
+                    ]}
+                  />
+                ) : (
+                  <Button
+                    onClick={handleGenerateReport}
+                    disabled={selectedCount === 0}
+                    className="w-full bg-bangor-red hover:bg-bangor-red/90 text-white h-10 gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Generate PDF
+                  </Button>
+                )}
               </CardContent>
             </Card>
 

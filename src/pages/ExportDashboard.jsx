@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ProFeatureGate from '@/components/ProFeatureGate';
+import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -203,51 +204,51 @@ function ExportDashboardContent() {
                   </CardContent>
                 </Card>
 
-                {/* Export Button */}
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-sm text-slate-900">Ready to export?</div>
-                        <div className="text-xs text-slate-600 mt-1">
-                          {selectedComponents.length} components selected
+                {/* Export Button or Processing Feedback */}
+                {createExportMutation.isPending ? (
+                  <ProcessingFeedback
+                    label="Generating export file…"
+                    detail={`Packaging ${selectedComponents.length} data components from "${selectedProject.title}" as ${exportFormat.toUpperCase()}.`}
+                    tips={[
+                      'Large exports may take a few minutes. You can close this page and check back later.',
+                      'Completed exports are saved to your history for 30 days.',
+                      'Your file will be available for download once processing completes.',
+                    ]}
+                  />
+                ) : (
+                  <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-sm text-slate-900">Ready to export?</div>
+                          <div className="text-xs text-slate-600 mt-1">
+                            {selectedComponents.length} components selected
+                          </div>
                         </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button className="gap-2">
+                              <Download className="w-4 h-4" />
+                              Start Export
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirm Export</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Export {selectedComponents.length} components from "{selectedProject.title}" as {exportFormat.toUpperCase()}?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogAction onClick={handleExport}>
+                              Start Export
+                            </AlertDialogAction>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            disabled={createExportMutation.isPending || selectedComponents.length === 0}
-                            className="gap-2"
-                          >
-                            {createExportMutation.isPending ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Exporting...
-                              </>
-                            ) : (
-                              <>
-                                <Download className="w-4 h-4" />
-                                Start Export
-                              </>
-                            )}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Confirm Export</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Export {selectedComponents.length} components from "{selectedProject.title}" as {exportFormat.toUpperCase()}?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogAction onClick={handleExport}>
-                            Start Export
-                          </AlertDialogAction>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             )}
           </TabsContent>
