@@ -1,0 +1,80 @@
+{
+  "name": "AlertSubscription",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user receiving alerts"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Display name of user"
+    },
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "species",
+        "zone",
+        "both"
+      ],
+      "description": "Type of alert: track species, zones, or both"
+    },
+    "species_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Species IDs to monitor"
+    },
+    "species_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Common/scientific names for display"
+    },
+    "zone_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "GeoJSONBoundary IDs to monitor"
+    },
+    "zone_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of monitored zones"
+    },
+    "enable_email": {
+      "type": "boolean",
+      "default": true,
+      "description": "Send email notifications"
+    },
+    "enable_in_app": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show in-app notifications"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "immediate",
+        "daily",
+        "weekly"
+      ],
+      "default": "immediate",
+      "description": "Alert delivery frequency"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this subscription is active"
+    }
+  },
+  "required": [
+    "user_email",
+    "alert_type"
+  ]
+}

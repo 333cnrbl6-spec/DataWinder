@@ -1,0 +1,83 @@
+{
+  "name": "AlertHistory",
+  "type": "object",
+  "properties": {
+    "subscription_id": {
+      "type": "string",
+      "description": "Reference to AlertSubscription"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of alert recipient"
+    },
+    "occurrence_id": {
+      "type": "string",
+      "description": "Reference to Occurrence that triggered alert"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Species ID from occurrence"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Species name"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Observation latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Observation longitude"
+    },
+    "observation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When observation occurred"
+    },
+    "trigger_reason": {
+      "type": "string",
+      "enum": [
+        "species_match",
+        "zone_match",
+        "both"
+      ],
+      "description": "Why the alert was triggered"
+    },
+    "zone_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Zones the occurrence fell within"
+    },
+    "zone_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of matched zones"
+    },
+    "email_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether email was successfully sent"
+    },
+    "email_error": {
+      "type": "string",
+      "description": "Error message if email failed"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user has read/acknowledged this alert"
+    }
+  },
+  "required": [
+    "subscription_id",
+    "user_email",
+    "occurrence_id",
+    "species_name",
+    "trigger_reason"
+  ]
+}

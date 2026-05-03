@@ -121,7 +121,7 @@ function RunCard({ run, onOpen, isOpen, onDelete }) {
   );
 }
 
-function ResultsPanel({ run }) {
+function ResultsPanel({ run, navigate }) {
   const [tab, setTab] = useState('map');
   if (!run || !run.metrics) return null;
   const auc = run.metrics.auc;
@@ -542,7 +542,7 @@ export default function SDMPipeline() {
                     />
                     {openRunId === run.id && run.status === 'completed' && (
                       <div className="mt-2">
-                        <ResultsPanel run={run} />
+                        <ResultsPanel run={run} navigate={navigate} />
                       </div>
                     )}
                   </div>

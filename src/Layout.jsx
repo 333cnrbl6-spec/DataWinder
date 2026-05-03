@@ -53,6 +53,7 @@ const NAV_CATEGORIES = [
   {
     section: 'Advanced Tools',
     items: [
+      { label: 'Notifications', page: 'NotificationDashboard', icon: AlertCircle },
       { label: 'Conservation Tracker', page: 'ConservationProjectTracker', icon: Target },
       { label: 'Data Export', page: 'ExportDashboard', icon: Download },
       { label: 'ArcGIS Tools', page: 'ArcGISTools', icon: MapPin },
