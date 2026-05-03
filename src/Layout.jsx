@@ -43,6 +43,7 @@ const NAV_CATEGORIES = [
     section: 'Exploration & Reporting',
     items: [
       { label: 'Species Explorer', page: 'SpeciesExplorerHub', icon: Leaf },
+      { label: 'Global Map', page: 'GlobalSpeciesExplorer', icon: MapPin },
       { label: 'Biodiversity Live', page: 'BiodiversityDashboard', icon: TrendingUp },
       { label: 'AI Identification', page: 'SpeciesIdentificationLab', icon: Sparkles },
       { label: 'Reports', page: 'SpeciesReportGenerator', icon: FileOutput },

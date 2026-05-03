@@ -75,6 +75,7 @@ import SurveyDetail from './pages/SurveyDetail';
 import SDMWorkspace from './pages/SDMWorkspace';
 import SDMMapEditor from './pages/SDMMapEditor';
 import ClimateImpactViewer from './pages/ClimateImpactViewer';
+import GlobalSpeciesExplorer from './pages/GlobalSpeciesExplorer';
 import Landing from './pages/Landing';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -224,6 +225,7 @@ const AuthenticatedApp = () => {
       <Route path="/SDMWorkspace/:projectId" element={<LayoutWrapper currentPageName="SDMWorkspace"><SDMWorkspace /></LayoutWrapper>} />
       <Route path="/SDMMapEditor/:sdmRunId" element={<LayoutWrapper currentPageName="SDMMapEditor"><SDMMapEditor /></LayoutWrapper>} />
       <Route path="/ClimateImpactViewer" element={<LayoutWrapper currentPageName="ClimateImpactViewer"><ClimateImpactViewer /></LayoutWrapper>} />
+      <Route path="/GlobalSpeciesExplorer" element={<LayoutWrapper currentPageName="GlobalSpeciesExplorer"><GlobalSpeciesExplorer /></LayoutWrapper>} />
       <Route path="/Landing" element={<Landing />} />
       <Route path="/TermsOfService" element={<TermsOfService />} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
