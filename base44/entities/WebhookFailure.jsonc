@@ -1,0 +1,47 @@
+{
+  "name": "WebhookFailure",
+  "type": "object",
+  "properties": {
+    "webhook_id": {
+      "type": "string",
+      "description": "Unique identifier for webhook event"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Type of Stripe webhook event"
+    },
+    "event_data": {
+      "type": "object",
+      "description": "Original webhook event data"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error that prevented processing"
+    },
+    "retry_count": {
+      "type": "number",
+      "description": "Number of retry attempts"
+    },
+    "final_attempt_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When final retry attempt occurred"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "failed",
+        "manual_review_pending",
+        "resolved"
+      ],
+      "default": "failed",
+      "description": "Status for support team"
+    }
+  },
+  "required": [
+    "webhook_id",
+    "event_type",
+    "error_message",
+    "status"
+  ]
+}

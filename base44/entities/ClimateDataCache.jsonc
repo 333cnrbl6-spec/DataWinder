@@ -1,0 +1,55 @@
+{
+  "name": "ClimateDataCache",
+  "type": "object",
+  "properties": {
+    "cache_key": {
+      "type": "string",
+      "description": "Grid cell identifier (lat,lon at 0.1\u00b0 precision)"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude of cached point"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude of cached point"
+    },
+    "bioclim_var": {
+      "type": "string",
+      "description": "Bioclimatic variable name (e.g., bio1, bio12)"
+    },
+    "bioclim_value": {
+      "type": "number",
+      "description": "Cached value for this bioclimatic variable"
+    },
+    "cached_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this data was cached"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Cache expiry time (30 days from creation)"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "worldclim",
+        "simulated",
+        "user_provided"
+      ],
+      "default": "simulated",
+      "description": "Source of climate data"
+    }
+  },
+  "required": [
+    "cache_key",
+    "latitude",
+    "longitude",
+    "bioclim_var",
+    "bioclim_value",
+    "cached_at",
+    "expires_at"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "WebhookRetry",
+  "type": "object",
+  "properties": {
+    "webhook_id": {
+      "type": "string",
+      "description": "Unique identifier for webhook event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "checkout.session.completed",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "invoice.payment_failed"
+      ],
+      "description": "Type of Stripe webhook event"
+    },
+    "event_data": {
+      "type": "object",
+      "description": "Original webhook event data"
+    },
+    "retry_count": {
+      "type": "number",
+      "description": "Current retry attempt (1-5)"
+    },
+    "next_retry_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled time for next retry"
+    },
+    "last_error": {
+      "type": "string",
+      "description": "Error message from last attempt"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Current status of webhook processing"
+    }
+  },
+  "required": [
+    "webhook_id",
+    "event_type",
+    "event_data",
+    "retry_count",
+    "status"
+  ]
+}

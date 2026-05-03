@@ -14,6 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 import SDMPredictionMap from '@/components/sdm/SDMPredictionMap';
 import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 import SDMReportGenerator from '@/components/reports/SDMReportGenerator';
+import SDMProgressMonitor from '@/components/SDMProgressMonitor';
 
 const BIOCLIM_OPTIONS = [
   { id: 'bio1',  label: 'BIO1 — Mean Annual Temp',       icon: Thermometer },
@@ -570,9 +571,17 @@ export default function SDMPipeline() {
                       isOpen={openRunId === run.id}
                       onDelete={handleDelete}
                     />
-                    {openRunId === run.id && run.status === 'completed' && (
+                    {openRunId === run.id && (
                        <div className="mt-2">
-                         <ResultsPanel run={run} navigate={navigate} allSpecies={allSpecies} />
+                         {!['completed', 'failed'].includes(run.status) && (
+                           <SDMProgressMonitor 
+                             runId={run.id}
+                             onComplete={() => queryClient.invalidateQueries({ queryKey: ['sdmRuns'] })}
+                           />
+                         )}
+                         {run.status === 'completed' && (
+                           <ResultsPanel run={run} navigate={navigate} allSpecies={allSpecies} />
+                         )}
                        </div>
                      )}
                   </div>
