@@ -31,10 +31,10 @@ export default function ProductOverview() {
           Executive Summary
         </h2>
         <p className="text-slate-700 mb-4">
-          DataWinder is a production-ready species distribution modeling platform designed for conservation researchers, universities, and environmental organizations. It uniquely integrates data from IUCN Red List, iNaturalist, GBIF, and SpeciesLink with automated quality assurance and MAXENT modeling capabilities—eliminating fragmented workflows and manual data integration.
+          DataWinder is an enterprise-grade species distribution modeling platform built for conservation researchers, universities, environmental consultancies, and government agencies. It uniquely integrates IUCN Red List, GBIF, iNaturalist, and SpeciesLink with AI-powered data quality automation, multiple SDM algorithms, climate scenario projections, and production-ready reporting—eliminating the need for fragmented tools (QGIS, MaxEnt, R) and manual data management.
         </p>
         <div className="bg-bangor-red/5 border-l-4 border-bangor-red p-4 text-slate-700">
-          <strong>Key Value Proposition:</strong> From species search to peer-reviewed SDM results in hours instead of weeks.
+          <strong>Key Value Proposition:</strong> Complete workflow from multi-source data integration to publication-ready SDM results in hours. No installation, no coding, no infrastructure—just results.
         </div>
       </section>
 
@@ -44,22 +44,22 @@ export default function ProductOverview() {
           Core Features
         </h2>
         <div className="grid grid-cols-2 gap-6">
-          {[
-            { title: 'Multi-Source Search', desc: 'Query 4 global biodiversity platforms simultaneously' },
-            { title: 'Automated Data Cleaning', desc: 'AI flags duplicates, taxonomic errors, geographic outliers' },
-            { title: 'Smart File Import', desc: 'Accepts CSV, Excel, GeoJSON, Shapefile, KML—auto-routed' },
-            { title: 'MAXENT Modeling', desc: 'Integrated species distribution modeling with climate scenarios' },
-            { title: 'GIS Tools', desc: 'Interactive mapping, polygon filtering, range overlays' },
-            { title: 'Team Collaboration', desc: 'Shared projects, role-based access, workspace management' },
-            { title: 'Advanced Analytics', desc: 'Performance metrics (AUC, TSS), variable importance, comparisons' },
-            { title: 'Cloud Storage', desc: '5 GB—1 TB depending on plan' },
-          ].map((feature, idx) => (
-            <div key={idx}>
-              <h4 className="font-semibold text-slate-900">{feature.title}</h4>
-              <p className="text-sm text-slate-600">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
+           {[
+             { title: 'Unified Biodiversity Search', desc: 'Query IUCN, GBIF, iNaturalist, SpeciesLink simultaneously with smart filtering' },
+             { title: 'AI Data Quality Pipeline', desc: 'Auto-detect duplicates, validate taxonomy, flag outliers, score data completeness' },
+             { title: 'Smart File Import', desc: 'CSV, Excel, GeoJSON, Shapefiles, KML—auto-classified and routed to correct entity' },
+             { title: 'MaxEnt & Ensemble SDM', desc: 'Integrated species distribution modeling with automatic parameter optimization' },
+             { title: 'Climate Scenario Projections', desc: 'Model distributions under current + 3 future climate scenarios (RCP 2.6/4.5/8.5)' },
+             { title: 'Interactive GIS Mapping', desc: 'Drag-to-draw filters, polygon-based analysis, multi-layer overlays, suitability heatmaps' },
+             { title: 'Publication-Ready Reports', desc: 'Generate comprehensive PDFs with maps, metrics, interpretation, and bibliography' },
+             { title: 'Team Collaboration', desc: 'Real-time workspaces, role-based access, workspace comments, version history, audit logs' },
+           ].map((feature, idx) => (
+             <div key={idx}>
+               <h4 className="font-semibold text-slate-900">{feature.title}</h4>
+               <p className="text-sm text-slate-600">{feature.desc}</p>
+             </div>
+           ))}
+         </div>
       </section>
 
       {/* Pricing */}
@@ -77,24 +77,24 @@ export default function ProductOverview() {
           </thead>
           <tbody>
             <tr>
-              <td className="border border-slate-300 px-4 py-2"><strong>£0/mo</strong> (Free)</td>
-              <td className="border border-slate-300 px-4 py-2"><strong>£79/mo</strong></td>
-              <td className="border border-slate-300 px-4 py-2"><strong>£249/mo</strong></td>
+              <td className="border border-slate-300 px-4 py-2"><strong>£0/mo</strong> (Academic: @bangor.ac.uk)</td>
+              <td className="border border-slate-300 px-4 py-2"><strong>£99/mo</strong> (14-day trial free)</td>
+              <td className="border border-slate-300 px-4 py-2"><strong>Custom</strong> (Enterprise)</td>
             </tr>
             <tr className="bg-slate-50">
-              <td className="border border-slate-300 px-4 py-2">1 project, 5GB storage</td>
-              <td className="border border-slate-300 px-4 py-2">Unlimited projects, 100GB</td>
-              <td className="border border-slate-300 px-4 py-2">Unlimited all, 1TB</td>
+              <td className="border border-slate-300 px-4 py-2">Up to 5 projects</td>
+              <td className="border border-slate-300 px-4 py-2">Unlimited projects</td>
+              <td className="border border-slate-300 px-4 py-2">Unlimited + dedicated support</td>
             </tr>
             <tr>
-              <td className="border border-slate-300 px-4 py-2">1 team member</td>
-              <td className="border border-slate-300 px-4 py-2">5 team members</td>
-              <td className="border border-slate-300 px-4 py-2">Unlimited members</td>
+              <td className="border border-slate-300 px-4 py-2">1,000 occurrences/month</td>
+              <td className="border border-slate-300 px-4 py-2">Unlimited occurrences</td>
+              <td className="border border-slate-300 px-4 py-2">Unlimited everything</td>
             </tr>
             <tr className="bg-slate-50">
-              <td className="border border-slate-300 px-4 py-2">1 SDM/month</td>
-              <td className="border border-slate-300 px-4 py-2">50 SDMs/month</td>
-              <td className="border border-slate-300 px-4 py-2">Unlimited</td>
+              <td className="border border-slate-300 px-4 py-2">5 team members, MaxEnt only</td>
+              <td className="border border-slate-300 px-4 py-2">Unlimited members, ensemble+climate</td>
+              <td className="border border-slate-300 px-4 py-2">API, integrations, SLA</td>
             </tr>
           </tbody>
         </table>
@@ -106,12 +106,13 @@ export default function ProductOverview() {
           Competitive Advantages
         </h2>
         <ol className="list-decimal list-inside space-y-2 text-slate-700">
-          <li><strong>Unified Workflow:</strong> No switching between GBIF, QGIS, Maxent, etc.—everything in one platform</li>
-          <li><strong>Intelligent QA:</strong> Automated detection of data quality issues (duplicates, outliers, taxonomy mismatches)</li>
-          <li><strong>Built for Teams:</strong> Real-time collaboration, shared workspaces, role-based permissions</li>
-          <li><strong>Production-Ready:</strong> Enterprise-grade security, API access, custom integrations</li>
-          <li><strong>No Local Setup:</strong> Cloud-native—no MAXENT installation, Java dependency, or infrastructure overhead</li>
-          <li><strong>Researcher-First Design:</strong> Built by conservation scientists, for conservation scientists</li>
+          <li><strong>Complete Unified Workflow:</strong> Query IUCN/GBIF, validate data, run models, generate reports—all in one cloud platform. No QGIS, MaxEnt, R, or terminal needed.</li>
+          <li><strong>Enterprise-Grade QA:</strong> AI-powered detection of duplicates, outliers, taxonomy mismatches with actionable corrections. Comprehensive audit trails for regulatory compliance.</li>
+          <li><strong>Real-Time Collaboration:</strong> Shared projects, role-based access (viewer/editor), workspace comments, version history, and team notifications—designed for research teams.</li>
+          <li><strong>Advanced SDM Capabilities:</strong> MaxEnt + ensemble methods, climate scenario projections (4 futures), automatic parameter tuning, publication-ready visualizations.</li>
+          <li><strong>Zero Infrastructure Overhead:</strong> Cloud-native, fully managed. No local installation, no Java dependencies, no server management. Access from anywhere.</li>
+          <li><strong>Multi-Data Integration:</strong> Seamlessly combine IUCN, GBIF, iNaturalist, SpeciesLink, field data, and custom CSVs with automatic deduplication.</li>
+          <li><strong>Academic & Government Friendly:</strong> Free tier for universities, compliance with data protection regulations, export to publication standards.</li>
         </ol>
       </section>
 
@@ -121,12 +122,13 @@ export default function ProductOverview() {
           Target Users
         </h2>
         <ul className="list-disc list-inside space-y-1 text-slate-700">
-          <li>Academic researchers in ecology, conservation biology, biogeography</li>
-          <li>NGOs and conservation organizations</li>
-          <li>Universities and research institutions</li>
-          <li>Environmental consultancies</li>
-          <li>Natural England and government conservation agencies</li>
-          <li>Zoological societies and wildlife trusts</li>
+          <li><strong>Academic Researchers:</strong> Ecology, conservation biology, biogeography, evolutionary biology departments</li>
+          <li><strong>University Conservation Centers:</strong> Field stations, research institutes, graduate programs</li>
+          <li><strong>Conservation NGOs:</strong> Species monitoring, habitat protection, threat assessment programs</li>
+          <li><strong>Government Agencies:</strong> Natural England, DEFRA, wildlife trusts, environmental consultancies</li>
+          <li><strong>Zoological Societies:</strong> Field programs, breeding programs, species recovery initiatives</li>
+          <li><strong>Environmental Consultancies:</strong> Impact assessments, species surveys, conservation planning</li>
+          <li><strong>Research Institutions:</strong> Museum collections, herbaria, citizen science programs</li>
         </ul>
       </section>
 
@@ -137,10 +139,10 @@ export default function ProductOverview() {
         </h2>
         <div className="space-y-4">
           {[
-            { phase: 'Q2 2026', items: ['Version 1.0 General Release', 'Community Beta Program', 'Founding Member Tier'] },
-            { phase: 'Q3 2026', items: ['Ensemble Modeling', 'Threat Assessment Module', 'Advanced Analytics Dashboard'] },
-            { phase: 'Q4 2026', items: ['API & Webhooks', 'Custom Integrations', 'White-Label Enterprise'] },
-            { phase: 'Q1 2027', items: ['Mobile App (iOS/Android)', 'Real-Time Collaboration', 'Academic Journal Integration'] },
+            { phase: 'Q2 2026 (Live)', items: ['Version 1.0 General Release', '14-day Pro trial + Free Academic tier', 'MaxEnt + Ensemble SDM', 'Climate scenario projections', 'AI photo identification', 'Publication-ready reports'] },
+            { phase: 'Q3 2026 (Roadmap)', items: ['Advanced threat assessment module', 'Occupancy-habitat modeling', 'Multi-species interaction analysis', 'Phylogenetic filtering tools'] },
+            { phase: 'Q4 2026 (Roadmap)', items: ['Full REST API & webhooks', 'Zapier/IFTTT integrations', 'White-label enterprise edition', 'Custom model builder (no-code)'] },
+            { phase: 'Q1 2027+ (Planned)', items: ['Mobile companion app (iOS/Android)', 'Real-time field survey sync', 'Journal manuscript integration', 'Advanced ensemble methods (stacking, boosting)'] },
           ].map((quarter, idx) => (
             <div key={idx}>
               <h4 className="font-semibold text-slate-900">{quarter.phase}</h4>

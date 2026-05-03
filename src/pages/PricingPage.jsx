@@ -47,23 +47,23 @@ export default function PricingPage() {
   const standoutFeatures = [
     {
       icon: Zap,
-      title: 'Multi-Source Biodiversity Data',
-      description: 'The only platform integrating IUCN Red List, iNaturalist, GBIF, and SpeciesLink in one unified interface'
+      title: 'Unified Data Integration',
+      description: 'IUCN Red List, GBIF, iNaturalist, SpeciesLink, and custom CSV/GeoJSON—all queryable in one search. Auto-duplicate detection, taxonomic validation, and outlier flagging included.'
     },
     {
       icon: Gauge,
-      title: 'Automated Quality Assurance',
-      description: 'AI-powered duplicate detection, taxonomic validation, and coordinate outlier flagging'
+      title: 'Intelligent Data Quality',
+      description: 'AI-powered QA pipeline: detects duplicates, validates taxonomy, flags geographic/temporal anomalies, scores overall data quality, and provides actionable recommendations.'
     },
     {
       icon: Users,
-      title: 'Built for Collaboration',
-      description: 'Real-time team workspaces with role-based access and shared project analysis'
+      title: 'Collaborative Workspaces',
+      description: 'Real-time shared projects with role-based access, workspace comments, team notifications, version history, and full audit trails for compliance.'
     },
     {
       icon: Database,
-      title: 'Production-Grade SDM Tools',
-      description: 'Integrated MAXENT modeling with climate scenario projection and ensemble methods'
+      title: 'Production-Grade SDM',
+      description: 'MaxEnt + ensemble methods, automatic parameter optimization, climate scenario projections (current + RCP 2.6/4.5/8.5), and publication-ready result summaries.'
     },
   ];
 
@@ -129,13 +129,13 @@ export default function PricingPage() {
               </Button>
 
               <div className="space-y-3 flex-1">
-                {['Up to 5 projects', '1,000 occurrences/month', 'MaxEnt SDM modeling', 'AI data validation', 'Email support', 'Team of 5'].map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-slate-700">{feature}</span>
-                  </div>
-                ))}
-              </div>
+                 {['Up to 5 active projects', '1,000 occurrences/month', 'MaxEnt SDM modeling', 'AI-powered data validation', 'Multi-source data integration', 'Basic quality audits', 'Photo uploads (via smart importer)', 'Team of up to 5 members', 'Community support access', 'Current climate projections only'].map((feature, idx) => (
+                   <div key={idx} className="flex items-start gap-3">
+                     <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                     <span className="text-sm text-slate-700">{feature}</span>
+                   </div>
+                 ))}
+               </div>
             </CardContent>
           </Card>
 
@@ -168,12 +168,12 @@ export default function PricingPage() {
               </Button>
 
               <div className="space-y-3 flex-1">
-                {['Unlimited projects', 'Unlimited occurrences', 'Ensemble SDM methods', 'Climate scenario projections', 'Unlimited team members', 'Priority support', 'API access', 'Custom integrations'].map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-slate-700">{feature}</span>
-                  </div>
-                ))}
+                 {['Unlimited projects', 'Unlimited occurrences', 'MaxEnt + ensemble SDM methods', 'Climate scenarios (4 futures: current, RCP 2.6, 4.5, 8.5)', 'Comprehensive data quality audits', 'Photo upload with AI species identification', 'Advanced report generation (PDF + CSV export)', 'Unlimited team members', 'Priority email support (24h response)', 'Full-featured API (read/write)', 'Custom third-party integrations', 'Version rollback & complete audit trails'].map((feature, idx) => (
+                   <div key={idx} className="flex items-start gap-3">
+                     <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                     <span className="text-sm text-slate-700">{feature}</span>
+                   </div>
+                 ))}
               </div>
             </CardContent>
           </Card>

@@ -107,16 +107,16 @@ export default function Landing() {
       {/* SDM & Biodiversity Capabilities */}
       <section className="bg-slate-800/50 py-20 border-t border-slate-700/50">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-4">Advanced Species Distribution Modeling</h2>
-          <p className="text-center text-slate-400 mb-16">Complete toolkit for conservation researchers and biodiversity professionals</p>
+          <h2 className="text-4xl font-bold text-center mb-4">Complete Species Distribution Modeling Toolkit</h2>
+          <p className="text-center text-slate-400 mb-16">Integrated workflow from data ingestion to publication-ready results</p>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: Database, title: 'Multi-Source Data Integration', desc: 'Seamlessly combine IUCN Red List, GBIF, iNaturalist, SpeciesLink, and your field data into unified occurrence datasets.' },
-              { icon: Zap, title: 'Automated SDM Pipeline', desc: 'Run MaxEnt models with automatic outlier detection, geographic filtering, bioclimatic variable selection, and ensemble methods.' },
-              { icon: CheckCircle, title: 'AI-Powered Data Validation', desc: 'Detect duplicate records, validate taxonomy against external sources, identify geographic outliers, and flag suspicious observations.' },
-              { icon: FileOutput, title: 'Publication-Ready Reports', desc: 'Generate comprehensive conservation assessments, threat evaluations, and species reports with interactive maps and charts.' },
-              { icon: TrendingUp, title: 'Climate Scenario Projections', desc: 'Model species distribution under multiple climate futures (RCP 4.5, 8.5) to assess climate change impacts.' },
-              { icon: Globe, title: 'Global Reach, Local Impact', desc: 'Integrate with international conservation standards and contribute to global biodiversity monitoring efforts.' },
+              { icon: Database, title: 'Unified Data Integration', desc: 'Query IUCN Red List, GBIF, iNaturalist, SpeciesLink, and upload field observations. Auto-deduplicate, validate taxonomy, flag outliers with AI.' },
+              { icon: Zap, title: 'Automated Modeling Pipeline', desc: 'One-click MaxEnt models with automatic outlier removal, spatial thinning, bioclimatic variable selection, ensemble comparisons, and climate projections.' },
+              { icon: CheckCircle, title: 'AI-Powered Quality Assurance', desc: 'Detect duplicate occurrences, validate against IUCN/GBIF, identify geographic outliers, flag suspicious dates, and score overall data quality.' },
+              { icon: FileOutput, title: 'Publication-Ready Reports', desc: 'Generate detailed conservation assessments, threat evaluations, species profiles, and SDM results with interactive maps, charts, and metrics.' },
+              { icon: TrendingUp, title: 'Climate Scenario Analysis', desc: 'Project species distributions under 4 climate futures (current + RCP 2.6, 4.5, 8.5) with response curves and suitability comparisons.' },
+              { icon: Globe, title: 'Team Collaboration & Compliance', desc: 'Shared projects with role-based access, real-time workspace features, version history, audit trails, and conservation best practice compliance.' },
             ].map((item, i) => (
               <div key={i} className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-8 hover:border-bangor-red/50 transition group">
                 <item.icon className="w-12 h-12 text-bangor-red mb-4 group-hover:scale-110 transition" />
@@ -134,7 +134,7 @@ export default function Landing() {
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-4">
             <h3 className="text-xl font-bold mb-6">Data Management & Quality</h3>
-            {['Ingest from 4+ global biodiversity databases', 'Automated duplicate detection and merging', 'Taxonomic validation with cross-references', 'Coordinate outlier identification', 'Version history and audit trails'].map((item, i) => (
+            {['Query IUCN Red List, GBIF, iNaturalist, SpeciesLink simultaneously', 'Smart file import (CSV, Excel, GeoJSON, Shapefiles, KML)', 'Automated duplicate detection and intelligent merging', 'Taxonomic validation against authoritative sources', 'Geographic outlier flagging with confidence scoring', 'Temporal validation (suspicious date detection)', 'Photo upload with AI species identification (Pro)', 'Complete version history with change tracking', 'Audit trails for compliance and transparency'].map((item, i) => (
               <div key={i} className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <span className="text-slate-300">{item}</span>
@@ -143,7 +143,7 @@ export default function Landing() {
           </div>
           <div className="space-y-4">
             <h3 className="text-xl font-bold mb-6">Modeling & Analysis</h3>
-            {['MaxEnt species distribution models', 'Ensemble model comparison', 'Climate scenario projections (4 futures)', 'Feature importance analysis', 'Response curve visualization', 'Model performance metrics (AUC, TSS)'].map((item, i) => (
+            {['MaxEnt species distribution models (proven standard)', 'Ensemble method comparison (Pro tier)', 'Automatic outlier removal and spatial thinning', '19 bioclimatic variables (WorldClim data)', 'Current climate + 4 future climate scenarios (Pro)', 'Response curve visualization per variable', 'Feature/variable importance ranking', 'Model performance metrics (AUC, TSS, sensitivity, specificity, kappa)', 'Interactive prediction maps with suitability gradients', 'Comparative analysis across multiple models', 'Publication-ready result summaries'].map((item, i) => (
               <div key={i} className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <span className="text-slate-300">{item}</span>
@@ -244,14 +244,19 @@ export default function Landing() {
             </thead>
             <tbody className="divide-y divide-slate-700/50">
               {[
-                { feature: 'Projects', free: '5', pro: 'Unlimited' },
-                { feature: 'Occurrence Records/month', free: '1,000', pro: 'Unlimited' },
+                { feature: 'Projects', free: 'Up to 5', pro: 'Unlimited' },
+                { feature: 'Occurrences/month', free: '1,000', pro: 'Unlimited' },
                 { feature: 'Team Members', free: '5', pro: 'Unlimited' },
-                { feature: 'Data Sources', free: '4 (read-only)', pro: 'All + custom' },
-                { feature: 'SDM Models', free: 'MaxEnt only', pro: 'MaxEnt + Ensemble' },
-                { feature: 'Climate Scenarios', free: 'Current climate', pro: '4 future scenarios' },
-                { feature: 'API Access', free: '❌', pro: '✓ Read/Write' },
-                { feature: 'Priority Support', free: '❌', pro: '✓ Email & chat' },
+                { feature: 'Data Sources (IUCN, GBIF, etc.)', free: '4 (read-only)', pro: 'All + custom APIs' },
+                { feature: 'File Import (CSV, Excel, GeoJSON)', free: '✓', pro: '✓ + Shapefiles' },
+                { feature: 'Photo Upload & AI ID', free: '❌', pro: '✓' },
+                { feature: 'SDM Modeling', free: 'MaxEnt only', pro: 'MaxEnt + Ensemble' },
+                { feature: 'Climate Scenarios', free: 'Current only', pro: '4 futures + RCP' },
+                { feature: 'Data Quality Audit', free: 'Basic', pro: 'Comprehensive' },
+                { feature: 'Report Generation', free: 'Simple PDF', pro: 'Advanced + export' },
+                { feature: 'Version History', free: '✓', pro: '✓ + rollback' },
+                { feature: 'API Access (Read/Write)', free: '❌', pro: '✓' },
+                { feature: 'Priority Support', free: 'Community', pro: '✓ 24h response' },
                 { feature: 'Custom Integrations', free: '❌', pro: '✓' },
               ].map((row, i) => (
                 <tr key={i} className="hover:bg-slate-700/20 transition">
