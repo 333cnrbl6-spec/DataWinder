@@ -1,0 +1,70 @@
+{
+  "name": "WorkspaceComment",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project record"
+    },
+    "sdm_run_id": {
+      "type": "string",
+      "description": "Reference to SDMRun (optional, for model-specific comments)"
+    },
+    "occurrence_id": {
+      "type": "string",
+      "description": "Reference to Occurrence (optional, for occurrence-specific comments)"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of comment author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of author"
+    },
+    "content": {
+      "type": "string",
+      "description": "Comment text"
+    },
+    "comment_type": {
+      "type": "string",
+      "enum": [
+        "general",
+        "question",
+        "concern",
+        "suggestion",
+        "result_feedback"
+      ],
+      "default": "general",
+      "description": "Type of comment for categorization"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this comment/discussion is resolved"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "Email of user who resolved it"
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of mentioned team members"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs to attached images or files"
+    }
+  },
+  "required": [
+    "project_id",
+    "author_email",
+    "content"
+  ]
+}

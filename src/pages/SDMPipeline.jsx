@@ -222,6 +222,7 @@ function ResultsPanel({ run }) {
 
 export default function SDMPipeline() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedSpeciesIds, setSelectedSpeciesIds] = useState([]);
   const [runName, setRunName] = useState('');
   const [selectedBioclim, setSelectedBioclim] = useState(['bio1', 'bio4', 'bio12', 'bio15', 'bio5', 'bio6']);

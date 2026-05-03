@@ -6,14 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { Plus, Edit2, Trash2, Users, Lock, Globe, Loader2, Archive, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit2, Trash2, Users, Lock, Globe, Loader2, Archive, CheckCircle2, AlertCircle, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 /**
  * Project Management Dashboard
  */
 
-function ProjectCard({ project, onEdit, onDelete, currentUserEmail }) {
+function ProjectCard({ project, onEdit, onDelete, currentUserEmail, onCollaborate }) {
   const isOwner = project.owner_email === currentUserEmail;
   const teamCount = project.team_members?.length || 0;
   const speciesCount = project.species_ids?.length || 0;
@@ -75,31 +76,42 @@ function ProjectCard({ project, onEdit, onDelete, currentUserEmail }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t">
+        <div className="flex items-center justify-between pt-2 border-t gap-2">
           <span className="text-xs text-slate-500">
             {isOwner ? 'Owner' : `Shared by ${project.owner_name}`}
           </span>
-          {isOwner && (
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onEdit(project.id)}
-                className="h-8 text-xs gap-1"
-              >
-                <Edit2 className="w-3 h-3" />
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDelete(project.id)}
-                className="h-8 text-xs text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onCollaborate(project.id)}
+              className="h-8 text-xs gap-1"
+            >
+              <MessageCircle className="w-3 h-3" />
+              Collaborate
+            </Button>
+            {isOwner && (
+              <>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onEdit(project.id)}
+                  className="h-8 text-xs gap-1"
+                >
+                  <Edit2 className="w-3 h-3" />
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onDelete(project.id)}
+                  className="h-8 text-xs text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -286,6 +298,7 @@ function ProjectModal({ project, onSave, onClose, allSpecies, allSDMRuns }) {
 
 export default function ProjectDashboard() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -426,6 +439,7 @@ export default function ProjectDashboard() {
                       setShowModal(true);
                     }}
                     onDelete={(id) => deleteMutation.mutate(id)}
+                    onCollaborate={(id) => navigate(`/SharedWorkspace/${id}`)}
                   />
                 ))}
               </div>
@@ -444,6 +458,7 @@ export default function ProjectDashboard() {
                     setShowModal(true);
                   }}
                   onDelete={(id) => deleteMutation.mutate(id)}
+                  onCollaborate={(id) => navigate(`/SharedWorkspace/${id}`)}
                 />
               ))}
             </div>
@@ -459,6 +474,7 @@ export default function ProjectDashboard() {
                     currentUserEmail={currentUser?.email}
                     onEdit={() => {}}
                     onDelete={() => {}}
+                    onCollaborate={(id) => navigate(`/SharedWorkspace/${id}`)}
                   />
                 ))}
               </div>

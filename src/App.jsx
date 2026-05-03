@@ -53,6 +53,7 @@ import VersionHistory from './pages/VersionHistory';
 import SDMAnnotationViewer from './pages/SDMAnnotationViewer';
 import ExportDashboard from './pages/ExportDashboard';
 import ProjectWorkspace from './pages/ProjectWorkspace';
+import SharedWorkspace from './pages/SharedWorkspace';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import GISLayerManager from './pages/GISLayerManager';
 import SDMComparisonViewer from './pages/SDMComparisonViewer';
@@ -198,6 +199,7 @@ const AuthenticatedApp = () => {
       <Route path="/SDMAnnotationViewer" element={<LayoutWrapper currentPageName="SDMAnnotationViewer"><SDMAnnotationViewer /></LayoutWrapper>} />
       <Route path="/ExportDashboard" element={<LayoutWrapper currentPageName="ExportDashboard"><ExportDashboard /></LayoutWrapper>} />
       <Route path="/ProjectWorkspace/:projectId" element={<LayoutWrapper currentPageName="ProjectWorkspace"><ProjectWorkspace /></LayoutWrapper>} />
+      <Route path="/SharedWorkspace/:projectId" element={<LayoutWrapper currentPageName="SharedWorkspace"><SharedWorkspace /></LayoutWrapper>} />
       <Route path="/AnalyticsDashboard" element={<LayoutWrapper currentPageName="AnalyticsDashboard"><AnalyticsDashboard /></LayoutWrapper>} />
       <Route path="/GISLayerManager/:projectId" element={<LayoutWrapper currentPageName="GISLayerManager"><GISLayerManager /></LayoutWrapper>} />
       <Route path="/SDMComparisonViewer/:projectId" element={<LayoutWrapper currentPageName="SDMComparisonViewer"><SDMComparisonViewer /></LayoutWrapper>} />
