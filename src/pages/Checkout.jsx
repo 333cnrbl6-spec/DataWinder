@@ -36,8 +36,13 @@ export default function Checkout() {
     setError(null);
 
     try {
-     // Check if running in preview/iframe
-     if (window.self !== window.top || window.location.hostname.includes('preview')) {
+     // CRITICAL: Check if running in preview/iframe (blocks checkout in dev mode)
+     const isInIframe = window.self !== window.top;
+     const isPreview = window.location.hostname.includes('preview') || 
+                       window.location.hostname.includes('localhost') ||
+                       window.location.hostname.includes('base44.dev');
+     
+     if (isInIframe || isPreview) {
        setError('Checkout only works from the published app. Please visit the live site to upgrade.');
        setLoading(false);
        return;
@@ -60,13 +65,14 @@ export default function Checkout() {
      });
 
      if (response.data?.checkout_url) {
-       window.location.href = response.data.checkout_url;
+       // BUGFIX: Open checkout in new window, don't replace entire page
+       window.open(response.data.checkout_url, '_blank');
      } else {
-       setError('Failed to create checkout session');
+       setError(response.data?.error || 'Failed to create checkout session');
      }
-    } catch (err) {
+     } catch (err) {
       console.error('Checkout error:', err);
-      setError(err.message || 'Checkout failed. Please try again.');
+      setError(err.response?.data?.error || err.message || 'Checkout failed. Please try again.');
     } finally {
       setLoading(false);
     }

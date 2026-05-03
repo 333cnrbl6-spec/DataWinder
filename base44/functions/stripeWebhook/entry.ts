@@ -38,80 +38,107 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const customerEmail = session.customer_email;
+        const customerEmail = session.customer_email || session.customer_details?.email;
         const planId = session.metadata?.plan_id;
+        const subscriptionId = session.subscription;
 
-        if (customerEmail && planId) {
-          // Get user by email and update tier
-          const users = await base44.asServiceRole.entities.User.list();
-          const targetUser = users.find(u => u.email === customerEmail);
+        if (!customerEmail || !planId) {
+          console.error('Missing customerEmail or planId in checkout.session.completed');
+          break;
+        }
+
+        try {
+          // BUGFIX: Use filter instead of list (better performance, avoids O(n) scan)
+          const users = await base44.asServiceRole.entities.User.filter({
+            email: customerEmail
+          });
           
-          if (targetUser) {
-            const tierMap = {
-              'datawinder-starter': 'starter',
-              'datawinder-pro': 'pro',
-              'datawinder-enterprise': 'enterprise'
-            };
-
-            const tier = tierMap[planId] || 'pro';
-
-            await base44.asServiceRole.entities.User.update(targetUser.id, {
-              subscription_tier: tier,
-              subscription_status: 'active',
-              stripe_customer_id: session.customer,
-              subscription_started_at: new Date().toISOString(),
-            });
-
-            // Track upgrade event
-            await base44.asServiceRole.analytics.track({
-              eventName: 'payment_success',
-              properties: {
-                user_email: customerEmail,
-                tier,
-                session_id: session.id,
-                amount: session.amount_total
-              }
-            });
-
-            console.log(`✓ Payment successful: ${customerEmail} upgraded to ${tier}`);
+          const targetUser = users[0];
+          
+          if (!targetUser) {
+            console.error(`User not found for email: ${customerEmail}`);
+            break;
           }
+
+          const tierMap = {
+            'datawinder-pro-monthly': 'pro',
+            'datawinder-pro-annual': 'pro',
+            'datawinder-starter': 'starter',
+            'datawinder-enterprise': 'enterprise'
+          };
+
+          const tier = tierMap[planId] || 'pro';
+
+          await base44.asServiceRole.entities.User.update(targetUser.id, {
+            subscription_tier: tier,
+            subscription_status: 'active',
+            stripe_customer_id: session.customer,
+            stripe_subscription_id: subscriptionId,
+            subscription_started_at: new Date().toISOString(),
+          });
+
+          // Track upgrade event
+          await base44.asServiceRole.analytics.track({
+            eventName: 'payment_success',
+            properties: {
+              user_email: customerEmail,
+              tier,
+              session_id: session.id,
+              amount: session.amount_total
+            }
+          });
+
+          console.log(`✓ Payment successful: ${customerEmail} upgraded to ${tier}`);
+        } catch (err) {
+          console.error('Error processing checkout completion:', err.message);
         }
         break;
       }
 
       case 'customer.subscription.updated': {
         const sub = event.data.object;
-        const customer = await stripe.customers.retrieve(sub.customer);
+        try {
+          const customer = await stripe.customers.retrieve(sub.customer);
 
-        if (customer.email) {
-          const users = await base44.asServiceRole.entities.User.list();
-          const targetUser = users.find(u => u.email === customer.email);
+          if (!customer.email) break;
+
+          const users = await base44.asServiceRole.entities.User.filter({
+            email: customer.email
+          });
           
+          const targetUser = users[0];
           if (targetUser) {
             await base44.asServiceRole.entities.User.update(targetUser.id, {
               subscription_status: sub.status === 'active' ? 'active' : 'inactive',
             });
             console.log(`Subscription updated for ${customer.email}: ${sub.status}`);
           }
+        } catch (err) {
+          console.error('Error updating subscription:', err.message);
         }
         break;
       }
 
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
-        const customer = await stripe.customers.retrieve(sub.customer);
+        try {
+          const customer = await stripe.customers.retrieve(sub.customer);
 
-        if (customer.email) {
-          const users = await base44.asServiceRole.entities.User.list();
-          const targetUser = users.find(u => u.email === customer.email);
+          if (!customer.email) break;
+
+          const users = await base44.asServiceRole.entities.User.filter({
+            email: customer.email
+          });
           
+          const targetUser = users[0];
           if (targetUser) {
-            // Check if Bangor user - revert to free academic
+            // Check if Bangor user - revert to free academic tier
             const isBangor = customer.email.endsWith('@bangor.ac.uk');
             
             await base44.asServiceRole.entities.User.update(targetUser.id, {
               subscription_tier: isBangor ? 'free' : 'free',
               subscription_status: 'cancelled',
+              subscription_ended_at: new Date().toISOString()
             });
 
             await base44.asServiceRole.analytics.track({
@@ -124,14 +151,30 @@ Deno.serve(async (req) => {
 
             console.log(`✗ Subscription cancelled: ${customer.email}`);
           }
+        } catch (err) {
+          console.error('Error processing subscription deletion:', err.message);
         }
         break;
       }
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
-        const customer = await stripe.customers.retrieve(invoice.customer);
-        console.warn(`⚠ Payment failed for ${customer.email}: ${invoice.id}`);
+        try {
+          const customer = await stripe.customers.retrieve(invoice.customer);
+          console.warn(`⚠ Payment failed for ${customer.email}: ${invoice.id}`);
+          
+          // BUGFIX: Track failed payment event for retry logic
+          await base44.asServiceRole.analytics.track({
+            eventName: 'payment_failed',
+            properties: {
+              user_email: customer.email,
+              invoice_id: invoice.id,
+              attempt_count: invoice.attempt_count
+            }
+          });
+        } catch (err) {
+          console.error('Error handling payment failure:', err.message);
+        }
         break;
       }
 

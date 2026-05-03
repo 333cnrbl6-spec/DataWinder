@@ -25,26 +25,40 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
-    // Check for iframe (preview mode)
+    // Check for iframe (preview mode) — CRITICAL SECURITY CHECK
     const origin = req.headers.get('origin');
-    if (!origin || origin.includes('localhost') || origin.includes('preview')) {
+    const isLocalhost = origin && (origin.includes('localhost') || origin.includes('127.0.0.1'));
+    const isPreview = origin && (origin.includes('preview') || origin.includes('base44.dev'));
+    
+    if (!origin || isLocalhost || isPreview) {
+      console.warn(`Blocked checkout from non-production origin: ${origin}`);
       return Response.json({ 
         error: 'Checkout must be completed from published app' 
       }, { status: 400 });
     }
 
-    // Create/update Stripe customer
+    // Create/update Stripe customer (idempotent)
     let customerId = user.stripe_customer_id;
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.full_name,
-        metadata: {
-          base44_user_id: user.id,
-          email: user.email
-        }
-      });
-      customerId = customer.id;
+      try {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.full_name || 'User',
+          metadata: {
+            base44_user_id: user.id,
+            email: user.email
+          }
+        });
+        customerId = customer.id;
+        
+        // Store customer ID on user for future checkouts
+        await base44.asServiceRole.entities.User.update(user.id, {
+          stripe_customer_id: customerId
+        });
+      } catch (err) {
+        console.error('Failed to create Stripe customer:', err.message);
+        throw new Error('Failed to create payment account');
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
