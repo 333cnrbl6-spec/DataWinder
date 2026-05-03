@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
 import JSZip from 'jszip';
 import ConservationComplianceChecker from '@/components/compliance/ConservationComplianceChecker';
+import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 
 const getFileExt = (name) => name.split('.').pop().toLowerCase();
 
@@ -169,30 +170,28 @@ export default function UniversalFileUploader({ onImported, targetSpecies = null
 
           {/* Uploading */}
           {step === 'uploading' && (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <Loader2 className="w-10 h-10 text-bangor-red animate-spin" />
-              <div className="text-center">
-                <p className="font-semibold text-slate-700">Uploading file…</p>
-                <p className="text-sm text-slate-500 mt-1">{fileInfo?.name}</p>
-              </div>
-            </div>
+            <ProcessingFeedback
+              label="Uploading file…"
+              detail={`Processing ${fileInfo?.name} (${(fileInfo?.size / 1024 / 1024).toFixed(1)}MB)`}
+              tips={[
+                'Files are encrypted during transfer to our secure servers.',
+                'Larger files may take a few moments to upload.',
+                'No data is shared with third parties during upload.',
+              ]}
+            />
           )}
 
           {/* Classifying with AI */}
           {step === 'classifying' && (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <div className="relative">
-                <Sparkles className="w-10 h-10 text-bangor-red animate-pulse" />
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-3 h-3 bg-purple-600 rounded-full animate-ping" />
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-slate-700">AI Classification in Progress…</p>
-                <p className="text-sm text-slate-500 mt-1">Using Claude Opus 4.6 to analyze content</p>
-                <p className="text-xs text-slate-400 mt-2">Identifying data type, structure, and optimal destination</p>
-              </div>
-            </div>
+            <ProcessingFeedback
+              label="AI Classification in Progress…"
+              detail="Using Claude Opus 4.6 to analyze file content and structure"
+              tips={[
+                'Claude Opus 4.6 is analyzing the file to identify data type, format, and optimal database destination.',
+                'This step validates the content structure and detects compliance issues automatically.',
+                'Classification results help ensure data integrity before import.',
+              ]}
+            />
           )}
 
           {/* Compliance Check */}
@@ -306,10 +305,15 @@ export default function UniversalFileUploader({ onImported, targetSpecies = null
 
           {/* Importing */}
           {step === 'importing' && (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <Loader2 className="w-10 h-10 text-bangor-red animate-spin" />
-              <p className="font-semibold text-slate-700">Importing {parsedRows.length} records into {selectedEntity}…</p>
-            </div>
+            <ProcessingFeedback
+              label={`Importing ${parsedRows.length} records…`}
+              detail={`Adding data to ${selectedEntity} and creating audit trail`}
+              tips={[
+                'Each record is validated against compliance standards before insertion.',
+                'An audit log is automatically created for all imported data.',
+                'You can track import history in the Import History page.',
+              ]}
+            />
           )}
 
           {/* Done */}

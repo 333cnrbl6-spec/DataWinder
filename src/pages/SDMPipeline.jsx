@@ -12,6 +12,7 @@ import { Loader2, Play, CheckCircle2, XCircle, AlertCircle, Clock, RefreshCw, Ch
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import SDMPredictionMap from '@/components/sdm/SDMPredictionMap';
+import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 
 const BIOCLIM_OPTIONS = [
   { id: 'bio1',  label: 'BIO1 — Mean Annual Temp',       icon: Thermometer },
@@ -503,14 +504,26 @@ export default function SDMPipeline() {
             </Card>
 
             {/* Launch button */}
-            <Button
-              onClick={handleLaunch}
-              disabled={isLaunching || !selectedSpeciesIds.length || !runName.trim() || selectedBioclim.length < 2}
-              className="w-full bg-bangor-red hover:bg-bangor-red/90 text-white font-bold gap-2 h-11"
-            >
-              {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              {isLaunching ? 'Launching…' : 'Run SDM Pipeline'}
-            </Button>
+             <Button
+               onClick={handleLaunch}
+               disabled={isLaunching || !selectedSpeciesIds.length || !runName.trim() || selectedBioclim.length < 2}
+               className="w-full bg-bangor-red hover:bg-bangor-red/90 text-white font-bold gap-2 h-11"
+             >
+               {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+               {isLaunching ? 'Launching…' : 'Run SDM Pipeline'}
+             </Button>
+
+             {isLaunching && (
+               <ProcessingFeedback
+                 label="Initializing SDM Pipeline"
+                 detail="Creating run record and queuing job…"
+                 tips={[
+                   'The pipeline will run through multiple stages: outlier detection, spatial thinning, climate fetching, and MaxEnt modeling.',
+                   'You can close this tab and your pipeline will continue running in the background.',
+                   'Check back in the Pipeline Runs section to monitor progress.',
+                 ]}
+               />
+             )}
           </div>
 
           {/* ── RIGHT: Runs & Results ── */}

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2, AlertTriangle, RefreshCw, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import ProcessingFeedback from '@/components/ui/ProcessingFeedback';
 
 export default function DataQualityAudit() {
   const [isValidating, setIsValidating] = useState(false);
@@ -57,6 +58,19 @@ export default function DataQualityAudit() {
                     </>
                   )}
                 </Button>
+
+                {isValidating && (
+                  <ProcessingFeedback
+                    label="Scanning MAXENT Runs"
+                    detail="Validating run integrity, data quality, and compliance standards…"
+                    tips={[
+                      'Checking for duplicate occurrences, taxonomic inconsistencies, and spatial anomalies.',
+                      'Validating model performance metrics and comparing against baseline standards.',
+                      'Cross-referencing with IUCN and GBIF data for consistency checks.',
+                    ]}
+                    className="mt-4"
+                  />
+                )}
               </CardContent>
             </Card>
           </div>
