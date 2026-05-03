@@ -71,6 +71,7 @@ import FieldPhotoProcessor from './pages/FieldPhotoProcessor';
 import BiodiversityDataComparison from './pages/BiodiversityDataComparison';
 import SurveyDetail from './pages/SurveyDetail';
 import SDMWorkspace from './pages/SDMWorkspace';
+import SDMMapEditor from './pages/SDMMapEditor';
 import Landing from './pages/Landing';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -216,6 +217,7 @@ const AuthenticatedApp = () => {
       <Route path="/BiodiversityDataComparison" element={<LayoutWrapper currentPageName="BiodiversityDataComparison"><BiodiversityDataComparison /></LayoutWrapper>} />
       <Route path="/SurveyDetail/:surveyId" element={<LayoutWrapper currentPageName="SurveyDetail"><SurveyDetail /></LayoutWrapper>} />
       <Route path="/SDMWorkspace/:projectId" element={<LayoutWrapper currentPageName="SDMWorkspace"><SDMWorkspace /></LayoutWrapper>} />
+      <Route path="/SDMMapEditor/:sdmRunId" element={<LayoutWrapper currentPageName="SDMMapEditor"><SDMMapEditor /></LayoutWrapper>} />
       <Route path="/Landing" element={<Landing />} />
       <Route path="/TermsOfService" element={<TermsOfService />} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />

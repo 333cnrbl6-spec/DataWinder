@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Play, CheckCircle2, XCircle, AlertCircle, Clock, RefreshCw, ChevronDown, ChevronUp, Map, BarChart2, Activity, Thermometer, Droplets, Wind } from 'lucide-react';
+import { Loader2, Play, CheckCircle2, XCircle, AlertCircle, Clock, RefreshCw, ChevronDown, ChevronUp, Map, BarChart2, Activity, Thermometer, Droplets, Wind, Edit3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import SDMPredictionMap from '@/components/sdm/SDMPredictionMap';
@@ -162,10 +163,19 @@ function ResultsPanel({ run }) {
           </TabsList>
 
           <TabsContent value="map">
-            <SDMPredictionMap
-              grid={run.prediction_grid || []}
-              occurrences={run.occurrence_points || []}
-            />
+            <div className="space-y-3">
+              <SDMPredictionMap
+                grid={run.prediction_grid || []}
+                occurrences={run.occurrence_points || []}
+              />
+              <Button
+                onClick={() => navigate(`/SDMMapEditor/${run.id}`)}
+                className="w-full bg-bangor-red hover:bg-bangor-red/90 gap-2"
+              >
+                <Edit3 className="w-4 h-4" />
+                Open in Map Editor
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="importance">
