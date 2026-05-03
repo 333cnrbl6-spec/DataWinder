@@ -1,0 +1,156 @@
+{
+  "name": "SDMValidationTask",
+  "type": "object",
+  "properties": {
+    "sdm_run_id": {
+      "type": "string",
+      "description": "Reference to SDMRun"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Reference to Project"
+    },
+    "species_id": {
+      "type": "string",
+      "description": "Species being validated"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Species name for display"
+    },
+    "grid_bounds": {
+      "type": "object",
+      "description": "Bounding box of validation area",
+      "properties": {
+        "min_lat": {
+          "type": "number"
+        },
+        "max_lat": {
+          "type": "number"
+        },
+        "min_lon": {
+          "type": "number"
+        },
+        "max_lon": {
+          "type": "number"
+        }
+      }
+    },
+    "center_lat": {
+      "type": "number",
+      "description": "Center latitude of marked area"
+    },
+    "center_lon": {
+      "type": "number",
+      "description": "Center longitude of marked area"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "description": "Email of assigned team member"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Name of assigned team member"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of user who created task"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Name of creator"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "field_validation",
+        "ground_truth_collection",
+        "occurrence_verification",
+        "boundary_refinement"
+      ],
+      "default": "field_validation",
+      "description": "Type of validation task"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "Task priority level"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "open",
+      "description": "Current task status"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed task instructions"
+    },
+    "suitability_range": {
+      "type": "object",
+      "description": "Grid suitability range in this area",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "mean": {
+          "type": "number"
+        }
+      }
+    },
+    "expected_field_visits": {
+      "type": "number",
+      "description": "Estimated number of field sites needed"
+    },
+    "completed_field_visits": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of field sites verified"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Task notes and observations"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was assigned"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Target completion date"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was completed"
+    },
+    "color": {
+      "type": "string",
+      "default": "#ef4444",
+      "description": "Hex color for map visualization"
+    }
+  },
+  "required": [
+    "sdm_run_id",
+    "project_id",
+    "species_id",
+    "grid_bounds",
+    "created_by_email"
+  ]
+}

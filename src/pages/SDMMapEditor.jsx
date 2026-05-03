@@ -9,6 +9,8 @@ import { ArrowLeft, MapPin, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import SDMEditingMap from '@/components/sdm/SDMEditingMap';
 import SDMRefinementControls from '@/components/sdm/SDMRefinementControls';
+import SDMAnnotationLayer from '@/components/sdm/SDMAnnotationLayer';
+import ValidationTaskManager from '@/components/sdm/ValidationTaskManager';
 
 export default function SDMMapEditor() {
   const { sdmRunId } = useParams();
@@ -19,6 +21,10 @@ export default function SDMMapEditor() {
   const [hasChanges, setHasChanges] = useState(false);
   const [originalThreshold, setOriginalThreshold] = useState(0.5);
   const [originalZones, setOriginalZones] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [annotationEditMode, setAnnotationEditMode] = useState(false);
+  const [projectId, setProjectId] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]);
 
   // Fetch SDM run
   const { data: sdmRun, isLoading, error } = useQuery({
@@ -36,6 +42,14 @@ export default function SDMMapEditor() {
       setOriginalThreshold(refinements.threshold ?? 0.5);
       setOriginalZones(refinements.exclude_zones ?? []);
       setHasChanges(false);
+      setProjectId(sdmRun.project_id);
+      
+      // Load team members
+      const loadTeam = async () => {
+        const project = await base44.entities.Project.get(sdmRun.project_id);
+        setTeamMembers(project.team_members || []);
+      };
+      loadTeam();
     }
   }, [sdmRun]);
 
@@ -137,38 +151,77 @@ export default function SDMMapEditor() {
         </div>
 
         {/* Main grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Map */}
           <div className="lg:col-span-3">
             <Card className="h-screen lg:h-96 flex flex-col">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   Interactive Prediction Map
                 </CardTitle>
+                <Button
+                  size="sm"
+                  variant={annotationEditMode ? 'default' : 'outline'}
+                  onClick={() => setAnnotationEditMode(!annotationEditMode)}
+                  className="text-xs gap-1"
+                >
+                  {annotationEditMode ? '✓ Drawing Mode' : '+ Create Task'}
+                </Button>
               </CardHeader>
               <CardContent className="flex-1 p-0 overflow-hidden rounded-b-xl">
                 {sdmRun.prediction_grid ? (
-                  <SDMEditingMap
-                    predictionGrid={sdmRun.prediction_grid}
-                    occurrences={sdmRun.occurrence_points}
-                    threshold={threshold}
-                    excludeZones={excludeZones}
-                    onZonesChange={setExcludeZones}
-                    center={sdmRun.center || [20, 0]}
-                    zoom={sdmRun.zoom || 3}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-50">
-                    <p className="text-slate-500">No prediction data available</p>
-                  </div>
-                )}
+                   <SDMEditingMap
+                     predictionGrid={sdmRun.prediction_grid}
+                     occurrences={sdmRun.occurrence_points}
+                     threshold={threshold}
+                     excludeZones={excludeZones}
+                     onZonesChange={setExcludeZones}
+                     center={sdmRun.center || [20, 0]}
+                     zoom={sdmRun.zoom || 3}
+                   >
+                     <SDMAnnotationLayer
+                       sdmRunId={sdmRunId}
+                       projectId={projectId}
+                       onSelectTask={setSelectedTask}
+                       onCreateTask={(bounds) => {
+                         // Navigate to task creation
+                         console.log('Create task for bounds:', bounds);
+                         setAnnotationEditMode(false);
+                       }}
+                       editMode={annotationEditMode}
+                     />
+                   </SDMEditingMap>
+                 ) : (
+                   <div className="w-full h-full flex items-center justify-center bg-slate-50">
+                     <p className="text-slate-500">No prediction data available</p>
+                   </div>
+                 )}
               </CardContent>
             </Card>
           </div>
 
+          {/* Task Panel */}
+          <div className="lg:col-span-1 bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col">
+            {selectedTask ? (
+              <ValidationTaskManager
+                sdmRunId={sdmRunId}
+                projectId={projectId}
+                selectedTask={selectedTask}
+                teamMembers={teamMembers}
+                onTaskUpdate={() => {
+                  // Refresh tasks
+                }}
+              />
+            ) : (
+              <div className="p-4 h-full flex items-center justify-center text-slate-500 text-sm">
+                Click a validation area on the map to view task details
+              </div>
+            )}
+          </div>
+
           {/* Controls */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" style={{ gridColumn: selectedTask ? 'auto' : 'span 1' }}>
             {saveMutation.isPending ? (
               <ProcessingFeedback
                 label="Saving refinements…"
