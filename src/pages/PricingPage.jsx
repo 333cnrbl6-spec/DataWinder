@@ -112,10 +112,10 @@ export default function PricingPage() {
           <Card className="hover:shadow-lg transition-all flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Academic</CardTitle>
-              <CardDescription>For Bangor University researchers</CardDescription>
+              <CardDescription>For Bangor University researchers (@bangor.ac.uk)</CardDescription>
               <div className="mt-4">
                 <div className="text-4xl font-bold text-slate-900">£0</div>
-                <div className="text-sm text-slate-600 mt-1">Forever — @bangor.ac.uk only</div>
+                <div className="text-sm text-slate-600 mt-1">Forever free — @bangor.ac.uk email required</div>
               </div>
             </CardHeader>
 
@@ -275,11 +275,10 @@ export default function PricingPage() {
           <Button 
             size="lg" 
             className="bg-bangor-red hover:bg-bangor-red/90"
-            onClick={() => window.location.href = '/ProductOverview'}
-            aria-label="Download product overview"
+            onClick={() => base44.auth.redirectToLogin()}
+            aria-label="Start free trial"
           >
-            <Download className="w-4 h-4 mr-2" />
-            Download Product Overview
+            Start Free 14-Day Trial
           </Button>
         </div>
       </div>

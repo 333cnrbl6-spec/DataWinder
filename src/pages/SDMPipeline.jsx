@@ -407,7 +407,7 @@ export default function SDMPipeline() {
               </CardHeader>
               <CardContent>
                 <Input
-                  placeholder="e.g. Callithrix SDM 2026"
+                  placeholder="e.g. Species name — baseline run 2026"
                   value={runName}
                   onChange={e => setRunName(e.target.value)}
                   className="h-9"

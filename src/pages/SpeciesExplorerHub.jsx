@@ -276,27 +276,18 @@ export default function SpeciesExplorerHub() {
 
         <Card className="border-l-4 border-l-green-500">
           <CardHeader>
-            <CardTitle className="text-lg">Data Synchronization</CardTitle>
+            <CardTitle className="text-lg">Import Data</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-slate-600 mb-4">
-              Sync your observations with GBIF and IUCN for standardization
+              Import species records from CSV, GeoJSON, or GBIF/IUCN exports
             </p>
             <Button
-              onClick={async () => {
-                try {
-                  const res = await base44.functions.invoke('syncGBIFIUCNData', {
-                    species_ids: species.map(s => s.id).slice(0, 10)
-                  });
-                  alert(`Synced ${res.data?.synced_count} species`);
-                } catch (e) {
-                  alert('Sync failed');
-                }
-              }}
+              onClick={() => window.location.href = '/SmartImport'}
               variant="outline"
               className="w-full"
             >
-              Sync Now
+              Import Data
             </Button>
           </CardContent>
         </Card>

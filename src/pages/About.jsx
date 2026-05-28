@@ -52,7 +52,7 @@ export default function About() {
       icon: Search,
       description: 'Discover species using IUCN, iNaturalist, and GBIF databases',
       pages: [
-        { name: 'Home', path: 'Home' },
+        { name: 'Species Explorer', path: 'SpeciesExplorerHub' },
         { name: 'My Data', path: 'SavedData' }
       ],
       color: 'blue'
@@ -260,7 +260,7 @@ export default function About() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-slate-700">Start by searching for species of interest using the integrated IUCN, iNaturalist, and GBIF databases.</p>
-                <Link to="/Home">
+                <Link to="/SpeciesExplorerHub">
                   <Button variant="outline" className="w-full gap-2">
                     Open Species Search <ArrowRight className="w-4 h-4" />
                   </Button>

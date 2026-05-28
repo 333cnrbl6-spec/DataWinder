@@ -20,7 +20,7 @@ export default function SmartImport() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-bangor-red">Universal File Import</h1>
-              <p className="text-sm text-slate-600">AI-powered classification with Claude Opus 4.6 + automated compliance checks</p>
+              <p className="text-sm text-slate-600">AI-powered classification and automated compliance checks</p>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default function SmartImport() {
                 <p className="text-xs font-bold text-purple-800">AI Classification</p>
               </div>
               <p className="text-xs text-purple-700">
-                Claude Opus 4.6 analyzes file content to determine type, structure, and optimal entity destination
+                AI analyzes file content to determine type, structure, and optimal entity destination
               </p>
             </div>
 
@@ -71,7 +71,7 @@ export default function SmartImport() {
               <li><strong>ZIP archives</strong> — Automatically extracted and analyzed</li>
             </ul>
             <p className="text-xs text-slate-400 pt-1">
-              Powered by Claude Opus 4.6 for high-accuracy classification • Full audit trail • GDPR compliant
+              High-accuracy AI classification • Full audit trail • GDPR compliant
             </p>
           </div>
         </div>

@@ -119,7 +119,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Sidebar Header */}
         <div className="flex items-center justify-between gap-2 px-4 py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
-          <Link to="/Home" className="flex items-center gap-3 flex-1 min-w-0 group">
+          <Link to="/ResearcherDashboard" className="flex items-center gap-3 flex-1 min-w-0 group">
             <div className="w-9 h-9 bg-bangor-red rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
               <Leaf className="w-5 h-5 text-white" />
             </div>
