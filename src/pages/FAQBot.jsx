@@ -113,7 +113,7 @@ export default function FAQBot() {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-white font-bold text-sm leading-tight">DataWinder Assistant</h2>
-            <p className="text-white/70 text-xs">Bangor University · Species Distribution Modelling</p>
+            <p className="text-white/70 text-xs">Species Distribution Modelling & Conservation</p>
           </div>
           <button
             onClick={resetConversation}
