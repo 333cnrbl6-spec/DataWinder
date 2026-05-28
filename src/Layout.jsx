@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, Users, MessageCircle, Folder, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, Globe } from 'lucide-react';
+import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, Users, MessageCircle, Folder, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, Globe, Upload } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
 import { base44 } from '@/api/base44Client';
@@ -21,6 +21,7 @@ const NAV_CATEGORIES = [
     items: [
       { label: 'My Data', page: 'SavedData', icon: FolderOpen },
       { label: 'Import Data', page: 'SmartImport', icon: PackageOpen },
+      { label: 'Bulk Species Upload', page: 'BulkSpeciesUpload', icon: Upload },
       { label: 'Photo Processor', page: 'FieldPhotoProcessor', icon: Sparkles },
       { label: 'Data Validation', page: 'DataValidation', icon: CheckCircle },
       { label: 'Outlier Detection', page: 'GeographicOutlierCorrection', icon: AlertTriangle },
