@@ -12,7 +12,7 @@ const NAV_CATEGORIES = [
     items: [
       { label: 'Dashboard', page: 'ResearcherDashboard', icon: BarChart2 },
       { label: 'Projects', page: 'ProjectDashboard', icon: Folder },
-      { label: 'Species Search', page: 'Home', icon: Search },
+      { label: 'Species Search', page: 'SpeciesExplorerHub', icon: Search },
     ]
   },
   // Data Management

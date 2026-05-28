@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
@@ -432,7 +431,7 @@ export default function ClimateProjections() {
               <h1 className="text-xl font-bold text-bangor-red">Climate Projections</h1>
               <p className="text-sm text-slate-600">Climate Variable Datasets & Emissions Scenarios</p>
             </div>
-            <Link to={createPageUrl('Home')}>
+            <Link to="/SpeciesExplorerHub">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Home
