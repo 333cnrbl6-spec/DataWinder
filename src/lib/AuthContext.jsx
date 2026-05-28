@@ -71,7 +71,9 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       
       // Check if user just signed up (no tier assigned yet)
-      if (currentUser && !currentUser.tier) {
+      // Use subscription_tier to match what PostSignupOnboarding saves
+      const alreadyOnboarding = window.location.pathname === '/OnboardingFlow';
+      if (currentUser && !currentUser.subscription_tier && !alreadyOnboarding) {
         // Redirect to onboarding flow for new users
         window.location.href = '/OnboardingFlow';
         return;
@@ -93,17 +95,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = (shouldRedirect = true) => {
+  const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
-      base44.auth.logout();
-    }
+    // Redirect to landing page after logout, not back to current page
+    base44.auth.logout('/Landing');
   };
 
   const navigateToLogin = () => {
