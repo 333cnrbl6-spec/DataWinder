@@ -10,12 +10,12 @@ export default function PricingPage() {
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [user, setUser] = useState(null);
-  const [isBangorUser, setIsBangorUser] = useState(false);
+  const [isAcademicUser, setIsAcademicUser] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      setIsBangorUser(u?.email?.endsWith('@bangor.ac.uk'));
+      setIsAcademicUser(u?.email?.endsWith('.ac.uk'));
     }).catch(() => null);
   }, []);
 
@@ -76,7 +76,7 @@ export default function PricingPage() {
             Pricing Built for Research
           </h1>
           <p className="text-xl text-slate-600 mb-8">
-            Free for Bangor University. 14-day trial for everyone else. Then choose the plan that fits your team.
+            Free for UK academic researchers &amp; PSGB members. 14-day trial for everyone else.
           </p>
 
           {/* Billing Toggle */}
@@ -112,10 +112,10 @@ export default function PricingPage() {
           <Card className="hover:shadow-lg transition-all flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Academic</CardTitle>
-              <CardDescription>For Bangor University researchers (@bangor.ac.uk)</CardDescription>
+              <CardDescription>For UK academic researchers &amp; PSGB members</CardDescription>
               <div className="mt-4">
                 <div className="text-4xl font-bold text-slate-900">£0</div>
-                <div className="text-sm text-slate-600 mt-1">Forever free — @bangor.ac.uk email required</div>
+                <div className="text-sm text-slate-600 mt-1">Forever free — any .ac.uk email or PSGB membership</div>
               </div>
             </CardHeader>
 
@@ -125,7 +125,7 @@ export default function PricingPage() {
                 size="lg"
                 onClick={handleFreeTier}
               >
-                {isBangorUser ? 'Go to Dashboard' : 'Sign Up'}
+                {isAcademicUser ? 'Go to Dashboard' : 'Sign Up'}
               </Button>
 
               <div className="space-y-3 flex-1">
