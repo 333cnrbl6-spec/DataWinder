@@ -19,7 +19,7 @@ export default function Landing() {
     });
   }, []);
 
-  const isBangorUser = user?.email?.endsWith('@bangor.ac.uk');
+  const isAcademicUser = user?.email?.endsWith('.ac.uk');
 
   // Demo path — always navigate directly, no login required for demos
   const handleDemo = (demoPath) => {
@@ -95,9 +95,9 @@ export default function Landing() {
               </Button>
             </div>
 
-            {isBangorUser && (
+            {isAcademicUser && (
               <div className="p-4 bg-green-900/30 border border-green-600/50 rounded-lg">
-                <p className="text-sm text-green-300">✓ Bangor University account detected - Free tier activated</p>
+                <p className="text-sm text-green-300">✓ Academic account detected — Free tier activated</p>
               </div>
             )}
           </div>
@@ -291,13 +291,13 @@ export default function Landing() {
       {/* Pricing */}
       <section className="py-20 max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-4">Plans for Every Conservation Need</h2>
-        <p className="text-center text-slate-400 mb-16">Free for Bangor University. 14-day Pro trial for all academic & professional researchers, then £99/month.</p>
+        <p className="text-center text-slate-400 mb-16">Free for UK academic researchers &amp; PSGB members. 14-day Pro trial for everyone else, then £99/month.</p>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Free Academic */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-8 hover:border-slate-600 transition">
             <h3 className="text-2xl font-bold mb-2">Free Academic</h3>
-            <p className="text-slate-400 mb-6">Bangor University (@bangor.ac.uk)</p>
+            <p className="text-slate-400 mb-6">Any .ac.uk email or PSGB membership</p>
             <div className="text-4xl font-bold mb-6">£0<span className="text-lg text-slate-400">/month</span></div>
             <ul className="space-y-3 mb-8 text-sm">
               {[
@@ -314,7 +314,7 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-            {isAuthenticated && isBangorUser ? (
+            {isAuthenticated && isAcademicUser ? (
               <Button disabled className="w-full bg-slate-600">Active Plan</Button>
             ) : (
               <button
@@ -350,7 +350,7 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-            {isAuthenticated && !isBangorUser ? (
+            {isAuthenticated && !isAcademicUser ? (
               <Link to="/Pricing">
                 <Button className="w-full bg-bangor-red hover:bg-bangor-red/90">Upgrade Now</Button>
               </Link>
