@@ -134,11 +134,8 @@ export default function Landing() {
                 boxShadow: '0 4px 24px rgba(0,123,255,0.45)',
               }}
             >
-              Access DataWinder BETA →
+              VIEW Terms and Conditions →
             </button>
-            <p className="text-white/40 text-xs text-center">
-              By continuing, you agree to the Terms & Conditions below
-            </p>
           </div>
         </div>
 
