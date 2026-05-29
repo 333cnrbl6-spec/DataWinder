@@ -122,11 +122,13 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center justify-between gap-2 px-4 py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
           <Link to="/ResearcherDashboard" className="flex items-center flex-1 min-w-0 group">
             {sidebarOpen ? (
-              <img
-                src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
-                alt="DataWinder"
-                className="h-30 w-auto object-contain group-hover:opacity-90 transition-opacity"
-              />
+              <div className="bg-dw-navy rounded-lg px-3 py-2">
+                <img
+                  src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
+                  alt="DataWinder"
+                  className="h-30 w-auto object-contain group-hover:opacity-90 transition-opacity"
+                />
+              </div>
             ) : (
               <div className="w-9 h-9 bg-dw-blue rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
                 <Leaf className="w-5 h-5 text-white" />
