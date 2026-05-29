@@ -1,15 +1,17 @@
 import ReactMarkdown from "react-markdown";
 import { Loader2 } from "lucide-react";
 
-export default function FAQMessage({ message, botAvatar }) {
+export default function FAQMessage({ message, botAvatar, botIcon, botColor }) {
   const isUser = message.role === "user";
 
   return (
     <div className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full overflow-hidden border-2 border-bangor-red/30 shadow-sm">
+        <div className={`shrink-0 w-8 h-8 rounded-full overflow-hidden border-2 border-bangor-red/30 shadow-sm ${botColor || ''}`}>
           {botAvatar ? (
             <img src={botAvatar} alt="Assistant" className="w-full h-full object-cover" />
+          ) : botIcon ? (
+            <div className="w-full h-full flex items-center justify-center">{botIcon}</div>
           ) : (
             <div className="w-full h-full bg-bangor-red flex items-center justify-center text-white text-xs font-bold">
               DW

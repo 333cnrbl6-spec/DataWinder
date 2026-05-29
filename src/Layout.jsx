@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, Database, FolderOpen, MapPin, CloudRain, Layers, Menu, X, Leaf, PackageOpen, FileOutput, BarChart2, ClipboardCheck, LineChart, Map, Users, MessageCircle, Folder, AlertCircle, AlertTriangle, Zap, Sparkles, History, CheckCircle, Download, TrendingUp, Target, Globe, Upload } from 'lucide-react';
 import DataSourceBadges from '@/components/DataSourceBadges';
 import AssistantPanel from '@/components/AssistantPanel';
+import FeedbackBot from '@/components/FeedbackBot';
 import { base44 } from '@/api/base44Client';
 
 const NAV_CATEGORIES = [
@@ -190,6 +191,9 @@ export default function Layout({ children, currentPageName }) {
       {currentPageName !== 'FAQBot' && (
         <AssistantPanel currentPageName={currentPageName} />
       )}
+
+      {/* ── Beta Tester Feedback Bot (bottom-left) ── */}
+      <FeedbackBot currentPageName={currentPageName} />
 
       {/* ── Footer ── */}
       <footer className="bg-white border-t border-slate-200 py-3 text-xs text-slate-400 mt-auto">
