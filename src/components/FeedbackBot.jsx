@@ -235,12 +235,12 @@ export default function FeedbackBot({ currentPageName }) {
         onClick={isOpen ? () => setIsOpen(false) : openPanel}
         onMouseEnter={() => !isOpen && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="w-40 h-40 rounded-full shadow-2xl border-4 border-bangor-red bg-white hover:scale-110 transition-transform duration-200 ring-4 ring-bangor-red/20 flex flex-col items-center justify-center gap-1"
+        className="w-28 h-28 rounded-full shadow-2xl border-4 border-bangor-red bg-white hover:scale-110 transition-transform duration-200 ring-4 ring-bangor-red/20 flex flex-col items-center justify-center gap-0.5 ml-12"
         aria-label="Beta tester feedback"
         style={{ animation: isOpen ? 'none' : 'betaFloat 3s ease-in-out infinite' }}
       >
-        <Wrench className="w-10 h-10 text-bangor-red" />
-        <span className="text-bangor-red text-[10px] font-bold tracking-widest uppercase leading-none">BETA</span>
+        <Wrench className="w-6 h-6 text-bangor-red" />
+        <span className="text-bangor-red text-[7px] font-bold tracking-widest uppercase leading-none">BETA</span>
       </button>
 
       <style>{`

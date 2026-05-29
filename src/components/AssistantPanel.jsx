@@ -326,7 +326,7 @@ export default function AssistantPanel({ currentPageName }) {
         onClick={isOpen ? () => setIsOpen(false) : openPanel}
         onMouseEnter={() => !isOpen && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="w-40 h-40 rounded-full shadow-2xl border-4 border-bangor-red overflow-hidden hover:scale-110 transition-transform duration-200 bg-white ring-4 ring-bangor-red/20"
+        className="w-28 h-28 rounded-full shadow-2xl border-4 border-bangor-red overflow-hidden hover:scale-110 transition-transform duration-200 bg-white ring-4 ring-bangor-red/20"
         aria-label="Toggle assistant"
         style={{ animation: isOpen ? 'none' : 'botFloat 3s ease-in-out infinite' }}
       >
