@@ -125,7 +125,7 @@ export default function Layout({ children, currentPageName }) {
               <img
                 src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
                 alt="DataWinder"
-                className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+                className="h-30 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
             ) : (
               <div className="w-9 h-9 bg-dw-blue rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
