@@ -98,7 +98,7 @@ export default function FeedbackBot({ currentPageName }) {
   );
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
+    <div className="flex flex-col items-center gap-2">
 
       {/* Panel */}
       {isOpen && (
