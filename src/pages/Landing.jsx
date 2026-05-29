@@ -51,7 +51,7 @@ export default function Landing() {
         {/* Logo block */}
         <div className="flex flex-col items-center gap-1">
           <img
-            src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/85dd837e5_Copilot_20260529_104018.png"
+            src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
             alt="DataWinder BETA"
             className="w-72 sm:w-96 object-contain drop-shadow-2xl"
             style={{ filter: 'drop-shadow(0 0 24px rgba(0,123,255,0.35))' }}
@@ -175,7 +175,7 @@ export default function Landing() {
             {/* Modal logo */}
             <div className="flex justify-center mb-4">
               <img
-                src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/85dd837e5_Copilot_20260529_104018.png"
+                src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
                 alt="DataWinder BETA"
                 className="h-14 object-contain"
                 style={{ filter: 'drop-shadow(0 0 12px rgba(0,123,255,0.4))' }}

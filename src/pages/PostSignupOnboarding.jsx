@@ -63,7 +63,7 @@ export default function PostSignupOnboarding() {
         {/* Header */}
         <div className="text-center mb-6">
           <img
-            src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/85dd837e5_Copilot_20260529_104018.png"
+            src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
             alt="DataWinder"
             className="h-12 object-contain mx-auto mb-3"
             style={{ filter: 'drop-shadow(0 0 12px rgba(0,123,255,0.4))' }}

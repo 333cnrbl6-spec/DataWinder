@@ -120,14 +120,16 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Sidebar Header */}
         <div className="flex items-center justify-between gap-2 px-4 py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
-          <Link to="/ResearcherDashboard" className="flex items-center gap-3 flex-1 min-w-0 group">
-            <div className="w-9 h-9 bg-bangor-red rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
-              <Leaf className="w-5 h-5 text-white" />
-            </div>
-            {sidebarOpen && (
-              <div className="min-w-0">
-                <div className="text-sm font-bold text-bangor-red truncate">DataWinder</div>
-                <div className="text-xs text-slate-400 truncate">Conservation</div>
+          <Link to="/ResearcherDashboard" className="flex items-center flex-1 min-w-0 group">
+            {sidebarOpen ? (
+              <img
+                src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
+                alt="DataWinder"
+                className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              />
+            ) : (
+              <div className="w-9 h-9 bg-dw-blue rounded-lg flex items-center justify-center shrink-0 group-hover:opacity-90 transition-opacity">
+                <Leaf className="w-5 h-5 text-white" />
               </div>
             )}
           </Link>
@@ -173,11 +175,12 @@ export default function Layout({ children, currentPageName }) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div className="ml-3 flex items-center gap-2">
-            <div className="w-7 h-7 bg-bangor-red rounded-lg flex items-center justify-center">
-              <Leaf className="w-4 h-4 text-white" />
-            </div>
-            <div className="text-sm font-bold text-bangor-red">DataWinder</div>
+          <div className="ml-3 flex items-center">
+            <img
+              src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
+              alt="DataWinder"
+              className="h-8 w-auto object-contain"
+            />
           </div>
         </div>
 
@@ -194,8 +197,12 @@ export default function Layout({ children, currentPageName }) {
         <div className="px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Leaf className="w-4 h-4 text-bangor-red shrink-0" />
-              <span>© {new Date().getFullYear()} DataWinder</span>
+              <img
+                src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
+                alt="DataWinder"
+                className="h-5 w-auto object-contain opacity-70"
+              />
+              <span>© {new Date().getFullYear()} SynergyFlow Group</span>
             </div>
             <span className="italic">Always cite sources.</span>
           </div>
