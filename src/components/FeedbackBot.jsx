@@ -224,31 +224,29 @@ export default function FeedbackBot({ currentPageName }) {
 
       {/* Tooltip */}
       {!isOpen && showTooltip && (
-        <div className="relative bg-white border-2 border-amber-300 shadow-xl rounded-2xl px-4 py-3 text-xs text-slate-700 max-w-[200px] text-center ml-2">
+        <div className="relative bg-white border border-slate-200 shadow-xl rounded-2xl px-4 py-3 text-xs text-slate-700 max-w-[200px] text-center">
           🚧 Beta tester? Report bugs &amp; ideas here — it's FREE!
-          <div className="absolute bottom-[-6px] left-8 w-3 h-3 bg-white border-r-2 border-b-2 border-amber-300 rotate-45" />
+          <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-slate-200 rotate-45" />
         </div>
       )}
 
-      {/* Trigger button — toolbox/construction style */}
+      {/* Trigger button — themed to match Ollie */}
       <button
         onClick={isOpen ? () => setIsOpen(false) : openPanel}
         onMouseEnter={() => !isOpen && setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="w-14 h-14 rounded-2xl shadow-2xl border-2 border-amber-400 bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 flex items-center justify-center transition-all duration-200 hover:scale-110 ring-4 ring-amber-200"
+        className="w-40 h-40 rounded-full shadow-2xl border-4 border-bangor-red bg-white hover:scale-110 transition-transform duration-200 ring-4 ring-bangor-red/20 flex flex-col items-center justify-center gap-1"
         aria-label="Beta tester feedback"
-        style={{ animation: isOpen ? 'none' : 'toolboxPulse 3s ease-in-out infinite' }}
+        style={{ animation: isOpen ? 'none' : 'betaFloat 3s ease-in-out infinite' }}
       >
-        <div className="flex flex-col items-center gap-0.5">
-          <Wrench className="w-6 h-6 text-white" />
-          <span className="text-white text-[8px] font-bold leading-none">BETA</span>
-        </div>
+        <Wrench className="w-10 h-10 text-bangor-red" />
+        <span className="text-bangor-red text-[10px] font-bold tracking-widest uppercase leading-none">BETA</span>
       </button>
 
       <style>{`
-        @keyframes toolboxPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4), 0 10px 25px rgba(0,0,0,0.2); }
-          50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0), 0 10px 25px rgba(0,0,0,0.2); }
+        @keyframes betaFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
         }
       `}</style>
     </div>
