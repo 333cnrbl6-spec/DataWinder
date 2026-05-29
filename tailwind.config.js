@@ -10,6 +10,11 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			/* DataWinder brand */
+  			'dw-navy': 'hsl(var(--dw-navy))',
+  			'dw-blue': 'hsl(var(--dw-blue))',
+  			'dw-orange': 'hsl(var(--dw-orange))',
+  			/* Legacy aliases */
   			'bangor-red': 'hsl(var(--bangor-red))',
   			'bangor-cardinal': 'hsl(var(--bangor-cardinal))',
   			background: 'hsl(var(--background))',
