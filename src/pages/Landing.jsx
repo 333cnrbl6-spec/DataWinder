@@ -134,7 +134,7 @@ export default function Landing() {
                 boxShadow: '0 4px 24px rgba(0,123,255,0.45)',
               }}
             >
-              VIEW Terms and Conditions →
+              Access DataWinder BETA &#8594;
             </button>
           </div>
         </div>

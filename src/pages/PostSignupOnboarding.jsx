@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CheckCircle2, Zap, Leaf } from 'lucide-react';
+import { CheckCircle2, Zap } from 'lucide-react';
 
-/**
- * Post-signup onboarding page
- * Detects Bangor email domain and assigns tier automatically
- */
 export default function PostSignupOnboarding() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -18,23 +12,18 @@ export default function PostSignupOnboarding() {
   useEffect(() => {
     const checkTierAndOnboard = async () => {
       try {
-        // Get current user
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-
-        // Detect tier based on email domain
         const response = await base44.functions.invoke('detectUserTier', {});
         setTier(response.data.tier);
-
-        // Auto-save tier to user metadata and set trial expiration (14 days from now)
-         if (currentUser) {
-           const trialExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-           await base44.auth.updateMe({ 
-             subscription_tier: response.data.tier,
-             trial_expires_at: trialExpiresAt,
-             subscription_status: 'active'
-           });
-         }
+        if (currentUser) {
+          const trialExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+          await base44.auth.updateMe({
+            subscription_tier: response.data.tier,
+            trial_expires_at: trialExpiresAt,
+            subscription_status: 'active'
+          });
+        }
       } catch (error) {
         console.error('Tier detection failed:', error);
         setTier('free');
@@ -42,14 +31,14 @@ export default function PostSignupOnboarding() {
         setLoading(false);
       }
     };
-
     checkTierAndOnboard();
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-bangor-red rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, #0A1E3F 0%, #0d2a57 100%)' }}>
+        <div className="w-8 h-8 border-4 border-white/20 border-t-[#007BFF] rounded-full animate-spin" />
       </div>
     );
   }
@@ -57,33 +46,52 @@ export default function PostSignupOnboarding() {
   const isBangorUser = user?.email?.endsWith('@bangor.ac.uk');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <Card className="max-w-lg w-full">
-        <CardHeader className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Leaf className="w-8 h-8 text-bangor-red" />
-            <span className="text-2xl font-bold text-bangor-red">DataWinder</span>
-          </div>
-          <CardTitle>
-            {isBangorUser ? 'Welcome to DataWinder' : 'Your 14-Day Trial Starts Now'}
-            </CardTitle>
-            <CardDescription>
-              {isBangorUser
-                ? 'Your Free Academic account is ready'
-                : 'Full Pro access for 14 days — no credit card required'}
-            </CardDescription>
-        </CardHeader>
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #0A1E3F 0%, #0d2a57 100%)',
+        fontFamily: "'Poppins','Inter','Segoe UI',sans-serif",
+      }}
+    >
+      {/* Background glow */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-10 blur-3xl"
+        style={{ background: '#007BFF' }} />
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full opacity-10 blur-3xl"
+        style={{ background: '#FF7A00' }} />
 
-        <CardContent className="space-y-6">
-          {/* Bangor User Path */}
+      <div className="relative z-10 w-full max-w-lg">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <img
+            src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/85dd837e5_Copilot_20260529_104018.png"
+            alt="DataWinder"
+            className="h-12 object-contain mx-auto mb-3"
+            style={{ filter: 'drop-shadow(0 0 12px rgba(0,123,255,0.4))' }}
+          />
+          <h1 className="text-white text-2xl font-bold">
+            {isBangorUser ? 'Welcome to DataWinder' : 'Your 14-Day Trial Starts Now'}
+          </h1>
+          <p className="text-white/60 text-sm mt-1">
+            {isBangorUser
+              ? 'Your Free Academic account is ready'
+              : 'Full Pro access for 14 days — no credit card required'}
+          </p>
+        </div>
+
+        {/* Card */}
+        <div
+          className="rounded-2xl p-6 border border-white/10"
+          style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}
+        >
           {isBangorUser ? (
             <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+              <div className="rounded-xl p-4 border border-green-500/30"
+                style={{ background: 'rgba(34,197,94,0.1)' }}>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-green-900">Free Academic Account Activated</p>
-                    <p className="text-sm text-green-800 mt-1">
+                    <p className="font-semibold text-white">Free Academic Account Activated</p>
+                    <p className="text-sm text-white/70 mt-1">
                       Your @bangor.ac.uk email has been verified. Enjoy unlimited access to core biodiversity tools.
                     </p>
                   </div>
@@ -91,87 +99,98 @@ export default function PostSignupOnboarding() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <p className="font-semibold text-slate-900">Projects</p>
-                  <p className="text-slate-600">Unlimited</p>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <p className="font-semibold text-slate-900">Team Members</p>
-                  <p className="text-slate-600">5+</p>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <p className="font-semibold text-slate-900">SDM Tools</p>
-                  <p className="text-slate-600">Core Suite</p>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <p className="font-semibold text-slate-900">Support</p>
-                  <p className="text-slate-600">Community</p>
-                </div>
+                {[
+                  { label: 'Projects', value: 'Unlimited' },
+                  { label: 'Team Members', value: '5+' },
+                  { label: 'SDM Tools', value: 'Core Suite' },
+                  { label: 'Support', value: 'Community' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-lg p-3 border border-white/10"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <p className="font-semibold text-white text-xs uppercase tracking-wider">{label}</p>
+                    <p className="text-white/70 text-sm mt-0.5">{value}</p>
+                  </div>
+                ))}
               </div>
 
               <button
                 onClick={() => navigate('/ResearcherDashboard')}
-                className="w-full px-4 py-2 bg-bangor-red hover:bg-bangor-red/90 text-white rounded-lg font-semibold transition"
+                className="w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                style={{
+                  background: 'linear-gradient(90deg, #007BFF 0%, #0056CC 100%)',
+                  boxShadow: '0 4px 16px rgba(0,123,255,0.4)',
+                }}
               >
-                Start Using DataWinder →
+                Start Using DataWinder &#8594;
               </button>
 
-              <p className="text-xs text-slate-500 text-center">
+              <p className="text-white/40 text-xs text-center">
                 Want priority support and advanced tools? You can upgrade to Pro at any time.
               </p>
             </div>
           ) : (
-            /* Non-Bangor User Path */
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900">
+              <div className="rounded-xl p-4 border border-[#007BFF]/30"
+                style={{ background: 'rgba(0,123,255,0.08)' }}>
+                <p className="text-sm text-white/80">
                   Welcome! Choose a plan to access DataWinder's biodiversity tools.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <div className="border rounded-lg p-4 space-y-3 hover:bg-slate-50 transition cursor-pointer"
-                  onClick={() => navigate('/Pricing?plan=trial')}>
+                <div
+                  className="border border-white/15 rounded-xl p-4 space-y-3 cursor-pointer transition-all hover:border-[#007BFF]/50"
+                  style={{ background: 'rgba(255,255,255,0.04)' }}
+                  onClick={() => navigate('/Pricing?plan=trial')}
+                >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-semibold text-slate-900">14-Day Trial</p>
-                      <p className="text-sm text-slate-600">Full Pro access for 14 days</p>
+                      <p className="font-semibold text-white">14-Day Trial</p>
+                      <p className="text-sm text-white/60">Full Pro access for 14 days</p>
                     </div>
-                    <p className="text-lg font-bold text-slate-900">£0</p>
+                    <p className="text-lg font-bold text-white">£0</p>
                   </div>
-                  <ul className="text-sm text-slate-600 space-y-1">
-                    <li>✓ Unlimited projects</li>
-                    <li>✓ Advanced SDM tools</li>
-                    <li>✓ Priority support</li>
+                  <ul className="text-sm text-white/70 space-y-1">
+                    <li>&#10003; Unlimited projects</li>
+                    <li>&#10003; Advanced SDM tools</li>
+                    <li>&#10003; Priority support</li>
                   </ul>
                 </div>
 
-                <div className="border-2 border-bangor-red rounded-lg p-4 space-y-3 bg-red-50">
+                <div
+                  className="rounded-xl p-4 space-y-3 border border-[#FF7A00]/40"
+                  style={{ background: 'rgba(255,122,0,0.08)' }}
+                >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-slate-900">Upgrade After Trial</p>
-                        <span className="text-xs bg-bangor-red text-white px-2 py-0.5 rounded">AFTER DAY 14</span>
+                        <p className="font-semibold text-white">Upgrade After Trial</p>
+                        <span className="text-xs px-2 py-0.5 rounded font-semibold"
+                          style={{ background: '#FF7A00', color: 'white' }}>AFTER DAY 14</span>
                       </div>
-                      <p className="text-sm text-slate-600">Continue with Pro at £99/month</p>
+                      <p className="text-sm text-white/60">Continue with Pro at £99/month</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-bangor-red">£99</p>
-                      <p className="text-xs text-slate-600">/month</p>
+                      <p className="text-2xl font-bold" style={{ color: '#FF7A00' }}>£99</p>
+                      <p className="text-xs text-white/50">/month</p>
                     </div>
                   </div>
-                  <ul className="text-sm text-slate-700 space-y-1 font-medium">
-                    <li>✓ Unlimited projects</li>
-                    <li>✓ Advanced SDM tools</li>
-                    <li>✓ Climate projections</li>
-                    <li>✓ API access</li>
+                  <ul className="text-sm text-white/70 space-y-1">
+                    <li>&#10003; Unlimited projects</li>
+                    <li>&#10003; Advanced SDM tools</li>
+                    <li>&#10003; Climate projections</li>
+                    <li>&#10003; API access</li>
                   </ul>
                 </div>
               </div>
 
               <button
                 onClick={() => navigate('/Pricing')}
-                className="w-full px-4 py-2 bg-bangor-red hover:bg-bangor-red/90 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(90deg, #007BFF 0%, #0056CC 100%)',
+                  boxShadow: '0 4px 16px rgba(0,123,255,0.4)',
+                }}
               >
                 <Zap className="w-4 h-4" />
                 Choose a Plan
@@ -179,14 +198,18 @@ export default function PostSignupOnboarding() {
 
               <button
                 onClick={() => navigate('/ResearcherDashboard')}
-                className="w-full px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition"
+                className="w-full py-3 rounded-xl border border-white/20 text-white/70 text-sm font-medium hover:bg-white/10 transition-colors"
               >
                 Explore as Guest
               </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        <p className="text-white/20 text-xs text-center mt-4">
+          &#169; {new Date().getFullYear()} SynergyFlow Group &middot; DataWinder BETA &middot; BASE44 Platform
+        </p>
+      </div>
     </div>
   );
 }
