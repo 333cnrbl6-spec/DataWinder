@@ -124,7 +124,7 @@ export default function Layout({ children, currentPageName }) {
             {sidebarOpen ? (
               <div className="bg-dw-navy rounded-lg px-3 py-2">
                 <img
-                  src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/317bea612_generated_image.png"
+                  src="https://media.base44.com/images/public/69821d606837970a4a3c0ef2/d24c044e9_Copilot_20260529_104018.png"
                   alt="DataWinder"
                   className="h-30 w-auto object-contain group-hover:opacity-90 transition-opacity"
                 />
