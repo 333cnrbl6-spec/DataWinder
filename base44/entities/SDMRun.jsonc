@@ -164,6 +164,11 @@
     "runtime_seconds": {
       "type": "number",
       "description": "Total pipeline runtime in seconds"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

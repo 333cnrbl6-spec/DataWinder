@@ -59,6 +59,11 @@
       "type": "boolean",
       "default": true,
       "description": "Whether this is the current active version"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

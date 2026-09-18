@@ -71,6 +71,11 @@
     "assessment_pdf_url": {
       "type": "string",
       "description": "IUCN Assessment PDF download URL"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

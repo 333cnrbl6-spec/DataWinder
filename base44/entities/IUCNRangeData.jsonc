@@ -45,6 +45,11 @@
     "area_km2": {
       "type": "number",
       "description": "Range area in km\u00b2"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

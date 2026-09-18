@@ -52,6 +52,11 @@
       ],
       "default": "Standard",
       "description": "Membership tier"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

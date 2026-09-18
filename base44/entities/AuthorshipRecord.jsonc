@@ -33,6 +33,11 @@
     "sections_fingerprint": {
       "type": "object",
       "description": "Per-section SHA-256 hashes for granular proof"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [

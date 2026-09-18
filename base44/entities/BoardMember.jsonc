@@ -40,6 +40,11 @@
     "contact_function": {
       "type": "string",
       "description": "Backend function endpoint for agent invocation"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description or notes for this record"
     }
   },
   "required": [
